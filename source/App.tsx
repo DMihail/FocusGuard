@@ -15,6 +15,7 @@ import {
   getInstalledApplications,
   requestUsageStatsPermission,
 } from './specs';
+import { Navigation } from './navigation';
 
 function App() {
   const isDarkMode = useColorScheme() === 'dark';
@@ -38,6 +39,7 @@ function App() {
   return (
     <SafeAreaProvider>
       <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
+      <Navigation />
     </SafeAreaProvider>
   );
 }
