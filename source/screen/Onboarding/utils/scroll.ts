@@ -1,8 +1,11 @@
 /** @format */
 
 import type { RefObject } from 'react';
-import type { FlatList } from 'react-native';
 import type { WalkthroughStepData } from '../data/walkthroughSteps';
+
+export type WalkthroughListRef = RefObject<{
+  scrollToOffset: (options: { offset: number; animated?: boolean }) => void;
+} | null>;
 
 export const clampStepIndex = (index: number, lastStepIndex: number): number =>
   Math.max(0, Math.min(index, lastStepIndex));
@@ -23,7 +26,7 @@ export const createGetItemLayout =
   });
 
 export const createScrollToIndexFailedHandler =
-  (listRef: RefObject<FlatList<WalkthroughStepData> | null>, pageWidth: number) =>
+  (listRef: WalkthroughListRef, pageWidth: number) =>
   ({ index }: { index: number }) => {
     listRef.current?.scrollToOffset({
       offset: index * pageWidth,
