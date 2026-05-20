@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { Pressable, Text } from 'react-native';
+import { testIds } from '../../../testing/testIds';
 import { permissionsStyles } from '../styles';
 
 type PermissionsFooterProps = {
@@ -11,6 +12,7 @@ type PermissionsFooterProps = {
 
 export const PermissionsFooter = ({ canContinue, onContinue }: PermissionsFooterProps) => (
   <Pressable
+    testID={testIds.enablePermissions.continueButton}
     accessibilityRole="button"
     accessibilityLabel="Continue"
     accessibilityState={{ disabled: !canContinue }}

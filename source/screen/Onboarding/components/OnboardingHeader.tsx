@@ -4,6 +4,7 @@ import React from 'react';
 import { Pressable, Text, View } from 'react-native';
 import type { ScrollIndicatorProps } from '../types';
 import { onboardingStyles } from '../styles';
+import { testIds } from '../../../testing/testIds';
 import { ScrollIndicator } from './ScrollIndicator';
 
 type OnboardingHeaderProps = {
@@ -16,6 +17,7 @@ export const OnboardingHeader = ({ indicatorProps, onSkip }: OnboardingHeaderPro
     {indicatorProps ? <ScrollIndicator {...indicatorProps} variant="progress" /> : null}
 
     <Pressable
+      testID={testIds.onboarding.skipButton}
       accessibilityRole="button"
       accessibilityLabel="Skip onboarding"
       hitSlop={8}

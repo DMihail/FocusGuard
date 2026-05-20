@@ -4,11 +4,20 @@ import React from 'react';
 import ReactTestRenderer from 'react-test-renderer';
 
 const mockNavigate = jest.fn();
+const mockSetIsConfirm = jest.fn();
 
 jest.mock('../../../../source/navigation', () => ({
   useRootNavigation: () => ({
     navigate: mockNavigate,
   }),
+}));
+
+jest.mock('../../../../source/store/onboardingStore', () => ({
+  onboardingStore: {
+    getState: () => ({
+      setIsConfirm: mockSetIsConfirm,
+    }),
+  },
 }));
 
 jest.mock('react-native/Libraries/Utilities/useWindowDimensions', () => ({
@@ -27,6 +36,7 @@ const PagerProbe = ({ onReady }: { onReady: (pager: ReturnType<typeof useOnboard
 describe('useOnboardingPager', () => {
   beforeEach(() => {
     mockNavigate.mockClear();
+    mockSetIsConfirm.mockClear();
   });
 
   it('navigates to EnablePermissions when skip is invoked', () => {
@@ -46,6 +56,7 @@ describe('useOnboardingPager', () => {
       pager!.onSkip();
     });
 
+    expect(mockSetIsConfirm).toHaveBeenCalledWith(true);
     expect(mockNavigate).toHaveBeenCalledWith('EnablePermissions');
   });
 });

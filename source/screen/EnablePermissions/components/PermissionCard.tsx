@@ -5,6 +5,7 @@ import { Animated, Pressable, Text, View } from 'react-native';
 import { CheckIcon } from '../../../assets/svg/EnablePermissions';
 import { colors } from '../../../theme';
 import { usePermissionCardAnimation } from '../hooks/usePermissionCardAnimation';
+import { testIds } from '../../../testing/testIds';
 import type { PermissionItem } from '../types';
 import { permissionsStyles } from '../styles';
 
@@ -12,12 +13,12 @@ type PermissionCardProps = PermissionItem & {
   onGrant?: () => void;
 };
 
-export const PermissionCard = ({ title, description, status, Icon, onGrant }: PermissionCardProps) => {
+export const PermissionCard = ({ id, title, description, status, Icon, onGrant }: PermissionCardProps) => {
   const { cardStyle, iconBoxStyle, pendingIconOpacity, grantedIconOpacity, badgeStyle, grantButtonStyle, isGranted } =
     usePermissionCardAnimation(status);
 
   return (
-    <Animated.View style={[permissionsStyles.card, cardStyle]}>
+    <Animated.View style={[permissionsStyles.card, cardStyle]} testID={testIds.enablePermissions.permissionCard(id)}>
       <View style={permissionsStyles.cardRow}>
         <Animated.View style={[permissionsStyles.iconBox, iconBoxStyle]}>
           <Animated.View style={[permissionsStyles.iconLayer, { opacity: pendingIconOpacity }]}>
@@ -32,6 +33,7 @@ export const PermissionCard = ({ title, description, status, Icon, onGrant }: Pe
           <View style={permissionsStyles.cardTitleRow}>
             <Text style={permissionsStyles.cardTitle}>{title}</Text>
             <Animated.View
+              testID={testIds.enablePermissions.grantedBadge(id)}
               style={[permissionsStyles.grantedBadge, badgeStyle]}
               pointerEvents={isGranted ? 'auto' : 'none'}
             >
@@ -47,6 +49,7 @@ export const PermissionCard = ({ title, description, status, Icon, onGrant }: Pe
               pointerEvents={isGranted ? 'none' : 'auto'}
             >
               <Pressable
+                testID={testIds.enablePermissions.grantButton(id)}
                 accessibilityRole="button"
                 accessibilityLabel={`Grant ${title}`}
                 disabled={isGranted}

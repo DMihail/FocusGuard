@@ -3,12 +3,13 @@
 import React from 'react';
 import { Image, Text, View } from 'react-native';
 import { AppUsageStat } from '../../../specs';
+import { testIds } from '../../../testing/testIds';
 import { dashboardStyles } from '../styles';
 
 type DistractingAppRowProps = AppUsageStat;
 
-export const DistractingAppRow = ({ appImage, appName }: DistractingAppRowProps) => (
-  <View style={dashboardStyles.appItem}>
+export const DistractingAppRow = ({ packageName, appImage, appName }: DistractingAppRowProps) => (
+  <View style={dashboardStyles.appItem} testID={testIds.dashboard.appRow(packageName)}>
     <View style={dashboardStyles.appRow}>
       <View style={dashboardStyles.appIconBox}>
         {appImage ? (

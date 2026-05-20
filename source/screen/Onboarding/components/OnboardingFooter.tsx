@@ -4,6 +4,7 @@ import React from 'react';
 import { Pressable, Text, View } from 'react-native';
 import type { ScrollIndicatorProps } from '../types';
 import { onboardingStyles } from '../styles';
+import { testIds } from '../../../testing/testIds';
 import { ScrollIndicator } from './ScrollIndicator';
 
 type OnboardingFooterProps = {
@@ -15,6 +16,7 @@ type OnboardingFooterProps = {
 export const OnboardingFooter = ({ isLastStep, indicatorProps, onContinue }: OnboardingFooterProps) => (
   <View style={onboardingStyles.footer}>
     <Pressable
+      testID={testIds.onboarding.continueButton}
       accessibilityRole="button"
       accessibilityLabel={isLastStep ? 'Get started' : 'Continue'}
       style={onboardingStyles.continueButton}

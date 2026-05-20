@@ -37,6 +37,11 @@ export const readPermissionStatuses = (): Record<PermissionId, PermissionStatus>
   ) as Record<PermissionId, PermissionStatus>;
 };
 
+export const areAllPermissionsGranted = (): boolean => {
+  const statuses = readPermissionStatuses();
+  return PERMISSIONS.every((item) => statuses[item.id] === 'granted');
+};
+
 export const requestPermissionById = (id: PermissionId): void => {
   if (Platform.OS !== 'android') {
     return;

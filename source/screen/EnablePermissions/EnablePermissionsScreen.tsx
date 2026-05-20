@@ -7,6 +7,7 @@ import { useRootNavigation } from '../../navigation';
 import { PermissionCard, PermissionsFooter, PermissionsHeader, PrivacyNotice } from './components';
 import { PERMISSIONS } from './data/permissions';
 import { usePermissionsSync } from './hooks/usePermissionsSync';
+import { testIds } from '../../testing/testIds';
 import { permissionsStyles } from './styles';
 
 export const EnablePermissionsScreen = () => {
@@ -27,11 +28,15 @@ export const EnablePermissionsScreen = () => {
   }, [canContinue, navigation]);
 
   return (
-    <SafeAreaView style={permissionsStyles.screen} edges={['top', 'bottom']}>
-      <ScrollView contentContainerStyle={permissionsStyles.scrollContent} showsVerticalScrollIndicator={false}>
+    <SafeAreaView style={permissionsStyles.screen} edges={['top', 'bottom']} testID={testIds.enablePermissions.screen}>
+      <ScrollView
+        testID={testIds.enablePermissions.scroll}
+        contentContainerStyle={permissionsStyles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
         <PermissionsHeader />
 
-        <View style={permissionsStyles.cards}>
+        <View style={permissionsStyles.cards} testID={testIds.enablePermissions.cards}>
           {permissions.map((item) => (
             <PermissionCard key={item.id} {...item} onGrant={() => handleGrant(item.id)} />
           ))}
