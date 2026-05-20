@@ -12,11 +12,13 @@ import { WALKTHROUGH_STEPS } from '../data/walkthroughSteps';
 import type { WalkthroughStepData } from '../data/walkthroughSteps';
 import type { ScrollIndicatorProps } from '../types';
 import { clampStepIndex, createGetItemLayout, createScrollToIndexFailedHandler, getStepFromOffset } from '../utils';
+import { useRootNavigation } from '../../../navigation';
 
 const STEP_COUNT = WALKTHROUGH_STEPS.length;
 const LAST_STEP_INDEX = STEP_COUNT - 1;
 
 export const useOnboardingPager = () => {
+  const navigation = useRootNavigation();
   const { width: windowWidth } = useWindowDimensions();
   const listRef = useRef<FlatList<WalkthroughStepData>>(null);
   const scrollX = useRef(new Animated.Value(0)).current;
@@ -61,11 +63,16 @@ export const useOnboardingPager = () => {
     });
   }, []);
 
+  const onSkip = useCallback(() => {
+    navigation.navigate('EnablePermissions');
+  }, [navigation]);
+
   const handleContinue = useCallback(() => {
     if (!isLastStep) {
-      goToStep(step + 1);
+      return goToStep(step + 1);
     }
-  }, [goToStep, isLastStep, step]);
+    onSkip();
+  }, [goToStep, isLastStep, onSkip, step]);
 
   const handlePagerLayout = useCallback((width: number) => {
     if (width > 0) {
@@ -91,5 +98,6 @@ export const useOnboardingPager = () => {
     handlePagerLayout,
     getItemLayout,
     handleScrollToIndexFailed,
+    onSkip,
   };
 };
