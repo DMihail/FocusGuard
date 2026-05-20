@@ -26,8 +26,6 @@ export const EnablePermissionsScreen = () => {
   const canContinue = permissions.every((item) => item.status === 'granted');
 
   const handleGrant = useCallback((id: string) => {
-    console.log(id, checkForPermission());
-
     if (id === 'usage-access') {
       if (!checkForPermission()) {
         const permission = checkForQueryAllPackagesPermission();

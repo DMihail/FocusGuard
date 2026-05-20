@@ -19,6 +19,7 @@ const mockPager: {
   handlePagerLayout: jest.Mock;
   getItemLayout: jest.Mock;
   handleScrollToIndexFailed: jest.Mock;
+  onSkip: jest.Mock;
 } = {
   listRef: { current: null },
   steps: [{ id: 'focus' }, { id: 'limits' }, { id: 'habits' }],
@@ -33,6 +34,7 @@ const mockPager: {
   handlePagerLayout: jest.fn(),
   getItemLayout: jest.fn(),
   handleScrollToIndexFailed: jest.fn(),
+  onSkip: jest.fn(),
 };
 
 jest.mock('react-native-safe-area-context', () => {
@@ -63,6 +65,7 @@ import { OnboardingScreen } from '../../../source/screen/Onboarding/OnboardingSc
 
 describe('OnboardingScreen', () => {
   beforeEach(() => {
+    jest.clearAllMocks();
     mockPager.isPagerReady = true;
     mockPager.indicatorProps = { count: 3, scrollX: new Animated.Value(0), pageWidth: 390 };
   });
@@ -89,5 +92,19 @@ describe('OnboardingScreen', () => {
     });
 
     expect(tree!.root.findAllByProps({ testID: 'walkthrough-pager' })).toHaveLength(0);
+  });
+
+  it('passes onSkip to the header', () => {
+    let tree: ReactTestRenderer.ReactTestRenderer;
+
+    ReactTestRenderer.act(() => {
+      tree = ReactTestRenderer.create(<OnboardingScreen />);
+    });
+
+    ReactTestRenderer.act(() => {
+      tree!.root.findByProps({ accessibilityLabel: 'Skip onboarding' }).props.onPress();
+    });
+
+    expect(mockPager.onSkip).toHaveBeenCalledTimes(1);
   });
 });
