@@ -22,4 +22,5 @@ export const colors = {
   privacyBackground: 'rgba(33, 31, 38, 0.3)',
   privacyBorder: 'rgba(255, 255, 255, 0.06)',
   buttonDisabled: 'rgba(255, 255, 255, 0.06)',
+  appIconBackground: 'rgba(73, 69, 79, 0.4)',
 } as const;

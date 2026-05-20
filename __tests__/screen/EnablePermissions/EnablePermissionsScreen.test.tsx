@@ -2,14 +2,32 @@
 
 import React from 'react';
 import ReactTestRenderer from 'react-test-renderer';
-import { LayoutAnimation } from 'react-native';
+import { AppState, Platform } from 'react-native';
 
+const mockNavigate = jest.fn();
 const mockCheckForPermission = jest.fn();
-const mockCheckForQueryAllPackagesPermission = jest.fn();
+const mockCheckForDisplayOverAppsPermission = jest.fn();
+const mockCheckForNotificationsPermission = jest.fn();
+const mockRequestUsageStatsPermission = jest.fn();
+const mockRequestDisplayOverAppsPermission = jest.fn();
+const mockRequestNotificationsPermission = jest.fn();
+
+let appStateListener: ((state: string) => void) | undefined;
+const mockRemoveAppStateListener = jest.fn();
+
+jest.mock('../../../source/navigation', () => ({
+  useRootNavigation: () => ({
+    navigate: mockNavigate,
+  }),
+}));
 
 jest.mock('../../../source/specs', () => ({
   checkForPermission: (...args: unknown[]) => mockCheckForPermission(...args),
-  checkForQueryAllPackagesPermission: (...args: unknown[]) => mockCheckForQueryAllPackagesPermission(...args),
+  checkForDisplayOverAppsPermission: (...args: unknown[]) => mockCheckForDisplayOverAppsPermission(...args),
+  checkForNotificationsPermission: (...args: unknown[]) => mockCheckForNotificationsPermission(...args),
+  requestUsageStatsPermission: (...args: unknown[]) => mockRequestUsageStatsPermission(...args),
+  requestDisplayOverAppsPermission: (...args: unknown[]) => mockRequestDisplayOverAppsPermission(...args),
+  requestNotificationsPermission: (...args: unknown[]) => mockRequestNotificationsPermission(...args),
 }));
 
 jest.mock('react-native-safe-area-context', () => {
@@ -32,20 +50,33 @@ jest.mock('../../../source/screen/EnablePermissions/hooks/usePermissionCardAnima
   }),
 }));
 
+jest.spyOn(AppState, 'addEventListener').mockImplementation((_, listener) => {
+  appStateListener = listener as (state: string) => void;
+  return { remove: mockRemoveAppStateListener };
+});
+
 import { EnablePermissionsScreen } from '../../../source/screen/EnablePermissions/EnablePermissionsScreen';
 
+const grantAllNativePermissions = () => {
+  mockCheckForPermission.mockReturnValue(true);
+  mockCheckForDisplayOverAppsPermission.mockReturnValue(true);
+  mockCheckForNotificationsPermission.mockReturnValue(true);
+};
+
 describe('EnablePermissionsScreen', () => {
-  const configureNextSpy = jest.spyOn(LayoutAnimation, 'configureNext').mockImplementation(() => undefined);
-  const consoleLogSpy = jest.spyOn(console, 'log').mockImplementation(() => undefined);
+  const originalPlatform = Platform.OS;
 
   beforeEach(() => {
     jest.clearAllMocks();
-    mockCheckForPermission.mockReturnValue(true);
-    mockCheckForQueryAllPackagesPermission.mockReturnValue(true);
+    Object.defineProperty(Platform, 'OS', { configurable: true, value: 'android' });
+    appStateListener = undefined;
+    mockCheckForPermission.mockReturnValue(false);
+    mockCheckForDisplayOverAppsPermission.mockReturnValue(false);
+    mockCheckForNotificationsPermission.mockReturnValue(false);
   });
 
   afterAll(() => {
-    consoleLogSpy.mockRestore();
+    Object.defineProperty(Platform, 'OS', { configurable: true, value: originalPlatform });
   });
 
   it('renders header, permission cards, privacy notice, and footer', () => {
@@ -77,7 +108,37 @@ describe('EnablePermissionsScreen', () => {
     expect(tree!.root.findByProps({ accessibilityLabel: 'Continue' }).props.disabled).toBe(true);
   });
 
-  it('enables Continue after all grant buttons are pressed', () => {
+  it('opens overlay settings when Display Over Apps grant is pressed', () => {
+    let tree: ReactTestRenderer.ReactTestRenderer;
+
+    ReactTestRenderer.act(() => {
+      tree = ReactTestRenderer.create(<EnablePermissionsScreen />);
+    });
+
+    ReactTestRenderer.act(() => {
+      tree!.root.findByProps({ accessibilityLabel: 'Grant Display Over Apps' }).props.onPress();
+    });
+
+    expect(mockRequestDisplayOverAppsPermission).toHaveBeenCalledTimes(1);
+    expect(mockRequestUsageStatsPermission).not.toHaveBeenCalled();
+  });
+
+  it('opens notification settings when Notifications grant is pressed', () => {
+    let tree: ReactTestRenderer.ReactTestRenderer;
+
+    ReactTestRenderer.act(() => {
+      tree = ReactTestRenderer.create(<EnablePermissionsScreen />);
+    });
+
+    ReactTestRenderer.act(() => {
+      tree!.root.findByProps({ accessibilityLabel: 'Grant Notifications' }).props.onPress();
+    });
+
+    expect(mockRequestNotificationsPermission).toHaveBeenCalledTimes(1);
+    expect(mockRequestUsageStatsPermission).not.toHaveBeenCalled();
+  });
+
+  it('opens system settings on grant and syncs status on AppState active', () => {
     let tree: ReactTestRenderer.ReactTestRenderer;
 
     ReactTestRenderer.act(() => {
@@ -86,17 +147,21 @@ describe('EnablePermissionsScreen', () => {
 
     ReactTestRenderer.act(() => {
       tree!.root.findByProps({ accessibilityLabel: 'Grant Usage Access' }).props.onPress();
-      tree!.root.findByProps({ accessibilityLabel: 'Grant Display Over Apps' }).props.onPress();
-      tree!.root.findByProps({ accessibilityLabel: 'Grant Notifications' }).props.onPress();
+    });
+
+    expect(mockRequestUsageStatsPermission).toHaveBeenCalledTimes(1);
+    expect(tree!.root.findByProps({ accessibilityLabel: 'Continue' }).props.disabled).toBe(true);
+
+    grantAllNativePermissions();
+
+    ReactTestRenderer.act(() => {
+      appStateListener?.('active');
     });
 
     expect(tree!.root.findByProps({ accessibilityLabel: 'Continue' }).props.disabled).toBe(false);
   });
 
-  it('does not grant usage access when required native permissions are missing', () => {
-    mockCheckForPermission.mockReturnValue(false);
-    mockCheckForQueryAllPackagesPermission.mockReturnValue(false);
-
+  it('removes AppState listener on unmount', () => {
     let tree: ReactTestRenderer.ReactTestRenderer;
 
     ReactTestRenderer.act(() => {
@@ -104,14 +169,15 @@ describe('EnablePermissionsScreen', () => {
     });
 
     ReactTestRenderer.act(() => {
-      tree!.root.findByProps({ accessibilityLabel: 'Grant Usage Access' }).props.onPress();
+      tree!.unmount();
     });
 
-    expect(configureNextSpy).not.toHaveBeenCalled();
-    expect(tree!.root.findByProps({ accessibilityLabel: 'Continue' }).props.disabled).toBe(true);
+    expect(mockRemoveAppStateListener).toHaveBeenCalledTimes(1);
   });
 
-  it('configures layout animation when a permission is granted', () => {
+  it('navigates to Dashboard when Continue is pressed and all permissions are granted', () => {
+    grantAllNativePermissions();
+
     let tree: ReactTestRenderer.ReactTestRenderer;
 
     ReactTestRenderer.act(() => {
@@ -119,9 +185,9 @@ describe('EnablePermissionsScreen', () => {
     });
 
     ReactTestRenderer.act(() => {
-      tree!.root.findByProps({ accessibilityLabel: 'Grant Display Over Apps' }).props.onPress();
+      tree!.root.findByProps({ accessibilityLabel: 'Continue' }).props.onPress();
     });
 
-    expect(configureNextSpy).toHaveBeenCalled();
+    expect(mockNavigate).toHaveBeenCalledWith('Dashboard');
   });
 });

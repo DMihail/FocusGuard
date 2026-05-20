@@ -1,0 +1,176 @@
+/** @format */
+
+import React from 'react';
+import ReactTestRenderer from 'react-test-renderer';
+import { AppState, LayoutAnimation } from 'react-native';
+import type { PermissionId, PermissionStatus } from '../../../../source/screen/EnablePermissions/types';
+
+const mockReadPermissionStatuses = jest.fn<Record<PermissionId, PermissionStatus>, []>();
+const mockRequestPermissionById = jest.fn();
+
+jest.mock('../../../../source/screen/EnablePermissions/utils/permissionStatus', () => ({
+  readPermissionStatuses: () => mockReadPermissionStatuses(),
+  requestPermissionById: (id: PermissionId) => mockRequestPermissionById(id),
+}));
+
+import { usePermissionsSync } from '../../../../source/screen/EnablePermissions/hooks/usePermissionsSync';
+
+const pendingStatuses: Record<PermissionId, PermissionStatus> = {
+  'usage-access': 'pending',
+  'display-over-apps': 'pending',
+  notifications: 'pending',
+};
+
+const grantedStatuses: Record<PermissionId, PermissionStatus> = {
+  'usage-access': 'granted',
+  'display-over-apps': 'granted',
+  notifications: 'granted',
+};
+
+let appStateListener: ((state: string) => void) | undefined;
+const mockRemoveAppStateListener = jest.fn();
+
+const PermissionsProbe = ({
+  onReady,
+}: {
+  onReady: (value: ReturnType<typeof usePermissionsSync>) => void;
+}) => {
+  const value = usePermissionsSync();
+  onReady(value);
+  return null;
+};
+
+describe('usePermissionsSync', () => {
+  const configureNextSpy = jest.spyOn(LayoutAnimation, 'configureNext').mockImplementation(() => undefined);
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    appStateListener = undefined;
+    mockReadPermissionStatuses.mockReturnValue(pendingStatuses);
+
+    jest.spyOn(AppState, 'addEventListener').mockImplementation((_, listener) => {
+      appStateListener = listener as (state: string) => void;
+      return { remove: mockRemoveAppStateListener };
+    });
+  });
+
+  afterAll(() => {
+    configureNextSpy.mockRestore();
+  });
+
+  it('initializes statuses from readPermissionStatuses', () => {
+    let hook: ReturnType<typeof usePermissionsSync> | undefined;
+
+    ReactTestRenderer.act(() => {
+      ReactTestRenderer.create(
+        <PermissionsProbe
+          onReady={(value) => {
+            hook = value;
+          }}
+        />,
+      );
+    });
+
+    expect(mockReadPermissionStatuses).toHaveBeenCalled();
+    expect(hook!.statusById).toEqual(pendingStatuses);
+  });
+
+  it('syncs statuses when AppState becomes active', () => {
+    let hook: ReturnType<typeof usePermissionsSync> | undefined;
+
+    ReactTestRenderer.act(() => {
+      ReactTestRenderer.create(
+        <PermissionsProbe
+          onReady={(value) => {
+            hook = value;
+          }}
+        />,
+      );
+    });
+
+    mockReadPermissionStatuses.mockReturnValue(grantedStatuses);
+
+    ReactTestRenderer.act(() => {
+      appStateListener?.('active');
+    });
+
+    expect(hook!.statusById).toEqual(grantedStatuses);
+  });
+
+  it('does not sync when AppState is not active', () => {
+    ReactTestRenderer.act(() => {
+      ReactTestRenderer.create(<PermissionsProbe onReady={() => undefined} />);
+    });
+
+    const callsBefore = mockReadPermissionStatuses.mock.calls.length;
+
+    ReactTestRenderer.act(() => {
+      appStateListener?.('background');
+    });
+
+    expect(mockReadPermissionStatuses).toHaveBeenCalledTimes(callsBefore);
+  });
+
+  it('calls requestPermissionById from handleGrant', () => {
+    let hook: ReturnType<typeof usePermissionsSync> | undefined;
+
+    ReactTestRenderer.act(() => {
+      ReactTestRenderer.create(
+        <PermissionsProbe
+          onReady={(value) => {
+            hook = value;
+          }}
+        />,
+      );
+    });
+
+    ReactTestRenderer.act(() => {
+      hook!.handleGrant('notifications');
+    });
+
+    expect(mockRequestPermissionById).toHaveBeenCalledWith('notifications');
+  });
+
+  it('triggers layout animation when statuses change on sync', () => {
+    ReactTestRenderer.act(() => {
+      ReactTestRenderer.create(<PermissionsProbe onReady={() => undefined} />);
+    });
+
+    configureNextSpy.mockClear();
+    mockReadPermissionStatuses.mockReturnValue(grantedStatuses);
+
+    ReactTestRenderer.act(() => {
+      appStateListener?.('active');
+    });
+
+    expect(configureNextSpy).toHaveBeenCalled();
+  });
+
+  it('does not trigger layout animation when statuses stay the same', () => {
+    ReactTestRenderer.act(() => {
+      ReactTestRenderer.create(<PermissionsProbe onReady={() => undefined} />);
+    });
+
+    configureNextSpy.mockClear();
+
+    ReactTestRenderer.act(() => {
+      appStateListener?.('active');
+    });
+
+    expect(configureNextSpy).not.toHaveBeenCalled();
+  });
+
+  it('removes AppState listener on unmount', () => {
+    let tree: ReactTestRenderer.ReactTestRenderer;
+
+    ReactTestRenderer.act(() => {
+      tree = ReactTestRenderer.create(<PermissionsProbe onReady={() => undefined} />);
+    });
+
+    ReactTestRenderer.act(() => {
+      tree!.unmount();
+    });
+
+    expect(mockRemoveAppStateListener).toHaveBeenCalledTimes(1);
+  });
+});

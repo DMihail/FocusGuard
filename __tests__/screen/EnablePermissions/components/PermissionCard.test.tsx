@@ -19,7 +19,7 @@ jest.mock('../../../../source/screen/EnablePermissions/hooks/usePermissionCardAn
 
 describe('PermissionCard', () => {
   const baseProps = {
-    id: 'usage-access',
+    id: 'usage-access' as const,
     title: 'Usage Access',
     description: 'Required to track app usage and enforce limits',
     Icon: UsageAccess,
