@@ -1,7 +1,7 @@
 /** @format */
 
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { EnablePermissionsScreen, OnboardingScreen } from '../screen';
+import { DashboardScreen, EnablePermissionsScreen, OnboardingScreen } from '../screen';
 
 export const RootStack = createNativeStackNavigator({
   initialRouteName: 'Onboarding',
@@ -14,6 +14,12 @@ export const RootStack = createNativeStackNavigator({
     },
     EnablePermissions: {
       screen: EnablePermissionsScreen,
+      options: {
+        headerShown: false,
+      },
+    },
+    Dashboard: {
+      screen: DashboardScreen,
       options: {
         headerShown: false,
       },

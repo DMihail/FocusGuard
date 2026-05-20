@@ -1,9 +1,4 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
+/** @format */
 
 import { Platform, StatusBar, UIManager, useColorScheme } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';

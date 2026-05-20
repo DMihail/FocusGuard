@@ -7,6 +7,9 @@ import android.app.usage.UsageStatsManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.drawable.BitmapDrawable
@@ -62,6 +65,10 @@ class NativeUsageStatsModule(reactContext: ReactApplicationContext) :
 
   override fun checkForQueryAllPackagesPermission(): Boolean = hasQueryAllPackagesPermission()
 
+  override fun checkForDisplayOverAppsPermission(): Boolean = hasDisplayOverAppsPermission()
+
+  override fun checkForNotificationsPermission(): Boolean = hasNotificationsPermission()
+
   override fun requestUsageStatsPermission() {
     if (hasUsageStatsPermission()) {
       return
@@ -71,6 +78,47 @@ class NativeUsageStatsModule(reactContext: ReactApplicationContext) :
           flags = Intent.FLAG_ACTIVITY_NEW_TASK
         }
     reactApplicationContext.startActivity(intent)
+  }
+
+  override fun requestDisplayOverAppsPermission() {
+    if (hasDisplayOverAppsPermission()) {
+      return
+    }
+
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+      return
+    }
+
+    val context = reactApplicationContext
+    val intent =
+        Intent(
+                Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                Uri.parse("package:${context.packageName}"),
+            )
+            .apply {
+              flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            }
+    context.startActivity(intent)
+  }
+
+  override fun requestNotificationsPermission() {
+    if (hasNotificationsPermission()) {
+      return
+    }
+
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+      val activity = reactApplicationContext.currentActivity
+      if (activity != null) {
+        ActivityCompat.requestPermissions(
+            activity,
+            arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+            REQUEST_CODE_POST_NOTIFICATIONS,
+        )
+        return
+      }
+    }
+
+    openNotificationSettings()
   }
 
   override fun getInstalledApplications(): WritableArray {
@@ -165,6 +213,36 @@ class NativeUsageStatsModule(reactContext: ReactApplicationContext) :
         PackageManager.PERMISSION_GRANTED
   }
 
+  private fun hasDisplayOverAppsPermission(): Boolean {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+      return true
+    }
+
+    return Settings.canDrawOverlays(reactApplicationContext)
+  }
+
+  private fun hasNotificationsPermission(): Boolean {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+      return true
+    }
+
+    return ContextCompat.checkSelfPermission(
+        reactApplicationContext,
+        Manifest.permission.POST_NOTIFICATIONS,
+    ) == PackageManager.PERMISSION_GRANTED
+  }
+
+  private fun openNotificationSettings() {
+    val context = reactApplicationContext
+    val intent =
+        Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
+          putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
+          flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        }
+
+    context.startActivity(intent)
+  }
+
   private fun hasUsageStatsPermission(): Boolean {
     val context = reactApplicationContext
     val appOps = context.getSystemService(AppOpsManager::class.java) ?: return false
@@ -228,5 +306,6 @@ class NativeUsageStatsModule(reactContext: ReactApplicationContext) :
 
   companion object {
     const val NAME = NativeUsageStatsSpec.NAME
+    private const val REQUEST_CODE_POST_NOTIFICATIONS = 1001
   }
 }

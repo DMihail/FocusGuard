@@ -3,7 +3,11 @@
 const mockUsageStats = {
   checkForPermission: jest.fn(),
   checkForQueryAllPackagesPermission: jest.fn(),
+  checkForDisplayOverAppsPermission: jest.fn(),
+  checkForNotificationsPermission: jest.fn(),
   requestUsageStatsPermission: jest.fn(),
+  requestDisplayOverAppsPermission: jest.fn(),
+  requestNotificationsPermission: jest.fn(),
   getAppsUsageStats: jest.fn(),
   getInstalledApplications: jest.fn(),
 };
@@ -56,6 +60,24 @@ describe('NativeUsageStats', () => {
     expect(mockUsageStats.requestUsageStatsPermission).toHaveBeenCalledTimes(1);
   });
 
+  it('delegates display over apps permission checks and requests', () => {
+    mockUsageStats.checkForDisplayOverAppsPermission.mockReturnValue(true);
+    const specs = loadSpecs();
+
+    expect(specs.checkForDisplayOverAppsPermission()).toBe(true);
+    specs.requestDisplayOverAppsPermission();
+    expect(mockUsageStats.requestDisplayOverAppsPermission).toHaveBeenCalledTimes(1);
+  });
+
+  it('delegates notifications permission checks and requests', () => {
+    mockUsageStats.checkForNotificationsPermission.mockReturnValue(true);
+    const specs = loadSpecs();
+
+    expect(specs.checkForNotificationsPermission()).toBe(true);
+    specs.requestNotificationsPermission();
+    expect(mockUsageStats.requestNotificationsPermission).toHaveBeenCalledTimes(1);
+  });
+
   it('returns usage stats from the native module', () => {
     const stats = [{ packageName: 'com.app', appName: 'App', appImage: '', totalTimeForeground: 1, lastTimeUsed: 2 }];
     mockUsageStats.getAppsUsageStats.mockReturnValue(stats);
@@ -78,8 +100,12 @@ describe('NativeUsageStats', () => {
 
     expect(specs.checkForPermission()).toBe(false);
     expect(specs.checkForQueryAllPackagesPermission()).toBe(false);
+    expect(specs.checkForDisplayOverAppsPermission()).toBe(false);
+    expect(specs.checkForNotificationsPermission()).toBe(false);
     expect(specs.getAppsUsageStats()).toEqual([]);
     expect(specs.getInstalledApplications()).toEqual([]);
     expect(() => specs.requestUsageStatsPermission()).not.toThrow();
+    expect(() => specs.requestDisplayOverAppsPermission()).not.toThrow();
+    expect(() => specs.requestNotificationsPermission()).not.toThrow();
   });
 });
