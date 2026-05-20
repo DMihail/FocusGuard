@@ -12,7 +12,7 @@ export const OnboardingScreen = () => {
 
   return (
     <SafeAreaView style={onboardingStyles.screen} edges={['top', 'bottom']}>
-      <OnboardingHeader indicatorProps={pager.indicatorProps} />
+      <OnboardingHeader indicatorProps={pager.indicatorProps} onSkip={pager.onSkip} />
 
       <View
         style={onboardingStyles.pagerContainer}

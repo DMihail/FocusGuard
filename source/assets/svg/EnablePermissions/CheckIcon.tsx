@@ -1,0 +1,16 @@
+/** @format */
+
+import * as React from 'react';
+import Svg, { Path, SvgProps } from 'react-native-svg';
+
+export const CheckIcon = (props: SvgProps) => (
+  <Svg width={12} height={9} viewBox="0 0 12 9" fill="none" {...props}>
+    <Path
+      d="M10.2074 0.874939L3.79132 7.29106L0.874908 4.37464"
+      stroke="white"
+      strokeWidth={1.75}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </Svg>
+);
