@@ -6,4 +6,3 @@ export const Navigation = RootNavigationGate;
 
 export { useRootNavigation } from './hooks';
 export type { RootNavigationProp, RootStackParamList } from './types';
-export type { RootStackType } from './RootStack';

@@ -71,12 +71,6 @@ export const textPresets = {
     color: colors.textMuted,
     textAlign: 'center',
   } satisfies TextStyle,
-  iconFallback: {
-    fontFamily: fontFamily.inter,
-    fontSize: fontSize.xl,
-    fontWeight: fontWeight.medium,
-    color: colors.textPrimary,
-  } satisfies TextStyle,
   iconFallbackLg: {
     fontFamily: fontFamily.inter,
     fontSize: fontSize.xxl,

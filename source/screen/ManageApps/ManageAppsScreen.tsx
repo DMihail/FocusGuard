@@ -28,7 +28,12 @@ export const ManageAppsScreen = () => {
     navigation.goBack();
   }, [navigation]);
   return (
-    <SafeAreaView style={manageAppsStyles.screen} edges={['top', 'bottom']} testID={testIds.manageApps.screen}>
+    <SafeAreaView
+      style={manageAppsStyles.screen}
+      edges={['top', 'bottom']}
+      testID={testIds.manageApps.screen}
+      accessibilityLabel="Manage apps screen"
+    >
       <ManageAppsHeader selectedCount={selectedCount} onBack={handleBack} />
       <ScrollView
         testID={testIds.manageApps.scroll}

@@ -29,6 +29,7 @@ export const CategoryFilters = ({ filters, activeCategoryId, onCategoryChange }:
             key={category.id}
             testID={testIds.manageApps.categoryFilter(category.id)}
             accessibilityRole="button"
+            accessibilityLabel={`Category filter ${category.label}`}
             accessibilityState={{ selected: isActive }}
             style={[manageAppsStyles.filterChip, isActive && manageAppsStyles.filterChipActive]}
             onPress={() => onCategoryChange(category.id)}

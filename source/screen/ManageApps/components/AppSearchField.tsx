@@ -17,6 +17,7 @@ export const AppSearchField = ({ value, onChangeText }: AppSearchFieldProps) => 
     <SearchIcon />
     <TextInput
       testID={testIds.manageApps.searchInput}
+      accessibilityLabel="Search apps"
       value={value}
       onChangeText={onChangeText}
       placeholder="Search apps..."
