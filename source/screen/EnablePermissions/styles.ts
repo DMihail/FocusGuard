@@ -1,19 +1,7 @@
 /** @format */
 
 import { StyleSheet } from 'react-native';
-import {
-  borderRadius,
-  colors,
-  fontSize,
-  fontWeight,
-  iconBoxPresets,
-  layoutPresets,
-  letterSpacing,
-  lineHeight,
-  spacing,
-  textPresets,
-  typography,
-} from '../../theme';
+import { borderRadius, colors, iconBoxPresets, layoutPresets, spacing, textPresets, typography } from '../../theme';
 
 export const permissionsStyles = StyleSheet.create({
   screen: layoutPresets.screen,
@@ -22,14 +10,7 @@ export const permissionsStyles = StyleSheet.create({
     gap: spacing.md,
     paddingTop: spacing.sm,
   },
-  title: {
-    fontFamily: typography.title.fontFamily,
-    fontSize: fontSize.display,
-    fontWeight: fontWeight.bold,
-    lineHeight: lineHeight.display,
-    letterSpacing: letterSpacing.tightLg,
-    color: colors.textPrimary,
-  },
+  title: textPresets.displayTitle,
   subtitle: {
     ...typography.body,
     color: colors.textMuted,
@@ -69,14 +50,7 @@ export const permissionsStyles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  cardDescription: {
-    fontFamily: typography.body.fontFamily,
-    fontSize: fontSize.sm,
-    fontWeight: fontWeight.regular,
-    lineHeight: 23,
-    letterSpacing: letterSpacing.tightXs,
-    color: colors.textMuted,
-  },
+  cardDescription: textPresets.captionMuted,
   grantButtonContainer: {
     overflow: 'hidden',
     alignSelf: 'flex-start',
@@ -96,12 +70,7 @@ export const permissionsStyles = StyleSheet.create({
     padding: 20,
   },
   privacyText: {
-    fontFamily: typography.body.fontFamily,
-    fontSize: fontSize.sm,
-    fontWeight: fontWeight.regular,
-    lineHeight: 23,
-    letterSpacing: letterSpacing.tightXs,
-    color: colors.textMuted,
+    ...textPresets.captionMuted,
     textAlign: 'center',
   },
   footer: {

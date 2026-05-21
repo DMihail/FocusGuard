@@ -4,7 +4,7 @@ import type { TextStyle, ViewStyle } from 'react-native';
 import { borderRadius } from './borderRadius';
 import { colors } from './colors';
 import { spacing } from './spacing';
-import { fontFamily, fontSize, fontWeight, typography } from './typography';
+import { typography } from './typography';
 
 export const layoutPresets = {
   screen: {
@@ -62,9 +62,21 @@ export const textPresets = {
     ...typography.heading,
     color: colors.textPrimary,
   } satisfies TextStyle,
+  displayTitle: {
+    ...typography.display,
+    color: colors.textPrimary,
+  } satisfies TextStyle,
   accentButton: {
     ...typography.button,
     color: colors.accent,
+  } satisfies TextStyle,
+  searchInput: {
+    ...typography.input,
+    color: colors.textPrimary,
+  } satisfies TextStyle,
+  captionMuted: {
+    ...typography.caption,
+    color: colors.textMuted,
   } satisfies TextStyle,
   empty: {
     ...typography.body,
@@ -72,9 +84,7 @@ export const textPresets = {
     textAlign: 'center',
   } satisfies TextStyle,
   iconFallbackLg: {
-    fontFamily: fontFamily.inter,
-    fontSize: fontSize.xxl,
-    fontWeight: fontWeight.medium,
+    ...typography.iconFallback,
     color: colors.textPrimary,
   } satisfies TextStyle,
 } as const;
