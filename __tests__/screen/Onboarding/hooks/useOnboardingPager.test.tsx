@@ -6,13 +6,13 @@ import ReactTestRenderer from 'react-test-renderer';
 const mockNavigate = jest.fn();
 const mockSetIsConfirm = jest.fn();
 
-jest.mock('../../../../source/navigation', () => ({
+jest.mock('@/navigation', () => ({
   useRootNavigation: () => ({
     navigate: mockNavigate,
   }),
 }));
 
-jest.mock('../../../../source/store/onboardingStore', () => ({
+jest.mock('@/store/onboardingStore', () => ({
   onboardingStore: {
     getState: () => ({
       setIsConfirm: mockSetIsConfirm,
@@ -25,7 +25,7 @@ jest.mock('react-native/Libraries/Utilities/useWindowDimensions', () => ({
   default: () => ({ width: 390, height: 844, scale: 2, fontScale: 2 }),
 }));
 
-import { useOnboardingPager } from '../../../../source/screen/Onboarding/hooks/useOnboardingPager';
+import { useOnboardingPager } from '@/screen/Onboarding/hooks/useOnboardingPager';
 
 const PagerProbe = ({ onReady }: { onReady: (pager: ReturnType<typeof useOnboardingPager>) => void }) => {
   const pager = useOnboardingPager();

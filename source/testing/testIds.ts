@@ -1,6 +1,6 @@
 /** @format */
 
-import type { PermissionId } from '../screen/EnablePermissions/types';
+import type { PermissionId } from '@/screen/EnablePermissions/types';
 
 const toSegment = (value: string) => value.replace(/[^a-zA-Z0-9-_]/g, '-');
 

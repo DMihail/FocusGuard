@@ -6,12 +6,15 @@ import { AppState, Platform } from 'react-native';
 
 const mockNavigate = jest.fn();
 const mockCheckForPermission = jest.fn();
-const mockCheckForDisplayOverAppsPermission = jest.fn();
+const mockCheckForSystemAlertWindowPermission = jest.fn();
 const mockCheckForNotificationsPermission = jest.fn();
+const mockCheckForIgnoreBatteryOptimizationsPermission = jest.fn();
+const mockCheckForManifestMonitorPermissions = jest.fn();
+const mockStartMonitorService = jest.fn();
 const mockRequestUsageStatsPermission = jest.fn();
-const mockRequestDisplayOverAppsPermission = jest.fn();
+const mockRequestSystemAlertWindowPermission = jest.fn();
 const mockRequestNotificationsPermission = jest.fn();
-
+const mockRequestIgnoreBatteryOptimizationsPermission = jest.fn();
 let appStateListener: ((state: string) => void) | undefined;
 const mockRemoveAppStateListener = jest.fn();
 
@@ -21,13 +24,19 @@ jest.mock('../../../source/navigation', () => ({
   }),
 }));
 
-jest.mock('../../../source/specs', () => ({
+jest.mock('@/specs', () => ({
   checkForPermission: (...args: unknown[]) => mockCheckForPermission(...args),
-  checkForDisplayOverAppsPermission: (...args: unknown[]) => mockCheckForDisplayOverAppsPermission(...args),
+  checkForSystemAlertWindowPermission: (...args: unknown[]) => mockCheckForSystemAlertWindowPermission(...args),
   checkForNotificationsPermission: (...args: unknown[]) => mockCheckForNotificationsPermission(...args),
+  checkForIgnoreBatteryOptimizationsPermission: (...args: unknown[]) =>
+    mockCheckForIgnoreBatteryOptimizationsPermission(...args),
+  checkForManifestMonitorPermissions: (...args: unknown[]) => mockCheckForManifestMonitorPermissions(...args),
+  startMonitorService: (...args: unknown[]) => mockStartMonitorService(...args),
   requestUsageStatsPermission: (...args: unknown[]) => mockRequestUsageStatsPermission(...args),
-  requestDisplayOverAppsPermission: (...args: unknown[]) => mockRequestDisplayOverAppsPermission(...args),
+  requestSystemAlertWindowPermission: (...args: unknown[]) => mockRequestSystemAlertWindowPermission(...args),
   requestNotificationsPermission: (...args: unknown[]) => mockRequestNotificationsPermission(...args),
+  requestIgnoreBatteryOptimizationsPermission: (...args: unknown[]) =>
+    mockRequestIgnoreBatteryOptimizationsPermission(...args),
 }));
 
 jest.mock('react-native-safe-area-context', () => {
@@ -55,12 +64,14 @@ jest.spyOn(AppState, 'addEventListener').mockImplementation((_, listener) => {
   return { remove: mockRemoveAppStateListener };
 });
 
-import { EnablePermissionsScreen } from '../../../source/screen/EnablePermissions/EnablePermissionsScreen';
+import { EnablePermissionsScreen } from '@/screen/EnablePermissions/EnablePermissionsScreen';
 
 const grantAllNativePermissions = () => {
   mockCheckForPermission.mockReturnValue(true);
-  mockCheckForDisplayOverAppsPermission.mockReturnValue(true);
+  mockCheckForSystemAlertWindowPermission.mockReturnValue(true);
   mockCheckForNotificationsPermission.mockReturnValue(true);
+  mockCheckForIgnoreBatteryOptimizationsPermission.mockReturnValue(true);
+  mockCheckForManifestMonitorPermissions.mockReturnValue(true);
 };
 
 describe('EnablePermissionsScreen', () => {
@@ -71,8 +82,9 @@ describe('EnablePermissionsScreen', () => {
     Object.defineProperty(Platform, 'OS', { configurable: true, value: 'android' });
     appStateListener = undefined;
     mockCheckForPermission.mockReturnValue(false);
-    mockCheckForDisplayOverAppsPermission.mockReturnValue(false);
+    mockCheckForSystemAlertWindowPermission.mockReturnValue(false);
     mockCheckForNotificationsPermission.mockReturnValue(false);
+    mockCheckForIgnoreBatteryOptimizationsPermission.mockReturnValue(false);
   });
 
   afterAll(() => {
@@ -119,7 +131,7 @@ describe('EnablePermissionsScreen', () => {
       tree!.root.findByProps({ accessibilityLabel: 'Grant Display Over Apps' }).props.onPress();
     });
 
-    expect(mockRequestDisplayOverAppsPermission).toHaveBeenCalledTimes(1);
+    expect(mockRequestSystemAlertWindowPermission).toHaveBeenCalledTimes(1);
     expect(mockRequestUsageStatsPermission).not.toHaveBeenCalled();
   });
 
@@ -188,6 +200,7 @@ describe('EnablePermissionsScreen', () => {
       tree!.root.findByProps({ accessibilityLabel: 'Continue' }).props.onPress();
     });
 
+    expect(mockStartMonitorService).toHaveBeenCalledTimes(1);
     expect(mockNavigate).toHaveBeenCalledWith('Dashboard');
   });
 });

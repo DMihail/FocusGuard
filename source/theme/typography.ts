@@ -1,14 +1,14 @@
 /** @format */
 
 import type { TextStyle } from 'react-native';
+import { resolveFontFamily, resolveFontWeight, type InterWeight } from './fonts';
 
-export const FONT_FAMILY = {
-  inter: 'Inter',
-} as const;
+const inter = (weight: InterWeight): Pick<TextStyle, 'fontFamily' | 'fontWeight'> => ({
+  fontFamily: resolveFontFamily(weight),
+  fontWeight: resolveFontWeight(weight),
+});
 
-export const fontFamily = FONT_FAMILY;
-
-export const FONT_SIZES = {
+export const fontSize = {
   xs: 12,
   sm: 14,
   md: 16,
@@ -19,34 +19,17 @@ export const FONT_SIZES = {
   display: 36,
 } as const;
 
-export const fontSize = FONT_SIZES;
-
-export const LINE_HEIGHT = {
+export const lineHeight = {
   xs: 16,
   sm: 20,
   md: 24,
   lg: 28,
   xl: 36,
+  caption: 23,
   display: 40,
 } as const;
 
-export const lineHeight = LINE_HEIGHT;
-
-export const FONT_WEIGHTS = {
-  regular: '400',
-  medium: '500',
-  semibold: '600',
-  bold: '700',
-} as const;
-
-export const fontWeight = {
-  regular: FONT_WEIGHTS.regular as TextStyle['fontWeight'],
-  medium: FONT_WEIGHTS.medium as TextStyle['fontWeight'],
-  semibold: FONT_WEIGHTS.semibold as TextStyle['fontWeight'],
-  bold: FONT_WEIGHTS.bold as TextStyle['fontWeight'],
-};
-
-export const LETTER_SPACING = {
+export const letterSpacing = {
   tightXs: -0.15,
   tight: -0.05,
   tightMd: -0.31,
@@ -55,49 +38,63 @@ export const LETTER_SPACING = {
   wide: 0.3828125,
 } as const;
 
-export const letterSpacing = LETTER_SPACING;
-
 export const typography = {
   button: {
-    fontFamily: fontFamily.inter,
+    ...inter('medium'),
     fontSize: fontSize.sm,
-    fontWeight: fontWeight.medium,
     lineHeight: lineHeight.sm,
     letterSpacing: letterSpacing.tight,
   },
   title: {
-    fontFamily: fontFamily.inter,
+    ...inter('regular'),
     fontSize: fontSize.xxxl,
-    fontWeight: fontWeight.regular,
     lineHeight: lineHeight.xl,
     letterSpacing: letterSpacing.wide,
   },
+  display: {
+    ...inter('bold'),
+    fontSize: fontSize.display,
+    lineHeight: lineHeight.display,
+    letterSpacing: letterSpacing.tightLg,
+  },
   body: {
-    fontFamily: fontFamily.inter,
+    ...inter('regular'),
     fontSize: fontSize.md,
-    fontWeight: fontWeight.regular,
     lineHeight: lineHeight.md,
     letterSpacing: letterSpacing.normal,
   },
   sectionTitle: {
-    fontFamily: fontFamily.inter,
+    ...inter('medium'),
     fontSize: fontSize.md,
-    fontWeight: fontWeight.medium,
     lineHeight: lineHeight.md,
     letterSpacing: letterSpacing.tight,
   },
   label: {
-    fontFamily: fontFamily.inter,
+    ...inter('medium'),
     fontSize: fontSize.sm,
-    fontWeight: fontWeight.medium,
     lineHeight: lineHeight.sm,
     letterSpacing: letterSpacing.tight,
   },
   heading: {
-    fontFamily: fontFamily.inter,
+    ...inter('semibold'),
     fontSize: fontSize.md,
-    fontWeight: fontWeight.semibold,
     lineHeight: lineHeight.md,
     letterSpacing: letterSpacing.tightMd,
+  },
+  input: {
+    ...inter('medium'),
+    fontSize: fontSize.md,
+    lineHeight: lineHeight.md,
+    letterSpacing: letterSpacing.tight,
+  },
+  caption: {
+    ...inter('regular'),
+    fontSize: fontSize.sm,
+    lineHeight: lineHeight.caption,
+    letterSpacing: letterSpacing.tightXs,
+  },
+  iconFallback: {
+    ...inter('medium'),
+    fontSize: fontSize.xxl,
   },
 } as const satisfies Record<string, TextStyle>;

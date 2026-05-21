@@ -3,9 +3,9 @@
 import React, { useEffect } from 'react';
 import { Text, View } from 'react-native';
 import { Link } from '@react-navigation/native';
-import { requestUsageStatsPermission } from '../../../specs';
-import { selectedAppsStore } from '../../../store';
-import { testIds } from '../../../testing/testIds';
+import { requestUsageStatsPermission } from '@/specs';
+import { selectedAppsStore } from '@/store';
+import { testIds } from '@/testing/testIds';
 import { dashboardStyles } from '../styles';
 import { DistractingAppRow } from './DistractingAppRow';
 

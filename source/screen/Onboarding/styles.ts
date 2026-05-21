@@ -1,7 +1,7 @@
 /** @format */
 
 import { StyleSheet } from 'react-native';
-import { borderRadius, colors, layoutPresets, spacing, textPresets, typography } from '../../theme';
+import { borderRadius, colors, layoutPresets, spacing, textPresets, typography } from '@/theme';
 
 export const onboardingStyles = StyleSheet.create({
   screen: layoutPresets.screen,

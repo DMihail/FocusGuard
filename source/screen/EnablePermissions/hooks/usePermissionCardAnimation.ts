@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef } from 'react';
 import { Animated, Easing } from 'react-native';
-import { colors } from '../../../theme';
+import { colors } from '@/theme';
 import { PERMISSION_CARD_ANIMATION_MS, PERMISSION_GRANT_BUTTON_MAX_HEIGHT } from '../constants';
 import type { PermissionStatus } from '../types';
 

@@ -2,7 +2,7 @@
 
 import React from 'react';
 import ReactTestRenderer from 'react-test-renderer';
-import { PrivacyNotice } from '../../../../source/screen/EnablePermissions/components/PrivacyNotice';
+import { PrivacyNotice } from '@/screen/EnablePermissions/components/PrivacyNotice';
 
 describe('PrivacyNotice', () => {
   it('renders privacy copy', () => {

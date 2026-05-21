@@ -3,7 +3,7 @@
 import React, { FC } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 
-import { borderRadius, colors, spacing, typography } from '../../../theme';
+import { borderRadius, colors, spacing, typography } from '@/theme';
 
 type WalkthroughProps = {
   title: string;

@@ -5,7 +5,7 @@ import {
   createGetItemLayout,
   createScrollToIndexFailedHandler,
   getStepFromOffset,
-} from '../../../../source/screen/Onboarding/utils/scroll';
+} from '@/screen/Onboarding/utils/scroll';
 
 describe('scroll utils', () => {
   describe('clampStepIndex', () => {

@@ -2,10 +2,10 @@
 
 import React from 'react';
 import { Animated, Pressable, Text, View } from 'react-native';
-import { CheckIcon } from '../../../assets/svg/EnablePermissions';
-import { colors } from '../../../theme';
+import { CheckIcon } from '@/assets/svg/EnablePermissions';
+import { colors } from '@/theme';
 import { usePermissionCardAnimation } from '../hooks/usePermissionCardAnimation';
-import { testIds } from '../../../testing/testIds';
+import { testIds } from '@/testing/testIds';
 import type { PermissionItem } from '../types';
 import { permissionsStyles } from '../styles';
 

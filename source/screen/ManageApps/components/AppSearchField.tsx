@@ -2,9 +2,9 @@
 
 import React from 'react';
 import { TextInput, View } from 'react-native';
-import { SearchIcon } from '../../../assets/svg/ManageApps';
-import { colors } from '../../../theme';
-import { testIds } from '../../../testing/testIds';
+import { SearchIcon } from '@/assets/svg/ManageApps';
+import { colors } from '@/theme';
+import { testIds } from '@/testing/testIds';
 import { manageAppsStyles } from '../styles';
 
 type AppSearchFieldProps = {

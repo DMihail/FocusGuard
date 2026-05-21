@@ -7,7 +7,7 @@ import { AppLoader } from './components/AppLoader';
 import { useAppPermissionGuard } from './hooks/useAppPermissionGuard';
 import { createRootStack } from './RootStack';
 import { resolveEntryRoute } from './resolveEntryRoute';
-import { onboardingStore } from '../store/onboardingStore';
+import { onboardingStore } from '@/store/onboardingStore';
 import type { RootStackParamList } from './types';
 
 export const RootNavigationGate = () => {

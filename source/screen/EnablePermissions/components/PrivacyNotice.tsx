@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Text, View } from 'react-native';
-import { testIds } from '../../../testing/testIds';
+import { testIds } from '@/testing/testIds';
 import { permissionsStyles } from '../styles';
 
 export const PrivacyNotice = () => (

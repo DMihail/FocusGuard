@@ -3,8 +3,8 @@
 import React from 'react';
 import ReactTestRenderer from 'react-test-renderer';
 import { Animated, Text } from 'react-native';
-import { usePermissionCardAnimation } from '../../../../source/screen/EnablePermissions/hooks/usePermissionCardAnimation';
-import type { PermissionStatus } from '../../../../source/screen/EnablePermissions/types';
+import { usePermissionCardAnimation } from '@/screen/EnablePermissions/hooks/usePermissionCardAnimation';
+import type { PermissionStatus } from '@/screen/EnablePermissions/types';
 
 const timingStart = jest.fn();
 const compositeAnimation = {

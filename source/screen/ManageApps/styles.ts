@@ -11,7 +11,7 @@ import {
   spacing,
   textPresets,
   typography,
-} from '../../theme';
+} from '@/theme';
 
 export const manageAppsStyles = StyleSheet.create({
   screen: layoutPresets.screen,
@@ -52,11 +52,7 @@ export const manageAppsStyles = StyleSheet.create({
   searchInput: {
     flex: 1,
     paddingVertical: 0,
-    fontFamily: typography.body.fontFamily,
-    fontSize: fontSize.md,
-    fontWeight: typography.button.fontWeight,
-    lineHeight: lineHeight.md,
-    color: colors.textPrimary,
+    ...textPresets.searchInput,
   },
   filters: {
     flexGrow: 0,

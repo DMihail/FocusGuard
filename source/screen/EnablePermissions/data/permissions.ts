@@ -1,6 +1,6 @@
 /** @format */
 
-import { DisplayOverApps, NotificationsIcon, UsageAccess } from '../../../assets/svg/EnablePermissions';
+import { BatteryOptimization, DisplayOverApps, NotificationsIcon, UsageAccess } from '@/assets/svg/EnablePermissions';
 import type { PermissionItem } from '../types';
 
 export const PERMISSIONS: PermissionItem[] = [
@@ -24,5 +24,12 @@ export const PERMISSIONS: PermissionItem[] = [
     description: 'Send reminders and limit warnings',
     status: 'pending',
     Icon: NotificationsIcon,
+  },
+  {
+    id: 'battery-optimization',
+    title: 'Run in Background',
+    description: 'Disable battery limits so monitoring works after you leave the app or reboot',
+    status: 'pending',
+    Icon: BatteryOptimization,
   },
 ];

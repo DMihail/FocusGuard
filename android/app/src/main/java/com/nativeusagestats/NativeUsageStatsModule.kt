@@ -4,6 +4,7 @@ import android.Manifest
 import android.app.AppOpsManager
 import android.app.usage.UsageStats
 import android.app.usage.UsageStatsManager
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ApplicationInfo
@@ -16,6 +17,7 @@ import android.graphics.Canvas
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.os.Build
+import android.os.PowerManager
 import android.os.Process
 import android.provider.Settings
 import android.util.Base64
@@ -23,6 +25,8 @@ import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.WritableArray
 import com.facebook.react.bridge.WritableMap
+import com.focusguard.monitor.MonitorPermissions
+import com.focusguard.monitor.MonitorServiceHelper
 import java.io.ByteArrayOutputStream
 
 data class AppUsageInfo(
@@ -95,11 +99,19 @@ class NativeUsageStatsModule(reactContext: ReactApplicationContext) :
 
   override fun checkForPermission(): Boolean = hasUsageStatsPermission()
 
-  override fun checkForQueryAllPackagesPermission(): Boolean = hasQueryAllPackagesPermission()
-
-  override fun checkForDisplayOverAppsPermission(): Boolean = hasDisplayOverAppsPermission()
+  override fun checkForSystemAlertWindowPermission(): Boolean = hasSystemAlertWindowPermission()
 
   override fun checkForNotificationsPermission(): Boolean = hasNotificationsPermission()
+
+  override fun checkForIgnoreBatteryOptimizationsPermission(): Boolean =
+      hasIgnoreBatteryOptimizationsPermission()
+
+  override fun checkForManifestMonitorPermissions(): Boolean =
+      MonitorPermissions.hasManifestMonitorPermissions(reactApplicationContext)
+
+  override fun startMonitorService() {
+    MonitorServiceHelper.start(reactApplicationContext)
+  }
 
   override fun requestUsageStatsPermission() {
     if (hasUsageStatsPermission()) {
@@ -112,8 +124,8 @@ class NativeUsageStatsModule(reactContext: ReactApplicationContext) :
     reactApplicationContext.startActivity(intent)
   }
 
-  override fun requestDisplayOverAppsPermission() {
-    if (hasDisplayOverAppsPermission()) {
+  override fun requestSystemAlertWindowPermission() {
+    if (hasSystemAlertWindowPermission()) {
       return
     }
 
@@ -151,6 +163,33 @@ class NativeUsageStatsModule(reactContext: ReactApplicationContext) :
     }
 
     openNotificationSettings()
+  }
+
+  override fun requestIgnoreBatteryOptimizationsPermission() {
+    if (hasIgnoreBatteryOptimizationsPermission()) {
+      return
+    }
+
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+      return
+    }
+
+    val context = reactApplicationContext
+    val packageUri = Uri.parse("package:${context.packageName}")
+    val intents =
+        listOf(
+            Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply { data = packageUri },
+            Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS),
+        )
+
+    for (intent in intents) {
+      try {
+        context.startActivity(intent.apply { flags = Intent.FLAG_ACTIVITY_NEW_TASK })
+        return
+      } catch (_: ActivityNotFoundException) {
+        // Try the next settings screen.
+      }
+    }
   }
 
   override fun getInstalledApplications(): WritableArray {
@@ -247,12 +286,37 @@ class NativeUsageStatsModule(reactContext: ReactApplicationContext) :
         PackageManager.PERMISSION_GRANTED
   }
 
-  private fun hasDisplayOverAppsPermission(): Boolean {
+  private fun hasSystemAlertWindowPermission(): Boolean {
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
       return true
     }
 
-    return Settings.canDrawOverlays(reactApplicationContext)
+    val context = reactApplicationContext
+    if (!Settings.canDrawOverlays(context)) {
+      return false
+    }
+
+    return isSystemAlertWindowOpAllowed(context)
+  }
+
+  private fun isSystemAlertWindowOpAllowed(context: Context): Boolean {
+    val appOps = context.getSystemService(AppOpsManager::class.java) ?: return true
+    val mode =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+          appOps.unsafeCheckOpNoThrow(
+              AppOpsManager.OPSTR_SYSTEM_ALERT_WINDOW,
+              Process.myUid(),
+              context.packageName,
+          )
+        } else {
+          @Suppress("DEPRECATION")
+          appOps.checkOpNoThrow(
+              AppOpsManager.OPSTR_SYSTEM_ALERT_WINDOW,
+              Process.myUid(),
+              context.packageName,
+          )
+        }
+    return mode == AppOpsManager.MODE_ALLOWED
   }
 
   private fun hasNotificationsPermission(): Boolean {
@@ -264,6 +328,17 @@ class NativeUsageStatsModule(reactContext: ReactApplicationContext) :
         reactApplicationContext,
         Manifest.permission.POST_NOTIFICATIONS,
     ) == PackageManager.PERMISSION_GRANTED
+  }
+
+  private fun hasIgnoreBatteryOptimizationsPermission(): Boolean {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+      return true
+    }
+
+    val powerManager =
+        reactApplicationContext.getSystemService(Context.POWER_SERVICE) as? PowerManager
+            ?: return false
+    return powerManager.isIgnoringBatteryOptimizations(reactApplicationContext.packageName)
   }
 
   private fun openNotificationSettings() {

@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import Svg, { Path, SvgProps } from 'react-native-svg';
-import { colors } from '../../../theme';
+import { colors } from '@/theme';
 
 export const DisplayOverApps = ({ stroke = colors.accent, ...props }: SvgProps) => (
   <Svg width={24} height={24} viewBox="0 0 18 22" fill="none" {...props}>

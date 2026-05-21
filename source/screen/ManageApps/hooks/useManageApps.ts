@@ -1,8 +1,8 @@
 /** @format */
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { selectedAppsStore } from '../../../store';
-import { getInstalledApplications } from '../../../specs';
+import { selectedAppsStore } from '@/store';
+import { getInstalledApplications } from '@/specs';
 import type { CategoryFilterOption } from '../types';
 import { ALL_CATEGORY_FILTER, buildCategoryFilters } from '../utils/buildCategoryFilters';
 import { mapInstalledApps } from '../utils/mapInstalledApps';
