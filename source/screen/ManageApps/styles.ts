@@ -11,7 +11,7 @@ import {
   spacing,
   textPresets,
   typography,
-} from '../../theme';
+} from '@/theme';
 
 export const manageAppsStyles = StyleSheet.create({
   screen: layoutPresets.screen,

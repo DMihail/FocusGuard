@@ -2,8 +2,8 @@
 
 import React, { useEffect } from 'react';
 import ReactTestRenderer from 'react-test-renderer';
-import { mockInstallApps, mockManageApps } from '../../../../source/testing/fixtures/manageApps';
-import type { ManageApp } from '../../../../source/screen/ManageApps/types';
+import { mockInstallApps, mockManageApps } from '@/testing/fixtures/manageApps';
+import type { ManageApp } from '@/screen/ManageApps/types';
 
 const mockGetInstalledApplications = jest.fn();
 
@@ -31,7 +31,7 @@ jest.mock('../../../../source/store', () => ({
   selectedAppsStore: (selector: (state: typeof mockStoreState) => unknown) => selector(mockStoreState),
 }));
 
-import { useManageApps } from '../../../../source/screen/ManageApps/hooks/useManageApps';
+import { useManageApps } from '@/screen/ManageApps/hooks/useManageApps';
 
 type HarnessProps = {
   searchQuery?: string;

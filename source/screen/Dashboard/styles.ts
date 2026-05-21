@@ -1,7 +1,7 @@
 /** @format */
 
 import { StyleSheet } from 'react-native';
-import { borderRadius, colors, iconBoxPresets, layoutPresets, spacing, textPresets, typography } from '../../theme';
+import { borderRadius, colors, iconBoxPresets, layoutPresets, spacing, textPresets, typography } from '@/theme';
 
 export const dashboardStyles = StyleSheet.create({
   screen: layoutPresets.screen,

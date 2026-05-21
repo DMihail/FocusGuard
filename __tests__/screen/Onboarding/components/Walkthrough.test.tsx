@@ -3,7 +3,7 @@
 import React from 'react';
 import ReactTestRenderer from 'react-test-renderer';
 import { Text } from 'react-native';
-import { Walkthrough } from '../../../../source/screen/Onboarding/components/Walkthrough';
+import { Walkthrough } from '@/screen/Onboarding/components/Walkthrough';
 
 describe('Walkthrough', () => {
   it('renders title, description, and icon', () => {

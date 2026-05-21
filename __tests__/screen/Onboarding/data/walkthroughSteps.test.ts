@@ -1,6 +1,6 @@
 /** @format */
 
-import { WALKTHROUGH_STEPS } from '../../../../source/screen/Onboarding/data/walkthroughSteps';
+import { WALKTHROUGH_STEPS } from '@/screen/Onboarding/data/walkthroughSteps';
 
 describe('WALKTHROUGH_STEPS', () => {
   it('contains three onboarding steps', () => {

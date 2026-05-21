@@ -9,8 +9,8 @@ import {
   type NativeSyntheticEvent,
 } from 'react-native';
 import { FLAT_LIST_WINDOW_SIZE, SCROLL_EVENT_THROTTLE } from '../constants';
-import type { WalkthroughStepData } from '../data/walkthroughSteps';
-import { testIds } from '../../../testing/testIds';
+import type { WalkthroughStepData } from '@/screen';
+import { testIds } from '@/testing/testIds';
 import { WalkthroughPage } from './WalkthroughPage';
 
 const AnimatedFlatList = Animated.createAnimatedComponent(FlatList<WalkthroughStepData>);

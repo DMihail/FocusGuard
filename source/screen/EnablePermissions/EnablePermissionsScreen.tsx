@@ -3,11 +3,11 @@
 import React, { useCallback, useMemo } from 'react';
 import { ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRootNavigation } from '../../navigation';
+import { useRootNavigation } from '@/navigation';
 import { PermissionCard, PermissionsFooter, PermissionsHeader, PrivacyNotice } from './components';
 import { PERMISSIONS } from './data/permissions';
 import { usePermissionsSync } from './hooks/usePermissionsSync';
-import { testIds } from '../../testing/testIds';
+import { testIds } from '@/testing/testIds';
 import { permissionsStyles } from './styles';
 
 export const EnablePermissionsScreen = () => {

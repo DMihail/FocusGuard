@@ -2,7 +2,7 @@
 
 import React from 'react';
 import ReactTestRenderer from 'react-test-renderer';
-import { PermissionsHeader } from '../../../../source/screen/EnablePermissions/components/PermissionsHeader';
+import { PermissionsHeader } from '@/screen/EnablePermissions/components/PermissionsHeader';
 
 describe('PermissionsHeader', () => {
   it('renders title and subtitle', () => {

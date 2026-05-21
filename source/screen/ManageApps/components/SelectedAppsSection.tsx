@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { ScrollView, Text, View } from 'react-native';
-import { testIds } from '../../../testing/testIds';
+import { testIds } from '@/testing/testIds';
 import type { ManageApp } from '../types';
 import { manageAppsStyles } from '../styles';
 

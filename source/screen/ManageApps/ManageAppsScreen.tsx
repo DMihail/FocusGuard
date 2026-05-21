@@ -3,8 +3,8 @@
 import React, { useCallback } from 'react';
 import { ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRootNavigation } from '../../navigation';
-import { testIds } from '../../testing/testIds';
+import { useRootNavigation } from '@/navigation';
+import { testIds } from '@/testing/testIds';
 import { AppSearchField, CategoryFilters, ManageAppsHeader, ManageAppsList, SelectedAppsSection } from './components';
 import { useManageApps } from './hooks/useManageApps';
 import { manageAppsStyles } from './styles';

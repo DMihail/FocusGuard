@@ -2,8 +2,8 @@
 
 import React from 'react';
 import { Image, Text, View } from 'react-native';
-import type { ManageApp } from '../../ManageApps/types';
-import { testIds } from '../../../testing/testIds';
+import type { ManageApp } from '@/screen/ManageApps/types';
+import { testIds } from '@/testing/testIds';
 import { dashboardStyles } from '../styles';
 
 type DistractingAppRowProps = Pick<ManageApp, 'packageName' | 'appName' | 'appImage'>;

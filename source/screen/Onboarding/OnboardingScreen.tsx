@@ -5,7 +5,7 @@ import { View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { OnboardingFooter, OnboardingHeader, WalkthroughPager } from './components';
 import { useOnboardingPager } from './hooks/useOnboardingPager';
-import { testIds } from '../../testing/testIds';
+import { testIds } from '@/testing/testIds';
 import { onboardingStyles } from './styles';
 
 export const OnboardingScreen = () => {

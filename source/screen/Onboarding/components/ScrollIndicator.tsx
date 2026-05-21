@@ -2,7 +2,7 @@
 
 import React, { useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { spacing } from '../../../theme';
+import { spacing } from '@/theme';
 import type { ScrollIndicatorProps } from '../types';
 import { createIndicatorProgress } from '../utils';
 import { AnimatedIndicatorDot, type IndicatorVariant } from './AnimatedIndicatorDot';

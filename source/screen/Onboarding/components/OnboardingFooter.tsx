@@ -4,7 +4,7 @@ import React from 'react';
 import { Pressable, Text, View } from 'react-native';
 import type { ScrollIndicatorProps } from '../types';
 import { onboardingStyles } from '../styles';
-import { testIds } from '../../../testing/testIds';
+import { testIds } from '@/testing/testIds';
 import { ScrollIndicator } from './ScrollIndicator';
 
 type OnboardingFooterProps = {

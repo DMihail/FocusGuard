@@ -4,9 +4,11 @@ const mockUsageStats = {
   checkForPermission: jest.fn(),
   checkForQueryAllPackagesPermission: jest.fn(),
   checkForDisplayOverAppsPermission: jest.fn(),
+  checkForSystemAlertWindowPermission: jest.fn(),
   checkForNotificationsPermission: jest.fn(),
   requestUsageStatsPermission: jest.fn(),
   requestDisplayOverAppsPermission: jest.fn(),
+  requestSystemAlertWindowPermission: jest.fn(),
   requestNotificationsPermission: jest.fn(),
   getAppsUsageStats: jest.fn(),
   getInstalledApplications: jest.fn(),
@@ -69,6 +71,15 @@ describe('NativeUsageStats', () => {
     expect(mockUsageStats.requestDisplayOverAppsPermission).toHaveBeenCalledTimes(1);
   });
 
+  it('delegates SYSTEM_ALERT_WINDOW permission checks and requests', () => {
+    mockUsageStats.checkForSystemAlertWindowPermission.mockReturnValue(true);
+    const specs = loadSpecs();
+
+    expect(specs.checkForSystemAlertWindowPermission()).toBe(true);
+    specs.requestSystemAlertWindowPermission();
+    expect(mockUsageStats.requestSystemAlertWindowPermission).toHaveBeenCalledTimes(1);
+  });
+
   it('delegates notifications permission checks and requests', () => {
     mockUsageStats.checkForNotificationsPermission.mockReturnValue(true);
     const specs = loadSpecs();
@@ -112,11 +123,13 @@ describe('NativeUsageStats', () => {
     expect(specs.checkForPermission()).toBe(false);
     expect(specs.checkForQueryAllPackagesPermission()).toBe(false);
     expect(specs.checkForDisplayOverAppsPermission()).toBe(false);
+    expect(specs.checkForSystemAlertWindowPermission()).toBe(false);
     expect(specs.checkForNotificationsPermission()).toBe(false);
     expect(specs.getAppsUsageStats()).toEqual([]);
     expect(specs.getInstalledApplications()).toEqual([]);
     expect(() => specs.requestUsageStatsPermission()).not.toThrow();
     expect(() => specs.requestDisplayOverAppsPermission()).not.toThrow();
+    expect(() => specs.requestSystemAlertWindowPermission()).not.toThrow();
     expect(() => specs.requestNotificationsPermission()).not.toThrow();
   });
 });

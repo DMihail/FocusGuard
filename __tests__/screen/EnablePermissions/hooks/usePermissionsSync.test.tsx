@@ -3,7 +3,7 @@
 import React from 'react';
 import ReactTestRenderer from 'react-test-renderer';
 import { AppState, LayoutAnimation } from 'react-native';
-import type { PermissionId, PermissionStatus } from '../../../../source/screen/EnablePermissions/types';
+import type { PermissionId, PermissionStatus } from '@/screen/EnablePermissions/types';
 
 const mockReadPermissionStatuses = jest.fn<Record<PermissionId, PermissionStatus>, []>();
 const mockRequestPermissionById = jest.fn();
@@ -13,7 +13,7 @@ jest.mock('../../../../source/screen/EnablePermissions/utils/permissionStatus', 
   requestPermissionById: (id: PermissionId) => mockRequestPermissionById(id),
 }));
 
-import { usePermissionsSync } from '../../../../source/screen/EnablePermissions/hooks/usePermissionsSync';
+import { usePermissionsSync } from '@/screen/EnablePermissions/hooks/usePermissionsSync';
 
 const pendingStatuses: Record<PermissionId, PermissionStatus> = {
   'usage-access': 'pending',

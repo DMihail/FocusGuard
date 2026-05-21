@@ -3,18 +3,18 @@
 import { Platform } from 'react-native';
 
 const mockCheckForPermission = jest.fn();
-const mockCheckForDisplayOverAppsPermission = jest.fn();
+const mockCheckForSystemAlertWindowPermission = jest.fn();
 const mockCheckForNotificationsPermission = jest.fn();
 const mockRequestUsageStatsPermission = jest.fn();
-const mockRequestDisplayOverAppsPermission = jest.fn();
+const mockRequestSystemAlertWindowPermission = jest.fn();
 const mockRequestNotificationsPermission = jest.fn();
 
-jest.mock('../../../../source/specs', () => ({
+jest.mock('@/specs', () => ({
   checkForPermission: (...args: unknown[]) => mockCheckForPermission(...args),
-  checkForDisplayOverAppsPermission: (...args: unknown[]) => mockCheckForDisplayOverAppsPermission(...args),
+  checkForSystemAlertWindowPermission: (...args: unknown[]) => mockCheckForSystemAlertWindowPermission(...args),
   checkForNotificationsPermission: (...args: unknown[]) => mockCheckForNotificationsPermission(...args),
   requestUsageStatsPermission: (...args: unknown[]) => mockRequestUsageStatsPermission(...args),
-  requestDisplayOverAppsPermission: (...args: unknown[]) => mockRequestDisplayOverAppsPermission(...args),
+  requestSystemAlertWindowPermission: (...args: unknown[]) => mockRequestSystemAlertWindowPermission(...args),
   requestNotificationsPermission: (...args: unknown[]) => mockRequestNotificationsPermission(...args),
 }));
 
@@ -22,7 +22,7 @@ import {
   areAllPermissionsGranted,
   readPermissionStatuses,
   requestPermissionById,
-} from '../../../../source/screen/EnablePermissions/utils/permissionStatus';
+} from '@/screen/EnablePermissions/utils/permissionStatus';
 
 describe('permissionStatus utils', () => {
   const originalPlatform = Platform.OS;
@@ -31,7 +31,7 @@ describe('permissionStatus utils', () => {
     jest.clearAllMocks();
     Object.defineProperty(Platform, 'OS', { configurable: true, value: 'android' });
     mockCheckForPermission.mockReturnValue(false);
-    mockCheckForDisplayOverAppsPermission.mockReturnValue(false);
+    mockCheckForSystemAlertWindowPermission.mockReturnValue(false);
     mockCheckForNotificationsPermission.mockReturnValue(false);
   });
 
@@ -51,7 +51,7 @@ describe('permissionStatus utils', () => {
     expect(areAllPermissionsGranted()).toBe(false);
 
     mockCheckForPermission.mockReturnValue(true);
-    mockCheckForDisplayOverAppsPermission.mockReturnValue(true);
+    mockCheckForSystemAlertWindowPermission.mockReturnValue(true);
     mockCheckForNotificationsPermission.mockReturnValue(true);
 
     expect(areAllPermissionsGranted()).toBe(true);
@@ -59,7 +59,7 @@ describe('permissionStatus utils', () => {
 
   it('reads granted statuses when native checks pass', () => {
     mockCheckForPermission.mockReturnValue(true);
-    mockCheckForDisplayOverAppsPermission.mockReturnValue(true);
+    mockCheckForSystemAlertWindowPermission.mockReturnValue(true);
     mockCheckForNotificationsPermission.mockReturnValue(true);
 
     expect(readPermissionStatuses()).toEqual({
@@ -74,9 +74,9 @@ describe('permissionStatus utils', () => {
     expect(mockRequestUsageStatsPermission).toHaveBeenCalledTimes(1);
   });
 
-  it('requests overlay settings for display-over-apps', () => {
+  it('requests SYSTEM_ALERT_WINDOW settings for display-over-apps', () => {
     requestPermissionById('display-over-apps');
-    expect(mockRequestDisplayOverAppsPermission).toHaveBeenCalledTimes(1);
+    expect(mockRequestSystemAlertWindowPermission).toHaveBeenCalledTimes(1);
   });
 
   it('requests notification permission for notifications', () => {

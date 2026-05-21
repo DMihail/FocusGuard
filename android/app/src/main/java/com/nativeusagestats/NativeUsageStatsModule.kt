@@ -97,7 +97,9 @@ class NativeUsageStatsModule(reactContext: ReactApplicationContext) :
 
   override fun checkForQueryAllPackagesPermission(): Boolean = hasQueryAllPackagesPermission()
 
-  override fun checkForDisplayOverAppsPermission(): Boolean = hasDisplayOverAppsPermission()
+  override fun checkForDisplayOverAppsPermission(): Boolean = hasSystemAlertWindowPermission()
+
+  override fun checkForSystemAlertWindowPermission(): Boolean = hasSystemAlertWindowPermission()
 
   override fun checkForNotificationsPermission(): Boolean = hasNotificationsPermission()
 
@@ -113,7 +115,11 @@ class NativeUsageStatsModule(reactContext: ReactApplicationContext) :
   }
 
   override fun requestDisplayOverAppsPermission() {
-    if (hasDisplayOverAppsPermission()) {
+    requestSystemAlertWindowPermission()
+  }
+
+  override fun requestSystemAlertWindowPermission() {
+    if (hasSystemAlertWindowPermission()) {
       return
     }
 
@@ -247,12 +253,37 @@ class NativeUsageStatsModule(reactContext: ReactApplicationContext) :
         PackageManager.PERMISSION_GRANTED
   }
 
-  private fun hasDisplayOverAppsPermission(): Boolean {
+  private fun hasSystemAlertWindowPermission(): Boolean {
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
       return true
     }
 
-    return Settings.canDrawOverlays(reactApplicationContext)
+    val context = reactApplicationContext
+    if (!Settings.canDrawOverlays(context)) {
+      return false
+    }
+
+    return isSystemAlertWindowOpAllowed(context)
+  }
+
+  private fun isSystemAlertWindowOpAllowed(context: Context): Boolean {
+    val appOps = context.getSystemService(AppOpsManager::class.java) ?: return true
+    val mode =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+          appOps.unsafeCheckOpNoThrow(
+              AppOpsManager.OPSTR_SYSTEM_ALERT_WINDOW,
+              Process.myUid(),
+              context.packageName,
+          )
+        } else {
+          @Suppress("DEPRECATION")
+          appOps.checkOpNoThrow(
+              AppOpsManager.OPSTR_SYSTEM_ALERT_WINDOW,
+              Process.myUid(),
+              context.packageName,
+          )
+        }
+    return mode == AppOpsManager.MODE_ALLOWED
   }
 
   private fun hasNotificationsPermission(): Boolean {

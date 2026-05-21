@@ -1,7 +1,7 @@
 /** @format */
 
-import { createManageApp } from '../../../../source/testing/fixtures/manageApps';
-import { matchesCategoryFilter } from '../../../../source/screen/ManageApps/utils/matchesCategoryFilter';
+import { createManageApp } from '@/testing/fixtures/manageApps';
+import { matchesCategoryFilter } from '@/screen/ManageApps/utils/matchesCategoryFilter';
 
 describe('matchesCategoryFilter', () => {
   it('matches all apps for All filter', () => {

@@ -2,25 +2,25 @@
 
 import { Platform } from 'react-native';
 import {
-  checkForDisplayOverAppsPermission,
   checkForNotificationsPermission,
   checkForPermission,
-  requestDisplayOverAppsPermission,
+  checkForSystemAlertWindowPermission,
   requestNotificationsPermission,
+  requestSystemAlertWindowPermission,
   requestUsageStatsPermission,
-} from '../../../specs';
+} from '@/specs';
 import { PERMISSIONS } from '../data/permissions';
 import type { PermissionId, PermissionStatus } from '../types';
 
 const permissionChecks: Record<PermissionId, () => boolean> = {
   'usage-access': checkForPermission,
-  'display-over-apps': checkForDisplayOverAppsPermission,
+  'display-over-apps': checkForSystemAlertWindowPermission,
   'notifications': checkForNotificationsPermission,
 };
 
 const permissionRequests: Record<PermissionId, () => void> = {
   'usage-access': requestUsageStatsPermission,
-  'display-over-apps': requestDisplayOverAppsPermission,
+  'display-over-apps': requestSystemAlertWindowPermission,
   'notifications': requestNotificationsPermission,
 };
 

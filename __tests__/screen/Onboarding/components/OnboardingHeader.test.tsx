@@ -2,7 +2,7 @@
 
 import React from 'react';
 import ReactTestRenderer from 'react-test-renderer';
-import { OnboardingHeader } from '../../../../source/screen/Onboarding/components/OnboardingHeader';
+import { OnboardingHeader } from '@/screen/Onboarding/components/OnboardingHeader';
 
 jest.mock('../../../../source/screen/Onboarding/components/ScrollIndicator', () => ({
   ScrollIndicator: () => null,

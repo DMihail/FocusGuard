@@ -72,7 +72,7 @@ jest.spyOn(AppState, 'addEventListener').mockImplementation((_, listener) => {
   return { remove: jest.fn() };
 });
 
-import { RootNavigationGate } from '../../source/navigation/RootNavigationGate';
+import { RootNavigationGate } from '@/navigation/RootNavigationGate';
 
 describe('RootNavigationGate', () => {
   beforeEach(() => {

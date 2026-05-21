@@ -2,7 +2,7 @@
 
 import type { ComponentType } from 'react';
 import type { SvgProps } from 'react-native-svg';
-import { Clock, Glare, Shield } from '../../../assets/svg';
+import { Clock, Glare, Shield } from '@/assets/svg';
 
 export type WalkthroughStepData = {
   id: string;

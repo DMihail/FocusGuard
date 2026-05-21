@@ -1,7 +1,7 @@
 /** @format */
 
 import { Animated } from 'react-native';
-import { createIndicatorProgress } from '../../../../source/screen/Onboarding/utils/indicatorProgress';
+import { createIndicatorProgress } from '@/screen/Onboarding/utils/indicatorProgress';
 
 describe('createIndicatorProgress', () => {
   it('returns a fallback interpolation when page width is zero', () => {

@@ -1,6 +1,6 @@
 /** @format */
 
-import { DisplayOverApps, NotificationsIcon, UsageAccess } from '../../../assets/svg/EnablePermissions';
+import { DisplayOverApps, NotificationsIcon, UsageAccess } from '@/assets/svg/EnablePermissions';
 import type { PermissionItem } from '../types';
 
 export const PERMISSIONS: PermissionItem[] = [

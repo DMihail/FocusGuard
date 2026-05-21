@@ -2,7 +2,7 @@
 
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
-import type { ManageApp } from '../screen/ManageApps/types';
+import type { ManageApp } from '@/screen/ManageApps/types';
 import { zustandStorage } from './mmkv';
 
 type SelectedAppsStore = {

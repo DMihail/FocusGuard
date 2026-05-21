@@ -1,6 +1,6 @@
 /** @format */
 
-import { PERMISSIONS } from '../../../../source/screen/EnablePermissions/data/permissions';
+import { PERMISSIONS } from '@/screen/EnablePermissions/data/permissions';
 
 describe('permissions data', () => {
   it('defines three permission items', () => {

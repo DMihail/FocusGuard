@@ -1,6 +1,6 @@
 /** @format */
 
-import { colors } from '../../../theme';
+import { colors } from '@/theme';
 import Svg, { Path, SvgProps } from 'react-native-svg';
 import * as React from 'react';
 

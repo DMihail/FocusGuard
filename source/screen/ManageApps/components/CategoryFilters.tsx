@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
-import { testIds } from '../../../testing/testIds';
+import { testIds } from '@/testing/testIds';
 import type { CategoryFilterOption } from '../types';
 import { manageAppsStyles } from '../styles';
 

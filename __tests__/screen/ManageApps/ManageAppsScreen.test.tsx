@@ -2,9 +2,9 @@
 
 import React from 'react';
 import ReactTestRenderer from 'react-test-renderer';
-import { mockInstallApps } from '../../../source/testing/fixtures/manageApps';
-import { testIds } from '../../../source/testing/testIds';
-import type { ManageApp } from '../../../source/screen/ManageApps/types';
+import { mockInstallApps } from '@/testing/fixtures/manageApps';
+import { testIds } from '@/testing/testIds';
+import type { ManageApp } from '@/screen/ManageApps/types';
 
 const mockGoBack = jest.fn();
 const mockGetInstalledApplications = jest.fn();
@@ -47,7 +47,7 @@ jest.mock('react-native-safe-area-context', () => {
   };
 });
 
-import { ManageAppsScreen } from '../../../source/screen/ManageApps/ManageAppsScreen';
+import { ManageAppsScreen } from '@/screen/ManageApps/ManageAppsScreen';
 
 describe('ManageAppsScreen', () => {
   beforeEach(() => {

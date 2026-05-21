@@ -23,9 +23,11 @@ export interface Spec extends TurboModule {
   checkForPermission(): boolean;
   checkForQueryAllPackagesPermission(): boolean;
   checkForDisplayOverAppsPermission(): boolean;
+  checkForSystemAlertWindowPermission(): boolean;
   checkForNotificationsPermission(): boolean;
   requestUsageStatsPermission(): void;
   requestDisplayOverAppsPermission(): void;
+  requestSystemAlertWindowPermission(): void;
   requestNotificationsPermission(): void;
   getAppsUsageStats(): AppUsageStat[];
   getInstalledApplications(): InstallApp[];
@@ -41,6 +43,9 @@ export const checkForQueryAllPackagesPermission = (): boolean =>
 export const checkForDisplayOverAppsPermission = (): boolean =>
   usageStats?.checkForDisplayOverAppsPermission() ?? false;
 
+export const checkForSystemAlertWindowPermission = (): boolean =>
+  usageStats?.checkForSystemAlertWindowPermission() ?? false;
+
 export const checkForNotificationsPermission = (): boolean => usageStats?.checkForNotificationsPermission() ?? false;
 
 export const requestUsageStatsPermission = (): void => {
@@ -49,6 +54,10 @@ export const requestUsageStatsPermission = (): void => {
 
 export const requestDisplayOverAppsPermission = (): void => {
   usageStats?.requestDisplayOverAppsPermission();
+};
+
+export const requestSystemAlertWindowPermission = (): void => {
+  usageStats?.requestSystemAlertWindowPermission();
 };
 
 export const requestNotificationsPermission = (): void => {

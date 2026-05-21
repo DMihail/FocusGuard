@@ -19,7 +19,7 @@ jest.mock('react-native-safe-area-context', () => {
   };
 });
 
-import App from '../source/App';
+import App from '@/App';
 
 describe('App', () => {
   it('renders navigation inside the safe area provider', async () => {

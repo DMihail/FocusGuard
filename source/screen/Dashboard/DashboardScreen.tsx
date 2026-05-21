@@ -5,7 +5,7 @@ import { ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { DashboardHeader, DistractingAppsSection } from './components';
 import { dashboardStyles } from './styles';
-import { testIds } from '../../testing/testIds';
+import { testIds } from '@/testing/testIds';
 import { getGreeting } from './utils';
 
 export const DashboardScreen = () => {
