@@ -1,30 +1,22 @@
 /** @format */
 
 import { StyleSheet } from 'react-native';
-import { colors, typography } from '../../theme';
+import { borderRadius, colors, layoutPresets, spacing, textPresets, typography } from '../../theme';
 
 export const onboardingStyles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
+  screen: layoutPresets.screen,
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginTop: 8,
+    ...layoutPresets.rowBetween,
+    marginTop: spacing.sm,
     minHeight: 36,
-    paddingHorizontal: 24,
+    paddingHorizontal: spacing.xl,
   },
   skipButton: {
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 12,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
+    borderRadius: borderRadius.md,
   },
-  skipText: {
-    ...typography.button,
-    color: colors.accent,
-  },
+  skipText: textPresets.accentButton,
   pagerContainer: {
     flex: 1,
   },
@@ -32,13 +24,13 @@ export const onboardingStyles = StyleSheet.create({
     flex: 1,
   },
   footer: {
-    paddingBottom: 8,
-    paddingHorizontal: 24,
-    gap: 16,
+    paddingBottom: spacing.sm,
+    paddingHorizontal: spacing.xl,
+    gap: spacing.lg,
   },
   continueButton: {
     height: 52,
-    borderRadius: 999,
+    borderRadius: borderRadius.pill,
     backgroundColor: colors.surface,
     alignItems: 'center',
     justifyContent: 'center',

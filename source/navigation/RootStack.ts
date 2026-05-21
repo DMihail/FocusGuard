@@ -1,7 +1,7 @@
 /** @format */
 
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { DashboardScreen, EnablePermissionsScreen, OnboardingScreen } from '../screen';
+import { DashboardScreen, EnablePermissionsScreen, ManageAppsScreen, OnboardingScreen } from '../screen';
 import type { RootStackParamList } from './types';
 
 const rootScreens = {
@@ -19,6 +19,12 @@ const rootScreens = {
   },
   Dashboard: {
     screen: DashboardScreen,
+    options: {
+      headerShown: false,
+    },
+  },
+  ManageApps: {
+    screen: ManageAppsScreen,
     options: {
       headerShown: false,
     },

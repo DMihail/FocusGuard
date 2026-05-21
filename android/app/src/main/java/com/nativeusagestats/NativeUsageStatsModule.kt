@@ -6,6 +6,7 @@ import android.app.usage.UsageStats
 import android.app.usage.UsageStatsManager
 import android.content.Context
 import android.content.Intent
+import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.net.Uri
 import androidx.core.app.ActivityCompat
@@ -30,15 +31,19 @@ data class AppUsageInfo(
     val appImage: String,
     val totalTimeForeground: Long,
     val lastTimeUsed: Long,
+    val category: String,
 )
 
 private const val ICON_SIZE_PX = 96
 private const val USAGE_WINDOW_MS = 24 * 60 * 60 * 1000L
+// ApplicationInfo.CATEGORY_SHOPPING (API 31+)
+private const val APPLICATION_CATEGORY_SHOPPING = 9
 
 private fun AppUsageInfo.toWritableMap(): WritableMap =
     Arguments.createMap().apply {
       putString("packageName", packageName)
       putString("appName", appName)
+      putString("category", category)
       putString("appImage", appImage)
       putDouble("totalTimeForeground", totalTimeForeground.toDouble())
       putDouble("lastTimeUsed", lastTimeUsed.toDouble())
@@ -56,6 +61,33 @@ private fun UsageStats.foregroundTimeMs(): Long =
       totalTimeVisible
     } else {
       @Suppress("DEPRECATION") totalTimeInForeground
+    }
+
+private fun getCategoryName(appInfo: ApplicationInfo): String {
+  if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+    return "Other"
+  }
+
+  return getCategoryName(appInfo.category)
+}
+
+private fun getCategoryName(category: Int): String =
+    when (category) {
+      ApplicationInfo.CATEGORY_GAME -> "Game"
+      ApplicationInfo.CATEGORY_AUDIO -> "Audio"
+      ApplicationInfo.CATEGORY_VIDEO -> "Video"
+      ApplicationInfo.CATEGORY_IMAGE -> "Image"
+      ApplicationInfo.CATEGORY_SOCIAL -> "Social"
+      ApplicationInfo.CATEGORY_NEWS -> "News"
+      ApplicationInfo.CATEGORY_MAPS -> "Maps"
+      ApplicationInfo.CATEGORY_PRODUCTIVITY -> "Productivity"
+      else ->
+          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
+              category == APPLICATION_CATEGORY_SHOPPING) {
+            "Shopping"
+          } else {
+            "Other"
+          }
     }
 
 class NativeUsageStatsModule(reactContext: ReactApplicationContext) :
@@ -148,6 +180,7 @@ class NativeUsageStatsModule(reactContext: ReactApplicationContext) :
               putString("packageName", packageName)
               putString("appName", packageManager.getApplicationLabel(appInfo).toString())
               putString("appImage", getAppIconBase64(packageName))
+              putString("category", getCategoryName(appInfo))
             },
         )
       } catch (_: PackageManager.NameNotFoundException) {
@@ -192,6 +225,7 @@ class NativeUsageStatsModule(reactContext: ReactApplicationContext) :
             AppUsageInfo(
                 packageName = usageStat.packageName,
                 appName = appName,
+                category = getCategoryName(appInfo),
                 appImage = getAppIconBase64(usageStat.packageName),
                 totalTimeForeground = usageStat.foregroundTimeMs(),
                 lastTimeUsed = usageStat.lastTimeUsed,

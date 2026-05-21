@@ -1,7 +1,8 @@
 /** @format */
 
-export const colors = {
+export const COLORS = {
   background: '#1C1B1F',
+  surfaceDark: '#211F26',
   surface: '#4F378B',
   accent: '#D0BCFF',
   onSurface: '#EADDFF',
@@ -24,3 +25,5 @@ export const colors = {
   buttonDisabled: 'rgba(255, 255, 255, 0.06)',
   appIconBackground: 'rgba(73, 69, 79, 0.4)',
 } as const;
+
+export const colors = COLORS;

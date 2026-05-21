@@ -2,6 +2,7 @@
 
 import React, { useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
+import { spacing } from '../../../theme';
 import type { ScrollIndicatorProps } from '../types';
 import { createIndicatorProgress } from '../utils';
 import { AnimatedIndicatorDot, type IndicatorVariant } from './AnimatedIndicatorDot';
@@ -29,7 +30,7 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: spacing.sm,
   },
   containerCentered: {
     justifyContent: 'center',

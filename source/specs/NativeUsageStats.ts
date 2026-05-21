@@ -7,6 +7,7 @@ export type AppUsageStat = Readonly<{
   packageName: string;
   appName: string;
   appImage: string;
+  category: string;
   totalTimeForeground: number;
   lastTimeUsed: number;
 }>;
@@ -15,6 +16,7 @@ export type InstallApp = Readonly<{
   packageName: string;
   appName: string;
   appImage: string;
+  category: string;
 }>;
 
 export interface Spec extends TurboModule {

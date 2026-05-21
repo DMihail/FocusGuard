@@ -2,11 +2,11 @@
 
 import React from 'react';
 import { Image, Text, View } from 'react-native';
-import { AppUsageStat } from '../../../specs';
+import type { ManageApp } from '../../ManageApps/types';
 import { testIds } from '../../../testing/testIds';
 import { dashboardStyles } from '../styles';
 
-type DistractingAppRowProps = AppUsageStat;
+type DistractingAppRowProps = Pick<ManageApp, 'packageName' | 'appName' | 'appImage'>;
 
 export const DistractingAppRow = ({ packageName, appImage, appName }: DistractingAppRowProps) => (
   <View style={dashboardStyles.appItem} testID={testIds.dashboard.appRow(packageName)}>

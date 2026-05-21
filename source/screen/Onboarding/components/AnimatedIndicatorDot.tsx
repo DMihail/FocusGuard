@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Animated, StyleSheet, type Animated as AnimatedNamespace } from 'react-native';
-import { colors } from '../../../theme';
+import { borderRadius, colors } from '../../../theme';
 
 export type IndicatorVariant = 'progress' | 'page';
 
@@ -53,6 +53,6 @@ export const AnimatedIndicatorDot = ({ progress, variant }: AnimatedIndicatorDot
 
 const styles = StyleSheet.create({
   dot: {
-    borderRadius: 999,
+    borderRadius: borderRadius.pill,
   },
 });
