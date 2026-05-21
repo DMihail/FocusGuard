@@ -21,14 +21,16 @@ export type InstallApp = Readonly<{
 
 export interface Spec extends TurboModule {
   checkForPermission(): boolean;
-  checkForQueryAllPackagesPermission(): boolean;
-  checkForDisplayOverAppsPermission(): boolean;
   checkForSystemAlertWindowPermission(): boolean;
   checkForNotificationsPermission(): boolean;
+  checkForIgnoreBatteryOptimizationsPermission(): boolean;
+  /** Install-time manifest permissions (FGS, boot receiver) — not user-grantable. */
+  checkForManifestMonitorPermissions(): boolean;
+  startMonitorService(): void;
   requestUsageStatsPermission(): void;
-  requestDisplayOverAppsPermission(): void;
   requestSystemAlertWindowPermission(): void;
   requestNotificationsPermission(): void;
+  requestIgnoreBatteryOptimizationsPermission(): void;
   getAppsUsageStats(): AppUsageStat[];
   getInstalledApplications(): InstallApp[];
 }
@@ -37,23 +39,23 @@ const usageStats = TurboModuleRegistry.get<Spec>('NativeUsageStats');
 
 export const checkForPermission = (): boolean => usageStats?.checkForPermission() ?? false;
 
-export const checkForQueryAllPackagesPermission = (): boolean =>
-  usageStats?.checkForQueryAllPackagesPermission() ?? false;
-
-export const checkForDisplayOverAppsPermission = (): boolean =>
-  usageStats?.checkForDisplayOverAppsPermission() ?? false;
-
 export const checkForSystemAlertWindowPermission = (): boolean =>
   usageStats?.checkForSystemAlertWindowPermission() ?? false;
 
 export const checkForNotificationsPermission = (): boolean => usageStats?.checkForNotificationsPermission() ?? false;
 
-export const requestUsageStatsPermission = (): void => {
-  usageStats?.requestUsageStatsPermission();
+export const checkForIgnoreBatteryOptimizationsPermission = (): boolean =>
+  usageStats?.checkForIgnoreBatteryOptimizationsPermission() ?? false;
+
+export const checkForManifestMonitorPermissions = (): boolean =>
+  usageStats?.checkForManifestMonitorPermissions() ?? false;
+
+export const startMonitorService = (): void => {
+  usageStats?.startMonitorService();
 };
 
-export const requestDisplayOverAppsPermission = (): void => {
-  usageStats?.requestDisplayOverAppsPermission();
+export const requestUsageStatsPermission = (): void => {
+  usageStats?.requestUsageStatsPermission();
 };
 
 export const requestSystemAlertWindowPermission = (): void => {
@@ -62,6 +64,10 @@ export const requestSystemAlertWindowPermission = (): void => {
 
 export const requestNotificationsPermission = (): void => {
   usageStats?.requestNotificationsPermission();
+};
+
+export const requestIgnoreBatteryOptimizationsPermission = (): void => {
+  usageStats?.requestIgnoreBatteryOptimizationsPermission();
 };
 
 export const getAppsUsageStats = (): AppUsageStat[] => usageStats?.getAppsUsageStats() ?? [];

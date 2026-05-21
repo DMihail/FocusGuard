@@ -19,12 +19,14 @@ const pendingStatuses: Record<PermissionId, PermissionStatus> = {
   'usage-access': 'pending',
   'display-over-apps': 'pending',
   notifications: 'pending',
+  'battery-optimization': 'pending',
 };
 
 const grantedStatuses: Record<PermissionId, PermissionStatus> = {
   'usage-access': 'granted',
   'display-over-apps': 'granted',
   notifications: 'granted',
+  'battery-optimization': 'granted',
 };
 
 let appStateListener: ((state: string) => void) | undefined;

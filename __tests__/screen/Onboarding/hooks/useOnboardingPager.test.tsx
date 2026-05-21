@@ -6,13 +6,13 @@ import ReactTestRenderer from 'react-test-renderer';
 const mockNavigate = jest.fn();
 const mockSetIsConfirm = jest.fn();
 
-jest.mock('../../../../source/navigation', () => ({
+jest.mock('@/navigation', () => ({
   useRootNavigation: () => ({
     navigate: mockNavigate,
   }),
 }));
 
-jest.mock('../../../../source/store/onboardingStore', () => ({
+jest.mock('@/store/onboardingStore', () => ({
   onboardingStore: {
     getState: () => ({
       setIsConfirm: mockSetIsConfirm,

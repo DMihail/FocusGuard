@@ -4,9 +4,11 @@ import React, { useCallback, useMemo } from 'react';
 import { ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRootNavigation } from '@/navigation';
+import { startMonitorService } from '@/specs';
 import { PermissionCard, PermissionsFooter, PermissionsHeader, PrivacyNotice } from './components';
 import { PERMISSIONS } from './data/permissions';
 import { usePermissionsSync } from './hooks/usePermissionsSync';
+import { areAllPermissionsGranted } from './utils/permissionStatus';
 import { testIds } from '@/testing/testIds';
 import { permissionsStyles } from './styles';
 
@@ -19,10 +21,11 @@ export const EnablePermissionsScreen = () => {
     [statusById],
   );
 
-  const canContinue = permissions.every((item) => item.status === 'granted');
+  const canContinue = areAllPermissionsGranted();
 
   const handleContinue = useCallback(() => {
     if (canContinue) {
+      startMonitorService();
       navigation.navigate('Dashboard');
     }
   }, [canContinue, navigation]);

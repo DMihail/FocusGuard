@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">FocusGuard</string>
+    <string name="monitor_notification_channel_name">Focus monitoring</string>
+    <string name="monitor_notification_channel_description">Keeps FocusGuard active to enforce app limits</string>
+    <string name="monitor_notification_title">FocusGuard is active</string>
+    <string name="monitor_notification_text">Monitoring app usage in the background</string>
+    <string name="special_use_fgs_subtype">focus_monitoring</string>
 </resources>

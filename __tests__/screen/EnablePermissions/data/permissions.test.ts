@@ -3,13 +3,17 @@
 import { PERMISSIONS } from '@/screen/EnablePermissions/data/permissions';
 
 describe('permissions data', () => {
-  it('defines three permission items', () => {
-    expect(PERMISSIONS).toHaveLength(3);
+  it('defines four user-facing permission steps', () => {
+    expect(PERMISSIONS).toHaveLength(4);
   });
 
-  it('includes required permission ids and copy', () => {
-    expect(PERMISSIONS.map((item) => item.id)).toEqual(['usage-access', 'display-over-apps', 'notifications']);
-    expect(PERMISSIONS.map((item) => item.title)).toEqual(['Usage Access', 'Display Over Apps', 'Notifications']);
+  it('includes required permission ids', () => {
+    expect(PERMISSIONS.map((item) => item.id)).toEqual([
+      'usage-access',
+      'display-over-apps',
+      'notifications',
+      'battery-optimization',
+    ]);
   });
 
   it('starts every permission in pending state', () => {

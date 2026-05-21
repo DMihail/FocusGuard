@@ -2,14 +2,15 @@
 
 const mockUsageStats = {
   checkForPermission: jest.fn(),
-  checkForQueryAllPackagesPermission: jest.fn(),
-  checkForDisplayOverAppsPermission: jest.fn(),
   checkForSystemAlertWindowPermission: jest.fn(),
   checkForNotificationsPermission: jest.fn(),
+  checkForIgnoreBatteryOptimizationsPermission: jest.fn(),
+  checkForManifestMonitorPermissions: jest.fn(),
+  startMonitorService: jest.fn(),
   requestUsageStatsPermission: jest.fn(),
-  requestDisplayOverAppsPermission: jest.fn(),
   requestSystemAlertWindowPermission: jest.fn(),
   requestNotificationsPermission: jest.fn(),
+  requestIgnoreBatteryOptimizationsPermission: jest.fn(),
   getAppsUsageStats: jest.fn(),
   getInstalledApplications: jest.fn(),
 };
@@ -34,7 +35,6 @@ describe('NativeUsageStats', () => {
     jest.clearAllMocks();
     mockGet.mockReturnValue(mockUsageStats);
     mockUsageStats.checkForPermission.mockReturnValue(false);
-    mockUsageStats.checkForQueryAllPackagesPermission.mockReturnValue(false);
     mockUsageStats.getAppsUsageStats.mockReturnValue([]);
     mockUsageStats.getInstalledApplications.mockReturnValue([]);
   });
@@ -47,28 +47,11 @@ describe('NativeUsageStats', () => {
     expect(mockUsageStats.checkForPermission).toHaveBeenCalledTimes(1);
   });
 
-  it('delegates checkForQueryAllPackagesPermission to the native module', () => {
-    mockUsageStats.checkForQueryAllPackagesPermission.mockReturnValue(true);
-    const specs = loadSpecs();
-
-    expect(specs.checkForQueryAllPackagesPermission()).toBe(true);
-    expect(mockUsageStats.checkForQueryAllPackagesPermission).toHaveBeenCalledTimes(1);
-  });
-
   it('delegates requestUsageStatsPermission to the native module', () => {
     const specs = loadSpecs();
 
     specs.requestUsageStatsPermission();
     expect(mockUsageStats.requestUsageStatsPermission).toHaveBeenCalledTimes(1);
-  });
-
-  it('delegates display over apps permission checks and requests', () => {
-    mockUsageStats.checkForDisplayOverAppsPermission.mockReturnValue(true);
-    const specs = loadSpecs();
-
-    expect(specs.checkForDisplayOverAppsPermission()).toBe(true);
-    specs.requestDisplayOverAppsPermission();
-    expect(mockUsageStats.requestDisplayOverAppsPermission).toHaveBeenCalledTimes(1);
   });
 
   it('delegates SYSTEM_ALERT_WINDOW permission checks and requests', () => {
@@ -78,6 +61,30 @@ describe('NativeUsageStats', () => {
     expect(specs.checkForSystemAlertWindowPermission()).toBe(true);
     specs.requestSystemAlertWindowPermission();
     expect(mockUsageStats.requestSystemAlertWindowPermission).toHaveBeenCalledTimes(1);
+  });
+
+  it('delegates battery optimization permission checks and requests', () => {
+    mockUsageStats.checkForIgnoreBatteryOptimizationsPermission.mockReturnValue(true);
+    const specs = loadSpecs();
+
+    expect(specs.checkForIgnoreBatteryOptimizationsPermission()).toBe(true);
+    specs.requestIgnoreBatteryOptimizationsPermission();
+    expect(mockUsageStats.requestIgnoreBatteryOptimizationsPermission).toHaveBeenCalledTimes(1);
+  });
+
+  it('delegates manifest monitor permission checks', () => {
+    mockUsageStats.checkForManifestMonitorPermissions.mockReturnValue(true);
+    const specs = loadSpecs();
+
+    expect(specs.checkForManifestMonitorPermissions()).toBe(true);
+    expect(mockUsageStats.checkForManifestMonitorPermissions).toHaveBeenCalledTimes(1);
+  });
+
+  it('delegates startMonitorService to the native module', () => {
+    const specs = loadSpecs();
+
+    specs.startMonitorService();
+    expect(mockUsageStats.startMonitorService).toHaveBeenCalledTimes(1);
   });
 
   it('delegates notifications permission checks and requests', () => {
@@ -121,15 +128,16 @@ describe('NativeUsageStats', () => {
     const specs = loadSpecs();
 
     expect(specs.checkForPermission()).toBe(false);
-    expect(specs.checkForQueryAllPackagesPermission()).toBe(false);
-    expect(specs.checkForDisplayOverAppsPermission()).toBe(false);
     expect(specs.checkForSystemAlertWindowPermission()).toBe(false);
+    expect(specs.checkForIgnoreBatteryOptimizationsPermission()).toBe(false);
+    expect(specs.checkForManifestMonitorPermissions()).toBe(false);
     expect(specs.checkForNotificationsPermission()).toBe(false);
     expect(specs.getAppsUsageStats()).toEqual([]);
     expect(specs.getInstalledApplications()).toEqual([]);
     expect(() => specs.requestUsageStatsPermission()).not.toThrow();
-    expect(() => specs.requestDisplayOverAppsPermission()).not.toThrow();
     expect(() => specs.requestSystemAlertWindowPermission()).not.toThrow();
+    expect(() => specs.requestIgnoreBatteryOptimizationsPermission()).not.toThrow();
+    expect(() => specs.startMonitorService()).not.toThrow();
     expect(() => specs.requestNotificationsPermission()).not.toThrow();
   });
 });

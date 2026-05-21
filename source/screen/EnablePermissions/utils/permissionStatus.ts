@@ -2,9 +2,12 @@
 
 import { Platform } from 'react-native';
 import {
+  checkForIgnoreBatteryOptimizationsPermission,
+  checkForManifestMonitorPermissions,
   checkForNotificationsPermission,
   checkForPermission,
   checkForSystemAlertWindowPermission,
+  requestIgnoreBatteryOptimizationsPermission,
   requestNotificationsPermission,
   requestSystemAlertWindowPermission,
   requestUsageStatsPermission,
@@ -16,12 +19,14 @@ const permissionChecks: Record<PermissionId, () => boolean> = {
   'usage-access': checkForPermission,
   'display-over-apps': checkForSystemAlertWindowPermission,
   'notifications': checkForNotificationsPermission,
+  'battery-optimization': checkForIgnoreBatteryOptimizationsPermission,
 };
 
 const permissionRequests: Record<PermissionId, () => void> = {
   'usage-access': requestUsageStatsPermission,
   'display-over-apps': requestSystemAlertWindowPermission,
   'notifications': requestNotificationsPermission,
+  'battery-optimization': requestIgnoreBatteryOptimizationsPermission,
 };
 
 export const readPermissionStatuses = (): Record<PermissionId, PermissionStatus> => {
@@ -38,8 +43,14 @@ export const readPermissionStatuses = (): Record<PermissionId, PermissionStatus>
 };
 
 export const areAllPermissionsGranted = (): boolean => {
+  if (Platform.OS !== 'android') {
+    return true;
+  }
+
   const statuses = readPermissionStatuses();
-  return PERMISSIONS.every((item) => statuses[item.id] === 'granted');
+  const visibleGranted = PERMISSIONS.every((item) => statuses[item.id] === 'granted');
+
+  return visibleGranted && checkForManifestMonitorPermissions();
 };
 
 export const requestPermissionById = (id: PermissionId): void => {

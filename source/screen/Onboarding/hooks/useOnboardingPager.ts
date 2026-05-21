@@ -8,8 +8,7 @@ import {
   type NativeScrollEvent,
   type NativeSyntheticEvent,
 } from 'react-native';
-import { WALKTHROUGH_STEPS } from '@/screen';
-import type { WalkthroughStepData } from '@/screen';
+import { WALKTHROUGH_STEPS, type WalkthroughStepData } from '@/screen';
 import type { ScrollIndicatorProps } from '../types';
 import { clampStepIndex, createGetItemLayout, createScrollToIndexFailedHandler, getStepFromOffset } from '../utils';
 import { useRootNavigation } from '@/navigation';
