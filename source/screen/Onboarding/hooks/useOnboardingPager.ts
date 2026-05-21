@@ -13,6 +13,7 @@ import type { WalkthroughStepData } from '../data/walkthroughSteps';
 import type { ScrollIndicatorProps } from '../types';
 import { clampStepIndex, createGetItemLayout, createScrollToIndexFailedHandler, getStepFromOffset } from '../utils';
 import { useRootNavigation } from '../../../navigation';
+import { onboardingStore } from '../../../store/onboardingStore';
 
 const STEP_COUNT = WALKTHROUGH_STEPS.length;
 const LAST_STEP_INDEX = STEP_COUNT - 1;
@@ -64,6 +65,7 @@ export const useOnboardingPager = () => {
   }, []);
 
   const onSkip = useCallback(() => {
+    onboardingStore.getState().setIsConfirm(true);
     navigation.navigate('EnablePermissions');
   }, [navigation]);
 

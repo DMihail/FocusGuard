@@ -3,7 +3,7 @@
 import React, { FC } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 
-import { colors, typography } from '../../../theme';
+import { borderRadius, colors, spacing, typography } from '../../../theme';
 
 type WalkthroughProps = {
   title: string;
@@ -27,12 +27,12 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 16,
+    paddingHorizontal: spacing.lg,
   },
   iconContainer: {
     width: 224,
     height: 224,
-    borderRadius: 28,
+    borderRadius: borderRadius.walkthrough,
     backgroundColor: colors.surface,
     alignItems: 'center',
     justifyContent: 'center',
@@ -47,7 +47,7 @@ const styles = StyleSheet.create({
     ...typography.title,
     color: colors.textPrimary,
     textAlign: 'center',
-    marginBottom: 16,
+    marginBottom: spacing.lg,
   },
   description: {
     ...typography.body,

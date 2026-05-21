@@ -1,12 +1,8 @@
 /** @format */
 
-import { Platform, StatusBar, UIManager, useColorScheme } from 'react-native';
+import { StatusBar, useColorScheme } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Navigation } from './navigation';
-
-if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
-  UIManager.setLayoutAnimationEnabledExperimental(true);
-}
 
 function App() {
   const isDarkMode = useColorScheme() === 'dark';

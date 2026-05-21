@@ -1,29 +1,21 @@
 /** @format */
 
 import { StyleSheet } from 'react-native';
-import { colors, fontFamily, fontSize, fontWeight, letterSpacing, lineHeight, typography } from '../../theme';
+import { borderRadius, colors, iconBoxPresets, layoutPresets, spacing, textPresets, typography } from '../../theme';
 
 export const dashboardStyles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  scrollContent: {
-    flexGrow: 1,
-    paddingHorizontal: 24,
-    paddingBottom: 24,
-    gap: 24,
-  },
+  screen: layoutPresets.screen,
+  scrollContent: layoutPresets.scrollContent(),
   header: {
     flexDirection: 'row',
     alignItems: 'flex-start',
     justifyContent: 'space-between',
-    paddingTop: 8,
-    gap: 16,
+    paddingTop: spacing.sm,
+    gap: spacing.lg,
   },
   headerText: {
     flex: 1,
-    gap: 4,
+    gap: spacing.xs,
   },
   greeting: {
     ...typography.title,
@@ -36,83 +28,41 @@ export const dashboardStyles = StyleSheet.create({
   settingsButton: {
     width: 48,
     height: 48,
-    borderRadius: 24,
+    borderRadius: borderRadius.xxl,
     alignItems: 'center',
     justifyContent: 'center',
   },
   section: {
-    gap: 12,
+    gap: spacing.md,
   },
-  sectionHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  sectionTitle: {
-    fontFamily: fontFamily.inter,
-    fontSize: fontSize.md,
-    fontWeight: fontWeight.medium,
-    lineHeight: lineHeight.md,
-    letterSpacing: letterSpacing.tight,
-    color: colors.textPrimary,
-  },
-  viewAllButton: {
-    paddingVertical: 4,
-    paddingHorizontal: 8,
-  },
-  viewAllText: {
-    ...typography.button,
-    color: colors.accent,
-  },
+  sectionHeader: layoutPresets.rowBetween,
+  sectionTitle: textPresets.sectionTitle,
+  viewAllButton: layoutPresets.linkButton,
+  viewAllText: textPresets.accentButton,
   appsList: {
-    gap: 12,
+    gap: spacing.md,
+    backgroundColor: colors.surfaceDark,
   },
   appItem: {
-    backgroundColor: colors.card,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: colors.cardBorder,
-    padding: 12,
+    ...layoutPresets.card,
+    padding: spacing.md,
   },
   appRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
+    ...layoutPresets.rowCenter,
+    gap: spacing.md,
   },
-  appIconBox: {
-    width: 40,
-    height: 40,
-    borderRadius: 12,
-    backgroundColor: colors.appIconBackground,
-    alignItems: 'center',
-    justifyContent: 'center',
-    overflow: 'hidden',
-  },
+  appIconBox: iconBoxPresets.sm,
   appIcon: {
     width: 40,
     height: 40,
   },
-  appIconFallback: {
-    fontFamily: fontFamily.inter,
-    fontSize: fontSize.md,
-    fontWeight: fontWeight.medium,
-    color: colors.textPrimary,
-  },
+  appIconFallback: textPresets.label,
   appInfo: {
     flex: 1,
   },
-  appName: {
-    fontFamily: fontFamily.inter,
-    fontSize: fontSize.sm,
-    fontWeight: fontWeight.medium,
-    lineHeight: lineHeight.sm,
-    letterSpacing: letterSpacing.tight,
-    color: colors.textPrimary,
-  },
+  appName: textPresets.label,
   emptyText: {
-    ...typography.body,
-    color: colors.textMuted,
-    textAlign: 'center',
-    paddingVertical: 16,
+    ...textPresets.empty,
+    paddingVertical: spacing.lg,
   },
 });

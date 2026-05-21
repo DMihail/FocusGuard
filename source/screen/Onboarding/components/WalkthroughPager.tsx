@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { FLAT_LIST_WINDOW_SIZE, SCROLL_EVENT_THROTTLE } from '../constants';
 import type { WalkthroughStepData } from '../data/walkthroughSteps';
+import { testIds } from '../../../testing/testIds';
 import { WalkthroughPage } from './WalkthroughPage';
 
 const AnimatedFlatList = Animated.createAnimatedComponent(FlatList<WalkthroughStepData>);
@@ -46,6 +47,7 @@ export const WalkthroughPager = ({
 
   return (
     <AnimatedFlatList
+      testID={testIds.onboarding.walkthroughPager}
       ref={listRef}
       data={steps}
       renderItem={renderItem}

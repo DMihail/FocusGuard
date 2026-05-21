@@ -79,7 +79,16 @@ describe('NativeUsageStats', () => {
   });
 
   it('returns usage stats from the native module', () => {
-    const stats = [{ packageName: 'com.app', appName: 'App', appImage: '', totalTimeForeground: 1, lastTimeUsed: 2 }];
+    const stats = [
+      {
+        packageName: 'com.app',
+        appName: 'App',
+        appImage: '',
+        category: 'Social',
+        totalTimeForeground: 1,
+        lastTimeUsed: 2,
+      },
+    ];
     mockUsageStats.getAppsUsageStats.mockReturnValue(stats);
     const specs = loadSpecs();
 
@@ -87,7 +96,9 @@ describe('NativeUsageStats', () => {
   });
 
   it('returns installed applications from the native module', () => {
-    const apps = [{ packageName: 'com.app', appName: 'App', appImage: 'data:image/png;base64,x' }];
+    const apps = [
+      { packageName: 'com.app', appName: 'App', appImage: 'data:image/png;base64,x', category: 'Game' },
+    ];
     mockUsageStats.getInstalledApplications.mockReturnValue(apps);
     const specs = loadSpecs();
 

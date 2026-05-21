@@ -1,0 +1,11 @@
+/** @format */
+
+import * as React from 'react';
+import Svg, { Circle, Path, SvgProps } from 'react-native-svg';
+
+export const SearchIcon = (props: SvgProps) => (
+  <Svg width={16} height={16} viewBox="0 0 16 16" fill="none" {...props}>
+    <Circle cx={7.5} cy={7.5} r={5.5} stroke="#938F99" strokeOpacity={0.5} strokeWidth={1.5} />
+    <Path d="M11.5 11.5L14 14" stroke="#938F99" strokeOpacity={0.5} strokeWidth={1.5} strokeLinecap="round" />
+  </Svg>
+);

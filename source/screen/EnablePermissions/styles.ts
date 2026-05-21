@@ -1,29 +1,33 @@
 /** @format */
 
 import { StyleSheet } from 'react-native';
-import { colors, fontFamily, fontSize, fontWeight, typography } from '../../theme';
+import {
+  borderRadius,
+  colors,
+  fontSize,
+  fontWeight,
+  iconBoxPresets,
+  layoutPresets,
+  letterSpacing,
+  lineHeight,
+  spacing,
+  textPresets,
+  typography,
+} from '../../theme';
 
 export const permissionsStyles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  scrollContent: {
-    flexGrow: 1,
-    paddingHorizontal: 24,
-    paddingBottom: 24,
-    gap: 16,
-  },
+  screen: layoutPresets.screen,
+  scrollContent: layoutPresets.scrollContent(spacing.lg),
   header: {
-    gap: 12,
-    paddingTop: 8,
+    gap: spacing.md,
+    paddingTop: spacing.sm,
   },
   title: {
-    fontFamily: fontFamily.inter,
-    fontSize: 36,
-    fontWeight: '700',
-    lineHeight: 40,
-    letterSpacing: -0.53,
+    fontFamily: typography.title.fontFamily,
+    fontSize: fontSize.display,
+    fontWeight: fontWeight.bold,
+    lineHeight: lineHeight.display,
+    letterSpacing: letterSpacing.tightLg,
     color: colors.textPrimary,
   },
   subtitle: {
@@ -31,25 +35,18 @@ export const permissionsStyles = StyleSheet.create({
     color: colors.textMuted,
   },
   cards: {
-    gap: 16,
+    gap: spacing.lg,
   },
   card: {
-    borderRadius: 20,
+    borderRadius: borderRadius.xl,
     borderWidth: 2,
     padding: 26,
   },
   cardRow: {
-    flexDirection: 'row',
-    gap: 16,
+    ...layoutPresets.rowCenter,
+    gap: spacing.lg,
   },
-  iconBox: {
-    width: 52,
-    height: 52,
-    borderRadius: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-    overflow: 'hidden',
-  },
+  iconBox: iconBoxPresets.lg,
   iconLayer: {
     ...StyleSheet.absoluteFill,
     alignItems: 'center',
@@ -57,21 +54,13 @@ export const permissionsStyles = StyleSheet.create({
   },
   cardContent: {
     flex: 1,
-    gap: 8,
+    gap: spacing.sm,
   },
   cardTitleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    ...layoutPresets.rowCenter,
     gap: 10,
   },
-  cardTitle: {
-    fontFamily: fontFamily.inter,
-    fontSize: fontSize.md,
-    fontWeight: '600',
-    lineHeight: 24,
-    letterSpacing: -0.31,
-    color: colors.textPrimary,
-  },
+  cardTitle: textPresets.heading,
   grantedBadge: {
     width: 22,
     height: 22,
@@ -81,11 +70,11 @@ export const permissionsStyles = StyleSheet.create({
     justifyContent: 'center',
   },
   cardDescription: {
-    fontFamily: fontFamily.inter,
+    fontFamily: typography.body.fontFamily,
     fontSize: fontSize.sm,
     fontWeight: fontWeight.regular,
     lineHeight: 23,
-    letterSpacing: -0.15,
+    letterSpacing: letterSpacing.tightXs,
     color: colors.textMuted,
   },
   grantButtonContainer: {
@@ -95,37 +84,34 @@ export const permissionsStyles = StyleSheet.create({
   grantButton: {
     paddingVertical: 10,
     paddingHorizontal: 20,
-    borderRadius: 12,
+    borderRadius: borderRadius.md,
     backgroundColor: colors.accentMuted,
   },
-  grantButtonText: {
-    ...typography.button,
-    color: colors.accent,
-  },
+  grantButtonText: textPresets.accentButton,
   privacyBox: {
-    borderRadius: 16,
+    borderRadius: borderRadius.lg,
     borderWidth: 1,
     borderColor: colors.privacyBorder,
     backgroundColor: colors.privacyBackground,
     padding: 20,
   },
   privacyText: {
-    fontFamily: fontFamily.inter,
+    fontFamily: typography.body.fontFamily,
     fontSize: fontSize.sm,
     fontWeight: fontWeight.regular,
     lineHeight: 23,
-    letterSpacing: -0.15,
+    letterSpacing: letterSpacing.tightXs,
     color: colors.textMuted,
     textAlign: 'center',
   },
   footer: {
-    paddingHorizontal: 24,
-    paddingBottom: 8,
+    paddingHorizontal: spacing.xl,
+    paddingBottom: spacing.sm,
     gap: 20,
   },
   continueButton: {
     height: 56,
-    borderRadius: 16,
+    borderRadius: borderRadius.lg,
     backgroundColor: colors.buttonDisabled,
     alignItems: 'center',
     justifyContent: 'center',
@@ -134,11 +120,7 @@ export const permissionsStyles = StyleSheet.create({
     backgroundColor: colors.surface,
   },
   continueText: {
-    fontFamily: fontFamily.inter,
-    fontSize: fontSize.md,
-    fontWeight: '600',
-    lineHeight: 24,
-    letterSpacing: -0.31,
+    ...textPresets.heading,
     color: colors.textDisabled,
   },
   continueTextEnabled: {

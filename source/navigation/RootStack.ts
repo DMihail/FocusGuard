@@ -1,31 +1,43 @@
 /** @format */
 
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { DashboardScreen, EnablePermissionsScreen, OnboardingScreen } from '../screen';
+import { DashboardScreen, EnablePermissionsScreen, ManageAppsScreen, OnboardingScreen } from '../screen';
+import type { RootStackParamList } from './types';
 
-export const RootStack = createNativeStackNavigator({
-  initialRouteName: 'Onboarding',
-  screens: {
-    Onboarding: {
-      screen: OnboardingScreen,
-      options: {
-        headerShown: false,
-      },
-    },
-    EnablePermissions: {
-      screen: EnablePermissionsScreen,
-      options: {
-        headerShown: false,
-      },
-    },
-    Dashboard: {
-      screen: DashboardScreen,
-      options: {
-        headerShown: false,
-      },
+const rootScreens = {
+  Onboarding: {
+    screen: OnboardingScreen,
+    options: {
+      headerShown: false,
     },
   },
-});
+  EnablePermissions: {
+    screen: EnablePermissionsScreen,
+    options: {
+      headerShown: false,
+    },
+  },
+  Dashboard: {
+    screen: DashboardScreen,
+    options: {
+      headerShown: false,
+    },
+  },
+  ManageApps: {
+    screen: ManageAppsScreen,
+    options: {
+      headerShown: false,
+    },
+  },
+} as const;
+
+export const createRootStack = (initialRouteName: keyof RootStackParamList) =>
+  createNativeStackNavigator({
+    initialRouteName,
+    screens: rootScreens,
+  });
+
+export const RootStack = createRootStack('Onboarding');
 
 export type RootStackType = typeof RootStack;
 

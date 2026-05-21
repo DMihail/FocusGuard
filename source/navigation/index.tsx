@@ -1,15 +1,8 @@
 /** @format */
 
-import { createStaticNavigation } from '@react-navigation/native';
-import { RootStack } from './RootStack';
+import { RootNavigationGate } from './RootNavigationGate';
 
-export const Navigation = createStaticNavigation(RootStack);
+export const Navigation = RootNavigationGate;
 
-export { useEnablePermissionsRoute, useOnboardingRoute, useRootNavigation } from './hooks';
-export type {
-  EnablePermissionsScreenProps,
-  OnboardingScreenProps,
-  RootNavigationProp,
-  RootStackParamList,
-} from './types';
-export type { RootStackType } from './RootStack';
+export { useRootNavigation } from './hooks';
+export type { RootNavigationProp, RootStackParamList } from './types';

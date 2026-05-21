@@ -19,6 +19,7 @@ jest.mock('../../../../source/specs', () => ({
 }));
 
 import {
+  areAllPermissionsGranted,
   readPermissionStatuses,
   requestPermissionById,
 } from '../../../../source/screen/EnablePermissions/utils/permissionStatus';
@@ -44,6 +45,16 @@ describe('permissionStatus utils', () => {
       'display-over-apps': 'pending',
       notifications: 'pending',
     });
+  });
+
+  it('reports all permissions granted only when every native check passes', () => {
+    expect(areAllPermissionsGranted()).toBe(false);
+
+    mockCheckForPermission.mockReturnValue(true);
+    mockCheckForDisplayOverAppsPermission.mockReturnValue(true);
+    mockCheckForNotificationsPermission.mockReturnValue(true);
+
+    expect(areAllPermissionsGranted()).toBe(true);
   });
 
   it('reads granted statuses when native checks pass', () => {
