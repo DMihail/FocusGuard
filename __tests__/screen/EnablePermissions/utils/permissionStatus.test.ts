@@ -35,14 +35,14 @@ import {
 const allPending = {
   'usage-access': 'pending',
   'display-over-apps': 'pending',
-  notifications: 'pending',
+  'notifications': 'pending',
   'battery-optimization': 'pending',
 } as const;
 
 const allGranted = {
   'usage-access': 'granted',
   'display-over-apps': 'granted',
-  notifications: 'granted',
+  'notifications': 'granted',
   'battery-optimization': 'granted',
 } as const;
 

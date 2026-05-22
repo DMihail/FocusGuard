@@ -30,6 +30,7 @@ export interface Spec extends TurboModule {
   requestUsageStatsPermission(): void;
   requestSystemAlertWindowPermission(): void;
   requestNotificationsPermission(): void;
+  openNotificationsSettings(): void;
   requestIgnoreBatteryOptimizationsPermission(): void;
   getAppsUsageStats(): AppUsageStat[];
   getInstalledApplications(): InstallApp[];
@@ -64,6 +65,10 @@ export const requestSystemAlertWindowPermission = (): void => {
 
 export const requestNotificationsPermission = (): void => {
   usageStats?.requestNotificationsPermission();
+};
+
+export const openNotificationsSettings = (): void => {
+  usageStats?.openNotificationsSettings();
 };
 
 export const requestIgnoreBatteryOptimizationsPermission = (): void => {

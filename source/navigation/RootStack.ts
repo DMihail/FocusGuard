@@ -1,7 +1,14 @@
 /** @format */
 
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { DashboardScreen, EnablePermissionsScreen, ManageAppsScreen, OnboardingScreen } from '@/screen';
+import {
+  DashboardScreen,
+  EnablePermissionsScreen,
+  ManageAppsScreen,
+  OnboardingScreen,
+  SettingsScreen,
+  LegalDocumentScreen,
+} from '@/screen';
 import type { RootStackParamList } from './types';
 
 const rootScreens = {
@@ -25,6 +32,18 @@ const rootScreens = {
   },
   ManageApps: {
     screen: ManageAppsScreen,
+    options: {
+      headerShown: false,
+    },
+  },
+  Settings: {
+    screen: SettingsScreen,
+    options: {
+      headerShown: false,
+    },
+  },
+  LegalDocument: {
+    screen: LegalDocumentScreen,
     options: {
       headerShown: false,
     },

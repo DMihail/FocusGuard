@@ -14,8 +14,4 @@ object MonitorServiceHelper {
     val intent = Intent(context, FocusGuardMonitorService::class.java)
     ContextCompat.startForegroundService(context, intent)
   }
-
-  fun stop(context: Context) {
-    context.stopService(Intent(context, FocusGuardMonitorService::class.java))
-  }
 }

@@ -3,7 +3,7 @@
 import React, { memo } from 'react';
 import { View } from 'react-native';
 import { colors } from '@/theme';
-import type { WalkthroughStepData } from '@/screen';
+import type { WalkthroughStepData } from '../data/walkthroughSteps';
 import { WALKTHROUGH_ICON_SIZE } from '../constants';
 import { onboardingStyles } from '../styles';
 import { testIds } from '@/testing/testIds';

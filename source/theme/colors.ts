@@ -24,6 +24,11 @@ export const COLORS = {
   privacyBorder: 'rgba(255, 255, 255, 0.06)',
   buttonDisabled: 'rgba(255, 255, 255, 0.06)',
   appIconBackground: 'rgba(73, 69, 79, 0.4)',
+  switchTrackOff: 'rgba(255, 255, 255, 0.12)',
+  privacyHighlightBorder: 'rgba(208, 188, 255, 0.15)',
+  privacyHighlightBg: 'rgba(255, 255, 255, 0.02)',
+  privacyHighlightIconBg: 'rgba(208, 188, 255, 0.2)',
+  divider: 'rgba(255, 255, 255, 0.05)',
 } as const;
 
 export const colors = COLORS;

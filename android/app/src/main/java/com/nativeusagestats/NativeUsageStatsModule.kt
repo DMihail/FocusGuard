@@ -159,6 +159,10 @@ class NativeUsageStatsModule(reactContext: ReactApplicationContext) :
     openNotificationSettings()
   }
 
+  override fun openNotificationsSettings() {
+    openNotificationSettings()
+  }
+
   override fun requestIgnoreBatteryOptimizationsPermission() {
     if (hasIgnoreBatteryOptimizationsPermission()) {
       return
