@@ -18,10 +18,6 @@ class FocusGuardMonitorService : Service() {
 
   override fun onCreate() {
     super.onCreate()
-    if (!MonitorPermissions.canRunMonitorService(this)) {
-      stopSelf()
-      return
-    }
     ensureNotificationChannel()
   }
 
