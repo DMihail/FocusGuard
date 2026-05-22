@@ -7,7 +7,8 @@ export const PERMISSIONS: PermissionItem[] = [
   {
     id: 'usage-access',
     title: 'Usage Access',
-    description: 'Required to track app usage and enforce limits',
+    description:
+      'Enable “Usage access” for FocusGuard. On Xiaomi/Redmi: Settings → Privacy → Special permissions → Usage access, or use Grant to open app permissions.',
     status: 'pending',
     Icon: UsageAccess,
   },

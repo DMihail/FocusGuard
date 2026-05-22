@@ -1,12 +1,10 @@
 package com.focusguard.monitor
 
 import android.Manifest
-import android.app.AppOpsManager
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.PowerManager
-import android.os.Process
 import android.provider.Settings
 import androidx.core.content.ContextCompat
 
@@ -18,7 +16,7 @@ internal object MonitorPermissions {
   }
 
   fun canRunMonitorService(context: Context): Boolean {
-    return hasManifestMonitorPermissions(context) && hasUsageStatsPermission(context)
+    return hasManifestMonitorPermissions(context) && UsageAccess.hasAccess(context)
   }
 
   fun hasReceiveBootCompletedPermission(context: Context): Boolean {
@@ -48,26 +46,6 @@ internal object MonitorPermissions {
         context,
         Manifest.permission.FOREGROUND_SERVICE_SPECIAL_USE,
     ) == PackageManager.PERMISSION_GRANTED
-  }
-
-  private fun hasUsageStatsPermission(context: Context): Boolean {
-    val appOps = context.getSystemService(AppOpsManager::class.java) ?: return false
-    val mode =
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-          appOps.unsafeCheckOpNoThrow(
-              AppOpsManager.OPSTR_GET_USAGE_STATS,
-              Process.myUid(),
-              context.packageName,
-          )
-        } else {
-          @Suppress("DEPRECATION")
-          appOps.checkOpNoThrow(
-              AppOpsManager.OPSTR_GET_USAGE_STATS,
-              Process.myUid(),
-              context.packageName,
-          )
-        }
-    return mode == AppOpsManager.MODE_ALLOWED
   }
 
   fun isIgnoringBatteryOptimizations(context: Context): Boolean {
