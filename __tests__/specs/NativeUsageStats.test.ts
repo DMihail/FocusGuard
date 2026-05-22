@@ -10,6 +10,7 @@ const mockUsageStats = {
   requestUsageStatsPermission: jest.fn(),
   requestSystemAlertWindowPermission: jest.fn(),
   requestNotificationsPermission: jest.fn(),
+  openNotificationsSettings: jest.fn(),
   requestIgnoreBatteryOptimizationsPermission: jest.fn(),
   getAppsUsageStats: jest.fn(),
   getInstalledApplications: jest.fn(),
@@ -94,6 +95,8 @@ describe('NativeUsageStats', () => {
     expect(specs.checkForNotificationsPermission()).toBe(true);
     specs.requestNotificationsPermission();
     expect(mockUsageStats.requestNotificationsPermission).toHaveBeenCalledTimes(1);
+    specs.openNotificationsSettings();
+    expect(mockUsageStats.openNotificationsSettings).toHaveBeenCalledTimes(1);
   });
 
   it('returns usage stats from the native module', () => {
@@ -114,9 +117,7 @@ describe('NativeUsageStats', () => {
   });
 
   it('returns installed applications from the native module', () => {
-    const apps = [
-      { packageName: 'com.app', appName: 'App', appImage: 'data:image/png;base64,x', category: 'Game' },
-    ];
+    const apps = [{ packageName: 'com.app', appName: 'App', appImage: 'data:image/png;base64,x', category: 'Game' }];
     mockUsageStats.getInstalledApplications.mockReturnValue(apps);
     const specs = loadSpecs();
 
@@ -139,5 +140,6 @@ describe('NativeUsageStats', () => {
     expect(() => specs.requestIgnoreBatteryOptimizationsPermission()).not.toThrow();
     expect(() => specs.startMonitorService()).not.toThrow();
     expect(() => specs.requestNotificationsPermission()).not.toThrow();
+    expect(() => specs.openNotificationsSettings()).not.toThrow();
   });
 });

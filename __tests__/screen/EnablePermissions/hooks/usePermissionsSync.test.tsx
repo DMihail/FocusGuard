@@ -18,25 +18,21 @@ import { usePermissionsSync } from '@/screen/EnablePermissions/hooks/usePermissi
 const pendingStatuses: Record<PermissionId, PermissionStatus> = {
   'usage-access': 'pending',
   'display-over-apps': 'pending',
-  notifications: 'pending',
+  'notifications': 'pending',
   'battery-optimization': 'pending',
 };
 
 const grantedStatuses: Record<PermissionId, PermissionStatus> = {
   'usage-access': 'granted',
   'display-over-apps': 'granted',
-  notifications: 'granted',
+  'notifications': 'granted',
   'battery-optimization': 'granted',
 };
 
 let appStateListener: ((state: string) => void) | undefined;
 const mockRemoveAppStateListener = jest.fn();
 
-const PermissionsProbe = ({
-  onReady,
-}: {
-  onReady: (value: ReturnType<typeof usePermissionsSync>) => void;
-}) => {
+const PermissionsProbe = ({ onReady }: { onReady: (value: ReturnType<typeof usePermissionsSync>) => void }) => {
   const value = usePermissionsSync();
   onReady(value);
   return null;

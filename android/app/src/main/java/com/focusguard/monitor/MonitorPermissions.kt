@@ -4,8 +4,6 @@ import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
-import android.os.PowerManager
-import android.provider.Settings
 import androidx.core.content.ContextCompat
 
 internal object MonitorPermissions {
@@ -46,22 +44,5 @@ internal object MonitorPermissions {
         context,
         Manifest.permission.FOREGROUND_SERVICE_SPECIAL_USE,
     ) == PackageManager.PERMISSION_GRANTED
-  }
-
-  fun isIgnoringBatteryOptimizations(context: Context): Boolean {
-    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-      return true
-    }
-
-    val powerManager = context.getSystemService(Context.POWER_SERVICE) as? PowerManager ?: return false
-    return powerManager.isIgnoringBatteryOptimizations(context.packageName)
-  }
-
-  fun canDrawOverlays(context: Context): Boolean {
-    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-      return true
-    }
-
-    return Settings.canDrawOverlays(context)
   }
 }

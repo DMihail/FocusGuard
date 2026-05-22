@@ -55,14 +55,19 @@ jest.mock('@react-navigation/native', () => {
   return {
     createStaticNavigation: (...args: unknown[]) => {
       mockCreateStaticNavigation(...args);
-      return React.forwardRef((_: unknown, ref: React.Ref<{ navigate: typeof mockNavigate; getCurrentRoute: typeof mockGetCurrentRoute }>) => {
-        React.useImperativeHandle(ref, () => ({
-          navigate: mockNavigate,
-          getCurrentRoute: mockGetCurrentRoute,
-        }));
+      return React.forwardRef(
+        (
+          _: unknown,
+          ref: React.Ref<{ navigate: typeof mockNavigate; getCurrentRoute: typeof mockGetCurrentRoute }>,
+        ) => {
+          React.useImperativeHandle(ref, () => ({
+            navigate: mockNavigate,
+            getCurrentRoute: mockGetCurrentRoute,
+          }));
 
-        return <View testID="navigation-root" />;
-      });
+          return <View testID="navigation-root" />;
+        },
+      );
     },
   };
 });
