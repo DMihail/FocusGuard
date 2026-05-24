@@ -15,6 +15,9 @@ import {
 import { PERMISSIONS } from '../data/permissions';
 import type { PermissionId, PermissionStatus } from '../types';
 
+/** Required to continue; notifications can be granted later from this screen or Settings. */
+const REQUIRED_PERMISSION_IDS: PermissionId[] = ['usage-access', 'display-over-apps', 'battery-optimization'];
+
 const permissionChecks: Record<PermissionId, () => boolean> = {
   'usage-access': checkForPermission,
   'display-over-apps': checkForSystemAlertWindowPermission,
@@ -48,9 +51,9 @@ export const areAllPermissionsGranted = (): boolean => {
   }
 
   const statuses = readPermissionStatuses();
-  const visibleGranted = PERMISSIONS.every((item) => statuses[item.id] === 'granted');
+  const requiredGranted = REQUIRED_PERMISSION_IDS.every((id) => statuses[id] === 'granted');
 
-  return visibleGranted && checkForManifestMonitorPermissions();
+  return requiredGranted && checkForManifestMonitorPermissions();
 };
 
 export const requestPermissionById = (id: PermissionId): void => {

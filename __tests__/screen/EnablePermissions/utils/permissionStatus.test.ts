@@ -46,11 +46,15 @@ const allGranted = {
   'battery-optimization': 'granted',
 } as const;
 
-const grantVisibleChecks = () => {
+const grantRequiredChecks = () => {
   mockCheckForPermission.mockReturnValue(true);
   mockCheckForSystemAlertWindowPermission.mockReturnValue(true);
-  mockCheckForNotificationsPermission.mockReturnValue(true);
   mockCheckForIgnoreBatteryOptimizationsPermission.mockReturnValue(true);
+};
+
+const grantAllCardChecks = () => {
+  grantRequiredChecks();
+  mockCheckForNotificationsPermission.mockReturnValue(true);
 };
 
 describe('permissionStatus utils', () => {
@@ -75,17 +79,26 @@ describe('permissionStatus utils', () => {
   });
 
   it('requires manifest monitor permissions for areAllPermissionsGranted', () => {
-    grantVisibleChecks();
+    grantRequiredChecks();
     mockCheckForManifestMonitorPermissions.mockReturnValue(true);
     expect(areAllPermissionsGranted()).toBe(true);
 
-    grantVisibleChecks();
+    grantRequiredChecks();
     mockCheckForManifestMonitorPermissions.mockReturnValue(false);
     expect(areAllPermissionsGranted()).toBe(false);
   });
 
+  it('does not require notifications permission to continue', () => {
+    grantRequiredChecks();
+    mockCheckForNotificationsPermission.mockReturnValue(false);
+    mockCheckForManifestMonitorPermissions.mockReturnValue(true);
+
+    expect(areAllPermissionsGranted()).toBe(true);
+    expect(readPermissionStatuses().notifications).toBe('pending');
+  });
+
   it('reads granted statuses when visible checks pass', () => {
-    grantVisibleChecks();
+    grantAllCardChecks();
     expect(readPermissionStatuses()).toEqual(allGranted);
   });
 

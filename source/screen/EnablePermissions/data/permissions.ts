@@ -22,7 +22,7 @@ export const PERMISSIONS: PermissionItem[] = [
   {
     id: 'notifications',
     title: 'Notifications',
-    description: 'Send reminders and limit warnings',
+    description: 'Optional — send reminders and limit warnings. You can enable this later in Settings.',
     status: 'pending',
     Icon: NotificationsIcon,
   },
