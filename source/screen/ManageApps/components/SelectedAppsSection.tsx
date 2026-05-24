@@ -23,9 +23,6 @@ export const SelectedAppsSection = ({ apps }: SelectedAppsSectionProps) => {
     return null;
   }
 
-  const firstRow = apps.slice(0, Math.ceil(apps.length / 2));
-  const secondRow = apps.slice(Math.ceil(apps.length / 2));
-
   return (
     <View style={manageAppsStyles.section} testID={testIds.manageApps.selectedSection}>
       <Text style={manageAppsStyles.sectionTitle}>Selected Apps</Text>
@@ -33,25 +30,15 @@ export const SelectedAppsSection = ({ apps }: SelectedAppsSectionProps) => {
       <ScrollView
         horizontal
         nestedScrollEnabled
+        removeClippedSubviews
         showsHorizontalScrollIndicator={false}
         style={manageAppsStyles.selectedAppsScroll}
-        contentContainerStyle={manageAppsStyles.selectedAppsScrollContent}
         testID={testIds.manageApps.selectedAppsScroll}
       >
         <View style={manageAppsStyles.selectedAppsRows}>
-          <View style={manageAppsStyles.selectedAppsRow}>
-            {firstRow.map((app) => (
-              <SelectedChip key={app.packageName} app={app} />
-            ))}
-          </View>
-
-          {secondRow.length > 0 ? (
-            <View style={manageAppsStyles.selectedAppsRow}>
-              {secondRow.map((app) => (
-                <SelectedChip key={app.packageName} app={app} />
-              ))}
-            </View>
-          ) : null}
+          {apps.map((app) => (
+            <SelectedChip key={app.packageName} app={app} />
+          ))}
         </View>
       </ScrollView>
     </View>

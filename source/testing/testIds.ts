@@ -81,6 +81,7 @@ export const testIds = {
     selectedAppsScroll: 'manage-apps-selected-apps-scroll',
     selectedChip: (packageName: string) => `manage-apps-selected-chip-${toSegment(packageName)}`,
     appsList: 'manage-apps-list',
+    appsFilterLoader: 'manage-apps-filter-loader',
     appsEmpty: 'manage-apps-empty',
     appRow: (packageName: string) => `manage-apps-row-${toSegment(packageName)}`,
     appSelectionControl: (packageName: string) => `manage-apps-selection-${toSegment(packageName)}`,

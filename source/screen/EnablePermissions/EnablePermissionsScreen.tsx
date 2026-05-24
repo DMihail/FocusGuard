@@ -24,10 +24,12 @@ export const EnablePermissionsScreen = () => {
   const canContinue = areAllPermissionsGranted();
 
   const handleContinue = useCallback(() => {
-    if (canContinue) {
-      startMonitorService();
-      navigation.navigate('Dashboard');
+    if (!canContinue) {
+      return;
     }
+
+    startMonitorService();
+    navigation.navigate('Dashboard');
   }, [canContinue, navigation]);
 
   return (

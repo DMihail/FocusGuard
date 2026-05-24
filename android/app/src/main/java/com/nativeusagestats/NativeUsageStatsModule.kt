@@ -201,12 +201,13 @@ class NativeUsageStatsModule(reactContext: ReactApplicationContext) :
     val launchableApps =
         packageManager.queryIntentActivities(launcherIntent, PackageManager.MATCH_ALL)
 
+    val ownPackage = reactApplicationContext.packageName
     val seenPackages = linkedSetOf<String>()
     val result = Arguments.createArray()
 
     for (resolveInfo in launchableApps) {
       val packageName = resolveInfo.activityInfo.packageName
-      if (!seenPackages.add(packageName)) {
+      if (packageName == ownPackage || !seenPackages.add(packageName)) {
         continue
       }
 
@@ -253,8 +254,10 @@ class NativeUsageStatsModule(reactContext: ReactApplicationContext) :
       return Arguments.createArray()
     }
 
+    val ownPackage = reactApplicationContext.packageName
+
     return stats
-        .filter { it.foregroundTimeMs() > 0 }
+        .filter { it.packageName != ownPackage && it.foregroundTimeMs() > 0 }
         .mapNotNull { usageStat ->
           try {
             val appInfo = packageManager.getApplicationInfo(usageStat.packageName, 0)

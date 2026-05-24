@@ -31,6 +31,18 @@ jest.mock('../../../source/navigation', () => ({
   }),
 }));
 
+jest.mock('@react-navigation/native', () => {
+  const React = require('react');
+  return {
+    useFocusEffect: (callback: () => void | (() => void)) => {
+      React.useEffect(() => {
+        const cleanup = callback();
+        return typeof cleanup === 'function' ? cleanup : undefined;
+      }, [callback]);
+    },
+  };
+});
+
 jest.mock('../../../source/specs', () => ({
   getInstalledApplications: () => mockGetInstalledApplications(),
 }));
@@ -74,14 +86,19 @@ describe('ManageAppsScreen', () => {
     expect(tree!.root.findByProps({ children: 'Social Chat' })).toBeDefined();
   });
 
-  it('hides selected section when nothing is selected', () => {
+  it('hides selected chips when nothing is selected', () => {
     let tree: ReactTestRenderer.ReactTestRenderer;
 
     ReactTestRenderer.act(() => {
       tree = ReactTestRenderer.create(<ManageAppsScreen />);
     });
 
-    expect(tree!.root.findAllByProps({ testID: testIds.manageApps.selectedSection })).toHaveLength(0);
+    expect(
+      tree!.root.findAll(
+        (node) =>
+          typeof node.props.testID === 'string' && node.props.testID.startsWith('manage-apps-selected-chip-'),
+      ),
+    ).toHaveLength(0);
   });
 
   it('shows selected chips after toggling an app', () => {
@@ -119,6 +136,7 @@ describe('ManageAppsScreen', () => {
 
     expect(tree!.root.findByProps({ children: 'News Reader' })).toBeDefined();
     expect(tree!.root.findAllByProps({ children: 'Social Chat' })).toHaveLength(0);
+    // CategoryFilters stay mounted inside hidden Activity; filtering is disabled via useManageApps.
   });
 
   it('filters apps when category chip is pressed', () => {
