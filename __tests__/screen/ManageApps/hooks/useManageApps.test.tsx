@@ -46,13 +46,15 @@ const UseManageAppsHarness = ({ searchQuery = '', categoryId, onReady }: Harness
     if (searchQuery) {
       value.setSearchQuery(searchQuery);
     }
-  }, [searchQuery, value]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- test harness
+  }, [searchQuery]);
 
   useEffect(() => {
     if (categoryId) {
       value.setActiveCategory(categoryId);
     }
-  }, [categoryId, value]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- test harness
+  }, [categoryId]);
 
   useEffect(() => {
     onReady(value);
@@ -101,6 +103,26 @@ describe('useManageApps', () => {
 
     expect(hookValue!.apps).toHaveLength(1);
     expect(hookValue!.apps[0].packageName).toBe('com.game.puzzle');
+  });
+
+  it('ignores active category while search query is set', async () => {
+    let hookValue: ReturnType<typeof useManageApps> | undefined;
+
+    await ReactTestRenderer.act(async () => {
+      ReactTestRenderer.create(
+        <UseManageAppsHarness
+          searchQuery="chat"
+          categoryId="Game"
+          onReady={(value) => {
+            hookValue = value;
+          }}
+        />,
+      );
+    });
+
+    expect(hookValue!.isSearchActive).toBe(true);
+    expect(hookValue!.apps).toHaveLength(1);
+    expect(hookValue!.apps[0].packageName).toBe('com.social.chat');
   });
 
   it('filters apps by active category', async () => {

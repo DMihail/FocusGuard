@@ -90,19 +90,16 @@ export const manageAppsStyles = StyleSheet.create({
   selectedAppsScroll: {
     flexGrow: 0,
     flexShrink: 0,
-    maxHeight: 96,
-  },
-  selectedAppsScrollContent: {
-    flexGrow: 1,
-    paddingVertical: spacing.md,
+    height: 96,
+    overflow: 'hidden',
   },
   selectedAppsRows: {
     flexDirection: 'column',
-    gap: spacing.sm,
-  },
-  selectedAppsRow: {
-    flexDirection: 'row',
-    gap: spacing.sm,
+    flexWrap: 'wrap',
+    alignContent: 'flex-start',
+    height: 96,
+    columnGap: spacing.sm,
+    rowGap: spacing.sm,
   },
   selectedChip: {
     ...layoutPresets.card,
@@ -113,6 +110,19 @@ export const manageAppsStyles = StyleSheet.create({
     paddingVertical: spacing.sm,
   },
   selectedChipLabel: textPresets.label,
+  appsListContainer: {
+    position: 'relative',
+    minHeight: 120,
+  },
+  appsListDimmed: {
+    opacity: 0.45,
+  },
+  filterLoader: {
+    ...StyleSheet.absoluteFill,
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 1,
+  },
   appsList: {
     gap: spacing.md,
   },

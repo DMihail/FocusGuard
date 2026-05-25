@@ -1,5 +1,6 @@
 /** @format */
 
+import { useFocusEffect } from '@react-navigation/native';
 import React, { useCallback } from 'react';
 import { ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -13,10 +14,13 @@ export const ManageAppsScreen = () => {
   const navigation = useRootNavigation();
   const {
     apps,
+    refreshInstalledApps,
+    isFiltering,
     selectedApps,
     selectedCount,
     searchQuery,
     setSearchQuery,
+    isSearchActive,
     categoryFilters,
     activeCategory,
     setActiveCategory,
@@ -27,6 +31,13 @@ export const ManageAppsScreen = () => {
   const handleBack = useCallback(() => {
     navigation.goBack();
   }, [navigation]);
+
+  useFocusEffect(
+    useCallback(() => {
+      refreshInstalledApps();
+    }, [refreshInstalledApps]),
+  );
+
   return (
     <SafeAreaView
       style={manageAppsStyles.screen}
@@ -43,15 +54,17 @@ export const ManageAppsScreen = () => {
       >
         <AppSearchField value={searchQuery} onChangeText={setSearchQuery} />
 
-        <CategoryFilters
-          filters={categoryFilters}
-          activeCategoryId={activeCategory.id}
-          onCategoryChange={setActiveCategory}
-        />
+        {!isSearchActive ? (
+          <CategoryFilters
+            filters={categoryFilters}
+            activeCategoryId={activeCategory.id}
+            onCategoryChange={setActiveCategory}
+          />
+        ) : null}
 
         <SelectedAppsSection apps={selectedApps} />
 
-        <ManageAppsList apps={apps} isSelected={isSelected} onToggle={toggleAppSelection} />
+        <ManageAppsList apps={apps} isFiltering={isFiltering} isSelected={isSelected} onToggle={toggleAppSelection} />
       </ScrollView>
     </SafeAreaView>
   );

@@ -1,6 +1,6 @@
 /** @format */
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useDeferredValue, useEffect, useMemo, useState, useTransition } from 'react';
 import { selectedAppsStore } from '@/store';
 import { getInstalledApplications } from '@/specs';
 import type { CategoryFilterOption } from '../types';
@@ -9,15 +9,27 @@ import { mapInstalledApps } from '../utils/mapInstalledApps';
 import { matchesCategoryFilter } from '../utils/matchesCategoryFilter';
 
 export const useManageApps = () => {
-  const apps = useMemo(() => mapInstalledApps(getInstalledApplications()), []);
+  const [installedApps, setInstalledApps] = useState(() => mapInstalledApps(getInstalledApplications()));
+
+  const refreshInstalledApps = useCallback(() => {
+    setInstalledApps(mapInstalledApps(getInstalledApplications()));
+  }, []);
+
+  const apps = installedApps;
   const categoryFilters = useMemo(() => buildCategoryFilters(apps), [apps]);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState<CategoryFilterOption>(ALL_CATEGORY_FILTER);
+  const [isCategoryPending, startCategoryTransition] = useTransition();
   const selectedApps = selectedAppsStore((state) => state.apps);
   const toggleAppSelection = selectedAppsStore((state) => state.toggleApp);
   const isSelected = selectedAppsStore((state) => state.isSelected);
 
-  const normalizedQuery = searchQuery.trim().toLowerCase();
+  const deferredSearchQuery = useDeferredValue(searchQuery);
+  const normalizedSearchQuery = searchQuery.trim().toLowerCase();
+  const normalizedDeferredQuery = deferredSearchQuery.trim().toLowerCase();
+  const isSearchActive = normalizedSearchQuery.length > 0;
+  const isSearchPending = searchQuery !== deferredSearchQuery;
+  const isFiltering = isSearchPending || (!isSearchActive && isCategoryPending);
 
   useEffect(() => {
     const isActiveFilterAvailable = categoryFilters.some((filter) => filter.id === activeCategory.id);
@@ -29,29 +41,39 @@ export const useManageApps = () => {
 
   const filteredApps = useMemo(() => {
     return apps.filter((app) => {
-      const matchesCategory = matchesCategoryFilter(app, activeCategory);
-      const matchesSearch =
-        normalizedQuery.length === 0 ||
-        app.appName.toLowerCase().includes(normalizedQuery) ||
-        app.packageName.toLowerCase().includes(normalizedQuery);
+      if (normalizedDeferredQuery.length > 0) {
+        return (
+          app.appName.toLowerCase().includes(normalizedDeferredQuery) ||
+          app.packageName.toLowerCase().includes(normalizedDeferredQuery)
+        );
+      }
 
-      return matchesCategory && matchesSearch;
+      return matchesCategoryFilter(app, activeCategory);
     });
-  }, [activeCategory, apps, normalizedQuery]);
+  }, [activeCategory, apps, normalizedDeferredQuery]);
 
   const handleCategoryChange = useCallback(
     (filterId: string) => {
+      if (isSearchActive) {
+        return;
+      }
+
       const nextFilter = categoryFilters.find((filter) => filter.id === filterId);
 
-      if (nextFilter) {
-        setActiveCategory(nextFilter);
+      if (nextFilter && nextFilter.id !== activeCategory.id) {
+        startCategoryTransition(() => {
+          setActiveCategory(nextFilter);
+        });
       }
     },
-    [categoryFilters],
+    [activeCategory.id, categoryFilters, isSearchActive],
   );
 
   return {
     apps: filteredApps,
+    refreshInstalledApps,
+    isFiltering,
+    isSearchActive,
     selectedApps,
     selectedCount: selectedApps.length,
     searchQuery,

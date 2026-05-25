@@ -1,42 +1,40 @@
 /** @format */
 
-import { useEffect, useMemo, useRef } from 'react';
-import { Animated, Easing } from 'react-native';
-import { colors } from '@/theme';
-import { PERMISSION_CARD_ANIMATION_MS, PERMISSION_GRANT_BUTTON_MAX_HEIGHT } from '../constants';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { Animated, Easing, LayoutAnimation } from 'react-native';
+import { PERMISSION_CARD_ANIMATION_MS } from '../constants';
 import type { PermissionStatus } from '../types';
+
+const LAYOUT_ANIM_CONFIG = {
+  duration: PERMISSION_CARD_ANIMATION_MS,
+  update: { type: LayoutAnimation.Types.easeOut, property: LayoutAnimation.Properties.scaleY },
+  delete: { type: LayoutAnimation.Types.easeOut, property: LayoutAnimation.Properties.opacity },
+};
 
 export const usePermissionCardAnimation = (status: PermissionStatus) => {
   const isGranted = status === 'granted';
   const progress = useRef(new Animated.Value(isGranted ? 1 : 0)).current;
+  const [collapsed, setCollapsed] = useState(isGranted);
 
   useEffect(() => {
+    const target = isGranted ? 1 : 0;
+
+    LayoutAnimation.configureNext(LAYOUT_ANIM_CONFIG);
+    setCollapsed(isGranted);
+
     Animated.timing(progress, {
-      toValue: isGranted ? 1 : 0,
+      toValue: target,
       duration: PERMISSION_CARD_ANIMATION_MS,
       easing: Easing.out(Easing.cubic),
-      useNativeDriver: false,
+      useNativeDriver: true,
     }).start();
   }, [isGranted, progress]);
 
   return useMemo(() => {
-    const cardStyle = {
-      backgroundColor: progress.interpolate({
-        inputRange: [0, 1],
-        outputRange: [colors.card, colors.successMuted],
-      }),
-      borderColor: progress.interpolate({
-        inputRange: [0, 1],
-        outputRange: [colors.cardBorder, colors.successBorder],
-      }),
-    };
-
-    const iconBoxStyle = {
-      backgroundColor: progress.interpolate({
-        inputRange: [0, 1],
-        outputRange: [colors.accentIconBg, colors.successIconBg],
-      }),
-    };
+    const grantedOverlayOpacity = progress.interpolate({
+      inputRange: [0, 1],
+      outputRange: [0, 1],
+    });
 
     const pendingIconOpacity = progress.interpolate({
       inputRange: [0, 0.45, 1],
@@ -60,29 +58,19 @@ export const usePermissionCardAnimation = (status: PermissionStatus) => {
       ],
     };
 
-    const grantButtonStyle = {
-      opacity: progress.interpolate({
-        inputRange: [0, 0.35, 1],
-        outputRange: [1, 0, 0],
-      }),
-      maxHeight: progress.interpolate({
-        inputRange: [0, 1],
-        outputRange: [PERMISSION_GRANT_BUTTON_MAX_HEIGHT, 0],
-      }),
-      marginTop: progress.interpolate({
-        inputRange: [0, 1],
-        outputRange: [8, 0],
-      }),
-    };
+    const grantButtonOpacity = progress.interpolate({
+      inputRange: [0, 0.35, 1],
+      outputRange: [1, 0, 0],
+    });
 
     return {
-      cardStyle,
-      iconBoxStyle,
+      grantedOverlayOpacity,
       pendingIconOpacity,
       grantedIconOpacity,
       badgeStyle,
-      grantButtonStyle,
+      grantButtonOpacity,
+      collapsed,
       isGranted,
     };
-  }, [isGranted, progress]);
+  }, [collapsed, isGranted, progress]);
 };

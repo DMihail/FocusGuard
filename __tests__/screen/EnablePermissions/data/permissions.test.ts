@@ -11,8 +11,8 @@ describe('permissions data', () => {
     expect(PERMISSIONS.map((item) => item.id)).toEqual([
       'usage-access',
       'display-over-apps',
-      'notifications',
       'battery-optimization',
+      'notifications',
     ]);
   });
 

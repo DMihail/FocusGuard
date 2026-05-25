@@ -10,7 +10,6 @@ const mockCheckForSystemAlertWindowPermission = jest.fn();
 const mockCheckForNotificationsPermission = jest.fn();
 const mockCheckForIgnoreBatteryOptimizationsPermission = jest.fn();
 const mockCheckForManifestMonitorPermissions = jest.fn();
-const mockStartMonitorService = jest.fn();
 const mockRequestUsageStatsPermission = jest.fn();
 const mockRequestSystemAlertWindowPermission = jest.fn();
 const mockRequestNotificationsPermission = jest.fn();
@@ -31,7 +30,6 @@ jest.mock('@/specs', () => ({
   checkForIgnoreBatteryOptimizationsPermission: (...args: unknown[]) =>
     mockCheckForIgnoreBatteryOptimizationsPermission(...args),
   checkForManifestMonitorPermissions: (...args: unknown[]) => mockCheckForManifestMonitorPermissions(...args),
-  startMonitorService: (...args: unknown[]) => mockStartMonitorService(...args),
   requestUsageStatsPermission: (...args: unknown[]) => mockRequestUsageStatsPermission(...args),
   requestSystemAlertWindowPermission: (...args: unknown[]) => mockRequestSystemAlertWindowPermission(...args),
   requestNotificationsPermission: (...args: unknown[]) => mockRequestNotificationsPermission(...args),
@@ -200,7 +198,6 @@ describe('EnablePermissionsScreen', () => {
       tree!.root.findByProps({ accessibilityLabel: 'Continue' }).props.onPress();
     });
 
-    expect(mockStartMonitorService).toHaveBeenCalledTimes(1);
     expect(mockNavigate).toHaveBeenCalledWith('Dashboard');
   });
 });

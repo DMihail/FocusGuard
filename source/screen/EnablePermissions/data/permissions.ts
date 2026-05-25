@@ -20,17 +20,17 @@ export const PERMISSIONS: PermissionItem[] = [
     Icon: DisplayOverApps,
   },
   {
-    id: 'notifications',
-    title: 'Notifications',
-    description: 'Send reminders and limit warnings',
-    status: 'pending',
-    Icon: NotificationsIcon,
-  },
-  {
     id: 'battery-optimization',
     title: 'Run in Background',
     description: 'Disable battery limits so monitoring works after you leave the app or reboot',
     status: 'pending',
     Icon: BatteryOptimization,
+  },
+  {
+    id: 'notifications',
+    title: 'Notifications',
+    description: 'Optional — send reminders and limit warnings. You can enable this later in Settings.',
+    status: 'pending',
+    Icon: NotificationsIcon,
   },
 ];
