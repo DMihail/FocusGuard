@@ -43,7 +43,7 @@ export const useOnboardingPager = () => {
   const handleScroll = useMemo(
     () =>
       Animated.event([{ nativeEvent: { contentOffset: { x: scrollX } } }], {
-        useNativeDriver: false,
+        useNativeDriver: true,
       }),
     [scrollX],
   );

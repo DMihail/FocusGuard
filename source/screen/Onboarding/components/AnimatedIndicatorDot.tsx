@@ -1,20 +1,20 @@
 /** @format */
 
 import React from 'react';
-import { Animated, StyleSheet, type Animated as AnimatedNamespace } from 'react-native';
+import { Animated, StyleSheet, View, type Animated as AnimatedNamespace } from 'react-native';
 import { borderRadius, colors } from '@/theme';
 
 export type IndicatorVariant = 'progress' | 'page';
 
 const VARIANT_CONFIG = {
   progress: {
-    inactiveWidth: 8,
     activeWidth: 24,
+    inactiveWidth: 8,
     height: 4,
   },
   page: {
-    inactiveWidth: 8,
     activeWidth: 16,
+    inactiveWidth: 8,
     height: 8,
   },
 } as const;
@@ -26,15 +26,21 @@ type AnimatedIndicatorDotProps = {
 
 export const AnimatedIndicatorDot = ({ progress, variant }: AnimatedIndicatorDotProps) => {
   const config = VARIANT_CONFIG[variant];
+  const minScale = config.inactiveWidth / config.activeWidth;
 
-  const width = progress.interpolate({
+  const scaleX = progress.interpolate({
     inputRange: [0, 1],
-    outputRange: [config.inactiveWidth, config.activeWidth],
+    outputRange: [minScale, 1],
   });
 
-  const backgroundColor = progress.interpolate({
-    inputRange: [0, 1],
-    outputRange: [colors.indicatorInactive, colors.accent],
+  const activeOpacity = progress.interpolate({
+    inputRange: [0, 0.5, 1],
+    outputRange: [0, 0, 1],
+  });
+
+  const inactiveOpacity = progress.interpolate({
+    inputRange: [0, 0.5, 1],
+    outputRange: [1, 0, 0],
   });
 
   return (
@@ -42,17 +48,26 @@ export const AnimatedIndicatorDot = ({ progress, variant }: AnimatedIndicatorDot
       style={[
         styles.dot,
         {
-          width,
+          width: config.activeWidth,
           height: config.height,
-          backgroundColor,
+          transform: [{ scaleX }],
         },
       ]}
-    />
+    >
+      <View style={[styles.layer, { backgroundColor: colors.indicatorInactive }]} />
+      <Animated.View style={[styles.layer, { backgroundColor: colors.indicatorInactive, opacity: inactiveOpacity }]} />
+      <Animated.View style={[styles.layer, { backgroundColor: colors.accent, opacity: activeOpacity }]} />
+    </Animated.View>
   );
 };
 
 const styles = StyleSheet.create({
   dot: {
+    borderRadius: borderRadius.pill,
+    overflow: 'hidden',
+  },
+  layer: {
+    ...(StyleSheet.absoluteFill as object),
     borderRadius: borderRadius.pill,
   },
 });
