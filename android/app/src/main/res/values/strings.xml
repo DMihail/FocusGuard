@@ -5,4 +5,8 @@
     <string name="monitor_notification_title">FocusGuard is active</string>
     <string name="monitor_notification_text">Monitoring app usage in the background</string>
     <string name="special_use_fgs_subtype">focus_monitoring</string>
+    <string name="warning_notification_channel_name">Usage warnings</string>
+    <string name="warning_notification_channel_description">Alerts when you spend too long in a distracting app</string>
+    <string name="warning_notification_title">Time to take a break!</string>
+    <string name="warning_notification_text">You\'ve been using %s for over a minute</string>
 </resources>
