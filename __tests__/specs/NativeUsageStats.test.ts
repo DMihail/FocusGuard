@@ -7,6 +7,7 @@ const mockUsageStats = {
   checkForIgnoreBatteryOptimizationsPermission: jest.fn(),
   checkForManifestMonitorPermissions: jest.fn(),
   startMonitorService: jest.fn(),
+  stopMonitorService: jest.fn(),
   requestUsageStatsPermission: jest.fn(),
   requestSystemAlertWindowPermission: jest.fn(),
   requestNotificationsPermission: jest.fn(),
@@ -88,6 +89,13 @@ describe('NativeUsageStats', () => {
     expect(mockUsageStats.startMonitorService).toHaveBeenCalledTimes(1);
   });
 
+  it('delegates stopMonitorService to the native module', () => {
+    const specs = loadSpecs();
+
+    specs.stopMonitorService();
+    expect(mockUsageStats.stopMonitorService).toHaveBeenCalledTimes(1);
+  });
+
   it('delegates notifications permission checks and requests', () => {
     mockUsageStats.checkForNotificationsPermission.mockReturnValue(true);
     const specs = loadSpecs();
@@ -139,6 +147,7 @@ describe('NativeUsageStats', () => {
     expect(() => specs.requestSystemAlertWindowPermission()).not.toThrow();
     expect(() => specs.requestIgnoreBatteryOptimizationsPermission()).not.toThrow();
     expect(() => specs.startMonitorService()).not.toThrow();
+    expect(() => specs.stopMonitorService()).not.toThrow();
     expect(() => specs.requestNotificationsPermission()).not.toThrow();
     expect(() => specs.openNotificationsSettings()).not.toThrow();
   });

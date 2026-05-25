@@ -1,15 +1,17 @@
 /** @format */
 
 import React from 'react';
-import { Text, View } from 'react-native';
+import { Button, Text, View } from 'react-native';
 import { Link } from '@react-navigation/native';
-import { selectedAppsStore } from '@/store';
+import { monitoringStore, selectedAppsStore } from '@/store';
 import { testIds } from '@/testing/testIds';
 import { dashboardStyles } from '../styles';
 import { DistractingAppRow } from './DistractingAppRow';
 
 export const DistractingAppsSection = () => {
   const selectedApps = selectedAppsStore((state) => state.apps);
+  const isMonitoring = monitoringStore((state) => state.isMonitoring);
+  const toggleMonitoring = monitoringStore((state) => state.toggle);
 
   return (
     <View style={dashboardStyles.section} testID={testIds.dashboard.distractingAppsSection}>
@@ -35,6 +37,14 @@ export const DistractingAppsSection = () => {
           selectedApps.map((app) => <DistractingAppRow key={app.packageName} {...app} />)
         )}
       </View>
+
+      {!!selectedApps.length && (
+        <Button
+          title={isMonitoring ? 'Stop' : 'Start'}
+          color={isMonitoring ? '#e74c3c' : undefined}
+          onPress={toggleMonitoring}
+        />
+      )}
     </View>
   );
 };

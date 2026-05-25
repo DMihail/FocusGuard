@@ -20,7 +20,6 @@ import android.os.Build
 import android.os.PowerManager
 import android.os.Process
 import android.provider.Settings
-import android.util.Base64
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.WritableArray
@@ -28,8 +27,19 @@ import com.facebook.react.bridge.WritableMap
 import com.focusguard.monitor.MonitorPermissions
 import com.focusguard.monitor.MonitorServiceHelper
 import com.focusguard.monitor.UsageAccess
-import java.io.ByteArrayOutputStream
+import java.io.File
+import java.io.FileOutputStream
 
+/**
+ * Aggregated usage information for a single application.
+ *
+ * @property packageName unique application identifier (e.g. `com.example.app`).
+ * @property appName human-readable label shown to the user.
+ * @property appImage `file://` URI pointing to the cached app icon, or empty string on failure.
+ * @property totalTimeForeground time the app spent in the foreground during the query window, in ms.
+ * @property lastTimeUsed epoch timestamp of the app's last foreground session.
+ * @property category human-readable category name derived from [ApplicationInfo.category].
+ */
 data class AppUsageInfo(
     val packageName: String,
     val appName: String,
@@ -44,6 +54,7 @@ private const val USAGE_WINDOW_MS = 24 * 60 * 60 * 1000L
 // ApplicationInfo.CATEGORY_SHOPPING (API 31+)
 private const val APPLICATION_CATEGORY_SHOPPING = 9
 
+/** Converts [AppUsageInfo] into a [WritableMap] suitable for the React Native bridge. */
 private fun AppUsageInfo.toWritableMap(): WritableMap =
     Arguments.createMap().apply {
       putString("packageName", packageName)
@@ -54,6 +65,7 @@ private fun AppUsageInfo.toWritableMap(): WritableMap =
       putDouble("lastTimeUsed", lastTimeUsed.toDouble())
     }
 
+/** Converts a list of [AppUsageInfo] into a [WritableArray] for the React Native bridge. */
 private fun List<AppUsageInfo>.toWritableArray(): WritableArray =
     Arguments.createArray().apply {
       for (info in this@toWritableArray) {
@@ -61,6 +73,11 @@ private fun List<AppUsageInfo>.toWritableArray(): WritableArray =
       }
     }
 
+/**
+ * Returns foreground time in milliseconds.
+ * Uses [UsageStats.getTotalTimeVisible] on API 29+ and falls back to the deprecated
+ * [UsageStats.getTotalTimeInForeground] on older versions.
+ */
 private fun UsageStats.foregroundTimeMs(): Long =
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
       totalTimeVisible
@@ -68,6 +85,10 @@ private fun UsageStats.foregroundTimeMs(): Long =
       @Suppress("DEPRECATION") totalTimeInForeground
     }
 
+/**
+ * Resolves a human-readable category name from [ApplicationInfo].
+ * Returns `"Other"` on API < 26 where categories are unavailable.
+ */
 private fun getCategoryName(appInfo: ApplicationInfo): String {
   if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
     return "Other"
@@ -76,6 +97,10 @@ private fun getCategoryName(appInfo: ApplicationInfo): String {
   return getCategoryName(appInfo.category)
 }
 
+/**
+ * Maps an [ApplicationInfo] category constant to a display string.
+ * Handles the `CATEGORY_SHOPPING` constant introduced in API 31.
+ */
 private fun getCategoryName(category: Int): String =
     when (category) {
       ApplicationInfo.CATEGORY_GAME -> "Game"
@@ -95,29 +120,54 @@ private fun getCategoryName(category: Int): String =
           }
     }
 
+/**
+ * React Native Turbo Module that exposes device usage statistics and permission management to JS.
+ *
+ * Provides methods to:
+ * - query and request runtime permissions (Usage Stats, overlay, notifications, battery);
+ * - list installed launchable applications with cached icons;
+ * - retrieve per-app foreground usage statistics for the last 24 hours;
+ * - start the background [FocusGuardMonitorService].
+ */
 class NativeUsageStatsModule(reactContext: ReactApplicationContext) :
     NativeUsageStatsSpec(reactContext) {
 
+  /** @return `true` if the app has Usage Stats access. */
   override fun checkForPermission(): Boolean = UsageAccess.hasAccess(reactApplicationContext)
 
+  /** @return `true` if the app can draw overlays on top of other apps (API 23+). */
   override fun checkForSystemAlertWindowPermission(): Boolean = hasSystemAlertWindowPermission()
 
+  /** @return `true` if the `POST_NOTIFICATIONS` permission is granted (API 33+, always `true` below). */
   override fun checkForNotificationsPermission(): Boolean = hasNotificationsPermission()
 
+  /** @return `true` if the app is excluded from battery optimizations (API 23+). */
   override fun checkForIgnoreBatteryOptimizationsPermission(): Boolean =
       hasIgnoreBatteryOptimizationsPermission()
 
+  /** @return `true` if all manifest-declared permissions required by the monitor service are granted. */
   override fun checkForManifestMonitorPermissions(): Boolean =
       MonitorPermissions.hasManifestMonitorPermissions(reactApplicationContext)
 
+  /** Starts [FocusGuardMonitorService] as a foreground service if all permissions are met. */
   override fun startMonitorService() {
     MonitorServiceHelper.start(reactApplicationContext)
   }
 
+  /** Stops [FocusGuardMonitorService], its [TrackingEngine] and removes the notification. */
+  override fun stopMonitorService() {
+    MonitorServiceHelper.stop(reactApplicationContext)
+  }
+
+  /** Opens the system Usage Stats settings screen so the user can grant access. */
   override fun requestUsageStatsPermission() {
     UsageAccess.openSettings(reactApplicationContext)
   }
 
+  /**
+   * Opens the system overlay permission screen for this app.
+   * No-op if already granted or running below API 23.
+   */
   override fun requestSystemAlertWindowPermission() {
     if (hasSystemAlertWindowPermission()) {
       return
@@ -139,6 +189,10 @@ class NativeUsageStatsModule(reactContext: ReactApplicationContext) :
     context.startActivity(intent)
   }
 
+  /**
+   * Requests the `POST_NOTIFICATIONS` runtime permission (API 33+).
+   * Falls back to opening the system notification settings if no Activity is available.
+   */
   override fun requestNotificationsPermission() {
     if (hasNotificationsPermission()) {
       return
@@ -159,10 +213,16 @@ class NativeUsageStatsModule(reactContext: ReactApplicationContext) :
     openNotificationSettings()
   }
 
+  /** Opens the system notification settings screen for this app. */
   override fun openNotificationsSettings() {
     openNotificationSettings()
   }
 
+  /**
+   * Requests the user to disable battery optimizations for this app (API 23+).
+   * Tries `ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS` first, then falls back
+   * to the general battery optimization settings screen.
+   */
   override fun requestIgnoreBatteryOptimizationsPermission() {
     if (hasIgnoreBatteryOptimizationsPermission()) {
       return
@@ -190,6 +250,15 @@ class NativeUsageStatsModule(reactContext: ReactApplicationContext) :
     }
   }
 
+  /**
+   * Returns all launchable (non-system-only) applications installed on the device.
+   *
+   * Each entry contains `packageName`, `appName`, `appImage` (cached icon `file://` URI),
+   * and `category`. The app itself is excluded from the list.
+   *
+   * @return [WritableArray] of application maps, or an empty array if `QUERY_ALL_PACKAGES`
+   *         permission is missing.
+   */
   override fun getInstalledApplications(): WritableArray {
     if (!hasQueryAllPackagesPermission()) {
       return Arguments.createArray()
@@ -217,7 +286,7 @@ class NativeUsageStatsModule(reactContext: ReactApplicationContext) :
             Arguments.createMap().apply {
               putString("packageName", packageName)
               putString("appName", packageManager.getApplicationLabel(appInfo).toString())
-              putString("appImage", getAppIconBase64(packageName))
+              putString("appImage", getAppIconUri(packageName))
               putString("category", getCategoryName(appInfo))
             },
         )
@@ -229,6 +298,16 @@ class NativeUsageStatsModule(reactContext: ReactApplicationContext) :
     return result
   }
 
+  /**
+   * Returns per-app foreground usage statistics for the last 24 hours,
+   * sorted by total foreground time in descending order.
+   *
+   * Each entry contains `packageName`, `appName`, `appImage`, `category`,
+   * `totalTimeForeground` (ms), and `lastTimeUsed` (epoch ms).
+   *
+   * @return [WritableArray] of [AppUsageInfo] maps, or an empty array if
+   *         Usage Stats access is unavailable.
+   */
   override fun getAppsUsageStats(): WritableArray {
     if (!UsageAccess.hasAccess(reactApplicationContext)) {
       return Arguments.createArray()
@@ -266,7 +345,7 @@ class NativeUsageStatsModule(reactContext: ReactApplicationContext) :
                 packageName = usageStat.packageName,
                 appName = appName,
                 category = getCategoryName(appInfo),
-                appImage = getAppIconBase64(usageStat.packageName),
+                appImage = getAppIconUri(usageStat.packageName),
                 totalTimeForeground = usageStat.foregroundTimeMs(),
                 lastTimeUsed = usageStat.lastTimeUsed,
             )
@@ -278,6 +357,7 @@ class NativeUsageStatsModule(reactContext: ReactApplicationContext) :
         .toWritableArray()
   }
 
+  /** @return `true` if `QUERY_ALL_PACKAGES` is granted (always `true` below API 30). */
   private fun hasQueryAllPackagesPermission(): Boolean {
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
       return true
@@ -287,6 +367,11 @@ class NativeUsageStatsModule(reactContext: ReactApplicationContext) :
         PackageManager.PERMISSION_GRANTED
   }
 
+  /**
+   * @return `true` if the app can draw overlays.
+   * Checks both [Settings.canDrawOverlays] and the `SYSTEM_ALERT_WINDOW` app-op
+   * to handle edge cases where one check passes but the other doesn't.
+   */
   private fun hasSystemAlertWindowPermission(): Boolean {
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
       return true
@@ -300,6 +385,7 @@ class NativeUsageStatsModule(reactContext: ReactApplicationContext) :
     return isSystemAlertWindowOpAllowed(context)
   }
 
+  /** Checks the `SYSTEM_ALERT_WINDOW` app-op via [AppOpsManager]. */
   private fun isSystemAlertWindowOpAllowed(context: Context): Boolean {
     val appOps = context.getSystemService(AppOpsManager::class.java) ?: return true
     val mode =
@@ -320,6 +406,7 @@ class NativeUsageStatsModule(reactContext: ReactApplicationContext) :
     return mode == AppOpsManager.MODE_ALLOWED
   }
 
+  /** @return `true` if `POST_NOTIFICATIONS` is granted (always `true` below API 33). */
   private fun hasNotificationsPermission(): Boolean {
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
       return true
@@ -331,6 +418,7 @@ class NativeUsageStatsModule(reactContext: ReactApplicationContext) :
     ) == PackageManager.PERMISSION_GRANTED
   }
 
+  /** @return `true` if the app is on the battery optimization whitelist (always `true` below API 23). */
   private fun hasIgnoreBatteryOptimizationsPermission(): Boolean {
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
       return true
@@ -342,6 +430,7 @@ class NativeUsageStatsModule(reactContext: ReactApplicationContext) :
     return powerManager.isIgnoringBatteryOptimizations(reactApplicationContext.packageName)
   }
 
+  /** Opens `ACTION_APP_NOTIFICATION_SETTINGS` for this app's package. */
   private fun openNotificationSettings() {
     val context = reactApplicationContext
     val intent =
@@ -353,31 +442,49 @@ class NativeUsageStatsModule(reactContext: ReactApplicationContext) :
     context.startActivity(intent)
   }
 
-  private fun getAppIconBase64(packageName: String): String {
+  /**
+   * Returns a `file://` URI for the given app's icon.
+   *
+   * Icons are cached as 96×96 PNG files under `cacheDir/app_icons/<packageName>.png`.
+   * If the cached file already exists, its URI is returned immediately without
+   * re-rendering the drawable.
+   *
+   * @return `file://` URI string, or empty string if the icon cannot be resolved.
+   */
+  private fun getAppIconUri(packageName: String): String {
     return try {
+      val iconDir = File(reactApplicationContext.cacheDir, "app_icons")
+      val iconFile = File(iconDir, "$packageName.png")
+      if (iconFile.exists()) {
+        return Uri.fromFile(iconFile).toString()
+      }
+
+      iconDir.mkdirs()
+
       val packageManager = reactApplicationContext.packageManager
       val drawable = packageManager.getApplicationIcon(packageName)
       val bitmap = drawable.toBitmap()
       val scaled =
           Bitmap.createScaledBitmap(bitmap, ICON_SIZE_PX, ICON_SIZE_PX, true).also {
-            if (it !== bitmap) {
-              bitmap.recycle()
-            }
+            if (it !== bitmap) bitmap.recycle()
           }
 
-      ByteArrayOutputStream().use { stream ->
+      FileOutputStream(iconFile).use { stream ->
         scaled.compress(Bitmap.CompressFormat.PNG, 100, stream)
-        if (scaled !== bitmap) {
-          scaled.recycle()
-        }
-        val encoded = Base64.encodeToString(stream.toByteArray(), Base64.NO_WRAP)
-        "data:image/png;base64,$encoded"
       }
+      if (scaled !== bitmap) scaled.recycle()
+
+      Uri.fromFile(iconFile).toString()
     } catch (_: Exception) {
       ""
     }
   }
 
+  /**
+   * Converts any [Drawable] to a [Bitmap].
+   * If the drawable is already a [BitmapDrawable], its underlying bitmap is returned directly.
+   * Otherwise a new ARGB_8888 bitmap is created and the drawable is rendered onto it.
+   */
   private fun Drawable.toBitmap(): Bitmap {
     if (this is BitmapDrawable && bitmap != null) {
       return bitmap
