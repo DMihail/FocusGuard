@@ -107,11 +107,11 @@ internal object UsageAccess {
   }
 
   /**
-   * Fallback check for MIUI: attempts a real query over the last 60 seconds.
+   * Fallback check for MIUI: attempts a real query over the last 24 hours.
    * MIUI sometimes reports `MODE_DEFAULT` via AppOps even when access is granted,
-   * so a successful query confirms actual availability.
+   * so a successful query with actual results confirms availability.
    *
-   * @return `true` if the query returns a non-null result without throwing [SecurityException].
+   * @return `true` if the query returns a **non-empty** list without throwing [SecurityException].
    */
   private fun canQueryUsageStats(context: Context): Boolean {
     val usageStatsManager =
@@ -119,11 +119,12 @@ internal object UsageAccess {
     val endTime = System.currentTimeMillis()
 
     return try {
-      usageStatsManager.queryUsageStats(
+      val stats = usageStatsManager.queryUsageStats(
           UsageStatsManager.INTERVAL_DAILY,
-          endTime - 60_000L,
+          endTime - 24 * 60 * 60 * 1000L,
           endTime,
-      ) != null
+      )
+      !stats.isNullOrEmpty()
     } catch (_: SecurityException) {
       false
     }

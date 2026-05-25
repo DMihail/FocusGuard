@@ -5,7 +5,6 @@ import android.app.NotificationManager
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
-import android.util.Log
 import androidx.core.app.NotificationCompat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -91,12 +90,6 @@ class TrackingEngine(
         currentApp = packageName
         currentSessionStart = System.currentTimeMillis()
         warningShown = false
-
-        Log.d(TAG, "Foreground app: $packageName")
-
-        if (isTrackedApp(packageName)) {
-            Log.d(TAG, "Tracked app opened: $packageName")
-        }
     }
 
     private fun isTrackedApp(packageName: String): Boolean =
@@ -133,8 +126,6 @@ class TrackingEngine(
             .build()
 
         notificationManager.notify(WARNING_NOTIFICATION_ID, notification)
-
-        Log.d(TAG, "Warning notification shown for $packageName ($appName)")
     }
 
     /** Resolves a human-readable app label from [packageName], falling back to the package name itself. */
@@ -147,7 +138,6 @@ class TrackingEngine(
         }
 
     companion object {
-        private const val TAG = "TrackingEngine"
         private const val POLL_INTERVAL_MS = 1000L
         private const val WARNING_THRESHOLD_MS = 60_000L
         private const val WARNING_CHANNEL_ID = "focusguard_warnings"
