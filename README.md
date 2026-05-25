@@ -1,112 +1,95 @@
 <!-- @format -->
 
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using
-[`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# FocusGuard
 
-# Getting Started
+Android app that helps reduce screen time by monitoring distracting apps and reminding you to take a break.
 
-> **Note**: Make sure you have completed the
-> [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+Built with [React Native](https://reactnative.dev) 0.85 (New Architecture / Turbo Modules).
 
-## Step 1: Start Metro
+## Features
 
-First, you will need to run **Metro**, the JavaScript build tool for React Native.
+- **App usage monitoring** — tracks which app is in the foreground via a background service
+- **Usage warnings** — sends a push notification after 60 seconds of continuous use of a tracked app
+- **App selection** — choose which apps to monitor from the full list of installed applications, filterable by category
+- **Persistent service** — keeps running after the app is closed; auto-restarts on device boot
+- **Start / Stop control** — toggle monitoring from the dashboard with a single tap
 
-To start the Metro dev server, run the following command from the root of your React Native project:
+## Architecture
+
+```
+source/
+├── navigation/          Route resolution, permission guard, app loader
+├── screen/
+│   ├── Onboarding/      Walkthrough pager (3 steps)
+│   ├── EnablePermissions/  Permission cards (Usage Stats, Overlay, Battery, Notifications)
+│   ├── Dashboard/       Distracting apps list, Start/Stop button
+│   ├── ManageApps/      Search, category filters, app selection
+│   ├── Settings/        Notification toggle, legal links
+│   └── Legal/           Data Privacy & Terms of Service
+├── store/               Zustand stores persisted via MMKV
+├── specs/               Turbo Module bridge to native Android APIs
+└── theme/               Colors, typography, spacing
+
+android/.../com/focusguard/
+├── TrackingEngine        Polling loop — detects foreground app, tracks session duration
+├── ForegroundAppDetector UsageStatsManager queries (events + stats fallback)
+├── TrackingConfigRepository  Reads tracked apps from MMKV (shared with JS)
+├── service/              FocusGuardMonitorService (foreground service)
+├── monitor/              Permission checks, service start/stop helpers
+└── receiver/             BootCompletedReceiver (auto-restart on boot)
+```
+
+### Data flow
+
+1. User selects apps in **ManageApps** → saved to MMKV via Zustand (`selectedAppsStore`)
+2. User taps **Start** on the dashboard → `monitoringStore.toggle()` calls native `startMonitorService()`
+3. `FocusGuardMonitorService` starts as a foreground service with a persistent notification
+4. `TrackingEngine` polls `ForegroundAppDetector` every second
+5. `TrackingConfigRepository` reads the tracked apps list directly from the same MMKV instance
+6. After 60 seconds of a tracked app in the foreground → high-priority warning notification
+
+## Required permissions
+
+| Permission | Purpose |
+|---|---|
+| `PACKAGE_USAGE_STATS` | Read which app is in the foreground |
+| `SYSTEM_ALERT_WINDOW` | Display overlay (reserved for future use) |
+| `POST_NOTIFICATIONS` | Show warning notifications (API 33+) |
+| `REQUEST_IGNORE_BATTERY_OPTIMIZATIONS` | Prevent Doze from stopping the service |
+| `FOREGROUND_SERVICE` / `FOREGROUND_SERVICE_SPECIAL_USE` | Run the monitoring service |
+| `RECEIVE_BOOT_COMPLETED` | Restart service after reboot |
+| `QUERY_ALL_PACKAGES` | List all installed apps |
+
+## Getting started
+
+> Make sure you have completed the [React Native environment setup](https://reactnative.dev/docs/set-up-your-environment).
 
 ```sh
-# Using npm
+npm install
 npm start
-
-# OR using Yarn
-yarn start
 ```
 
-## Step 2: Build and run your app
-
-With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the
-following commands to build and run your Android or iOS app:
-
-### Android
+In a separate terminal:
 
 ```sh
-# Using npm
 npm run android
-
-# OR using Yarn
-yarn android
 ```
 
-### iOS
-
-For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native
-deps).
-
-The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
+## Testing
 
 ```sh
-bundle install
+npm test
 ```
 
-Then, and every time you update your native dependencies, run:
+29 test suites covering navigation, screens, stores, specs, and utilities.
 
-```sh
-bundle exec pod install
-```
+## Tech stack
 
-For more information, please visit
-[CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
-
-```sh
-# Using npm
-npm run ios
-
-# OR using Yarn
-yarn ios
-```
-
-If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your
-connected device.
-
-This is one way to run your app — you can also build it directly from Android Studio or Xcode.
-
-## Step 3: Modify your app
-
-Now that you have successfully run the app, let's make changes!
-
-Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update
-and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
-
-When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
-
-- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via
-  <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
-- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
-
-## Congratulations! :tada:
-
-You've successfully run and modified your React Native App. :partying_face:
-
-### Now what?
-
-- If you want to add this new React Native code to an existing application, check out the
-  [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the
-  [docs](https://reactnative.dev/docs/getting-started).
-
-# Troubleshooting
-
-If you're having issues getting the above steps to work, see the
-[Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
-
-# Learn More
-
-To learn more about React Native, take a look at the following resources:
-
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your
-  environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for
-  React Native.
+- **React Native** 0.85 (New Architecture, Turbo Modules)
+- **React** 19
+- **TypeScript**
+- **Zustand** 5 — state management with MMKV persistence
+- **react-native-mmkv** 4 — cross-process key-value storage
+- **@react-navigation/native-stack** 7 — native stack navigation
+- **Kotlin** — Android native modules and services
+- **Kotlin Coroutines** — background polling in TrackingEngine
