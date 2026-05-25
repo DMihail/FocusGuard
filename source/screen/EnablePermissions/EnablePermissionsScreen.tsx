@@ -4,7 +4,6 @@ import React, { useCallback, useMemo } from 'react';
 import { ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRootNavigation } from '@/navigation';
-import { startMonitorService } from '@/specs';
 import { PermissionCard, PermissionsFooter, PermissionsHeader, PrivacyNotice } from './components';
 import { PERMISSIONS } from './data/permissions';
 import { usePermissionsSync } from './hooks/usePermissionsSync';
@@ -27,8 +26,6 @@ export const EnablePermissionsScreen = () => {
     if (!canContinue) {
       return;
     }
-
-    startMonitorService();
     navigation.navigate('Dashboard');
   }, [canContinue, navigation]);
 
