@@ -1,0 +1,34 @@
+/** @format */
+
+export const COLORS = {
+  background: '#1C1B1F',
+  surfaceDark: '#211F26',
+  surface: '#4F378B',
+  accent: '#D0BCFF',
+  onSurface: '#EADDFF',
+  textPrimary: '#E6E1E5',
+  textSecondary: '#938F99',
+  textMuted: 'rgba(147, 143, 153, 0.7)',
+  textDisabled: 'rgba(147, 143, 153, 0.5)',
+  indicatorInactive: '#49454F',
+  shadow: 'rgba(0, 0, 0, 0.15)',
+  success: '#4CAF50',
+  successMuted: 'rgba(76, 175, 80, 0.06)',
+  successBorder: 'rgba(76, 175, 80, 0.3)',
+  successIconBg: 'rgba(76, 175, 80, 0.2)',
+  card: 'rgba(33, 31, 38, 0.4)',
+  cardBorder: 'rgba(255, 255, 255, 0.08)',
+  accentMuted: 'rgba(208, 188, 255, 0.12)',
+  accentIconBg: 'rgba(208, 188, 255, 0.15)',
+  privacyBackground: 'rgba(33, 31, 38, 0.3)',
+  privacyBorder: 'rgba(255, 255, 255, 0.06)',
+  buttonDisabled: 'rgba(255, 255, 255, 0.06)',
+  appIconBackground: 'rgba(73, 69, 79, 0.4)',
+  switchTrackOff: 'rgba(255, 255, 255, 0.12)',
+  privacyHighlightBorder: 'rgba(208, 188, 255, 0.15)',
+  privacyHighlightBg: 'rgba(255, 255, 255, 0.02)',
+  privacyHighlightIconBg: 'rgba(208, 188, 255, 0.2)',
+  divider: 'rgba(255, 255, 255, 0.05)',
+} as const;
+
+export const colors = COLORS;

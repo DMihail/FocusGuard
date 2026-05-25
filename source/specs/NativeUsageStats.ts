@@ -1,0 +1,130 @@
+/** @format */
+
+import type { TurboModule } from 'react-native';
+import { TurboModuleRegistry } from 'react-native';
+
+/** Per-app foreground usage statistics for the last 24 hours. */
+export type AppUsageStat = Readonly<{
+  /** Unique application identifier, e.g. `com.example.app`. */
+  packageName: string;
+  /** Human-readable application label. */
+  appName: string;
+  /** `file://` URI to the cached app icon, or empty string on failure. */
+  appImage: string;
+  /** Category name derived from `ApplicationInfo.category` (e.g. "Social", "Game"). */
+  category: string;
+  /** Time the app spent in the foreground during the query window, in milliseconds. */
+  totalTimeForeground: number;
+  /** Epoch timestamp (ms) of the app's last foreground session. */
+  lastTimeUsed: number;
+}>;
+
+/** Basic info about an installed launchable application. */
+export type InstallApp = Readonly<{
+  /** Unique application identifier, e.g. `com.example.app`. */
+  packageName: string;
+  /** Human-readable application label. */
+  appName: string;
+  /** `file://` URI to the cached app icon, or empty string on failure. */
+  appImage: string;
+  /** Category name derived from `ApplicationInfo.category`. */
+  category: string;
+}>;
+
+/**
+ * Turbo Module spec for `NativeUsageStats`.
+ *
+ * Exposes Android-specific APIs for permission management, usage statistics,
+ * and the background monitoring service to the JS layer.
+ */
+export interface Spec extends TurboModule {
+  /** @returns `true` if Usage Stats access is granted. */
+  checkForPermission(): boolean;
+  /** @returns `true` if the app can draw overlays (API 23+). */
+  checkForSystemAlertWindowPermission(): boolean;
+  /** @returns `true` if `POST_NOTIFICATIONS` is granted (API 33+, always `true` below). */
+  checkForNotificationsPermission(): boolean;
+  /** @returns `true` if the app is excluded from battery optimizations (API 23+). */
+  checkForIgnoreBatteryOptimizationsPermission(): boolean;
+  /** @returns `true` if all install-time manifest permissions (FGS, boot receiver) are granted. */
+  checkForManifestMonitorPermissions(): boolean;
+  /** Starts `FocusGuardMonitorService` as a foreground service with `TrackingEngine`. */
+  startMonitorService(): void;
+  /** Stops `FocusGuardMonitorService`, its `TrackingEngine`, and removes the notification. */
+  stopMonitorService(): void;
+  /** Opens the system Usage Stats settings screen. */
+  requestUsageStatsPermission(): void;
+  /** Opens the system overlay permission screen (API 23+). */
+  requestSystemAlertWindowPermission(): void;
+  /** Requests `POST_NOTIFICATIONS` runtime permission (API 33+). */
+  requestNotificationsPermission(): void;
+  /** Opens the system notification settings for this app. */
+  openNotificationsSettings(): void;
+  /** Requests the user to disable battery optimizations (API 23+). */
+  requestIgnoreBatteryOptimizationsPermission(): void;
+  /** @returns per-app foreground usage stats for the last 24 hours, sorted by time descending. */
+  getAppsUsageStats(): AppUsageStat[];
+  /** @returns all launchable apps on the device (excluding this app). */
+  getInstalledApplications(): InstallApp[];
+}
+
+const usageStats = TurboModuleRegistry.get<Spec>('NativeUsageStats');
+
+/** @returns `true` if Usage Stats access is granted. */
+export const checkForPermission = (): boolean => usageStats?.checkForPermission() ?? false;
+
+/** @returns `true` if the app can draw overlays on top of other apps. */
+export const checkForSystemAlertWindowPermission = (): boolean =>
+  usageStats?.checkForSystemAlertWindowPermission() ?? false;
+
+/** @returns `true` if `POST_NOTIFICATIONS` is granted. */
+export const checkForNotificationsPermission = (): boolean => usageStats?.checkForNotificationsPermission() ?? false;
+
+/** @returns `true` if the app is excluded from battery optimizations. */
+export const checkForIgnoreBatteryOptimizationsPermission = (): boolean =>
+  usageStats?.checkForIgnoreBatteryOptimizationsPermission() ?? false;
+
+/** @returns `true` if all manifest permissions required by the monitor service are granted. */
+export const checkForManifestMonitorPermissions = (): boolean =>
+  usageStats?.checkForManifestMonitorPermissions() ?? false;
+
+/** Starts the background monitoring service with `TrackingEngine`. */
+export const startMonitorService = (): void => {
+  usageStats?.startMonitorService();
+};
+
+/** Stops the background monitoring service and removes the notification. */
+export const stopMonitorService = (): void => {
+  usageStats?.stopMonitorService();
+};
+
+/** Opens the system Usage Stats settings screen. */
+export const requestUsageStatsPermission = (): void => {
+  usageStats?.requestUsageStatsPermission();
+};
+
+/** Opens the system overlay permission screen. */
+export const requestSystemAlertWindowPermission = (): void => {
+  usageStats?.requestSystemAlertWindowPermission();
+};
+
+/** Requests the `POST_NOTIFICATIONS` runtime permission. */
+export const requestNotificationsPermission = (): void => {
+  usageStats?.requestNotificationsPermission();
+};
+
+/** Opens the system notification settings for this app. */
+export const openNotificationsSettings = (): void => {
+  usageStats?.openNotificationsSettings();
+};
+
+/** Requests the user to disable battery optimizations. */
+export const requestIgnoreBatteryOptimizationsPermission = (): void => {
+  usageStats?.requestIgnoreBatteryOptimizationsPermission();
+};
+
+/** @returns per-app foreground usage stats for the last 24 hours, sorted by time descending. */
+export const getAppsUsageStats = (): AppUsageStat[] => usageStats?.getAppsUsageStats() ?? [];
+
+/** @returns all launchable apps installed on the device (excluding this app). */
+export const getInstalledApplications = (): InstallApp[] => usageStats?.getInstalledApplications() ?? [];
