@@ -1,7 +1,7 @@
 /** @format */
 
 import React from 'react';
-import { Animated, Pressable, Text, View } from 'react-native';
+import { Animated, Pressable, StyleSheet, Text, View } from 'react-native';
 import { CheckIcon } from '@/assets/svg/EnablePermissions';
 import { colors } from '@/theme';
 import { usePermissionCardAnimation } from '../hooks/usePermissionCardAnimation';
@@ -14,54 +14,99 @@ type PermissionCardProps = PermissionItem & {
 };
 
 export const PermissionCard = ({ id, title, description, status, Icon, onGrant }: PermissionCardProps) => {
-  const { cardStyle, iconBoxStyle, pendingIconOpacity, grantedIconOpacity, badgeStyle, grantButtonStyle, isGranted } =
-    usePermissionCardAnimation(status);
+  const {
+    grantedOverlayOpacity,
+    pendingIconOpacity,
+    grantedIconOpacity,
+    badgeStyle,
+    grantButtonOpacity,
+    collapsed,
+    isGranted,
+  } = usePermissionCardAnimation(status);
 
   return (
-    <Animated.View style={[permissionsStyles.card, cardStyle]} testID={testIds.enablePermissions.permissionCard(id)}>
-      <View style={permissionsStyles.cardRow}>
-        <Animated.View style={[permissionsStyles.iconBox, iconBoxStyle]}>
-          <Animated.View style={[permissionsStyles.iconLayer, { opacity: pendingIconOpacity }]}>
-            <Icon stroke={colors.accent} />
-          </Animated.View>
-          <Animated.View style={[permissionsStyles.iconLayer, { opacity: grantedIconOpacity }]}>
-            <Icon stroke={colors.success} />
-          </Animated.View>
-        </Animated.View>
+    <View testID={testIds.enablePermissions.permissionCard(id)} style={styles.cardWrapper}>
+      <View style={[permissionsStyles.card, styles.cardPending]} />
+      <Animated.View style={[permissionsStyles.card, styles.cardGranted, { opacity: grantedOverlayOpacity }]} />
 
-        <View style={permissionsStyles.cardContent}>
-          <View style={permissionsStyles.cardTitleRow}>
-            <Text style={permissionsStyles.cardTitle}>{title}</Text>
+      <View style={styles.cardContent}>
+        <View style={permissionsStyles.cardRow}>
+          <View style={styles.iconBoxWrapper}>
+            <View style={[permissionsStyles.iconBox, styles.iconBoxPending]} />
             <Animated.View
-              testID={testIds.enablePermissions.grantedBadge(id)}
-              style={[permissionsStyles.grantedBadge, badgeStyle]}
-              pointerEvents={isGranted ? 'auto' : 'none'}
-            >
-              <CheckIcon />
+              style={[permissionsStyles.iconBox, styles.iconBoxGranted, { opacity: grantedOverlayOpacity }]}
+            />
+            <Animated.View style={[permissionsStyles.iconLayer, { opacity: pendingIconOpacity }]}>
+              <Icon stroke={colors.accent} />
+            </Animated.View>
+            <Animated.View style={[permissionsStyles.iconLayer, { opacity: grantedIconOpacity }]}>
+              <Icon stroke={colors.success} />
             </Animated.View>
           </View>
 
-          <Text style={permissionsStyles.cardDescription}>{description}</Text>
-
-          {onGrant ? (
-            <Animated.View
-              style={[permissionsStyles.grantButtonContainer, grantButtonStyle]}
-              pointerEvents={isGranted ? 'none' : 'auto'}
-            >
-              <Pressable
-                testID={testIds.enablePermissions.grantButton(id)}
-                accessibilityRole="button"
-                accessibilityLabel={`Grant ${title}`}
-                disabled={isGranted}
-                style={permissionsStyles.grantButton}
-                onPress={onGrant}
+          <View style={permissionsStyles.cardContent}>
+            <View style={permissionsStyles.cardTitleRow}>
+              <Text style={permissionsStyles.cardTitle}>{title}</Text>
+              <Animated.View
+                testID={testIds.enablePermissions.grantedBadge(id)}
+                style={[permissionsStyles.grantedBadge, badgeStyle]}
+                pointerEvents={isGranted ? 'auto' : 'none'}
               >
-                <Text style={permissionsStyles.grantButtonText}>Grant Permission</Text>
-              </Pressable>
-            </Animated.View>
-          ) : null}
+                <CheckIcon />
+              </Animated.View>
+            </View>
+
+            <Text style={permissionsStyles.cardDescription}>{description}</Text>
+
+            {onGrant && !collapsed ? (
+              <Animated.View
+                style={[permissionsStyles.grantButtonContainer, { opacity: grantButtonOpacity }]}
+                pointerEvents={isGranted ? 'none' : 'auto'}
+              >
+                <Pressable
+                  testID={testIds.enablePermissions.grantButton(id)}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Grant ${title}`}
+                  disabled={isGranted}
+                  style={permissionsStyles.grantButton}
+                  onPress={onGrant}
+                >
+                  <Text style={permissionsStyles.grantButtonText}>Grant Permission</Text>
+                </Pressable>
+              </Animated.View>
+            ) : null}
+          </View>
         </View>
       </View>
-    </Animated.View>
+    </View>
   );
 };
+
+const styles = StyleSheet.create({
+  cardWrapper: {
+    position: 'relative',
+  },
+  cardPending: {
+    ...(StyleSheet.absoluteFill as object),
+    backgroundColor: colors.card,
+    borderColor: colors.cardBorder,
+  },
+  cardGranted: {
+    ...(StyleSheet.absoluteFill as object),
+    backgroundColor: colors.successMuted,
+    borderColor: colors.successBorder,
+  },
+  cardContent: {
+    padding: 26,
+  },
+  iconBoxWrapper: {
+    position: 'relative',
+  },
+  iconBoxPending: {
+    backgroundColor: colors.accentIconBg,
+  },
+  iconBoxGranted: {
+    ...(StyleSheet.absoluteFill as object),
+    backgroundColor: colors.successIconBg,
+  },
+});
