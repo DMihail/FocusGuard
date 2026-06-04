@@ -1,7 +1,9 @@
 /** @format */
 
 import React from 'react';
+
 import ReactTestRenderer from 'react-test-renderer';
+
 import { PermissionsHeader } from '@/screen/EnablePermissions/components/PermissionsHeader';
 
 describe('PermissionsHeader', () => {

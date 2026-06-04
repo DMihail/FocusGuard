@@ -1,7 +1,9 @@
 /** @format */
 
 import { useCallback, useEffect, useState } from 'react';
-import { AppState, Platform, type AppStateStatus } from 'react-native';
+import { Platform } from 'react-native';
+
+import { useAppStateOnActive } from '@/hooks/useAppStateOnActive';
 import { checkForNotificationsPermission, openNotificationsSettings, requestNotificationsPermission } from '@/specs';
 import { settingsStore } from '@/store';
 
@@ -24,32 +26,22 @@ export const useNotificationsSetting = () => {
 
   useEffect(() => {
     syncFromSystem();
-
-    const handleAppStateChange = (nextState: AppStateStatus) => {
-      if (nextState === 'active') {
-        syncFromSystem();
-      }
-    };
-
-    const subscription = AppState.addEventListener('change', handleAppStateChange);
-    return () => subscription.remove();
   }, [syncFromSystem]);
+
+  useAppStateOnActive(syncFromSystem);
 
   const isEnabled = notificationsEnabled && (Platform.OS !== 'android' || systemGranted);
 
-  const setEnabled = useCallback(
-    (value: boolean) => {
-      if (value) {
-        setNotificationsEnabled(true);
-        requestNotificationsPermission();
-        return;
-      }
+  const setEnabled = (value: boolean) => {
+    if (value) {
+      setNotificationsEnabled(true);
+      requestNotificationsPermission();
+      return;
+    }
 
-      setNotificationsEnabled(false);
-      openNotificationsSettings();
-    },
-    [setNotificationsEnabled],
-  );
+    setNotificationsEnabled(false);
+    openNotificationsSettings();
+  };
 
   return { isEnabled, setEnabled };
 };

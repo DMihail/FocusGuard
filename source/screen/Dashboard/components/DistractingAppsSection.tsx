@@ -1,22 +1,46 @@
 /** @format */
 
-import React from 'react';
-import { Button, Text, View } from 'react-native';
+import React, { useLayoutEffect, useMemo, useRef } from 'react';
+import { Button, FlatList, Text, View } from 'react-native';
+
 import { Link } from '@react-navigation/native';
-import { monitoringStore, selectedAppsStore } from '@/store';
+
+import { APP_LIST_FLAT_LIST_PROPS } from '@/list';
+import { useDistractingAppsSection } from '@/screen/Dashboard/hooks';
+import { manageAppKeyExtractor } from '@/screen/ManageApps/list';
 import { testIds } from '@/testing/testIds';
+import { colors } from '@/theme';
+import { configureSectionLayoutAnimation } from '@/utils/layoutAnimation';
+
+import { createDistractingAppRenderItem, DistractingAppsListEmpty } from '../list';
 import { dashboardStyles } from '../styles';
-import { DistractingAppRow } from './DistractingAppRow';
 
 export const DistractingAppsSection = () => {
-  const selectedApps = selectedAppsStore((state) => state.apps);
-  const isMonitoring = monitoringStore((state) => state.isMonitoring);
-  const toggleMonitoring = monitoringStore((state) => state.toggle);
+  const { selectedApps, isMonitoring, monitoringButtonTitle, toggleMonitoring, openConfigureLimits } =
+    useDistractingAppsSection();
+
+  const previousAppsCount = useRef(selectedApps.length);
+
+  useLayoutEffect(() => {
+    if (previousAppsCount.current !== selectedApps.length) {
+      configureSectionLayoutAnimation();
+      previousAppsCount.current = selectedApps.length;
+    }
+  }, [selectedApps.length]);
+
+  const renderItem = useMemo(() => createDistractingAppRenderItem(openConfigureLimits), [openConfigureLimits]);
 
   return (
-    <View style={dashboardStyles.section} testID={testIds.dashboard.distractingAppsSection}>
+    <View
+      style={dashboardStyles.section}
+      testID={testIds.dashboard.distractingAppsSection}
+      accessibilityRole="summary"
+      accessibilityLabel="Top distracting apps"
+    >
       <View style={dashboardStyles.sectionHeader}>
-        <Text style={dashboardStyles.sectionTitle}>Top Distracting Apps</Text>
+        <Text style={dashboardStyles.sectionTitle} accessibilityRole="header">
+          Top Distracting Apps
+        </Text>
         <Link
           screen={'ManageApps'}
           testID={testIds.dashboard.viewAllAppsButton}
@@ -28,21 +52,26 @@ export const DistractingAppsSection = () => {
         </Link>
       </View>
 
-      <View style={dashboardStyles.appsList} testID={testIds.dashboard.appsList}>
-        {!selectedApps.length ? (
-          <Text style={dashboardStyles.emptyText} testID={testIds.dashboard.appsEmpty}>
-            No apps selected yet
-          </Text>
-        ) : (
-          selectedApps.map((app) => <DistractingAppRow key={app.packageName} {...app} />)
-        )}
-      </View>
+      <FlatList
+        data={selectedApps}
+        renderItem={renderItem}
+        keyExtractor={manageAppKeyExtractor}
+        scrollEnabled={false}
+        nestedScrollEnabled
+        ListEmptyComponent={DistractingAppsListEmpty}
+        testID={testIds.dashboard.appsList}
+        accessibilityRole="list"
+        accessibilityLabel="Selected distracting apps"
+        extraData={selectedApps.length}
+        {...APP_LIST_FLAT_LIST_PROPS}
+      />
 
       {!!selectedApps.length && (
         <Button
-          title={isMonitoring ? 'Stop' : 'Start'}
-          color={isMonitoring ? '#e74c3c' : undefined}
+          title={monitoringButtonTitle}
+          color={isMonitoring ? colors.danger : undefined}
           onPress={toggleMonitoring}
+          accessibilityLabel={monitoringButtonTitle}
         />
       )}
     </View>

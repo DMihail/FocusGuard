@@ -1,8 +1,10 @@
 /** @format */
 
 import React from 'react';
-import ReactTestRenderer from 'react-test-renderer';
 import { Text } from 'react-native';
+
+import ReactTestRenderer from 'react-test-renderer';
+
 import { Walkthrough } from '@/screen/Onboarding/components/Walkthrough';
 
 describe('Walkthrough', () => {

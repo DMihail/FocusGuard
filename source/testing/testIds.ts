@@ -67,6 +67,18 @@ export const testIds = {
     notificationsToggle: 'settings-notifications-toggle',
     linkRow: (id: string) => `settings-link-row-${toSegment(id)}`,
   },
+  configureLimits: {
+    screen: 'configure-limits-screen',
+    scroll: 'configure-limits-scroll',
+    header: 'configure-limits-header',
+    backButton: 'configure-limits-back-button',
+    appBadge: (packageName: string) => `configure-limits-app-${toSegment(packageName)}`,
+    warningCard: 'configure-limits-warning-card',
+    hardBlockCard: 'configure-limits-hard-block-card',
+    strictModeCard: 'configure-limits-strict-mode-card',
+    strictModeToggle: 'configure-limits-strict-mode-toggle',
+    saveButton: 'configure-limits-save-button',
+  },
   manageApps: {
     screen: 'manage-apps-screen',
     scroll: 'manage-apps-scroll',

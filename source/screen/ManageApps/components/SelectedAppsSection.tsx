@@ -1,24 +1,28 @@
 /** @format */
 
 import React from 'react';
-import { ScrollView, Text, View } from 'react-native';
+import { Pressable, ScrollView, Text, View } from 'react-native';
+
 import { testIds } from '@/testing/testIds';
-import type { ManageApp } from '../types';
+
 import { manageAppsStyles } from '../styles';
+import type { ManageApp, SelectedAppsSectionProps } from '../types';
 
-type SelectedAppsSectionProps = {
-  apps: ManageApp[];
-};
-
-const SelectedChip = ({ app }: { app: ManageApp }) => (
-  <View style={manageAppsStyles.selectedChip} testID={testIds.manageApps.selectedChip(app.packageName)}>
+const SelectedChip = ({ app, onPress }: { app: ManageApp; onPress: (packageName: string) => void }) => (
+  <Pressable
+    accessibilityRole="button"
+    accessibilityLabel={`Configure limits for ${app.appName}`}
+    onPress={() => onPress(app.packageName)}
+    style={manageAppsStyles.selectedChip}
+    testID={testIds.manageApps.selectedChip(app.packageName)}
+  >
     <Text style={manageAppsStyles.selectedChipLabel} numberOfLines={1}>
       {app.appName}
     </Text>
-  </View>
+  </Pressable>
 );
 
-export const SelectedAppsSection = ({ apps }: SelectedAppsSectionProps) => {
+export const SelectedAppsSection = ({ apps, onAppPress }: SelectedAppsSectionProps) => {
   if (!apps.length) {
     return null;
   }
@@ -37,7 +41,7 @@ export const SelectedAppsSection = ({ apps }: SelectedAppsSectionProps) => {
       >
         <View style={manageAppsStyles.selectedAppsRows}>
           {apps.map((app) => (
-            <SelectedChip key={app.packageName} app={app} />
+            <SelectedChip key={app.packageName} app={app} onPress={onAppPress} />
           ))}
         </View>
       </ScrollView>

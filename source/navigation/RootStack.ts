@@ -1,14 +1,17 @@
 /** @format */
 
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+
 import {
+  ConfigureLimitsScreen,
   DashboardScreen,
   EnablePermissionsScreen,
+  LegalDocumentScreen,
   ManageAppsScreen,
   OnboardingScreen,
   SettingsScreen,
-  LegalDocumentScreen,
 } from '@/screen';
+
 import type { RootStackParamList } from './types';
 
 const rootScreens = {
@@ -32,6 +35,12 @@ const rootScreens = {
   },
   ManageApps: {
     screen: ManageAppsScreen,
+    options: {
+      headerShown: false,
+    },
+  },
+  ConfigureLimits: {
+    screen: ConfigureLimitsScreen,
     options: {
       headerShown: false,
     },

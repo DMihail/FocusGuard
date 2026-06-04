@@ -1,6 +1,7 @@
 /** @format */
 
 import { StyleSheet } from 'react-native';
+
 import { borderRadius, colors, iconBoxPresets, layoutPresets, spacing, textPresets, typography } from '@/theme';
 
 export const dashboardStyles = StyleSheet.create({
@@ -39,9 +40,8 @@ export const dashboardStyles = StyleSheet.create({
   sectionTitle: textPresets.sectionTitle,
   viewAllButton: layoutPresets.linkButton,
   viewAllText: textPresets.accentButton,
-  appsList: {
-    gap: spacing.md,
-    backgroundColor: colors.surfaceDark,
+  appsListSeparator: {
+    height: spacing.md,
   },
   appItem: {
     ...layoutPresets.card,

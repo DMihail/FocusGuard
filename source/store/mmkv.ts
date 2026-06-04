@@ -1,6 +1,6 @@
 /** @format */
 import { createMMKV } from 'react-native-mmkv';
-import { StateStorage } from 'zustand/middleware';
+import type { StateStorage } from 'zustand/middleware';
 export const storage = createMMKV({
   id: `focus-guard-storage`,
   mode: 'multi-process',

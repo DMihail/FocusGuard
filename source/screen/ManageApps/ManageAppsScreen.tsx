@@ -1,17 +1,23 @@
 /** @format */
 
+import React, { useCallback, useMemo } from 'react';
+
 import { useFocusEffect } from '@react-navigation/native';
-import React, { useCallback } from 'react';
-import { ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRootNavigation } from '@/navigation';
+
+import { useGoBack } from '@/hooks/useGoBack';
+import { useNavigateToConfigureLimits } from '@/navigation/hooks/useNavigateToConfigureLimits';
 import { testIds } from '@/testing/testIds';
-import { AppSearchField, CategoryFilters, ManageAppsHeader, ManageAppsList, SelectedAppsSection } from './components';
+
 import { useManageApps } from './hooks/useManageApps';
 import { manageAppsStyles } from './styles';
 
+import { ManageAppsHeader, ManageAppsList } from './components';
+import { ManageAppsListHeader } from './components/ManageAppsListHeader';
+
 export const ManageAppsScreen = () => {
-  const navigation = useRootNavigation();
+  const goBack = useGoBack();
+  const openConfigureLimits = useNavigateToConfigureLimits();
   const {
     apps,
     refreshInstalledApps,
@@ -28,14 +34,35 @@ export const ManageAppsScreen = () => {
     toggleAppSelection,
   } = useManageApps();
 
-  const handleBack = useCallback(() => {
-    navigation.goBack();
-  }, [navigation]);
-
   useFocusEffect(
     useCallback(() => {
       refreshInstalledApps();
     }, [refreshInstalledApps]),
+  );
+
+  const listHeader = useMemo(
+    () => (
+      <ManageAppsListHeader
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        isSearchActive={isSearchActive}
+        categoryFilters={categoryFilters}
+        activeCategoryId={activeCategory.id}
+        onCategoryChange={setActiveCategory}
+        selectedApps={selectedApps}
+        onSelectedAppPress={openConfigureLimits}
+      />
+    ),
+    [
+      searchQuery,
+      setSearchQuery,
+      isSearchActive,
+      categoryFilters,
+      activeCategory.id,
+      setActiveCategory,
+      selectedApps,
+      openConfigureLimits,
+    ],
   );
 
   return (
@@ -45,27 +72,15 @@ export const ManageAppsScreen = () => {
       testID={testIds.manageApps.screen}
       accessibilityLabel="Manage apps screen"
     >
-      <ManageAppsHeader selectedCount={selectedCount} onBack={handleBack} />
-      <ScrollView
-        testID={testIds.manageApps.scroll}
-        contentContainerStyle={manageAppsStyles.scrollContent}
-        showsVerticalScrollIndicator={false}
-        keyboardShouldPersistTaps="handled"
-      >
-        <AppSearchField value={searchQuery} onChangeText={setSearchQuery} />
-
-        {!isSearchActive ? (
-          <CategoryFilters
-            filters={categoryFilters}
-            activeCategoryId={activeCategory.id}
-            onCategoryChange={setActiveCategory}
-          />
-        ) : null}
-
-        <SelectedAppsSection apps={selectedApps} />
-
-        <ManageAppsList apps={apps} isFiltering={isFiltering} isSelected={isSelected} onToggle={toggleAppSelection} />
-      </ScrollView>
+      <ManageAppsHeader selectedCount={selectedCount} onBack={goBack} />
+      <ManageAppsList
+        apps={apps}
+        isFiltering={isFiltering}
+        selectedCount={selectedCount}
+        isSelected={isSelected}
+        onToggle={toggleAppSelection}
+        ListHeaderComponent={listHeader}
+      />
     </SafeAreaView>
   );
 };

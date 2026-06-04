@@ -1,14 +1,18 @@
 /** @format */
 
-import { useCallback, useEffect, useState } from 'react';
-import { AppState, LayoutAnimation, type AppStateStatus } from 'react-native';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+
+import { useAppStateOnActive } from '@/hooks/useAppStateOnActive';
+import { configurePermissionStatusSyncAnimation } from '@/utils/layoutAnimation';
+
 import { PERMISSIONS } from '../data/permissions';
 import type { PermissionId, PermissionStatus } from '../types';
-import { readPermissionStatuses, requestPermissionById } from '../utils/permissionStatus';
-
-const configureCardLayoutAnimation = () => {
-  LayoutAnimation.configureNext(LayoutAnimation.create(380, 'easeInEaseOut', 'opacity'));
-};
+import { buildPermissionsWithStatus } from '../utils/buildPermissionsWithStatus';
+import {
+  areRequiredPermissionsGranted,
+  readPermissionStatuses,
+  requestPermissionById,
+} from '../utils/permissionStatus';
 
 const hasStatusChanged = (
   previous: Record<PermissionId, PermissionStatus>,
@@ -23,7 +27,7 @@ export const usePermissionsSync = () => {
       const next = readPermissionStatuses();
 
       if (hasStatusChanged(previous, next)) {
-        configureCardLayoutAnimation();
+        configurePermissionStatusSyncAnimation();
       }
 
       return next;
@@ -32,20 +36,16 @@ export const usePermissionsSync = () => {
 
   useEffect(() => {
     syncStatuses();
-
-    const handleAppStateChange = (nextState: AppStateStatus) => {
-      if (nextState === 'active') {
-        syncStatuses();
-      }
-    };
-
-    const subscription = AppState.addEventListener('change', handleAppStateChange);
-    return () => subscription.remove();
   }, [syncStatuses]);
+
+  useAppStateOnActive(syncStatuses);
+
+  const permissions = useMemo(() => buildPermissionsWithStatus(statusById), [statusById]);
+  const canContinue = areRequiredPermissionsGranted(statusById);
 
   const handleGrant = useCallback((id: PermissionId) => {
     requestPermissionById(id);
   }, []);
 
-  return { statusById, handleGrant, syncStatuses };
+  return { statusById, permissions, canContinue, handleGrant, syncStatuses };
 };

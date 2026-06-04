@@ -2,10 +2,12 @@
 
 import React from 'react';
 import { Switch, Text, View } from 'react-native';
-import { colors } from '@/theme';
+
 import { testIds } from '@/testing/testIds';
-import type { SettingsToggleItem } from '../types';
+import { colors } from '@/theme';
+
 import { settingsStyles } from '../styles';
+import type { SettingsToggleItem } from '../types';
 
 type SettingsToggleRowProps = SettingsToggleItem & {
   value: boolean;

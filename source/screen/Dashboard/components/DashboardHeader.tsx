@@ -2,8 +2,10 @@
 
 import React from 'react';
 import { Pressable, Text, View } from 'react-native';
+
 import { SettingsIcon } from '@/assets/svg/Dashboard';
 import { testIds } from '@/testing/testIds';
+
 import { dashboardStyles } from '../styles';
 
 type DashboardHeaderProps = {

@@ -1,7 +1,7 @@
 /** @format */
 
-import { createManageApp } from '@/testing/fixtures/manageApps';
 import { buildCategoryFilters } from '@/screen/ManageApps/utils/buildCategoryFilters';
+import { createManageApp } from '@/testing/fixtures/manageApps';
 
 describe('buildCategoryFilters', () => {
   it('always includes All and builds filters from app category fields', () => {

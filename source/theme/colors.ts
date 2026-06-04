@@ -1,6 +1,6 @@
 /** @format */
 
-export const COLORS = {
+const COLORS = {
   background: '#1C1B1F',
   surfaceDark: '#211F26',
   surface: '#4F378B',
@@ -12,6 +12,7 @@ export const COLORS = {
   textDisabled: 'rgba(147, 143, 153, 0.5)',
   indicatorInactive: '#49454F',
   shadow: 'rgba(0, 0, 0, 0.15)',
+  danger: '#E74C3C',
   success: '#4CAF50',
   successMuted: 'rgba(76, 175, 80, 0.06)',
   successBorder: 'rgba(76, 175, 80, 0.3)',

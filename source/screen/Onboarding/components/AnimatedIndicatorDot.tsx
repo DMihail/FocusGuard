@@ -1,7 +1,8 @@
 /** @format */
 
 import React from 'react';
-import { Animated, StyleSheet, View, type Animated as AnimatedNamespace } from 'react-native';
+import { Animated, type Animated as AnimatedNamespace, StyleSheet, View } from 'react-native';
+
 import { borderRadius, colors } from '@/theme';
 
 export type IndicatorVariant = 'progress' | 'page';

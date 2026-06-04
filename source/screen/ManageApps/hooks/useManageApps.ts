@@ -1,9 +1,12 @@
 /** @format */
 
 import { useCallback, useDeferredValue, useEffect, useMemo, useState, useTransition } from 'react';
-import { selectedAppsStore } from '@/store';
+
 import { getInstalledApplications } from '@/specs';
-import type { CategoryFilterOption } from '../types';
+import { selectedAppsStore } from '@/store';
+import { configureSectionLayoutAnimation } from '@/utils/layoutAnimation';
+
+import type { CategoryFilterOption, ManageApp } from '../types';
 import { ALL_CATEGORY_FILTER, buildCategoryFilters } from '../utils/buildCategoryFilters';
 import { mapInstalledApps } from '../utils/mapInstalledApps';
 import { matchesCategoryFilter } from '../utils/matchesCategoryFilter';
@@ -21,8 +24,30 @@ export const useManageApps = () => {
   const [activeCategory, setActiveCategory] = useState<CategoryFilterOption>(ALL_CATEGORY_FILTER);
   const [isCategoryPending, startCategoryTransition] = useTransition();
   const selectedApps = selectedAppsStore((state) => state.apps);
-  const toggleAppSelection = selectedAppsStore((state) => state.toggleApp);
+  const toggleAppInStore = selectedAppsStore((state) => state.toggleApp);
   const isSelected = selectedAppsStore((state) => state.isSelected);
+  const selectedCount = useMemo(() => selectedApps.length, [selectedApps]);
+
+  const toggleAppSelection = useCallback(
+    (app: ManageApp) => {
+      configureSectionLayoutAnimation();
+      toggleAppInStore(app);
+    },
+    [toggleAppInStore],
+  );
+
+  const handleSearchQueryChange = useCallback((text: string) => {
+    setSearchQuery((previous) => {
+      const wasSearchActive = previous.trim().length > 0;
+      const willBeSearchActive = text.trim().length > 0;
+
+      if (wasSearchActive !== willBeSearchActive) {
+        configureSectionLayoutAnimation();
+      }
+
+      return text;
+    });
+  }, []);
 
   const deferredSearchQuery = useDeferredValue(searchQuery);
   const normalizedSearchQuery = searchQuery.trim().toLowerCase();
@@ -75,9 +100,9 @@ export const useManageApps = () => {
     isFiltering,
     isSearchActive,
     selectedApps,
-    selectedCount: selectedApps.length,
+    selectedCount,
     searchQuery,
-    setSearchQuery,
+    setSearchQuery: handleSearchQueryChange,
     categoryFilters,
     activeCategory,
     setActiveCategory: handleCategoryChange,

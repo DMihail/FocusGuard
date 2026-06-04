@@ -1,6 +1,7 @@
 /** @format */
 
 import type { TextStyle, ViewStyle } from 'react-native';
+
 import { borderRadius } from './borderRadius';
 import { colors } from './colors';
 import { spacing } from './spacing';

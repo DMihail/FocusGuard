@@ -1,6 +1,7 @@
 /** @format */
 
 import { StyleSheet } from 'react-native';
+
 import { borderRadius, colors, fontSize, layoutPresets, spacing, textPresets, typography } from '@/theme';
 
 export const settingsStyles = StyleSheet.create({

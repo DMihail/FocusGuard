@@ -1,29 +1,42 @@
 /** @format */
 
-import React from 'react';
-import { Image, Text, View } from 'react-native';
-import type { ManageApp } from '@/screen/ManageApps/types';
+import React, { memo } from 'react';
+import { Pressable, Text, View } from 'react-native';
+
 import { testIds } from '@/testing/testIds';
+
 import { dashboardStyles } from '../styles';
+import type { DistractingAppRowProps } from '../types';
 
-type DistractingAppRowProps = Pick<ManageApp, 'packageName' | 'appName' | 'appImage'>;
+import { AppIcon } from '@/components';
 
-export const DistractingAppRow = ({ packageName, appImage, appName }: DistractingAppRowProps) => (
-  <View style={dashboardStyles.appItem} testID={testIds.dashboard.appRow(packageName)}>
-    <View style={dashboardStyles.appRow}>
-      <View style={dashboardStyles.appIconBox}>
-        {appImage ? (
-          <Image source={{ uri: appImage }} style={dashboardStyles.appIcon} resizeMode="cover" />
-        ) : (
-          <Text style={dashboardStyles.appIconFallback}>{appName.charAt(0).toUpperCase()}</Text>
-        )}
+function DistractingAppRowView({ packageName, appImage, appName, onPress }: DistractingAppRowProps) {
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={`Configure limits for ${appName}`}
+      onPress={() => onPress(packageName)}
+      style={dashboardStyles.appItem}
+      testID={testIds.dashboard.appRow(packageName)}
+    >
+      <View style={dashboardStyles.appRow}>
+        <AppIcon
+          appName={appName}
+          appImage={appImage}
+          size="sm"
+          boxStyle={dashboardStyles.appIconBox}
+          imageStyle={dashboardStyles.appIcon}
+          fallbackStyle={dashboardStyles.appIconFallback}
+        />
+
+        <View style={dashboardStyles.appInfo}>
+          <Text style={dashboardStyles.appName} numberOfLines={1}>
+            {appName}
+          </Text>
+        </View>
       </View>
+    </Pressable>
+  );
+}
 
-      <View style={dashboardStyles.appInfo}>
-        <Text style={dashboardStyles.appName} numberOfLines={1}>
-          {appName}
-        </Text>
-      </View>
-    </View>
-  </View>
-);
+export const DistractingAppRow = memo(DistractingAppRowView);

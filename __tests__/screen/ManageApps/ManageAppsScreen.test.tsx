@@ -1,10 +1,19 @@
 /** @format */
 
-import React from 'react';
-import ReactTestRenderer from 'react-test-renderer';
+import type React from 'react';
+
+import type { ManageApp } from '@/screen/ManageApps/types';
 import { mockInstallApps } from '@/testing/fixtures/manageApps';
 import { testIds } from '@/testing/testIds';
-import type { ManageApp } from '@/screen/ManageApps/types';
+
+import {
+  cleanupTestTrees,
+  flushVirtualizedListTimers,
+  flushVirtualizedListWork,
+  renderTestTree,
+  runTestAct,
+  updateTestTree,
+} from '../../helpers/testRenderer';
 
 const mockGoBack = jest.fn();
 const mockGetInstalledApplications = jest.fn();
@@ -25,10 +34,12 @@ const mockStoreState: {
   isSelected: (packageName) => mockStoreState.apps.some((app) => app.packageName === packageName),
 };
 
-jest.mock('../../../source/navigation', () => ({
-  useRootNavigation: () => ({
-    goBack: mockGoBack,
-  }),
+jest.mock('@/hooks/useGoBack', () => ({
+  useGoBack: () => mockGoBack,
+}));
+
+jest.mock('@/navigation/hooks/useNavigateToConfigureLimits', () => ({
+  useNavigateToConfigureLimits: () => jest.fn(),
 }));
 
 jest.mock('@react-navigation/native', () => {
@@ -64,105 +75,90 @@ import { ManageAppsScreen } from '@/screen/ManageApps/ManageAppsScreen';
 describe('ManageAppsScreen', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    jest.useFakeTimers();
     mockStoreState.apps = [];
     mockGetInstalledApplications.mockReturnValue(mockInstallApps);
   });
 
-  it('renders header, search, filters, and app list', () => {
-    let tree: ReactTestRenderer.ReactTestRenderer;
-
-    ReactTestRenderer.act(() => {
-      tree = ReactTestRenderer.create(<ManageAppsScreen />);
-    });
-
-    expect(tree!.root.findByProps({ testID: testIds.manageApps.screen })).toBeDefined();
-    expect(tree!.root.findByProps({ testID: testIds.manageApps.header })).toBeDefined();
-    expect(tree!.root.findByProps({ testID: testIds.manageApps.searchInput })).toBeDefined();
-    expect(tree!.root.findByProps({ testID: testIds.manageApps.categoryFilters })).toBeDefined();
-    expect(tree!.root.findByProps({ testID: testIds.manageApps.appsList })).toBeDefined();
-    expect(tree!.root.findByProps({ testID: testIds.manageApps.selectedCount }).props.children).toEqual(
-      expect.arrayContaining([0, ' selected']),
-    );
-    expect(tree!.root.findByProps({ children: 'Social Chat' })).toBeDefined();
+  afterEach(async () => {
+    flushVirtualizedListTimers();
+    cleanupTestTrees();
+    jest.useRealTimers();
+    await flushVirtualizedListWork();
   });
 
-  it('hides selected chips when nothing is selected', () => {
-    let tree: ReactTestRenderer.ReactTestRenderer;
+  it('renders header, search, filters, and app list', async () => {
+    const tree = renderTestTree(<ManageAppsScreen />);
+    flushVirtualizedListTimers();
 
-    ReactTestRenderer.act(() => {
-      tree = ReactTestRenderer.create(<ManageAppsScreen />);
-    });
+    expect(tree.root.findByProps({ testID: testIds.manageApps.screen })).toBeDefined();
+    expect(tree.root.findByProps({ testID: testIds.manageApps.header })).toBeDefined();
+    expect(tree.root.findByProps({ testID: testIds.manageApps.searchInput })).toBeDefined();
+    expect(tree.root.findByProps({ testID: testIds.manageApps.categoryFilters })).toBeDefined();
+    expect(tree.root.findByProps({ testID: testIds.manageApps.appsList })).toBeDefined();
+    expect(tree.root.findByProps({ testID: testIds.manageApps.selectedCount }).props.children).toBe('0 selected');
+    expect(tree.root.findByProps({ children: 'Social Chat' })).toBeDefined();
+  });
+
+  it('hides selected chips when nothing is selected', async () => {
+    const tree = renderTestTree(<ManageAppsScreen />);
+    flushVirtualizedListTimers();
 
     expect(
-      tree!.root.findAll(
-        (node) =>
-          typeof node.props.testID === 'string' && node.props.testID.startsWith('manage-apps-selected-chip-'),
+      tree.root.findAll(
+        (node) => typeof node.props.testID === 'string' && node.props.testID.startsWith('manage-apps-selected-chip-'),
       ),
     ).toHaveLength(0);
   });
 
-  it('shows selected chips after toggling an app', () => {
-    let tree: ReactTestRenderer.ReactTestRenderer;
+  it('shows selected chips after toggling an app', async () => {
+    const tree = renderTestTree(<ManageAppsScreen />);
+    flushVirtualizedListTimers();
 
-    ReactTestRenderer.act(() => {
-      tree = ReactTestRenderer.create(<ManageAppsScreen />);
+    runTestAct(() => {
+      tree.root.findByProps({ testID: testIds.manageApps.appRow('com.game.puzzle') }).props.onPress();
     });
 
-    ReactTestRenderer.act(() => {
-      tree!.root.findByProps({ testID: testIds.manageApps.appRow('com.game.puzzle') }).props.onPress();
-    });
+    updateTestTree(tree, <ManageAppsScreen />);
+    flushVirtualizedListTimers();
 
-    ReactTestRenderer.act(() => {
-      tree!.update(<ManageAppsScreen />);
-    });
-
-    expect(tree!.root.findByProps({ testID: testIds.manageApps.selectedSection })).toBeDefined();
-    expect(tree!.root.findByProps({ testID: testIds.manageApps.selectedChip('com.game.puzzle') })).toBeDefined();
-    expect(tree!.root.findByProps({ testID: testIds.manageApps.selectedCount }).props.children).toEqual(
-      expect.arrayContaining([1, ' selected']),
-    );
+    expect(tree.root.findByProps({ testID: testIds.manageApps.selectedSection })).toBeDefined();
+    expect(tree.root.findByProps({ testID: testIds.manageApps.selectedChip('com.game.puzzle') })).toBeDefined();
+    expect(tree.root.findByProps({ testID: testIds.manageApps.selectedCount }).props.children).toBe('1 selected');
   });
 
-  it('filters apps when search query changes', () => {
-    let tree: ReactTestRenderer.ReactTestRenderer;
+  it('filters apps when search query changes', async () => {
+    const tree = renderTestTree(<ManageAppsScreen />);
+    flushVirtualizedListTimers();
 
-    ReactTestRenderer.act(() => {
-      tree = ReactTestRenderer.create(<ManageAppsScreen />);
+    runTestAct(() => {
+      tree.root.findByProps({ testID: testIds.manageApps.searchInput }).props.onChangeText('news');
     });
+    flushVirtualizedListTimers();
 
-    ReactTestRenderer.act(() => {
-      tree!.root.findByProps({ testID: testIds.manageApps.searchInput }).props.onChangeText('news');
-    });
-
-    expect(tree!.root.findByProps({ children: 'News Reader' })).toBeDefined();
-    expect(tree!.root.findAllByProps({ children: 'Social Chat' })).toHaveLength(0);
-    // CategoryFilters stay mounted inside hidden Activity; filtering is disabled via useManageApps.
+    expect(tree.root.findByProps({ children: 'News Reader' })).toBeDefined();
+    expect(tree.root.findAllByProps({ children: 'Social Chat' })).toHaveLength(0);
   });
 
-  it('filters apps when category chip is pressed', () => {
-    let tree: ReactTestRenderer.ReactTestRenderer;
+  it('filters apps when category chip is pressed', async () => {
+    const tree = renderTestTree(<ManageAppsScreen />);
+    flushVirtualizedListTimers();
 
-    ReactTestRenderer.act(() => {
-      tree = ReactTestRenderer.create(<ManageAppsScreen />);
+    runTestAct(() => {
+      tree.root.findByProps({ testID: testIds.manageApps.categoryFilter('Game') }).props.onPress();
     });
+    flushVirtualizedListTimers();
 
-    ReactTestRenderer.act(() => {
-      tree!.root.findByProps({ testID: testIds.manageApps.categoryFilter('Game') }).props.onPress();
-    });
-
-    expect(tree!.root.findByProps({ children: 'Puzzle Game' })).toBeDefined();
-    expect(tree!.root.findAllByProps({ children: 'Social Chat' })).toHaveLength(0);
+    expect(tree.root.findByProps({ children: 'Puzzle Game' })).toBeDefined();
+    expect(tree.root.findAllByProps({ children: 'Social Chat' })).toHaveLength(0);
   });
 
-  it('navigates back when back button is pressed', () => {
-    let tree: ReactTestRenderer.ReactTestRenderer;
+  it('navigates back when back button is pressed', async () => {
+    const tree = renderTestTree(<ManageAppsScreen />);
+    flushVirtualizedListTimers();
 
-    ReactTestRenderer.act(() => {
-      tree = ReactTestRenderer.create(<ManageAppsScreen />);
-    });
-
-    ReactTestRenderer.act(() => {
-      tree!.root.findByProps({ accessibilityLabel: 'Go back' }).props.onPress();
+    runTestAct(() => {
+      tree.root.findByProps({ accessibilityLabel: 'Go back' }).props.onPress();
     });
 
     expect(mockGoBack).toHaveBeenCalledTimes(1);

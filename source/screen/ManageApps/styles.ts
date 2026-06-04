@@ -1,6 +1,7 @@
 /** @format */
 
 import { StyleSheet } from 'react-native';
+
 import {
   borderRadius,
   colors,
@@ -15,7 +16,10 @@ import {
 
 export const manageAppsStyles = StyleSheet.create({
   screen: layoutPresets.screen,
-  scrollContent: layoutPresets.scrollContent(),
+  listFlex: {
+    flex: 1,
+  },
+  scrollContent: layoutPresets.scrollContent(10),
   header: {
     ...layoutPresets.rowCenter,
     gap: spacing.lg,
@@ -48,6 +52,7 @@ export const manageAppsStyles = StyleSheet.create({
     minHeight: 48,
     paddingHorizontal: spacing.lg,
     borderRadius: borderRadius.lg,
+    marginBottom: spacing.lg,
   },
   searchInput: {
     flex: 1,
@@ -122,9 +127,6 @@ export const manageAppsStyles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     zIndex: 1,
-  },
-  appsList: {
-    gap: spacing.md,
   },
   appItem: {
     ...layoutPresets.rowCenter,

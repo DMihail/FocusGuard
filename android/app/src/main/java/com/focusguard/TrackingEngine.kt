@@ -3,9 +3,12 @@ package com.focusguard
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.core.app.NotificationCompat
+import com.focusguard.overlay.BlockOverlayManager
+import com.focusguard.overlay.TrackingSnoozeStore
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -17,12 +20,9 @@ import kotlinx.coroutines.launch
 /**
  * Continuously monitors the foreground app and reacts when a tracked (distracting) app is opened.
  *
- * Polls [ForegroundAppDetector] every second via a coroutine and compares the result
- * against the tracked apps list from [TrackingConfigRepository].
- * When a tracked app is used for longer than [WARNING_THRESHOLD_MS] (60 seconds),
- * a push notification is shown to remind the user to take a break.
- *
- * Designed to run inside [FocusGuardMonitorService][com.focusguard.service.FocusGuardMonitorService].
+ * Per-app limits are loaded from [TrackingConfigRepository]:
+ * - [TrackingConfigRepository.AppLimitConfig.warningThresholdMs] → push notification
+ * - [TrackingConfigRepository.AppLimitConfig.hardBlockThresholdMs] → block overlay
  */
 class TrackingEngine(
     private val context: Context
@@ -39,6 +39,7 @@ class TrackingEngine(
     private var currentApp: String? = null
     private var currentSessionStart = 0L
     private var warningShown = false
+    private var blockShown = false
 
     /** Starts the polling loop. No-op if already running. */
     fun start() {
@@ -58,13 +59,9 @@ class TrackingEngine(
     fun stop() {
         monitoringJob?.cancel()
         monitoringJob = null
+        BlockOverlayManager.dismiss(context)
     }
 
-    /**
-     * Checks the current foreground app every tick.
-     * If the app changed — resets session tracking via [onAppChanged].
-     * If the same tracked app is still open — checks whether the warning threshold is reached.
-     */
     private fun monitorForegroundApp() {
         val foregroundApp = detector.getForegroundApp() ?: return
 
@@ -73,32 +70,60 @@ class TrackingEngine(
             return
         }
 
-        if (warningShown) return
+        if (!isTrackedApp(foregroundApp)) return
 
+        val limits = configRepository.getLimitConfig(foregroundApp)
         val elapsed = System.currentTimeMillis() - currentSessionStart
-        if (elapsed >= WARNING_THRESHOLD_MS && isTrackedApp(foregroundApp)) {
+
+        if (TrackingSnoozeStore.isSnoozed(foregroundApp)) {
+            blockShown = false
+            return
+        }
+
+        if (!blockShown && elapsed >= limits.hardBlockThresholdMs) {
+            showBlockOverlay(foregroundApp, limits)
+            blockShown = true
+            return
+        }
+
+        if (blockShown || warningShown) return
+
+        if (elapsed >= limits.warningThresholdMs) {
             showWarningNotification(foregroundApp)
             warningShown = true
         }
     }
 
-    /**
-     * Called when the foreground app changes.
-     * Resets session start time and the warning flag.
-     */
     private fun onAppChanged(packageName: String) {
+        if (blockShown) {
+            BlockOverlayManager.dismiss(context)
+        }
+
         currentApp = packageName
         currentSessionStart = System.currentTimeMillis()
         warningShown = false
+        blockShown = false
     }
 
     private fun isTrackedApp(packageName: String): Boolean =
         configRepository.getTrackedApps().contains(packageName)
 
-    /**
-     * Creates the high-priority notification channel for usage warnings.
-     * No-op below API 26.
-     */
+    private fun showBlockOverlay(packageName: String, limits: TrackingConfigRepository.AppLimitConfig) {
+        context.startActivity(
+            Intent(Intent.ACTION_MAIN).apply {
+                addCategory(Intent.CATEGORY_HOME)
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            },
+        )
+
+        BlockOverlayManager.show(
+            context,
+            packageName,
+            getAppLabel(packageName),
+            limits.strictMode,
+        )
+    }
+
     private fun ensureWarningChannel() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
 
@@ -113,7 +138,6 @@ class TrackingEngine(
         notificationManager.createNotificationChannel(channel)
     }
 
-    /** Shows a push notification warning that the user has been using [packageName] too long. */
     private fun showWarningNotification(packageName: String) {
         val appName = getAppLabel(packageName)
 
@@ -128,7 +152,6 @@ class TrackingEngine(
         notificationManager.notify(WARNING_NOTIFICATION_ID, notification)
     }
 
-    /** Resolves a human-readable app label from [packageName], falling back to the package name itself. */
     private fun getAppLabel(packageName: String): String =
         try {
             val appInfo = context.packageManager.getApplicationInfo(packageName, 0)
@@ -139,7 +162,6 @@ class TrackingEngine(
 
     companion object {
         private const val POLL_INTERVAL_MS = 1000L
-        private const val WARNING_THRESHOLD_MS = 60_000L
         private const val WARNING_CHANNEL_ID = "focusguard_warnings"
         private const val WARNING_NOTIFICATION_ID = 2001
     }

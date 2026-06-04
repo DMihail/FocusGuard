@@ -1,8 +1,10 @@
 /** @format */
 
-import React from 'react';
-import ReactTestRenderer from 'react-test-renderer';
 import { Animated } from 'react-native';
+
+import type React from 'react';
+import ReactTestRenderer from 'react-test-renderer';
+
 import type { ScrollIndicatorProps } from '@/screen/Onboarding/types';
 
 const mockPager: {

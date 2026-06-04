@@ -1,6 +1,7 @@
 /** @format */
 
 import { Platform } from 'react-native';
+
 import type { TextStyle } from 'react-native';
 
 export type InterWeight = 'regular' | 'medium' | 'semibold' | 'bold';

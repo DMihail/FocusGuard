@@ -1,6 +1,7 @@
 /** @format */
 
 import { StyleSheet } from 'react-native';
+
 import { colors, fontSize, layoutPresets, spacing, textPresets, typography } from '@/theme';
 
 export const legalStyles = StyleSheet.create({
@@ -46,8 +47,8 @@ export const legalStyles = StyleSheet.create({
     color: colors.textDisabled,
     marginBottom: spacing.xl,
   },
-  sections: {
-    gap: spacing.xxl,
+  sectionSeparator: {
+    height: spacing.xxl,
   },
   section: {
     gap: spacing.md,

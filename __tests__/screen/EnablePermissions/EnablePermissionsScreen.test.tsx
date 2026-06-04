@@ -1,8 +1,16 @@
 /** @format */
 
-import React from 'react';
-import ReactTestRenderer from 'react-test-renderer';
 import { AppState, Platform } from 'react-native';
+
+import type React from 'react';
+
+import {
+  cleanupTestTrees,
+  flushVirtualizedListTimers,
+  flushVirtualizedListWork,
+  renderTestTree,
+  runTestAct,
+} from '../../helpers/testRenderer';
 
 const mockNavigate = jest.fn();
 const mockCheckForPermission = jest.fn();
@@ -16,6 +24,13 @@ const mockRequestNotificationsPermission = jest.fn();
 const mockRequestIgnoreBatteryOptimizationsPermission = jest.fn();
 let appStateListener: ((state: string) => void) | undefined;
 const mockRemoveAppStateListener = jest.fn();
+
+jest.mock('@react-navigation/native', () => ({
+  useFocusEffect: (callback: () => void | (() => void)) => {
+    const { useEffect } = require('react');
+    useEffect(() => callback(), [callback]);
+  },
+}));
 
 jest.mock('../../../source/navigation', () => ({
   useRootNavigation: () => ({
@@ -47,12 +62,12 @@ jest.mock('react-native-safe-area-context', () => {
 
 jest.mock('../../../source/screen/EnablePermissions/hooks/usePermissionCardAnimation', () => ({
   usePermissionCardAnimation: (status: 'granted' | 'pending') => ({
-    cardStyle: {},
-    iconBoxStyle: {},
+    grantedOverlayOpacity: status === 'pending' ? 0 : 1,
     pendingIconOpacity: status === 'pending' ? 1 : 0,
     grantedIconOpacity: status === 'granted' ? 1 : 0,
     badgeStyle: {},
-    grantButtonStyle: {},
+    grantButtonOpacity: status === 'pending' ? 1 : 0,
+    collapsed: status === 'granted',
     isGranted: status === 'granted',
   }),
 }));
@@ -77,6 +92,7 @@ describe('EnablePermissionsScreen', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    jest.useFakeTimers();
     Object.defineProperty(Platform, 'OS', { configurable: true, value: 'android' });
     appStateListener = undefined;
     mockCheckForPermission.mockReturnValue(false);
@@ -85,48 +101,46 @@ describe('EnablePermissionsScreen', () => {
     mockCheckForIgnoreBatteryOptimizationsPermission.mockReturnValue(false);
   });
 
+  afterEach(async () => {
+    flushVirtualizedListTimers();
+    cleanupTestTrees();
+    jest.useRealTimers();
+    await flushVirtualizedListWork();
+  });
+
   afterAll(() => {
     Object.defineProperty(Platform, 'OS', { configurable: true, value: originalPlatform });
   });
 
   it('renders header, permission cards, privacy notice, and footer', () => {
-    let tree: ReactTestRenderer.ReactTestRenderer;
+    const tree = renderTestTree(<EnablePermissionsScreen />);
+    flushVirtualizedListTimers();
 
-    ReactTestRenderer.act(() => {
-      tree = ReactTestRenderer.create(<EnablePermissionsScreen />);
-    });
-
-    expect(tree!.root.findByProps({ children: 'Enable Permissions' })).toBeDefined();
-    expect(tree!.root.findByProps({ children: 'Usage Access' })).toBeDefined();
-    expect(tree!.root.findByProps({ children: 'Display Over Apps' })).toBeDefined();
-    expect(tree!.root.findByProps({ children: 'Notifications' })).toBeDefined();
+    expect(tree.root.findByProps({ children: 'Enable Permissions' })).toBeDefined();
+    expect(tree.root.findByProps({ children: 'Usage Access' })).toBeDefined();
+    expect(tree.root.findByProps({ children: 'Display Over Apps' })).toBeDefined();
+    expect(tree.root.findByProps({ children: 'Notifications' })).toBeDefined();
     expect(
-      tree!.root.findByProps({
+      tree.root.findByProps({
         children: 'All data stays on your device. We never collect or share your usage information.',
       }),
     ).toBeDefined();
-    expect(tree!.root.findByProps({ children: 'Continue' })).toBeDefined();
+    expect(tree.root.findByProps({ children: 'Continue' })).toBeDefined();
   });
 
   it('keeps Continue disabled until all permissions are granted', () => {
-    let tree: ReactTestRenderer.ReactTestRenderer;
+    const tree = renderTestTree(<EnablePermissionsScreen />);
+    flushVirtualizedListTimers();
 
-    ReactTestRenderer.act(() => {
-      tree = ReactTestRenderer.create(<EnablePermissionsScreen />);
-    });
-
-    expect(tree!.root.findByProps({ accessibilityLabel: 'Continue' }).props.disabled).toBe(true);
+    expect(tree.root.findByProps({ accessibilityLabel: 'Continue' }).props.disabled).toBe(true);
   });
 
   it('opens overlay settings when Display Over Apps grant is pressed', () => {
-    let tree: ReactTestRenderer.ReactTestRenderer;
+    const tree = renderTestTree(<EnablePermissionsScreen />);
+    flushVirtualizedListTimers();
 
-    ReactTestRenderer.act(() => {
-      tree = ReactTestRenderer.create(<EnablePermissionsScreen />);
-    });
-
-    ReactTestRenderer.act(() => {
-      tree!.root.findByProps({ accessibilityLabel: 'Grant Display Over Apps' }).props.onPress();
+    runTestAct(() => {
+      tree.root.findByProps({ accessibilityLabel: 'Grant Display Over Apps' }).props.onPress();
     });
 
     expect(mockRequestSystemAlertWindowPermission).toHaveBeenCalledTimes(1);
@@ -134,14 +148,11 @@ describe('EnablePermissionsScreen', () => {
   });
 
   it('opens notification settings when Notifications grant is pressed', () => {
-    let tree: ReactTestRenderer.ReactTestRenderer;
+    const tree = renderTestTree(<EnablePermissionsScreen />);
+    flushVirtualizedListTimers();
 
-    ReactTestRenderer.act(() => {
-      tree = ReactTestRenderer.create(<EnablePermissionsScreen />);
-    });
-
-    ReactTestRenderer.act(() => {
-      tree!.root.findByProps({ accessibilityLabel: 'Grant Notifications' }).props.onPress();
+    runTestAct(() => {
+      tree.root.findByProps({ accessibilityLabel: 'Grant Notifications' }).props.onPress();
     });
 
     expect(mockRequestNotificationsPermission).toHaveBeenCalledTimes(1);
@@ -149,38 +160,31 @@ describe('EnablePermissionsScreen', () => {
   });
 
   it('opens system settings on grant and syncs status on AppState active', () => {
-    let tree: ReactTestRenderer.ReactTestRenderer;
+    const tree = renderTestTree(<EnablePermissionsScreen />);
+    flushVirtualizedListTimers();
 
-    ReactTestRenderer.act(() => {
-      tree = ReactTestRenderer.create(<EnablePermissionsScreen />);
-    });
-
-    ReactTestRenderer.act(() => {
-      tree!.root.findByProps({ accessibilityLabel: 'Grant Usage Access' }).props.onPress();
+    runTestAct(() => {
+      tree.root.findByProps({ accessibilityLabel: 'Grant Usage Access' }).props.onPress();
     });
 
     expect(mockRequestUsageStatsPermission).toHaveBeenCalledTimes(1);
-    expect(tree!.root.findByProps({ accessibilityLabel: 'Continue' }).props.disabled).toBe(true);
+    expect(tree.root.findByProps({ accessibilityLabel: 'Continue' }).props.disabled).toBe(true);
 
     grantAllNativePermissions();
 
-    ReactTestRenderer.act(() => {
+    runTestAct(() => {
       appStateListener?.('active');
     });
+    flushVirtualizedListTimers();
 
-    expect(tree!.root.findByProps({ accessibilityLabel: 'Continue' }).props.disabled).toBe(false);
+    expect(tree.root.findByProps({ accessibilityLabel: 'Continue' }).props.disabled).toBe(false);
   });
 
   it('removes AppState listener on unmount', () => {
-    let tree: ReactTestRenderer.ReactTestRenderer;
+    renderTestTree(<EnablePermissionsScreen />);
+    flushVirtualizedListTimers();
 
-    ReactTestRenderer.act(() => {
-      tree = ReactTestRenderer.create(<EnablePermissionsScreen />);
-    });
-
-    ReactTestRenderer.act(() => {
-      tree!.unmount();
-    });
+    cleanupTestTrees();
 
     expect(mockRemoveAppStateListener).toHaveBeenCalledTimes(1);
   });
@@ -188,14 +192,11 @@ describe('EnablePermissionsScreen', () => {
   it('navigates to Dashboard when Continue is pressed and all permissions are granted', () => {
     grantAllNativePermissions();
 
-    let tree: ReactTestRenderer.ReactTestRenderer;
+    const tree = renderTestTree(<EnablePermissionsScreen />);
+    flushVirtualizedListTimers();
 
-    ReactTestRenderer.act(() => {
-      tree = ReactTestRenderer.create(<EnablePermissionsScreen />);
-    });
-
-    ReactTestRenderer.act(() => {
-      tree!.root.findByProps({ accessibilityLabel: 'Continue' }).props.onPress();
+    runTestAct(() => {
+      tree.root.findByProps({ accessibilityLabel: 'Continue' }).props.onPress();
     });
 
     expect(mockNavigate).toHaveBeenCalledWith('Dashboard');

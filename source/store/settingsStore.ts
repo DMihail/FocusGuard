@@ -2,12 +2,9 @@
 
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
-import { zustandStorage } from './mmkv';
 
-type SettingsStore = {
-  notificationsEnabled: boolean;
-  setNotificationsEnabled: (value: boolean) => void;
-};
+import { zustandStorage } from './mmkv';
+import type { SettingsStore } from './types';
 
 export const settingsStore = create<SettingsStore>()(
   persist(

@@ -2,13 +2,11 @@
 
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
-import { startMonitorService, stopMonitorService } from '@/specs';
-import { zustandStorage } from './mmkv';
 
-type MonitoringStore = {
-  isMonitoring: boolean;
-  toggle: () => void;
-};
+import { startMonitorService, stopMonitorService } from '@/specs';
+
+import { zustandStorage } from './mmkv';
+import type { MonitoringStore } from './types';
 
 export const monitoringStore = create<MonitoringStore>()(
   persist(

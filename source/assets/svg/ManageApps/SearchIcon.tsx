@@ -1,7 +1,9 @@
 /** @format */
 
 import * as React from 'react';
-import Svg, { Circle, Path, SvgProps } from 'react-native-svg';
+
+import type { SvgProps } from 'react-native-svg';
+import Svg, { Circle, Path } from 'react-native-svg';
 
 export const SearchIcon = (props: SvgProps) => (
   <Svg width={16} height={16} viewBox="0 0 16 16" fill="none" {...props}>

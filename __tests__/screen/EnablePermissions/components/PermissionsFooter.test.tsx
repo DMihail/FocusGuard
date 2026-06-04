@@ -1,7 +1,9 @@
 /** @format */
 
 import React from 'react';
+
 import ReactTestRenderer from 'react-test-renderer';
+
 import { PermissionsFooter } from '@/screen/EnablePermissions/components/PermissionsFooter';
 
 describe('PermissionsFooter', () => {

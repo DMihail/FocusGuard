@@ -2,6 +2,7 @@
 
 import React, { type ReactNode } from 'react';
 import { Text, View } from 'react-native';
+
 import { settingsStyles } from '../styles';
 
 type SettingsSectionProps = {

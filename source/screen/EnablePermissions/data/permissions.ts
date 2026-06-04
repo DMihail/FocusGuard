@@ -1,6 +1,7 @@
 /** @format */
 
 import { BatteryOptimization, DisplayOverApps, NotificationsIcon, UsageAccess } from '@/assets/svg/EnablePermissions';
+
 import type { PermissionItem } from '../types';
 
 export const PERMISSIONS: PermissionItem[] = [

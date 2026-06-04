@@ -1,17 +1,13 @@
 /** @format */
 
-import React, { useCallback, type RefObject } from 'react';
-import {
-  Animated,
-  FlatList,
-  type ListRenderItem,
-  type NativeScrollEvent,
-  type NativeSyntheticEvent,
-} from 'react-native';
+import React, { type RefObject, useMemo } from 'react';
+import { Animated, FlatList, type NativeScrollEvent, type NativeSyntheticEvent } from 'react-native';
+
+import { testIds } from '@/testing/testIds';
+
 import { FLAT_LIST_WINDOW_SIZE, SCROLL_EVENT_THROTTLE } from '../constants';
 import type { WalkthroughStepData } from '../data/walkthroughSteps';
-import { testIds } from '@/testing/testIds';
-import { WalkthroughPage } from './WalkthroughPage';
+import { createWalkthroughPageRenderItem, walkthroughStepKeyExtractor } from '../list';
 
 const AnimatedFlatList = Animated.createAnimatedComponent(FlatList<WalkthroughStepData>);
 
@@ -34,12 +30,7 @@ export const WalkthroughPager = ({
   getItemLayout,
   onScrollToIndexFailed,
 }: WalkthroughPagerProps) => {
-  const renderItem: ListRenderItem<WalkthroughStepData> = useCallback(
-    ({ item }) => <WalkthroughPage item={item} width={pageWidth} />,
-    [pageWidth],
-  );
-
-  const keyExtractor = useCallback((item: WalkthroughStepData) => item.id, []);
+  const renderItem = useMemo(() => createWalkthroughPageRenderItem(pageWidth), [pageWidth]);
 
   if (pageWidth <= 0) {
     return null;
@@ -51,7 +42,7 @@ export const WalkthroughPager = ({
       ref={listRef}
       data={steps}
       renderItem={renderItem}
-      keyExtractor={keyExtractor}
+      keyExtractor={walkthroughStepKeyExtractor}
       horizontal
       pagingEnabled
       bounces={false}

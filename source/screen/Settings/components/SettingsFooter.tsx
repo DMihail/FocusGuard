@@ -2,7 +2,9 @@
 
 import React from 'react';
 import { Pressable, Text, View } from 'react-native';
+
 import { testIds } from '@/testing/testIds';
+
 import { APP_VERSION } from '../constants';
 import { settingsStyles } from '../styles';
 

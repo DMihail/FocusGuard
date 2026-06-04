@@ -1,6 +1,7 @@
 /** @format */
 
 import { Platform } from 'react-native';
+
 import { resolveFontFamily, resolveFontWeight } from '@/theme/fonts';
 
 describe('resolveFontFamily', () => {
