@@ -162,6 +162,9 @@ class NativeUsageStatsModule(reactContext: ReactApplicationContext) :
     MonitorServiceHelper.stop(reactApplicationContext)
   }
 
+  /** @return `true` while [FocusGuardMonitorService] is alive in the process. */
+  override fun isMonitorServiceRunning(): Boolean = MonitorServiceHelper.isRunning()
+
   /** Opens the system Usage Stats settings screen so the user can grant access. */
   override fun requestUsageStatsPermission() {
     UsageAccess.openSettings(reactApplicationContext)

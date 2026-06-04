@@ -33,4 +33,6 @@ object MonitorServiceHelper {
     val intent = Intent(context, FocusGuardMonitorService::class.java)
     context.stopService(intent)
   }
+
+  fun isRunning(): Boolean = FocusGuardMonitorService.isRunning
 }

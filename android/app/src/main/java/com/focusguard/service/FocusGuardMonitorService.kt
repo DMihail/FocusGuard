@@ -36,6 +36,7 @@ class FocusGuardMonitorService : Service() {
   /** Creates the notification channel on first launch (API 26+). */
   override fun onCreate() {
     super.onCreate()
+    isRunning = true
     ensureNotificationChannel()
   }
 
@@ -48,6 +49,7 @@ class FocusGuardMonitorService : Service() {
    */
   override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
     if (!MonitorPermissions.canRunMonitorService(this)) {
+      isRunning = false
       stopSelf()
       return START_NOT_STICKY
     }
@@ -73,6 +75,7 @@ class FocusGuardMonitorService : Service() {
 
   /** Stops the [TrackingEngine], removes the foreground notification and releases resources. */
   override fun onDestroy() {
+    isRunning = false
     trackingEngine?.stop()
     trackingEngine = null
     stopForeground(STOP_FOREGROUND_REMOVE)
@@ -119,5 +122,8 @@ class FocusGuardMonitorService : Service() {
   companion object {
     private const val CHANNEL_ID = "focusguard_monitor"
     private const val NOTIFICATION_ID = 1001
+
+    @Volatile var isRunning: Boolean = false
+      private set
   }
 }
