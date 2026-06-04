@@ -1,91 +1,80 @@
 /** @format */
 
-import React, { useEffect, useRef } from 'react';
-import { Animated, Easing, StyleSheet, Text, View } from 'react-native';
+import React, { memo, useMemo } from 'react';
+import { Animated, type Animated as AnimatedNamespace, StyleSheet, Text, View } from 'react-native';
 
 import { Shield } from '@/assets/svg/Onboarding';
+import { splashDotPulseMin, useSplashDotPulse } from '@/hooks/useSplashDotPulse';
 import { testIds } from '@/testing/testIds';
 import { borderRadius, colors, fontSize, lineHeight, spacing, typography } from '@/theme';
 
-const DOT_COUNT = 3;
-const DOT_PULSE_MIN = 0.35;
-const DOT_PULSE_DURATION_MS = 360;
-const DOT_STAGGER_MS = 120;
+const SPLASH_DOT_COUNT = 3;
+const APP_NAME = 'Keept';
+const APP_TAGLINE = 'Reclaim your time, restore your focus';
+const LOADING_LABEL = `Loading ${APP_NAME}`;
+
+type SplashPulseDotProps = {
+  pulse: AnimatedNamespace.Value;
+};
+
+const SplashPulseDot = memo(({ pulse }: SplashPulseDotProps) => {
+  const animatedStyle = useMemo(
+    () => ({
+      opacity: pulse,
+      transform: [
+        {
+          scale: pulse.interpolate({
+            inputRange: [splashDotPulseMin, 1],
+            outputRange: [0.85, 1.15],
+          }),
+        },
+      ],
+    }),
+    [pulse],
+  );
+
+  return <Animated.View style={[styles.dot, animatedStyle]} />;
+});
+
+SplashPulseDot.displayName = 'SplashPulseDot';
 
 const SplashLoadingDots = () => {
-  const pulseValues = useRef(Array.from({ length: DOT_COUNT }, () => new Animated.Value(DOT_PULSE_MIN))).current;
-
-  useEffect(() => {
-    const loops = pulseValues.map((value, index) =>
-      Animated.loop(
-        Animated.sequence([
-          Animated.delay(index * DOT_STAGGER_MS),
-          Animated.timing(value, {
-            toValue: 1,
-            duration: DOT_PULSE_DURATION_MS,
-            easing: Easing.inOut(Easing.ease),
-            useNativeDriver: true,
-          }),
-          Animated.timing(value, {
-            toValue: DOT_PULSE_MIN,
-            duration: DOT_PULSE_DURATION_MS,
-            easing: Easing.inOut(Easing.ease),
-            useNativeDriver: true,
-          }),
-          Animated.delay((DOT_COUNT - 1 - index) * DOT_STAGGER_MS),
-        ]),
-      ),
-    );
-
-    const animation = Animated.parallel(loops);
-    animation.start();
-
-    return () => {
-      animation.stop();
-      loops.forEach((loop) => loop.stop());
-      pulseValues.forEach((value) => value.stopAnimation());
-    };
-  }, [pulseValues]);
+  const pulseValues = useSplashDotPulse(SPLASH_DOT_COUNT);
 
   return (
-    <View style={styles.dots} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
-      {pulseValues.map((value, index) => (
-        <Animated.View
-          key={index}
-          style={[
-            styles.dot,
-            {
-              opacity: value,
-              transform: [
-                {
-                  scale: value.interpolate({
-                    inputRange: [DOT_PULSE_MIN, 1],
-                    outputRange: [0.85, 1.15],
-                  }),
-                },
-              ],
-            },
-          ]}
-        />
+    <View style={styles.dots} accessible={false}>
+      {pulseValues.map((pulse, index) => (
+        <SplashPulseDot key={index} pulse={pulse} />
       ))}
     </View>
   );
 };
 
-export const SplashBranding = () => (
-  <View style={styles.container} testID={testIds.app.loader} accessibilityLabel="Loading FocusGuard">
-    <View style={styles.content}>
-      <View style={styles.iconBox}>
+const SplashBrandingView = () => (
+  <View
+    style={styles.container}
+    testID={testIds.app.loader}
+    accessible
+    accessibilityRole="progressbar"
+    accessibilityLabel={LOADING_LABEL}
+    accessibilityState={{ busy: true }}
+  >
+    <View style={styles.content} importantForAccessibility="no-hide-descendants">
+      <View style={styles.iconBox} accessible={false}>
         <Shield width={82} height={101} stroke={colors.accent} />
       </View>
 
-      <Text style={styles.title}>FocusGuard</Text>
-      <Text style={styles.subtitle}>Reclaim your time, restore your focus</Text>
+      <Text style={styles.title} accessibilityRole="header">
+        {APP_NAME}
+      </Text>
+      <Text style={styles.subtitle}>{APP_TAGLINE}</Text>
 
       <SplashLoadingDots />
     </View>
   </View>
 );
+
+export const SplashBranding = memo(SplashBrandingView);
 
 const styles = StyleSheet.create({
   container: {

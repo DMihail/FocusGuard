@@ -79,7 +79,7 @@ android {
 
     namespace "com.focusguard"
     defaultConfig {
-        applicationId "com.focusguard"
+        applicationId "com.keept"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

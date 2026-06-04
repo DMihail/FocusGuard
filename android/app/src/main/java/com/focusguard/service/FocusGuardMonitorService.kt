@@ -120,7 +120,7 @@ class FocusGuardMonitorService : Service() {
   }
 
   companion object {
-    private const val CHANNEL_ID = "focusguard_monitor"
+    private const val CHANNEL_ID = "keept_monitor"
     private const val NOTIFICATION_ID = 1001
 
     @Volatile var isRunning: Boolean = false
