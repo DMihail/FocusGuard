@@ -14,15 +14,20 @@ concurrency:
 permissions:
   contents: read
 
-env:
-  # Lint, Prettier, and tests run on every push/PR. Typecheck and Android jobs use this flag.
-  RUN_FULL_PIPELINE: >-
-    ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && (github.ref == 'refs/heads/main' ||
-    github.ref == 'refs/heads/dev' || startsWith(github.ref, 'refs/heads/release/'))) || (github.event_name ==
-    'pull_request' && (github.base_ref == 'main' || github.base_ref == 'dev' || startsWith(github.base_ref,
-    'release/'))) }}
-
 jobs:
+  pipeline:
+    name: Pipeline profile
+    runs-on: ubuntu-latest
+    outputs:
+      run_full:
+        ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && (github.ref == 'refs/heads/main'
+        || github.ref == 'refs/heads/dev' || startsWith(github.ref, 'refs/heads/release/'))) || (github.event_name ==
+        'pull_request' && (github.base_ref == 'main' || github.base_ref == 'dev' || startsWith(github.base_ref,
+        'release/'))) }}
+    steps:
+      - name: Resolve profile
+        run: echo "Pipeline profile resolved"
+
   checks:
     name: ESLint, Prettier & tests
     runs-on: ubuntu-latest
@@ -51,8 +56,8 @@ jobs:
 
   typecheck:
     name: TypeScript
-    needs: checks
-    if: env.RUN_FULL_PIPELINE == 'true'
+    needs: [pipeline, checks]
+    if: needs.pipeline.outputs.run_full == 'true'
     runs-on: ubuntu-latest
 
     steps:
@@ -73,8 +78,8 @@ jobs:
 
   android:
     name: Android debug build
-    needs: [checks, typecheck]
-    if: env.RUN_FULL_PIPELINE == 'true'
+    needs: [pipeline, checks, typecheck]
+    if: needs.pipeline.outputs.run_full == 'true'
     runs-on: ubuntu-latest
 
     steps:
@@ -114,10 +119,11 @@ jobs:
 
   android-release:
     name: Android release AAB
-    needs: [checks, typecheck]
+    needs: [pipeline, checks, typecheck]
     if: >-
-      env.RUN_FULL_PIPELINE == 'true' && github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref
-      == 'refs/heads/dev' || startsWith(github.ref, 'refs/heads/release/') || startsWith(github.ref, 'refs/tags/v'))
+      needs.pipeline.outputs.run_full == 'true' && github.event_name == 'push' && (github.ref == 'refs/heads/main' ||
+      github.ref == 'refs/heads/dev' || startsWith(github.ref, 'refs/heads/release/') || startsWith(github.ref,
+      'refs/tags/v'))
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
