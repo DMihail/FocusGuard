@@ -18,6 +18,13 @@ const mockRequestIgnoreBatteryOptimizationsPermission = jest.fn();
 let appStateListener: ((state: string) => void) | undefined;
 const mockRemoveAppStateListener = jest.fn();
 
+jest.mock('@react-navigation/native', () => ({
+  useFocusEffect: (callback: () => void | (() => void)) => {
+    const { useEffect } = require('react');
+    useEffect(() => callback(), [callback]);
+  },
+}));
+
 jest.mock('../../../source/navigation', () => ({
   useRootNavigation: () => ({
     navigate: mockNavigate,

@@ -3,6 +3,7 @@
 import React, { useCallback, useMemo } from 'react';
 import { FlatList, View } from 'react-native';
 
+import { useFocusEffect } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { APP_LIST_FLAT_LIST_PROPS } from '@/list';
@@ -17,7 +18,13 @@ import { PermissionsFooter, PermissionsHeader, PrivacyNotice } from './component
 
 export const EnablePermissionsScreen = () => {
   const navigation = useRootNavigation();
-  const { permissions, canContinue, handleGrant } = usePermissionsSync();
+  const { permissions, canContinue, handleGrant, syncStatuses } = usePermissionsSync();
+
+  useFocusEffect(
+    useCallback(() => {
+      syncStatuses();
+    }, [syncStatuses]),
+  );
 
   const handleContinue = useCallback(() => {
     if (!canContinue) {
@@ -40,7 +47,7 @@ export const EnablePermissionsScreen = () => {
         showsVerticalScrollIndicator={false}
         accessibilityRole="list"
         accessibilityLabel="Required permissions"
-        extraData={canContinue}
+        extraData={permissions}
         {...APP_LIST_FLAT_LIST_PROPS}
       />
 
