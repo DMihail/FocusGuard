@@ -8,9 +8,9 @@ export const DEFAULT_APP_LIMITS: AppLimits = {
   strictMode: false,
 };
 
-export const WARNING_MIN_MINUTES = 15;
+export const WARNING_MIN_MINUTES = 5;
 export const WARNING_MAX_MINUTES = 180;
-export const HARD_BLOCK_MIN_MINUTES = 30;
+export const HARD_BLOCK_MIN_MINUTES = 10;
 export const HARD_BLOCK_MAX_MINUTES = 240;
 
 export const LIMIT_SLIDER_BOUNDS: LimitSliderBounds = {
