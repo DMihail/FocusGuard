@@ -26,7 +26,9 @@ import com.facebook.react.bridge.WritableArray
 import com.facebook.react.bridge.WritableMap
 import com.focusguard.monitor.MonitorPermissions
 import com.focusguard.monitor.MonitorServiceHelper
+import com.focusguard.monitor.MonitoringPreferences
 import com.focusguard.monitor.UsageAccess
+import com.focusguard.service.FocusGuardMonitorService
 import java.io.File
 import java.io.FileOutputStream
 
@@ -156,8 +158,12 @@ class NativeUsageStatsModule(reactContext: ReactApplicationContext) :
 
   /** Stops [FocusGuardMonitorService], its [TrackingEngine] and removes the notification. */
   override fun stopMonitorService() {
+    MonitoringPreferences.setMonitoringEnabled(false)
     MonitorServiceHelper.stop(reactApplicationContext)
   }
+
+  /** @return `true` while [FocusGuardMonitorService] is alive in this process. */
+  override fun isMonitorServiceRunning(): Boolean = FocusGuardMonitorService.isRunning
 
   /** Opens the system Usage Stats settings screen so the user can grant access. */
   override fun requestUsageStatsPermission() {

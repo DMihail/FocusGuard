@@ -29,6 +29,8 @@ export interface Spec extends TurboModule {
   startMonitorService(): void;
   /** Stops `FocusGuardMonitorService`, its `TrackingEngine`, and removes the notification. */
   stopMonitorService(): void;
+  /** @returns `true` while the monitor foreground service is running. */
+  isMonitorServiceRunning(): boolean;
   /** Opens the system Usage Stats settings screen. */
   requestUsageStatsPermission(): void;
   /** Opens the system overlay permission screen (API 23+). */
@@ -74,6 +76,9 @@ export const startMonitorService = (): void => {
 export const stopMonitorService = (): void => {
   usageStats?.stopMonitorService();
 };
+
+/** @returns `true` while the monitor foreground service is running. */
+export const isMonitorServiceRunning = (): boolean => usageStats?.isMonitorServiceRunning() ?? false;
 
 /** Opens the system Usage Stats settings screen. */
 export const requestUsageStatsPermission = (): void => {
