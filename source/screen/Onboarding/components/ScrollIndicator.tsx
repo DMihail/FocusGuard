@@ -6,7 +6,7 @@ import { StyleSheet, View } from 'react-native';
 import { spacing } from '@/theme';
 
 import type { ScrollIndicatorProps } from '../types';
-import { createIndicatorProgress } from '../utils';
+import { createIndicatorProgress } from '../utils/indicatorProgress';
 import { AnimatedIndicatorDot, type IndicatorVariant } from './AnimatedIndicatorDot';
 
 type ScrollIndicatorPropsWithVariant = ScrollIndicatorProps & {

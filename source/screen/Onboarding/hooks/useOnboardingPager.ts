@@ -10,7 +10,12 @@ import { onboardingStore } from '@/store/onboardingStore';
 
 import { WALKTHROUGH_STEPS, type WalkthroughStepData } from '../data/walkthroughSteps';
 import type { ScrollIndicatorProps } from '../types';
-import { clampStepIndex, createGetItemLayout, createScrollToIndexFailedHandler, getStepFromOffset } from '../utils';
+import {
+  clampStepIndex,
+  createGetItemLayout,
+  createScrollToIndexFailedHandler,
+  getStepFromOffset,
+} from '../utils/scroll';
 
 const STEP_COUNT = WALKTHROUGH_STEPS.length;
 const LAST_STEP_INDEX = STEP_COUNT - 1;

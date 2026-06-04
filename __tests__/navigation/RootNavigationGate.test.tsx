@@ -34,6 +34,14 @@ jest.mock('../../source/screen/EnablePermissions/utils/permissionStatus', () => 
   areAllPermissionsGranted: () => mockAreAllPermissionsGranted(),
 }));
 
+jest.mock('../../source/store/mmkv', () => ({
+  zustandStorage: require('../helpers/mockZustandMmkv').mockZustandStorage,
+}));
+
+jest.mock('../../source/specs', () => ({
+  isMonitorServiceRunning: jest.fn(() => false),
+}));
+
 jest.mock('../../source/store/onboardingStore', () => {
   const onboardingStore = Object.assign(
     (selector: (state: typeof mockOnboardingState) => unknown) => selector(mockOnboardingState),

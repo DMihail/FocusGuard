@@ -7,6 +7,7 @@ import type { NavigationContainerRef } from '@react-navigation/native';
 import { onboardingStore } from '@/store/onboardingStore';
 
 import { useAppPermissionGuard } from './hooks/useAppPermissionGuard';
+import { useMonitoringServiceSync } from './hooks/useMonitoringServiceSync';
 import { resolveEntryRoute } from './resolveEntryRoute';
 import { RootNavigator } from './RootNavigator';
 import type { RootStackParamList } from './types';
@@ -26,7 +27,10 @@ export const RootNavigationGate = () => {
     setInitialRoute(resolveEntryRoute(onboardingStore.getState().isConfirm));
   }, [hasHydrated, initialRoute]);
 
-  useAppPermissionGuard(navigationRef, hasHydrated && initialRoute !== null);
+  const isNavigationReady = hasHydrated && initialRoute !== null;
+
+  useAppPermissionGuard(navigationRef, isNavigationReady);
+  useMonitoringServiceSync(isNavigationReady);
 
   if (!hasHydrated || initialRoute === null) {
     return <AppLoader />;

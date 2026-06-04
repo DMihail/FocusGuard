@@ -111,33 +111,17 @@ npm test
 
 GitHub Actions workflow (`.github/workflows/ci.yml`) runs on **every** push and pull request.
 
-| Job                 | When                                                               | What it does                                |
-| ------------------- | ------------------------------------------------------------------ | ------------------------------------------- |
-| **checks**          | Always (any branch)                                                | ESLint, Prettier, TypeScript, Jest          |
-| **android**         | `main`, `dev`, `release/*`, or PRs into those branches; manual run | `assembleDebug`, uploads debug APK artifact |
-| **android-release** | Push to `main`, `dev`, `release/*`, or tag `v*` (see above)        | Signed `bundleRelease` AAB (secrets below)  |
+| Job         | When                                                               | What it does                                |
+| ----------- | ------------------------------------------------------------------ | ------------------------------------------- |
+| **checks**  | Always (any branch)                                                | ESLint, Prettier, TypeScript, Jest          |
+| **android** | `main`, `dev`, `release/*`, or PRs into those branches; manual run | `assembleDebug`, uploads debug APK artifact |
 
-Feature branches (e.g. `app-settings`) run **checks** only (lint, format, types, tests). Android jobs run on `main` /
-`dev` / `release/*` or when opening a PR into those branches.
+Feature branches (e.g. `app-settings`) run **checks** only (lint, format, types, tests). The **android** job runs on
+`main` / `dev` / `release/*` or when opening a PR into those branches.
 
 Manual run: **Actions → CI → Run workflow**.
 
-### Release signing secrets
-
-For `android-release`, add these repository secrets:
-
-| Secret                      | Description                           |
-| --------------------------- | ------------------------------------- |
-| `ANDROID_KEYSTORE_BASE64`   | Release keystore file, base64-encoded |
-| `ANDROID_KEYSTORE_PASSWORD` | Keystore password                     |
-| `ANDROID_KEY_ALIAS`         | Key alias                             |
-| `ANDROID_KEY_PASSWORD`      | Key password                          |
-
-Encode keystore locally:
-
-```sh
-base64 -i your-release.keystore | pbcopy
-```
+Release AAB/APK signing is done **locally** with your upload keystore (`bundleRelease` / `assembleRelease`), not in CI.
 
 ## Tech stack
 
