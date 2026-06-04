@@ -1,7 +1,7 @@
 /** @format */
 
-import React, { useLayoutEffect, useRef } from 'react';
-import { Button, FlatList, Text, View } from 'react-native';
+import React, { useCallback, useLayoutEffect, useRef } from 'react';
+import { Button, FlatList, type ListRenderItem, Text, View } from 'react-native';
 
 import { Link } from '@react-navigation/native';
 
@@ -28,6 +28,22 @@ export const DistractingAppsSection = () => {
     }
   }, [selectedApps.length]);
 
+  const renderItem: ListRenderItem<ManageApp> = useCallback(
+    ({ item }) => <DistractingAppRow {...item} onPress={openConfigureLimits} />,
+    [openConfigureLimits],
+  );
+
+  const keyExtractor = useCallback((item: ManageApp) => item.packageName, []);
+
+  const listEmptyComponent = useCallback(
+    () => (
+      <Text style={dashboardStyles.emptyText} testID={testIds.dashboard.appsEmpty}>
+        No apps selected yet
+      </Text>
+    ),
+    [],
+  );
+
   return (
     <View
       style={dashboardStyles.section}
@@ -52,15 +68,11 @@ export const DistractingAppsSection = () => {
 
       <FlatList
         data={selectedApps}
-        renderItem={({ item }) => <DistractingAppRow {...item} onPress={openConfigureLimits} />}
-        keyExtractor={(item: ManageApp) => item.packageName}
+        renderItem={renderItem}
+        keyExtractor={keyExtractor}
         scrollEnabled={false}
         nestedScrollEnabled
-        ListEmptyComponent={
-          <Text style={dashboardStyles.emptyText} testID={testIds.dashboard.appsEmpty}>
-            No apps selected yet
-          </Text>
-        }
+        ListEmptyComponent={listEmptyComponent}
         testID={testIds.dashboard.appsList}
         accessibilityRole="list"
         accessibilityLabel="Selected distracting apps"

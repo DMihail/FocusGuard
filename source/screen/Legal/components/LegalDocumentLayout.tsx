@@ -1,7 +1,7 @@
 /** @format */
 
-import React from 'react';
-import { FlatList, Pressable, Text, View } from 'react-native';
+import React, { useCallback, useMemo } from 'react';
+import { FlatList, type ListRenderItem, Pressable, Text, View } from 'react-native';
 
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -44,38 +44,49 @@ export const LegalDocumentLayout = ({
 }: LegalDocumentLayoutProps) => {
   const navigation = useRootNavigation();
 
-  const listHeader = (
-    <>
-      <View style={legalStyles.header} testID={headerTestId}>
-        <Pressable
-          testID={backButtonTestId}
-          accessibilityRole="button"
-          accessibilityLabel="Go back"
-          style={legalStyles.backButton}
-          onPress={() => navigation.goBack()}
-        >
-          <BackIcon />
-        </Pressable>
+  const handleGoBack = useCallback(() => {
+    navigation.goBack();
+  }, [navigation]);
 
-        <View style={legalStyles.headerText}>
-          <Text style={legalStyles.title} accessibilityRole="header">
-            {document.title}
-          </Text>
-          <Text style={legalStyles.subtitle}>{document.subtitle}</Text>
+  const listHeader = useMemo(
+    () => (
+      <>
+        <View style={legalStyles.header} testID={headerTestId}>
+          <Pressable
+            testID={backButtonTestId}
+            accessibilityRole="button"
+            accessibilityLabel="Go back"
+            style={legalStyles.backButton}
+            onPress={handleGoBack}
+          >
+            <BackIcon />
+          </Pressable>
+
+          <View style={legalStyles.headerText}>
+            <Text style={legalStyles.title} accessibilityRole="header">
+              {document.title}
+            </Text>
+            <Text style={legalStyles.subtitle}>{document.subtitle}</Text>
+          </View>
         </View>
-      </View>
 
-      <Text style={legalStyles.meta}>{`Last updated: ${document.lastUpdated}`}</Text>
-    </>
+        <Text style={legalStyles.meta}>{`Last updated: ${document.lastUpdated}`}</Text>
+      </>
+    ),
+    [backButtonTestId, document.lastUpdated, document.subtitle, document.title, handleGoBack, headerTestId],
   );
+
+  const renderItem: ListRenderItem<LegalSection> = useCallback(({ item }) => <LegalSectionBlock section={item} />, []);
+
+  const keyExtractor = useCallback((item: LegalSection) => item.title, []);
 
   return (
     <SafeAreaView style={legalStyles.screen} edges={['top', 'bottom']} testID={screenTestId}>
       <FlatList
         testID={scrollTestId}
         data={document.sections}
-        renderItem={({ item }) => <LegalSectionBlock section={item} />}
-        keyExtractor={(item) => item.title}
+        renderItem={renderItem}
+        keyExtractor={keyExtractor}
         ListHeaderComponent={listHeader}
         contentContainerStyle={legalStyles.scrollContent}
         ItemSeparatorComponent={LegalSectionSeparator}

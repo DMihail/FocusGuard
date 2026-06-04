@@ -1,5 +1,7 @@
 /** @format */
 
+import { useCallback, useMemo } from 'react';
+
 import { useNavigateToConfigureLimits } from '@/navigation/hooks/useNavigateToConfigureLimits';
 import type { ManageApp } from '@/screen/ManageApps/types';
 import { monitoringStore, selectedAppsStore } from '@/store';
@@ -19,15 +21,17 @@ export const useDistractingAppsSection = (): UseDistractingAppsSectionResult => 
   const toggleMonitoringInStore = monitoringStore((state) => state.toggle);
   const openConfigureLimits = useNavigateToConfigureLimits();
 
-  const toggleMonitoring = () => {
+  const toggleMonitoring = useCallback(() => {
     configureSectionLayoutAnimation();
     toggleMonitoringInStore();
-  };
+  }, [toggleMonitoringInStore]);
+
+  const monitoringButtonTitle = useMemo(() => (isMonitoring ? 'Stop' : 'Start'), [isMonitoring]);
 
   return {
     selectedApps,
     isMonitoring,
-    monitoringButtonTitle: isMonitoring ? 'Stop' : 'Start',
+    monitoringButtonTitle,
     toggleMonitoring,
     openConfigureLimits,
   };

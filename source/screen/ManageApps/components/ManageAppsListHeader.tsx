@@ -1,6 +1,6 @@
 /** @format */
 
-import React from 'react';
+import React, { memo } from 'react';
 
 import type { CategoryFilterOption, ManageApp } from '../types';
 import { AppSearchField } from './AppSearchField';
@@ -18,7 +18,7 @@ type ManageAppsListHeaderProps = {
   onSelectedAppPress: (packageName: string) => void;
 };
 
-export const ManageAppsListHeader = ({
+function ManageAppsListHeaderView({
   searchQuery,
   onSearchChange,
   isSearchActive,
@@ -27,18 +27,22 @@ export const ManageAppsListHeader = ({
   onCategoryChange,
   selectedApps,
   onSelectedAppPress,
-}: ManageAppsListHeaderProps) => (
-  <>
-    <AppSearchField value={searchQuery} onChangeText={onSearchChange} />
+}: ManageAppsListHeaderProps) {
+  return (
+    <>
+      <AppSearchField value={searchQuery} onChangeText={onSearchChange} />
 
-    {!isSearchActive ? (
-      <CategoryFilters
-        filters={categoryFilters}
-        activeCategoryId={activeCategoryId}
-        onCategoryChange={onCategoryChange}
-      />
-    ) : null}
+      {!isSearchActive ? (
+        <CategoryFilters
+          filters={categoryFilters}
+          activeCategoryId={activeCategoryId}
+          onCategoryChange={onCategoryChange}
+        />
+      ) : null}
 
-    <SelectedAppsSection apps={selectedApps} onAppPress={onSelectedAppPress} />
-  </>
-);
+      <SelectedAppsSection apps={selectedApps} onAppPress={onSelectedAppPress} />
+    </>
+  );
+}
+
+export const ManageAppsListHeader = memo(ManageAppsListHeaderView);

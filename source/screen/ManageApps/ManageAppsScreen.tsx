@@ -1,6 +1,6 @@
 /** @format */
 
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 
 import { useFocusEffect } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -40,17 +40,29 @@ export const ManageAppsScreen = () => {
     }, [refreshInstalledApps]),
   );
 
-  const renderListHeader = () => (
-    <ManageAppsListHeader
-      searchQuery={searchQuery}
-      onSearchChange={setSearchQuery}
-      isSearchActive={isSearchActive}
-      categoryFilters={categoryFilters}
-      activeCategoryId={activeCategory.id}
-      onCategoryChange={setActiveCategory}
-      selectedApps={selectedApps}
-      onSelectedAppPress={openConfigureLimits}
-    />
+  const listHeader = useMemo(
+    () => (
+      <ManageAppsListHeader
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        isSearchActive={isSearchActive}
+        categoryFilters={categoryFilters}
+        activeCategoryId={activeCategory.id}
+        onCategoryChange={setActiveCategory}
+        selectedApps={selectedApps}
+        onSelectedAppPress={openConfigureLimits}
+      />
+    ),
+    [
+      searchQuery,
+      setSearchQuery,
+      isSearchActive,
+      categoryFilters,
+      activeCategory.id,
+      setActiveCategory,
+      selectedApps,
+      openConfigureLimits,
+    ],
   );
 
   return (
@@ -67,7 +79,7 @@ export const ManageAppsScreen = () => {
         selectedCount={selectedCount}
         isSelected={isSelected}
         onToggle={toggleAppSelection}
-        ListHeaderComponent={renderListHeader}
+        ListHeaderComponent={listHeader}
       />
     </SafeAreaView>
   );

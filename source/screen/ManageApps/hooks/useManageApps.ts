@@ -12,8 +12,6 @@ import { mapInstalledApps } from '../utils/mapInstalledApps';
 import { matchesCategoryFilter } from '../utils/matchesCategoryFilter';
 
 export const useManageApps = () => {
-  'use no memo';
-
   const [installedApps, setInstalledApps] = useState(() => mapInstalledApps(getInstalledApplications()));
 
   const refreshInstalledApps = useCallback(() => {
@@ -28,22 +26,28 @@ export const useManageApps = () => {
   const selectedApps = selectedAppsStore((state) => state.apps);
   const toggleAppInStore = selectedAppsStore((state) => state.toggleApp);
   const isSelected = selectedAppsStore((state) => state.isSelected);
+  const selectedCount = useMemo(() => selectedApps.length, [selectedApps]);
 
-  const toggleAppSelection = (app: ManageApp) => {
-    configureSectionLayoutAnimation();
-    toggleAppInStore(app);
-  };
-
-  const handleSearchQueryChange = (text: string) => {
-    const wasSearchActive = searchQuery.trim().length > 0;
-    const willBeSearchActive = text.trim().length > 0;
-
-    if (wasSearchActive !== willBeSearchActive) {
+  const toggleAppSelection = useCallback(
+    (app: ManageApp) => {
       configureSectionLayoutAnimation();
-    }
+      toggleAppInStore(app);
+    },
+    [toggleAppInStore],
+  );
 
-    setSearchQuery(text);
-  };
+  const handleSearchQueryChange = useCallback((text: string) => {
+    setSearchQuery((previous) => {
+      const wasSearchActive = previous.trim().length > 0;
+      const willBeSearchActive = text.trim().length > 0;
+
+      if (wasSearchActive !== willBeSearchActive) {
+        configureSectionLayoutAnimation();
+      }
+
+      return text;
+    });
+  }, []);
 
   const deferredSearchQuery = useDeferredValue(searchQuery);
   const normalizedSearchQuery = searchQuery.trim().toLowerCase();
@@ -73,19 +77,22 @@ export const useManageApps = () => {
     });
   }, [activeCategory, apps, normalizedDeferredQuery]);
 
-  const handleCategoryChange = (filterId: string) => {
-    if (isSearchActive) {
-      return;
-    }
+  const handleCategoryChange = useCallback(
+    (filterId: string) => {
+      if (isSearchActive) {
+        return;
+      }
 
-    const nextFilter = categoryFilters.find((filter) => filter.id === filterId);
+      const nextFilter = categoryFilters.find((filter) => filter.id === filterId);
 
-    if (nextFilter && nextFilter.id !== activeCategory.id) {
-      startCategoryTransition(() => {
-        setActiveCategory(nextFilter);
-      });
-    }
-  };
+      if (nextFilter && nextFilter.id !== activeCategory.id) {
+        startCategoryTransition(() => {
+          setActiveCategory(nextFilter);
+        });
+      }
+    },
+    [activeCategory.id, categoryFilters, isSearchActive],
+  );
 
   return {
     apps: filteredApps,
@@ -93,7 +100,7 @@ export const useManageApps = () => {
     isFiltering,
     isSearchActive,
     selectedApps,
-    selectedCount: selectedApps.length,
+    selectedCount,
     searchQuery,
     setSearchQuery: handleSearchQueryChange,
     categoryFilters,

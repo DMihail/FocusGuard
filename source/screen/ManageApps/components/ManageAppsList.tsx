@@ -1,7 +1,7 @@
 /** @format */
 
-import React from 'react';
-import { ActivityIndicator, FlatList, Text, View } from 'react-native';
+import React, { useCallback } from 'react';
+import { ActivityIndicator, FlatList, type ListRenderItem, Text, View } from 'react-native';
 
 import { testIds } from '@/testing/testIds';
 import { colors } from '@/theme';
@@ -27,40 +27,51 @@ export const ManageAppsList = ({
   isSelected,
   onToggle,
   ListHeaderComponent,
-}: ManageAppsListProps) => (
-  <View style={manageAppsStyles.listFlex} testID={testIds.manageApps.appsList}>
-    <View
-      style={[manageAppsStyles.appsListContainer, isFiltering && manageAppsStyles.appsListDimmed]}
-      accessibilityState={{ busy: isFiltering }}
-    >
-      {isFiltering ? (
-        <View style={manageAppsStyles.filterLoader} testID={testIds.manageApps.appsFilterLoader}>
-          <ActivityIndicator size="small" color={colors.accent} accessibilityLabel="Filtering apps" />
-        </View>
-      ) : null}
+}: ManageAppsListProps) => {
+  const renderItem: ListRenderItem<ManageApp> = useCallback(
+    ({ item }) => <ManageAppListItem app={item} isSelected={isSelected(item.packageName)} onToggle={onToggle} />,
+    [isSelected, onToggle],
+  );
 
-      <FlatList
-        testID={testIds.manageApps.scroll}
-        data={apps}
-        renderItem={({ item }) => (
-          <ManageAppListItem {...item} isSelected={isSelected(item.packageName)} onToggle={() => onToggle(item)} />
-        )}
-        keyExtractor={(item) => item.packageName}
-        ListHeaderComponent={ListHeaderComponent}
-        ListEmptyComponent={
-          !isFiltering ? (
-            <Text style={manageAppsStyles.emptyText} testID={testIds.manageApps.appsEmpty}>
-              No apps found
-            </Text>
-          ) : null
-        }
-        contentContainerStyle={manageAppsStyles.scrollContent}
-        showsVerticalScrollIndicator={false}
-        accessibilityRole="list"
-        accessibilityLabel="Installed apps"
-        extraData={selectedCount}
-        {...APP_LIST_FLAT_LIST_PROPS}
-      />
+  const keyExtractor = useCallback((item: ManageApp) => item.packageName, []);
+
+  const listEmptyComponent = useCallback(
+    () =>
+      !isFiltering ? (
+        <Text style={manageAppsStyles.emptyText} testID={testIds.manageApps.appsEmpty}>
+          No apps found
+        </Text>
+      ) : null,
+    [isFiltering],
+  );
+
+  return (
+    <View style={manageAppsStyles.listFlex} testID={testIds.manageApps.appsList}>
+      <View
+        style={[manageAppsStyles.appsListContainer, isFiltering && manageAppsStyles.appsListDimmed]}
+        accessibilityState={{ busy: isFiltering }}
+      >
+        {isFiltering ? (
+          <View style={manageAppsStyles.filterLoader} testID={testIds.manageApps.appsFilterLoader}>
+            <ActivityIndicator size="small" color={colors.accent} accessibilityLabel="Filtering apps" />
+          </View>
+        ) : null}
+
+        <FlatList
+          testID={testIds.manageApps.scroll}
+          data={apps}
+          renderItem={renderItem}
+          keyExtractor={keyExtractor}
+          ListHeaderComponent={ListHeaderComponent}
+          ListEmptyComponent={listEmptyComponent}
+          contentContainerStyle={manageAppsStyles.scrollContent}
+          showsVerticalScrollIndicator={false}
+          accessibilityRole="list"
+          accessibilityLabel="Installed apps"
+          extraData={selectedCount}
+          {...APP_LIST_FLAT_LIST_PROPS}
+        />
+      </View>
     </View>
-  </View>
-);
+  );
+};
