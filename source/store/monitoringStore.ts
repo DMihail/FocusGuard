@@ -3,7 +3,7 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
-import { startMonitorService, stopMonitorService } from '@/specs';
+import { checkForPermission, startMonitorService, stopMonitorService } from '@/specs';
 
 import { zustandStorage } from './mmkv';
 import type { MonitoringStore } from './types';
@@ -17,6 +17,9 @@ export const monitoringStore = create<MonitoringStore>()(
         const next = !get().isMonitoring;
 
         if (next) {
+          if (!checkForPermission()) {
+            return;
+          }
           startMonitorService();
         } else {
           stopMonitorService();
@@ -29,6 +32,11 @@ export const monitoringStore = create<MonitoringStore>()(
       name: 'monitoring-storage',
       storage: createJSONStorage(() => zustandStorage),
       partialize: (state) => ({ isMonitoring: state.isMonitoring }),
+      onRehydrateStorage: () => (state) => {
+        if (state?.isMonitoring && checkForPermission()) {
+          startMonitorService();
+        }
+      },
     },
   ),
 );

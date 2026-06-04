@@ -109,13 +109,16 @@ npm test
 
 ## CI/CD
 
-GitHub Actions workflow (`.github/workflows/ci.yml`) runs on pushes and PRs to `main` / `develop`:
+GitHub Actions workflow (`.github/workflows/ci.yml`) runs on **every** push and pull request.
 
-| Job                 | When                       | What it does                                        |
-| ------------------- | -------------------------- | --------------------------------------------------- |
-| **quality**         | Always                     | `npm ci`, ESLint, TypeScript, Jest (`--ci`)         |
-| **android**         | After quality              | `assembleDebug`, uploads debug APK artifact         |
-| **android-release** | Push to `main` or tag `v*` | Signed `bundleRelease` AAB (requires secrets below) |
+| Job                 | When                                                               | What it does                                |
+| ------------------- | ------------------------------------------------------------------ | ------------------------------------------- |
+| **checks**          | Always (any branch)                                                | ESLint, Prettier, TypeScript, Jest          |
+| **android**         | `main`, `dev`, `release/*`, or PRs into those branches; manual run | `assembleDebug`, uploads debug APK artifact |
+| **android-release** | Push to `main`, `dev`, `release/*`, or tag `v*` (see above)        | Signed `bundleRelease` AAB (secrets below)  |
+
+Feature branches (e.g. `app-settings`) run **checks** only (lint, format, types, tests). Android jobs run on `main` /
+`dev` / `release/*` or when opening a PR into those branches.
 
 Manual run: **Actions → CI → Run workflow**.
 
