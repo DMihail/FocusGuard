@@ -1,28 +1,18 @@
 /** @format */
 
-import { LayoutAnimation, Platform, UIManager } from 'react-native';
+import { LayoutAnimation } from 'react-native';
+
+/**
+ * LayoutAnimation presets. Works with Fabric (New Architecture).
+ * Do not call UIManager.setLayoutAnimationEnabledExperimental — it is a no-op on New Architecture.
+ */
 
 export const SECTION_LAYOUT_ANIMATION_MS = 280;
 export const PERMISSION_CARD_ANIMATION_MS = 380;
 
-let androidLayoutAnimationEnabled = false;
-
-/** Required once on Android for LayoutAnimation to run. */
-export const ensureAndroidLayoutAnimationEnabled = (): void => {
-  if (androidLayoutAnimationEnabled || Platform.OS !== 'android') {
-    return;
-  }
-
-  if (UIManager.setLayoutAnimationEnabledExperimental) {
-    UIManager.setLayoutAnimationEnabledExperimental(true);
-    androidLayoutAnimationEnabled = true;
-  }
-};
-
 type LayoutAnimationConfig = Parameters<typeof LayoutAnimation.configureNext>[0];
 
 const configureNext = (config: LayoutAnimationConfig): void => {
-  ensureAndroidLayoutAnimationEnabled();
   LayoutAnimation.configureNext(config);
 };
 
