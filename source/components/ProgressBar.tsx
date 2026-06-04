@@ -1,12 +1,12 @@
 /** @format */
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
+  type AccessibilityRole,
   type AccessibilityValue,
   type StyleProp,
   StyleSheet,
   View,
-  type ViewAccessibilityRole,
   type ViewProps,
   type ViewStyle,
 } from 'react-native';
@@ -19,7 +19,7 @@ type ProgressBarProps = {
   trackColor?: string;
   style?: StyleProp<ViewStyle>;
   height?: number;
-  accessibilityRole?: ViewAccessibilityRole;
+  accessibilityRole?: AccessibilityRole;
   accessibilityLabel?: string;
   accessibilityValue?: AccessibilityValue;
 } & Pick<ViewProps, 'accessible' | 'importantForAccessibility'>;
@@ -40,6 +40,18 @@ export const ProgressBar = ({
   const fillFlex = clamped > 0 ? clamped : 0;
   const emptyFlex = 100 - fillFlex;
 
+  const fillStyle = useMemo(
+    () => ({
+      flex: fillFlex,
+      height,
+      backgroundColor: fillColor,
+      borderRadius: borderRadius.pill,
+    }),
+    [fillColor, fillFlex, height],
+  );
+
+  const emptyStyle = useMemo(() => ({ flex: emptyFlex, height }), [emptyFlex, height]);
+
   return (
     <View
       accessible={accessible ?? Boolean(accessibilityRole ?? accessibilityLabel)}
@@ -50,17 +62,8 @@ export const ProgressBar = ({
       style={[styles.track, { height, backgroundColor: trackColor }, style]}
     >
       <View style={styles.row}>
-        {fillFlex > 0 && (
-          <View
-            style={{
-              flex: fillFlex,
-              height,
-              backgroundColor: fillColor,
-              borderRadius: borderRadius.pill,
-            }}
-          />
-        )}
-        {emptyFlex > 0 && <View style={{ flex: emptyFlex, height }} />}
+        {fillFlex > 0 ? <View style={fillStyle} /> : null}
+        {emptyFlex > 0 ? <View style={emptyStyle} /> : null}
       </View>
     </View>
   );

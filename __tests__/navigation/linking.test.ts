@@ -14,6 +14,10 @@ describe('parseDeepLink', () => {
     });
   });
 
+  it('parses tracked apps URL', () => {
+    expect(parseDeepLink('focusguard://tracked-apps')).toEqual({ screen: 'TrackedApps' });
+  });
+
   it('returns null for unknown URLs', () => {
     expect(parseDeepLink('focusguard://settings')).toBeNull();
     expect(parseDeepLink(null)).toBeNull();

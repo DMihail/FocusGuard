@@ -11,6 +11,7 @@ export const rootLinking: LinkingOptions<RootStackParamList> = {
   config: {
     screens: {
       Dashboard: 'dashboard',
+      TrackedApps: 'tracked-apps',
       ConfigureLimits: {
         path: 'configure/:packageName',
         parse: {

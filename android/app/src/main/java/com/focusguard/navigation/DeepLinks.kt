@@ -24,6 +24,12 @@ object DeepLinks {
             .appendPath(packageName)
             .build()
 
+    fun trackedAppsUri(): Uri =
+        Uri.Builder()
+            .scheme(SCHEME)
+            .authority("tracked-apps")
+            .build()
+
     fun dashboardIntent(context: Context): Intent =
         Intent(Intent.ACTION_VIEW, dashboardUri()).apply {
             setPackage(context.packageName)
@@ -32,6 +38,12 @@ object DeepLinks {
 
     fun configureIntent(context: Context, packageName: String): Intent =
         Intent(Intent.ACTION_VIEW, configureUri(packageName)).apply {
+            setPackage(context.packageName)
+            addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
+        }
+
+    fun trackedAppsIntent(context: Context): Intent =
+        Intent(Intent.ACTION_VIEW, trackedAppsUri()).apply {
             setPackage(context.packageName)
             addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
         }

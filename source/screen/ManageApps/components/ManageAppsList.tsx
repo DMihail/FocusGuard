@@ -63,7 +63,6 @@ export const ManageAppsList = ({
           accessibilityRole="list"
           accessibilityLabel="Installed apps"
           extraData={selectedCount}
-          keyboardShouldPersistTaps="handled"
           {...APP_LIST_FLAT_LIST_PROPS}
         />
       </View>

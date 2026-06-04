@@ -1,34 +1,35 @@
 /** @format */
 
-import React, { useCallback, useState } from 'react';
-import { RefreshControl, ScrollView, View } from 'react-native';
+import React, { useCallback, useMemo } from 'react';
+import { FlatList, RefreshControl } from 'react-native';
 
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useGoBack } from '@/hooks/useGoBack';
+import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { useTrackedAppRows } from '@/hooks/useTrackedAppRows';
+import { APP_LIST_FLAT_LIST_PROPS } from '@/list';
 import { useNavigateToConfigureLimits } from '@/navigation/hooks/useNavigateToConfigureLimits';
 import { testIds } from '@/testing/testIds';
 import { colors } from '@/theme';
 
+import { createTrackedAppRenderItem, trackedAppKeyExtractor } from './list';
 import { trackedAppsStyles } from './styles';
 
 import { TrackedAppsEmpty, TrackedAppsHeader } from './components';
-import { DistractingAppRow } from '@/screen/Dashboard/components/DistractingAppRow';
 
 export const TrackedAppsScreen = () => {
   const goBack = useGoBack();
   const openConfigureLimits = useNavigateToConfigureLimits();
   const { appRows, refreshUsage } = useTrackedAppRows();
-  const [refreshing, setRefreshing] = useState(false);
+  const { refreshing, onRefresh } = usePullToRefresh(refreshUsage);
 
-  const onRefresh = useCallback(() => {
-    setRefreshing(true);
-    refreshUsage();
-    requestAnimationFrame(() => {
-      setRefreshing(false);
-    });
-  }, [refreshUsage]);
+  const renderItem = useMemo(() => createTrackedAppRenderItem(openConfigureLimits), [openConfigureLimits]);
+
+  const renderListHeader = useCallback(
+    () => <TrackedAppsHeader appCount={appRows.length} onBack={goBack} />,
+    [appRows.length, goBack],
+  );
 
   return (
     <SafeAreaView
@@ -37,10 +38,17 @@ export const TrackedAppsScreen = () => {
       testID={testIds.trackedApps.screen}
       accessibilityLabel="Tracked apps"
     >
-      <ScrollView
+      <FlatList
         testID={testIds.trackedApps.scroll}
+        data={appRows}
+        renderItem={renderItem}
+        keyExtractor={trackedAppKeyExtractor}
+        ListHeaderComponent={renderListHeader}
+        ListEmptyComponent={TrackedAppsEmpty}
         contentContainerStyle={trackedAppsStyles.scrollContent}
         showsVerticalScrollIndicator={false}
+        accessibilityRole="list"
+        accessibilityLabel="Monitored apps with daily usage"
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
@@ -50,22 +58,8 @@ export const TrackedAppsScreen = () => {
             progressBackgroundColor={colors.surfaceDark}
           />
         }
-      >
-        <TrackedAppsHeader appCount={appRows.length} onBack={goBack} />
-
-        <View
-          style={trackedAppsStyles.list}
-          testID={testIds.trackedApps.list}
-          accessibilityRole="list"
-          accessibilityLabel="Monitored apps with daily usage"
-        >
-          {appRows.length === 0 ? (
-            <TrackedAppsEmpty />
-          ) : (
-            appRows.map((row) => <DistractingAppRow key={row.packageName} {...row} onPress={openConfigureLimits} />)
-          )}
-        </View>
-      </ScrollView>
+        {...APP_LIST_FLAT_LIST_PROPS}
+      />
     </SafeAreaView>
   );
 };

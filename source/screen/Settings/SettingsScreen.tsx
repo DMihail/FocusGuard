@@ -1,6 +1,6 @@
 /** @format */
 
-import React from 'react';
+import React, { useCallback } from 'react';
 import { ScrollView, View } from 'react-native';
 
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -28,12 +28,23 @@ export const SettingsScreen = () => {
   const goBack = useGoBack();
   const { isEnabled: notificationsEnabled, setEnabled: setNotificationsEnabled } = useNotificationsSetting();
 
-  const openLegalDocument = (documentId: LegalDocumentId) => {
-    navigation.navigate('LegalDocument', { documentId });
-  };
+  const openLegalDocument = useCallback(
+    (documentId: LegalDocumentId) => {
+      navigation.navigate('LegalDocument', { documentId });
+    },
+    [navigation],
+  );
+
+  const openDataPrivacy = useCallback(() => openLegalDocument('dataPrivacy'), [openLegalDocument]);
+  const openTermsPrivacy = useCallback(() => openLegalDocument('termsPrivacy'), [openLegalDocument]);
 
   return (
-    <SafeAreaView style={settingsStyles.screen} edges={['top', 'bottom']} testID={testIds.settings.screen}>
+    <SafeAreaView
+      style={settingsStyles.screen}
+      edges={['top', 'bottom']}
+      testID={testIds.settings.screen}
+      accessibilityLabel="Settings"
+    >
       <ScrollView
         testID={testIds.settings.scroll}
         contentContainerStyle={settingsStyles.scrollContent}
@@ -51,13 +62,13 @@ export const SettingsScreen = () => {
           </SettingsSection>
 
           <SettingsSection title="Privacy & Security" testID={testIds.settings.privacySection}>
-            <SettingsLinkRow {...DATA_PRIVACY_LINK} onPress={() => openLegalDocument('dataPrivacy')} />
+            <SettingsLinkRow {...DATA_PRIVACY_LINK} onPress={openDataPrivacy} />
           </SettingsSection>
 
           <SettingsPrivacyBanner />
         </View>
 
-        <SettingsFooter onTermsPress={() => openLegalDocument('termsPrivacy')} />
+        <SettingsFooter onTermsPress={openTermsPrivacy} />
       </ScrollView>
     </SafeAreaView>
   );

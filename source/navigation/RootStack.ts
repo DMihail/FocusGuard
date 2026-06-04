@@ -43,6 +43,7 @@ const rootScreens = {
   },
   TrackedApps: {
     screen: TrackedAppsScreen,
+    linking: 'tracked-apps',
     options: {
       headerShown: false,
     },

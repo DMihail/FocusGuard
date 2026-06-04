@@ -2,16 +2,7 @@
 
 import { StyleSheet } from 'react-native';
 
-import {
-  borderRadius,
-  colors,
-  fontSize,
-  iconBoxPresets,
-  layoutPresets,
-  spacing,
-  textPresets,
-  typography,
-} from '@/theme';
+import { borderRadius, colors, fontSize, layoutPresets, spacing, textPresets, typography } from '@/theme';
 
 export const dashboardStyles = StyleSheet.create({
   screen: layoutPresets.screen,
@@ -171,43 +162,6 @@ export const dashboardStyles = StyleSheet.create({
   viewAllText: textPresets.accentButton,
   appsList: {
     gap: spacing.md,
-  },
-  appItem: {
-    gap: spacing.sm,
-  },
-  appRow: {
-    ...layoutPresets.rowCenter,
-    gap: spacing.md,
-    minWidth: 0,
-  },
-  appIconBox: iconBoxPresets.sm,
-  appIcon: {
-    width: 40,
-    height: 40,
-  },
-  appIconFallback: textPresets.label,
-  appInfo: {
-    flex: 1,
-    minWidth: 0,
-    gap: 2,
-  },
-  appName: textPresets.label,
-  appUsage: {
-    ...typography.caption,
-    color: colors.textSecondary,
-    fontSize: fontSize.xs,
-  },
-  appPercent: {
-    ...typography.caption,
-    color: colors.textSecondary,
-    fontWeight: '500',
-    letterSpacing: 0.5,
-    flexShrink: 0,
-    minWidth: 36,
-    textAlign: 'right',
-  },
-  appPercentOver: {
-    color: colors.overLimit,
   },
   emptyText: {
     ...textPresets.empty,

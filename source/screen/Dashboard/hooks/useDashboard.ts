@@ -1,7 +1,8 @@
 /** @format */
 
-import { useCallback, useMemo, useState } from 'react';
+import { useMemo } from 'react';
 
+import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { useTrackedAppRows } from '@/hooks/useTrackedAppRows';
 import { useNavigateToConfigureLimits } from '@/navigation/hooks/useNavigateToConfigureLimits';
 import { monitoringStore } from '@/store';
@@ -12,15 +13,7 @@ export const useDashboard = () => {
   const isMonitoring = monitoringStore((state) => state.isMonitoring);
   const toggleMonitoring = monitoringStore((state) => state.toggle);
   const openConfigureLimits = useNavigateToConfigureLimits();
-  const [refreshing, setRefreshing] = useState(false);
-
-  const onRefresh = useCallback(() => {
-    setRefreshing(true);
-    refreshUsage();
-    requestAnimationFrame(() => {
-      setRefreshing(false);
-    });
-  }, [refreshUsage]);
+  const { refreshing, onRefresh } = usePullToRefresh(refreshUsage);
 
   const summary = useMemo(() => buildDashboardSummary(appRows), [appRows]);
 

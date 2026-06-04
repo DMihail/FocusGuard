@@ -9,7 +9,8 @@ import type { DashboardAppRow } from '@/utils/usage/dashboardStats';
 
 import { DistractingAppsListEmpty } from '../list';
 import { dashboardStyles } from '../styles';
-import { DistractingAppRow } from './DistractingAppRow';
+
+import { AppUsageRow } from '@/components';
 
 const MAX_VISIBLE_APPS = 4;
 
@@ -63,7 +64,7 @@ function DistractingAppsSectionView({ appRows, onConfigureLimits, onViewAllPress
         {visibleApps.length === 0 ? (
           <DistractingAppsListEmpty />
         ) : (
-          visibleApps.map((row) => <DistractingAppRow key={row.packageName} {...row} onPress={onConfigureLimits} />)
+          visibleApps.map((row) => <AppUsageRow key={row.packageName} {...row} onPress={onConfigureLimits} />)
         )}
       </View>
     </View>
