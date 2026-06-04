@@ -1,16 +1,11 @@
 /** @format */
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Animated, Easing, LayoutAnimation } from 'react-native';
+import { Animated, Easing } from 'react-native';
 
-import { PERMISSION_CARD_ANIMATION_MS } from '../constants';
+import { configurePermissionCardLayoutAnimation, PERMISSION_CARD_ANIMATION_MS } from '@/utils/layoutAnimation';
+
 import type { PermissionStatus } from '../types';
-
-const LAYOUT_ANIM_CONFIG = {
-  duration: PERMISSION_CARD_ANIMATION_MS,
-  update: { type: LayoutAnimation.Types.easeOut, property: LayoutAnimation.Properties.scaleY },
-  delete: { type: LayoutAnimation.Types.easeOut, property: LayoutAnimation.Properties.opacity },
-};
 
 export const usePermissionCardAnimation = (status: PermissionStatus) => {
   const isGranted = status === 'granted';
@@ -20,7 +15,7 @@ export const usePermissionCardAnimation = (status: PermissionStatus) => {
   useEffect(() => {
     const target = isGranted ? 1 : 0;
 
-    LayoutAnimation.configureNext(LAYOUT_ANIM_CONFIG);
+    configurePermissionCardLayoutAnimation();
     setCollapsed(isGranted);
 
     Animated.timing(progress, {

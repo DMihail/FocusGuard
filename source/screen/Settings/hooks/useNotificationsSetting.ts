@@ -32,19 +32,16 @@ export const useNotificationsSetting = () => {
 
   const isEnabled = notificationsEnabled && (Platform.OS !== 'android' || systemGranted);
 
-  const setEnabled = useCallback(
-    (value: boolean) => {
-      if (value) {
-        setNotificationsEnabled(true);
-        requestNotificationsPermission();
-        return;
-      }
+  const setEnabled = (value: boolean) => {
+    if (value) {
+      setNotificationsEnabled(true);
+      requestNotificationsPermission();
+      return;
+    }
 
-      setNotificationsEnabled(false);
-      openNotificationsSettings();
-    },
-    [setNotificationsEnabled],
-  );
+    setNotificationsEnabled(false);
+    openNotificationsSettings();
+  };
 
   return { isEnabled, setEnabled };
 };

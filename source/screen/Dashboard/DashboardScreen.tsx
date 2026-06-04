@@ -1,6 +1,6 @@
 /** @format */
 
-import React, { useCallback, useMemo } from 'react';
+import React from 'react';
 import { ScrollView } from 'react-native';
 
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -15,11 +15,7 @@ import { DashboardHeader, DistractingAppsSection } from './components';
 
 export const DashboardScreen = () => {
   const navigation = useRootNavigation();
-  const greeting = useMemo(() => getGreeting(), []);
-
-  const handleSettingsPress = useCallback(() => {
-    navigation.navigate('Settings');
-  }, [navigation]);
+  const greeting = getGreeting();
 
   return (
     <SafeAreaView style={dashboardStyles.screen} edges={['top', 'bottom']} testID={testIds.dashboard.screen}>
@@ -28,7 +24,7 @@ export const DashboardScreen = () => {
         contentContainerStyle={dashboardStyles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        <DashboardHeader greeting={greeting} onSettingsPress={handleSettingsPress} />
+        <DashboardHeader greeting={greeting} onSettingsPress={() => navigation.navigate('Settings')} />
 
         <DistractingAppsSection />
       </ScrollView>

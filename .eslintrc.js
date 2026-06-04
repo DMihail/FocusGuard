@@ -3,7 +3,7 @@
 module.exports = {
   root: true,
   extends: ['@react-native', 'plugin:prettier/recommended'],
-  plugins: ['prettier', 'simple-import-sort', '@typescript-eslint'],
+  plugins: ['prettier', 'simple-import-sort', '@typescript-eslint', 'react-compiler'],
   parserOptions: {
     ecmaVersion: 'latest',
     sourceType: 'module',
@@ -31,6 +31,7 @@ module.exports = {
     'sort-imports': 'off',
 
     // React / React Native
+    'react-compiler/react-compiler': 'error',
     'react-hooks/rules-of-hooks': 'error',
     'react-hooks/exhaustive-deps': 'warn',
     'react/react-in-jsx-scope': 'off',

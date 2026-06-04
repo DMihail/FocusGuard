@@ -1,7 +1,7 @@
 /** @format */
 
-import React, { useCallback, useMemo } from 'react';
-import { Button, FlatList, type ListRenderItem, Text, View } from 'react-native';
+import React, { useLayoutEffect, useRef } from 'react';
+import { Button, FlatList, Text, View } from 'react-native';
 
 import { Link } from '@react-navigation/native';
 
@@ -10,6 +10,7 @@ import type { ManageApp } from '@/screen/ManageApps/types';
 import { testIds } from '@/testing/testIds';
 import { colors } from '@/theme';
 import { APP_LIST_FLAT_LIST_PROPS } from '@/utils/flatListDefaults';
+import { configureSectionLayoutAnimation } from '@/utils/layoutAnimation';
 
 import { dashboardStyles } from '../styles';
 import { DistractingAppRow } from './DistractingAppRow';
@@ -18,21 +19,14 @@ export const DistractingAppsSection = () => {
   const { selectedApps, isMonitoring, monitoringButtonTitle, toggleMonitoring, openConfigureLimits } =
     useDistractingAppsSection();
 
-  const keyExtractor = useCallback((item: ManageApp) => item.packageName, []);
+  const previousAppsCount = useRef(selectedApps.length);
 
-  const renderItem: ListRenderItem<ManageApp> = useCallback(
-    ({ item }) => <DistractingAppRow {...item} onPress={openConfigureLimits} />,
-    [openConfigureLimits],
-  );
-
-  const ListEmptyComponent = useMemo(
-    () => (
-      <Text style={dashboardStyles.emptyText} testID={testIds.dashboard.appsEmpty}>
-        No apps selected yet
-      </Text>
-    ),
-    [],
-  );
+  useLayoutEffect(() => {
+    if (previousAppsCount.current !== selectedApps.length) {
+      configureSectionLayoutAnimation();
+      previousAppsCount.current = selectedApps.length;
+    }
+  }, [selectedApps.length]);
 
   return (
     <View
@@ -58,11 +52,15 @@ export const DistractingAppsSection = () => {
 
       <FlatList
         data={selectedApps}
-        renderItem={renderItem}
-        keyExtractor={keyExtractor}
+        renderItem={({ item }) => <DistractingAppRow {...item} onPress={openConfigureLimits} />}
+        keyExtractor={(item: ManageApp) => item.packageName}
         scrollEnabled={false}
         nestedScrollEnabled
-        ListEmptyComponent={ListEmptyComponent}
+        ListEmptyComponent={
+          <Text style={dashboardStyles.emptyText} testID={testIds.dashboard.appsEmpty}>
+            No apps selected yet
+          </Text>
+        }
         testID={testIds.dashboard.appsList}
         accessibilityRole="list"
         accessibilityLabel="Selected distracting apps"

@@ -1,18 +1,18 @@
 /** @format */
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { LayoutAnimation } from 'react-native';
 
 import { useAppStateOnActive } from '@/hooks/useAppStateOnActive';
+import { configurePermissionStatusSyncAnimation } from '@/utils/layoutAnimation';
 
 import { PERMISSIONS } from '../data/permissions';
 import type { PermissionId, PermissionStatus } from '../types';
 import { buildPermissionsWithStatus } from '../utils/buildPermissionsWithStatus';
-import { areAllPermissionsGranted, readPermissionStatuses, requestPermissionById } from '../utils/permissionStatus';
-
-const configureCardLayoutAnimation = () => {
-  LayoutAnimation.configureNext(LayoutAnimation.create(380, 'easeInEaseOut', 'opacity'));
-};
+import {
+  areRequiredPermissionsGranted,
+  readPermissionStatuses,
+  requestPermissionById,
+} from '../utils/permissionStatus';
 
 const hasStatusChanged = (
   previous: Record<PermissionId, PermissionStatus>,
@@ -27,7 +27,7 @@ export const usePermissionsSync = () => {
       const next = readPermissionStatuses();
 
       if (hasStatusChanged(previous, next)) {
-        configureCardLayoutAnimation();
+        configurePermissionStatusSyncAnimation();
       }
 
       return next;
@@ -41,11 +41,11 @@ export const usePermissionsSync = () => {
   useAppStateOnActive(syncStatuses);
 
   const permissions = useMemo(() => buildPermissionsWithStatus(statusById), [statusById]);
-  const canContinue = areAllPermissionsGranted();
+  const canContinue = areRequiredPermissionsGranted(statusById);
 
-  const handleGrant = useCallback((id: PermissionId) => {
+  const handleGrant = (id: PermissionId) => {
     requestPermissionById(id);
-  }, []);
+  };
 
   return { statusById, permissions, canContinue, handleGrant, syncStatuses };
 };

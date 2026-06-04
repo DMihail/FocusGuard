@@ -13,6 +13,10 @@ const mockRequestPermissionById = jest.fn();
 jest.mock('../../../../source/screen/EnablePermissions/utils/permissionStatus', () => ({
   readPermissionStatuses: () => mockReadPermissionStatuses(),
   requestPermissionById: (id: PermissionId) => mockRequestPermissionById(id),
+  areRequiredPermissionsGranted: (statuses: Record<PermissionId, PermissionStatus>) =>
+    (['usage-access', 'display-over-apps', 'battery-optimization'] as PermissionId[]).every(
+      (id) => statuses[id] === 'granted',
+    ),
   areAllPermissionsGranted: jest.fn(() => false),
 }));
 

@@ -1,6 +1,6 @@
 /** @format */
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 
 import ReactTestRenderer from 'react-test-renderer';
 
@@ -43,24 +43,36 @@ type HarnessProps = {
 
 const UseManageAppsHarness = ({ searchQuery = '', categoryId, onReady }: HarnessProps) => {
   const value = useManageApps();
+  const valueRef = useRef(value);
+  const onReadyRef = useRef(onReady);
+
+  valueRef.current = value;
+  onReadyRef.current = onReady;
 
   useEffect(() => {
     if (searchQuery) {
-      value.setSearchQuery(searchQuery);
+      valueRef.current.setSearchQuery(searchQuery);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- test harness
   }, [searchQuery]);
 
   useEffect(() => {
     if (categoryId) {
-      value.setActiveCategory(categoryId);
+      valueRef.current.setActiveCategory(categoryId);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- test harness
   }, [categoryId]);
 
+  const {
+    apps: filteredApps,
+    selectedCount,
+    isSearchActive,
+    isFiltering,
+    searchQuery: hookSearchQuery,
+    activeCategory,
+  } = value;
+
   useEffect(() => {
-    onReady(value);
-  }, [onReady, value]);
+    onReadyRef.current(value);
+  }, [filteredApps, selectedCount, isSearchActive, isFiltering, hookSearchQuery, activeCategory.id, value]);
 
   return null;
 };

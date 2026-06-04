@@ -1,6 +1,6 @@
 /** @format */
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import {
   type AppLimits,
@@ -29,7 +29,7 @@ export const useConfigureLimits = (packageName: string): UseConfigureLimitsResul
     [draft.warningMinutes],
   );
 
-  const setWarningMinutes = useCallback((warningMinutes: number) => {
+  const setWarningMinutes = (warningMinutes: number) => {
     setDraft((current) => {
       const next = { ...current, warningMinutes };
       if (next.hardBlockMinutes < warningMinutes) {
@@ -37,19 +37,19 @@ export const useConfigureLimits = (packageName: string): UseConfigureLimitsResul
       }
       return next;
     });
-  }, []);
+  };
 
-  const setHardBlockMinutes = useCallback((hardBlockMinutes: number) => {
+  const setHardBlockMinutes = (hardBlockMinutes: number) => {
     setDraft((current) => ({ ...current, hardBlockMinutes }));
-  }, []);
+  };
 
-  const setStrictMode = useCallback((strictMode: boolean) => {
+  const setStrictMode = (strictMode: boolean) => {
     setDraft((current) => ({ ...current, strictMode }));
-  }, []);
+  };
 
-  const save = useCallback(() => {
+  const save = () => {
     setStoredLimits(packageName, normalizeAppLimits(draft));
-  }, [draft, packageName, setStoredLimits]);
+  };
 
   return {
     app,

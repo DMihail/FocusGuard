@@ -47,16 +47,15 @@ export const readPermissionStatuses = (): Record<PermissionId, PermissionStatus>
   ) as Record<PermissionId, PermissionStatus>;
 };
 
-export const areAllPermissionsGranted = (): boolean => {
+export const areRequiredPermissionsGranted = (statuses: Record<PermissionId, PermissionStatus>): boolean => {
   if (Platform.OS !== 'android') {
     return true;
   }
 
-  const statuses = readPermissionStatuses();
-  const requiredGranted = REQUIRED_PERMISSION_IDS.every((id) => statuses[id] === 'granted');
-
-  return requiredGranted && checkForManifestMonitorPermissions();
+  return REQUIRED_PERMISSION_IDS.every((id) => statuses[id] === 'granted') && checkForManifestMonitorPermissions();
 };
+
+export const areAllPermissionsGranted = (): boolean => areRequiredPermissionsGranted(readPermissionStatuses());
 
 export const requestPermissionById = (id: PermissionId): void => {
   if (Platform.OS !== 'android') {

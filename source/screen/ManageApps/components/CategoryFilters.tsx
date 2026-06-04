@@ -1,7 +1,7 @@
 /** @format */
 
-import React, { memo, useCallback } from 'react';
-import { FlatList, type ListRenderItem, Pressable, Text } from 'react-native';
+import React from 'react';
+import { FlatList, Pressable, Text } from 'react-native';
 
 import { testIds } from '@/testing/testIds';
 import { CHIP_ROW_FLAT_LIST_PROPS } from '@/utils/flatListDefaults';
@@ -21,7 +21,7 @@ type CategoryFilterChipProps = {
   onCategoryChange: (categoryId: string) => void;
 };
 
-const CategoryFilterChip = memo(({ category, isActive, onCategoryChange }: CategoryFilterChipProps) => (
+const CategoryFilterChip = ({ category, isActive, onCategoryChange }: CategoryFilterChipProps) => (
   <Pressable
     testID={testIds.manageApps.categoryFilter(category.id)}
     accessibilityRole="button"
@@ -34,35 +34,22 @@ const CategoryFilterChip = memo(({ category, isActive, onCategoryChange }: Categ
       {category.label}
     </Text>
   </Pressable>
-));
+);
 
-CategoryFilterChip.displayName = 'CategoryFilterChip';
-
-export const CategoryFilters = memo(({ filters, activeCategoryId, onCategoryChange }: CategoryFiltersProps) => {
-  const keyExtractor = useCallback((item: CategoryFilterOption) => item.id, []);
-
-  const renderItem: ListRenderItem<CategoryFilterOption> = useCallback(
-    ({ item }) => (
+export const CategoryFilters = ({ filters, activeCategoryId, onCategoryChange }: CategoryFiltersProps) => (
+  <FlatList
+    horizontal
+    data={filters}
+    renderItem={({ item }) => (
       <CategoryFilterChip category={item} isActive={activeCategoryId === item.id} onCategoryChange={onCategoryChange} />
-    ),
-    [activeCategoryId, onCategoryChange],
-  );
-
-  return (
-    <FlatList
-      horizontal
-      data={filters}
-      renderItem={renderItem}
-      keyExtractor={keyExtractor}
-      showsHorizontalScrollIndicator={false}
-      style={manageAppsStyles.filters}
-      contentContainerStyle={manageAppsStyles.filtersContent}
-      testID={testIds.manageApps.categoryFilters}
-      accessibilityRole="list"
-      accessibilityLabel="App category filters"
-      {...CHIP_ROW_FLAT_LIST_PROPS}
-    />
-  );
-});
-
-CategoryFilters.displayName = 'CategoryFilters';
+    )}
+    keyExtractor={(item) => item.id}
+    showsHorizontalScrollIndicator={false}
+    style={manageAppsStyles.filters}
+    contentContainerStyle={manageAppsStyles.filtersContent}
+    testID={testIds.manageApps.categoryFilters}
+    accessibilityRole="list"
+    accessibilityLabel="App category filters"
+    {...CHIP_ROW_FLAT_LIST_PROPS}
+  />
+);
