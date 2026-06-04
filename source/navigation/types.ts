@@ -1,6 +1,7 @@
 /** @format */
 
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+
 import type { LegalDocumentId } from '@/screen/Legal';
 
 export type RootStackParamList = {
@@ -8,6 +9,7 @@ export type RootStackParamList = {
   EnablePermissions: undefined;
   Dashboard: undefined;
   ManageApps: undefined;
+  ConfigureLimits: { packageName: string };
   Settings: undefined;
   LegalDocument: { documentId: LegalDocumentId };
 };

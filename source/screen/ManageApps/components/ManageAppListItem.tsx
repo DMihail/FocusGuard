@@ -2,10 +2,12 @@
 
 import React from 'react';
 import { Image, Pressable, Text, View } from 'react-native';
+
 import { CheckIcon } from '@/assets/svg/EnablePermissions';
 import { testIds } from '@/testing/testIds';
-import type { ManageApp } from '../types';
+
 import { manageAppsStyles } from '../styles';
+import type { ManageApp } from '../types';
 
 type ManageAppListItemProps = ManageApp & {
   isSelected: boolean;

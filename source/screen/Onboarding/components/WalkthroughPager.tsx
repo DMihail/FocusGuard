@@ -1,6 +1,6 @@
 /** @format */
 
-import React, { useCallback, type RefObject } from 'react';
+import React, { type RefObject, useCallback } from 'react';
 import {
   Animated,
   FlatList,
@@ -8,9 +8,11 @@ import {
   type NativeScrollEvent,
   type NativeSyntheticEvent,
 } from 'react-native';
+
+import { testIds } from '@/testing/testIds';
+
 import { FLAT_LIST_WINDOW_SIZE, SCROLL_EVENT_THROTTLE } from '../constants';
 import type { WalkthroughStepData } from '../data/walkthroughSteps';
-import { testIds } from '@/testing/testIds';
 import { WalkthroughPage } from './WalkthroughPage';
 
 const AnimatedFlatList = Animated.createAnimatedComponent(FlatList<WalkthroughStepData>);

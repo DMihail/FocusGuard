@@ -2,11 +2,14 @@
 
 import React, { useCallback } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
+
 import { SafeAreaView } from 'react-native-safe-area-context';
+
 import { BackIcon } from '@/assets/svg/ManageApps';
 import { useRootNavigation } from '@/navigation';
-import type { LegalDocument } from '../types';
+
 import { legalStyles } from '../styles';
+import type { LegalDocument } from '../types';
 
 type LegalDocumentLayoutProps = {
   document: LegalDocument;

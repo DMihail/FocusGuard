@@ -1,7 +1,8 @@
 /** @format */
 
 import type { TextStyle } from 'react-native';
-import { resolveFontFamily, resolveFontWeight, type InterWeight } from './fonts';
+
+import { type InterWeight, resolveFontFamily, resolveFontWeight } from './fonts';
 
 const inter = (weight: InterWeight): Pick<TextStyle, 'fontFamily' | 'fontWeight'> => ({
   fontFamily: resolveFontFamily(weight),

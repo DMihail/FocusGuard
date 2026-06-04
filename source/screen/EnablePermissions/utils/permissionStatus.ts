@@ -1,6 +1,7 @@
 /** @format */
 
 import { Platform } from 'react-native';
+
 import {
   checkForIgnoreBatteryOptimizationsPermission,
   checkForManifestMonitorPermissions,
@@ -12,6 +13,7 @@ import {
   requestSystemAlertWindowPermission,
   requestUsageStatsPermission,
 } from '@/specs';
+
 import { PERMISSIONS } from '../data/permissions';
 import type { PermissionId, PermissionStatus } from '../types';
 
@@ -21,14 +23,14 @@ const REQUIRED_PERMISSION_IDS: PermissionId[] = ['usage-access', 'display-over-a
 const permissionChecks: Record<PermissionId, () => boolean> = {
   'usage-access': checkForPermission,
   'display-over-apps': checkForSystemAlertWindowPermission,
-  'notifications': checkForNotificationsPermission,
+  notifications: checkForNotificationsPermission,
   'battery-optimization': checkForIgnoreBatteryOptimizationsPermission,
 };
 
 const permissionRequests: Record<PermissionId, () => void> = {
   'usage-access': requestUsageStatsPermission,
   'display-over-apps': requestSystemAlertWindowPermission,
-  'notifications': requestNotificationsPermission,
+  notifications: requestNotificationsPermission,
   'battery-optimization': requestIgnoreBatteryOptimizationsPermission,
 };
 

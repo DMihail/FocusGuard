@@ -2,10 +2,17 @@
 
 import React, { useCallback } from 'react';
 import { ScrollView, View } from 'react-native';
+
 import { SafeAreaView } from 'react-native-safe-area-context';
+
 import { useRootNavigation } from '@/navigation';
 import type { LegalDocumentId } from '@/screen/Legal';
 import { testIds } from '@/testing/testIds';
+
+import { DATA_PRIVACY_LINK, NOTIFICATIONS_TOGGLE } from './data/preferences';
+import { useNotificationsSetting } from './hooks/useNotificationsSetting';
+import { settingsStyles } from './styles';
+
 import {
   SettingsFooter,
   SettingsHeader,
@@ -14,9 +21,6 @@ import {
   SettingsSection,
   SettingsToggleRow,
 } from './components';
-import { DATA_PRIVACY_LINK, NOTIFICATIONS_TOGGLE } from './data/preferences';
-import { useNotificationsSetting } from './hooks/useNotificationsSetting';
-import { settingsStyles } from './styles';
 
 export const SettingsScreen = () => {
   const navigation = useRootNavigation();

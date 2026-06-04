@@ -1,6 +1,7 @@
 /** @format */
 
 import type { RefObject } from 'react';
+
 import type { WalkthroughStepData } from '../data/walkthroughSteps';
 
 export type WalkthroughListRef = RefObject<{

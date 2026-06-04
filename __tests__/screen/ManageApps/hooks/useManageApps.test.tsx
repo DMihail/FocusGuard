@@ -1,9 +1,11 @@
 /** @format */
 
 import React, { useEffect } from 'react';
+
 import ReactTestRenderer from 'react-test-renderer';
-import { mockInstallApps, mockManageApps } from '@/testing/fixtures/manageApps';
+
 import type { ManageApp } from '@/screen/ManageApps/types';
+import { mockInstallApps, mockManageApps } from '@/testing/fixtures/manageApps';
 
 const mockGetInstalledApplications = jest.fn();
 

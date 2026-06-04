@@ -1,8 +1,9 @@
 /** @format */
 
-import React from 'react';
-import ReactTestRenderer from 'react-test-renderer';
 import { AppState } from 'react-native';
+
+import type React from 'react';
+import ReactTestRenderer from 'react-test-renderer';
 
 const mockNavigate = jest.fn();
 const mockGetCurrentRoute = jest.fn();

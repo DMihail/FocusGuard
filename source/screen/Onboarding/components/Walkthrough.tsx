@@ -1,7 +1,9 @@
 /** @format */
 
-import React, { FC } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import React from 'react';
+import { StyleSheet, Text, View } from 'react-native';
+
+import type { FC } from 'react';
 
 import { borderRadius, colors, spacing, typography } from '@/theme';
 

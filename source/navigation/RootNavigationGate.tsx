@@ -1,14 +1,18 @@
 /** @format */
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { createStaticNavigation } from '@react-navigation/native';
+
 import type { NavigationContainerRef } from '@react-navigation/native';
-import { AppLoader } from './components/AppLoader';
-import { useAppPermissionGuard } from './hooks/useAppPermissionGuard';
-import { createRootStack } from './RootStack';
-import { resolveEntryRoute } from './resolveEntryRoute';
+import { createStaticNavigation } from '@react-navigation/native';
+
 import { onboardingStore } from '@/store/onboardingStore';
+
+import { useAppPermissionGuard } from './hooks/useAppPermissionGuard';
+import { resolveEntryRoute } from './resolveEntryRoute';
+import { createRootStack } from './RootStack';
 import type { RootStackParamList } from './types';
+
+import { AppLoader } from './components/AppLoader';
 
 export const RootNavigationGate = () => {
   const hasHydrated = onboardingStore((state) => state.hasHydrated);

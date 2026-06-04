@@ -1,15 +1,21 @@
 /** @format */
 
 import React from 'react';
-import { Image, Text, View } from 'react-native';
-import type { ManageApp } from '@/screen/ManageApps/types';
+import { Image, Pressable, Text, View } from 'react-native';
+
 import { testIds } from '@/testing/testIds';
+
 import { dashboardStyles } from '../styles';
+import type { DistractingAppRowProps } from '../types';
 
-type DistractingAppRowProps = Pick<ManageApp, 'packageName' | 'appName' | 'appImage'>;
-
-export const DistractingAppRow = ({ packageName, appImage, appName }: DistractingAppRowProps) => (
-  <View style={dashboardStyles.appItem} testID={testIds.dashboard.appRow(packageName)}>
+export const DistractingAppRow = ({ packageName, appImage, appName, onPress }: DistractingAppRowProps) => (
+  <Pressable
+    accessibilityRole="button"
+    accessibilityLabel={`Configure limits for ${appName}`}
+    onPress={() => onPress(packageName)}
+    style={dashboardStyles.appItem}
+    testID={testIds.dashboard.appRow(packageName)}
+  >
     <View style={dashboardStyles.appRow}>
       <View style={dashboardStyles.appIconBox}>
         {appImage ? (
@@ -25,5 +31,5 @@ export const DistractingAppRow = ({ packageName, appImage, appName }: Distractin
         </Text>
       </View>
     </View>
-  </View>
+  </Pressable>
 );

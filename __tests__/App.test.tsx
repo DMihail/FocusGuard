@@ -1,6 +1,6 @@
 /** @format */
 
-import React from 'react';
+import type React from 'react';
 import ReactTestRenderer from 'react-test-renderer';
 
 jest.mock('../source/navigation', () => {

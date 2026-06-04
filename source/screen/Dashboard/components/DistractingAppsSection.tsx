@@ -1,17 +1,29 @@
 /** @format */
 
-import React from 'react';
+import React, { useCallback } from 'react';
 import { Button, Text, View } from 'react-native';
+
 import { Link } from '@react-navigation/native';
+
+import { useRootNavigation } from '@/navigation';
 import { monitoringStore, selectedAppsStore } from '@/store';
 import { testIds } from '@/testing/testIds';
+
 import { dashboardStyles } from '../styles';
 import { DistractingAppRow } from './DistractingAppRow';
 
 export const DistractingAppsSection = () => {
+  const navigation = useRootNavigation();
   const selectedApps = selectedAppsStore((state) => state.apps);
   const isMonitoring = monitoringStore((state) => state.isMonitoring);
   const toggleMonitoring = monitoringStore((state) => state.toggle);
+
+  const openConfigureLimits = useCallback(
+    (packageName: string) => {
+      navigation.navigate('ConfigureLimits', { packageName });
+    },
+    [navigation],
+  );
 
   return (
     <View style={dashboardStyles.section} testID={testIds.dashboard.distractingAppsSection}>
@@ -34,7 +46,7 @@ export const DistractingAppsSection = () => {
             No apps selected yet
           </Text>
         ) : (
-          selectedApps.map((app) => <DistractingAppRow key={app.packageName} {...app} />)
+          selectedApps.map((app) => <DistractingAppRow key={app.packageName} {...app} onPress={openConfigureLimits} />)
         )}
       </View>
 

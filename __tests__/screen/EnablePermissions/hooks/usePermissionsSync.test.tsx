@@ -1,8 +1,10 @@
 /** @format */
 
 import React from 'react';
-import ReactTestRenderer from 'react-test-renderer';
 import { AppState, LayoutAnimation } from 'react-native';
+
+import ReactTestRenderer from 'react-test-renderer';
+
 import type { PermissionId, PermissionStatus } from '@/screen/EnablePermissions/types';
 
 const mockReadPermissionStatuses = jest.fn<Record<PermissionId, PermissionStatus>, []>();
@@ -18,14 +20,14 @@ import { usePermissionsSync } from '@/screen/EnablePermissions/hooks/usePermissi
 const pendingStatuses: Record<PermissionId, PermissionStatus> = {
   'usage-access': 'pending',
   'display-over-apps': 'pending',
-  'notifications': 'pending',
+  notifications: 'pending',
   'battery-optimization': 'pending',
 };
 
 const grantedStatuses: Record<PermissionId, PermissionStatus> = {
   'usage-access': 'granted',
   'display-over-apps': 'granted',
-  'notifications': 'granted',
+  notifications: 'granted',
   'battery-optimization': 'granted',
 };
 

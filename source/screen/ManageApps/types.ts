@@ -15,3 +15,8 @@ export type ManageApp = {
   category: AppCategory;
   categoryLabel: string;
 };
+
+export type SelectedAppsSectionProps = {
+  apps: ManageApp[];
+  onAppPress: (packageName: string) => void;
+};

@@ -1,10 +1,11 @@
 /** @format */
 
-import React from 'react';
+import type React from 'react';
 import ReactTestRenderer from 'react-test-renderer';
+
+import type { ManageApp } from '@/screen/ManageApps/types';
 import { mockInstallApps } from '@/testing/fixtures/manageApps';
 import { testIds } from '@/testing/testIds';
-import type { ManageApp } from '@/screen/ManageApps/types';
 
 const mockGoBack = jest.fn();
 const mockGetInstalledApplications = jest.fn();
@@ -95,8 +96,7 @@ describe('ManageAppsScreen', () => {
 
     expect(
       tree!.root.findAll(
-        (node) =>
-          typeof node.props.testID === 'string' && node.props.testID.startsWith('manage-apps-selected-chip-'),
+        (node) => typeof node.props.testID === 'string' && node.props.testID.startsWith('manage-apps-selected-chip-'),
       ),
     ).toHaveLength(0);
   });

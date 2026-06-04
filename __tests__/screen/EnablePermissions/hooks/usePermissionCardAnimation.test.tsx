@@ -1,8 +1,10 @@
 /** @format */
 
 import React from 'react';
-import ReactTestRenderer from 'react-test-renderer';
 import { Animated, Text } from 'react-native';
+
+import ReactTestRenderer from 'react-test-renderer';
+
 import { usePermissionCardAnimation } from '@/screen/EnablePermissions/hooks/usePermissionCardAnimation';
 import type { PermissionStatus } from '@/screen/EnablePermissions/types';
 

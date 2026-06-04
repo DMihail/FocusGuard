@@ -1,7 +1,7 @@
 /** @format */
 
-export { colors } from './colors';
-export { spacing } from './spacing';
 export { borderRadius } from './borderRadius';
+export { colors } from './colors';
+export { iconBoxPresets, layoutPresets, textPresets } from './presets';
+export { spacing } from './spacing';
 export { fontSize, letterSpacing, lineHeight, typography } from './typography';
-export { layoutPresets, textPresets, iconBoxPresets } from './presets';

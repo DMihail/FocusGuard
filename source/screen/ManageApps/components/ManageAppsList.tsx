@@ -2,10 +2,12 @@
 
 import React from 'react';
 import { ActivityIndicator, Text, View } from 'react-native';
+
 import { testIds } from '@/testing/testIds';
 import { colors } from '@/theme';
-import type { ManageApp } from '../types';
+
 import { manageAppsStyles } from '../styles';
+import type { ManageApp } from '../types';
 import { ManageAppListItem } from './ManageAppListItem';
 
 type ManageAppsListProps = {

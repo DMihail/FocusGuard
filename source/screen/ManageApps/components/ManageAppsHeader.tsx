@@ -2,8 +2,10 @@
 
 import React from 'react';
 import { Pressable, Text, View } from 'react-native';
+
 import { BackIcon } from '@/assets/svg/ManageApps';
 import { testIds } from '@/testing/testIds';
+
 import { manageAppsStyles } from '../styles';
 
 type ManageAppsHeaderProps = {

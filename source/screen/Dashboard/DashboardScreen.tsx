@@ -2,12 +2,16 @@
 
 import React, { useCallback, useMemo } from 'react';
 import { ScrollView } from 'react-native';
+
 import { SafeAreaView } from 'react-native-safe-area-context';
+
 import { useRootNavigation } from '@/navigation';
-import { DashboardHeader, DistractingAppsSection } from './components';
-import { dashboardStyles } from './styles';
 import { testIds } from '@/testing/testIds';
+
+import { dashboardStyles } from './styles';
 import { getGreeting } from './utils';
+
+import { DashboardHeader, DistractingAppsSection } from './components';
 
 export const DashboardScreen = () => {
   const navigation = useRootNavigation();

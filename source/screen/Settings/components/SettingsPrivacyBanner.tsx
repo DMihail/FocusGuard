@@ -2,10 +2,12 @@
 
 import React from 'react';
 import { Text, View } from 'react-native';
+
 import { LockPrivacyIcon } from '@/assets/svg/Settings';
 import { SETTINGS_PRIVACY_BANNER } from '@/content/privacy';
-import { colors } from '@/theme';
 import { testIds } from '@/testing/testIds';
+import { colors } from '@/theme';
+
 import { settingsStyles } from '../styles';
 
 export const SettingsPrivacyBanner = () => (

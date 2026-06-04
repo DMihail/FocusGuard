@@ -1,8 +1,11 @@
 /** @format */
 
 import React from 'react';
+
 import ReactTestRenderer from 'react-test-renderer';
+
 import { UsageAccess } from '@/assets/svg/EnablePermissions';
+
 import { PermissionCard } from '@/screen/EnablePermissions/components/PermissionCard';
 
 jest.mock('../../../../source/screen/EnablePermissions/hooks/usePermissionCardAnimation', () => ({

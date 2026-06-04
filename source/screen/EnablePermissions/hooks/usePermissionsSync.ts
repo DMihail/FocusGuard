@@ -1,7 +1,8 @@
 /** @format */
 
 import { useCallback, useEffect, useState } from 'react';
-import { AppState, LayoutAnimation, type AppStateStatus } from 'react-native';
+import { AppState, type AppStateStatus, LayoutAnimation } from 'react-native';
+
 import { PERMISSIONS } from '../data/permissions';
 import type { PermissionId, PermissionStatus } from '../types';
 import { readPermissionStatuses, requestPermissionById } from '../utils/permissionStatus';

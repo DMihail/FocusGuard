@@ -1,6 +1,6 @@
 /** @format */
 
-import { Animated } from 'react-native';
+import type { Animated } from 'react-native';
 
 export const createIndicatorProgress = (
   scrollX: Animated.Value,

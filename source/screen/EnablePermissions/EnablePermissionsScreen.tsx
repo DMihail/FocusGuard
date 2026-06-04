@@ -2,14 +2,18 @@
 
 import React, { useCallback, useMemo } from 'react';
 import { ScrollView, View } from 'react-native';
+
 import { SafeAreaView } from 'react-native-safe-area-context';
+
 import { useRootNavigation } from '@/navigation';
-import { PermissionCard, PermissionsFooter, PermissionsHeader, PrivacyNotice } from './components';
+import { testIds } from '@/testing/testIds';
+
 import { PERMISSIONS } from './data/permissions';
 import { usePermissionsSync } from './hooks/usePermissionsSync';
-import { areAllPermissionsGranted } from './utils/permissionStatus';
-import { testIds } from '@/testing/testIds';
 import { permissionsStyles } from './styles';
+import { areAllPermissionsGranted } from './utils/permissionStatus';
+
+import { PermissionCard, PermissionsFooter, PermissionsHeader, PrivacyNotice } from './components';
 
 export const EnablePermissionsScreen = () => {
   const navigation = useRootNavigation();

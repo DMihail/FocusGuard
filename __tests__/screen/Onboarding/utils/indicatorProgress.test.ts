@@ -1,6 +1,7 @@
 /** @format */
 
 import { Animated } from 'react-native';
+
 import { createIndicatorProgress } from '@/screen/Onboarding/utils/indicatorProgress';
 
 describe('createIndicatorProgress', () => {

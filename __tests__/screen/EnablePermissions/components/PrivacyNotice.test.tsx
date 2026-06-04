@@ -1,7 +1,9 @@
 /** @format */
 
 import React from 'react';
+
 import ReactTestRenderer from 'react-test-renderer';
+
 import { PrivacyNotice } from '@/screen/EnablePermissions/components/PrivacyNotice';
 
 describe('PrivacyNotice', () => {

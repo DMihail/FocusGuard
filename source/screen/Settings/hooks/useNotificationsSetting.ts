@@ -1,7 +1,8 @@
 /** @format */
 
 import { useCallback, useEffect, useState } from 'react';
-import { AppState, Platform, type AppStateStatus } from 'react-native';
+import { AppState, type AppStateStatus, Platform } from 'react-native';
+
 import { checkForNotificationsPermission, openNotificationsSettings, requestNotificationsPermission } from '@/specs';
 import { settingsStore } from '@/store';
 

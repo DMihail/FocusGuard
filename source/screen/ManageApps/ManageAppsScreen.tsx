@@ -1,14 +1,18 @@
 /** @format */
 
-import { useFocusEffect } from '@react-navigation/native';
 import React, { useCallback } from 'react';
 import { ScrollView } from 'react-native';
+
+import { useFocusEffect } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+
 import { useRootNavigation } from '@/navigation';
 import { testIds } from '@/testing/testIds';
-import { AppSearchField, CategoryFilters, ManageAppsHeader, ManageAppsList, SelectedAppsSection } from './components';
+
 import { useManageApps } from './hooks/useManageApps';
 import { manageAppsStyles } from './styles';
+
+import { AppSearchField, CategoryFilters, ManageAppsHeader, ManageAppsList, SelectedAppsSection } from './components';
 
 export const ManageAppsScreen = () => {
   const navigation = useRootNavigation();
@@ -31,6 +35,13 @@ export const ManageAppsScreen = () => {
   const handleBack = useCallback(() => {
     navigation.goBack();
   }, [navigation]);
+
+  const openConfigureLimits = useCallback(
+    (packageName: string) => {
+      navigation.navigate('ConfigureLimits', { packageName });
+    },
+    [navigation],
+  );
 
   useFocusEffect(
     useCallback(() => {
@@ -62,7 +73,7 @@ export const ManageAppsScreen = () => {
           />
         ) : null}
 
-        <SelectedAppsSection apps={selectedApps} />
+        <SelectedAppsSection apps={selectedApps} onAppPress={openConfigureLimits} />
 
         <ManageAppsList apps={apps} isFiltering={isFiltering} isSelected={isSelected} onToggle={toggleAppSelection} />
       </ScrollView>

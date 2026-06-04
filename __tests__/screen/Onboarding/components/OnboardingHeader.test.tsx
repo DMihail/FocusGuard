@@ -1,7 +1,9 @@
 /** @format */
 
 import React from 'react';
+
 import ReactTestRenderer from 'react-test-renderer';
+
 import { OnboardingHeader } from '@/screen/Onboarding/components/OnboardingHeader';
 
 jest.mock('../../../../source/screen/Onboarding/components/ScrollIndicator', () => ({

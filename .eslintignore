@@ -1,9 +1,14 @@
 node_modules
 android
 ios
-build
-dist
 vendor
 .bundle
-__tests__
-.idea
+build
+dist
+coverage
+
+# Root tooling — lint-staged runs Prettier only; avoids "File ignored by default" warnings
+.prettierrc.js
+.eslintrc.js
+babel.config.js
+jest.config.js

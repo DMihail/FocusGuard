@@ -1,8 +1,11 @@
 /** @format */
 
-import { colors } from '@/theme';
-import Svg, { Path, SvgProps } from 'react-native-svg';
 import * as React from 'react';
+
+import type { SvgProps } from 'react-native-svg';
+import Svg, { Path } from 'react-native-svg';
+
+import { colors } from '@/theme';
 
 /** @format */
 export const SettingsIcon = ({ stroke = colors.textPrimary, ...props }: SvgProps) => (

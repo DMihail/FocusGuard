@@ -1,10 +1,13 @@
 /** @format */
 
-import { useEffect, type RefObject } from 'react';
+import { type RefObject, useEffect } from 'react';
 import { AppState, type AppStateStatus } from 'react-native';
+
 import type { NavigationContainerRef } from '@react-navigation/native';
+
 import { areAllPermissionsGranted } from '@/screen/EnablePermissions/utils/permissionStatus';
 import { onboardingStore } from '@/store/onboardingStore';
+
 import type { RootStackParamList } from '../types';
 
 export const useAppPermissionGuard = (

@@ -1,15 +1,27 @@
 /** @format */
 
-import React from 'react';
+import type React from 'react';
 import ReactTestRenderer from 'react-test-renderer';
 
 const mockToggle = jest.fn();
-let mockApps: Array<{ packageName: string; appName: string; appImage: string; category: string; categoryLabel: string }> = [];
+const mockNavigate = jest.fn();
+let mockApps: Array<{
+  packageName: string;
+  appName: string;
+  appImage: string;
+  category: string;
+  categoryLabel: string;
+}> = [];
 let mockIsMonitoring = false;
 
+jest.mock('@/navigation', () => ({
+  useRootNavigation: () => ({
+    navigate: mockNavigate,
+  }),
+}));
+
 jest.mock('@/store', () => ({
-  selectedAppsStore: (selector: (s: { apps: typeof mockApps }) => unknown) =>
-    selector({ apps: mockApps }),
+  selectedAppsStore: (selector: (s: { apps: typeof mockApps }) => unknown) => selector({ apps: mockApps }),
   monitoringStore: (selector: (s: { isMonitoring: boolean; toggle: () => void }) => unknown) =>
     selector({ isMonitoring: mockIsMonitoring, toggle: mockToggle }),
 }));
@@ -25,6 +37,7 @@ jest.mock('@react-navigation/native', () => {
 });
 
 import { Button } from 'react-native';
+
 import { DistractingAppsSection } from '@/screen/Dashboard/components/DistractingAppsSection';
 
 const render = async (ui: React.ReactElement) => {
@@ -90,6 +103,21 @@ describe('DistractingAppsSection', () => {
 
     expect(button.props.title).toBe('Stop');
     expect(button.props.color).toBe('#e74c3c');
+  });
+
+  it('navigates to ConfigureLimits when an app row is pressed', async () => {
+    mockApps = [
+      { packageName: 'com.test.app', appName: 'Test App', appImage: '', category: 'Social', categoryLabel: 'Social' },
+    ];
+
+    const tree = await render(<DistractingAppsSection />);
+    const row = tree.root.findByProps({ testID: 'dashboard-app-row-com-test-app' });
+
+    await ReactTestRenderer.act(async () => {
+      row.props.onPress();
+    });
+
+    expect(mockNavigate).toHaveBeenCalledWith('ConfigureLimits', { packageName: 'com.test.app' });
   });
 
   it('calls toggle when the button is pressed', async () => {

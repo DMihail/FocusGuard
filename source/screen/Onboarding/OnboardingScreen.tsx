@@ -2,11 +2,15 @@
 
 import React from 'react';
 import { View } from 'react-native';
+
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { OnboardingFooter, OnboardingHeader, WalkthroughPager } from './components';
-import { useOnboardingPager } from './hooks/useOnboardingPager';
+
 import { testIds } from '@/testing/testIds';
+
+import { useOnboardingPager } from './hooks/useOnboardingPager';
 import { onboardingStyles } from './styles';
+
+import { OnboardingFooter, OnboardingHeader, WalkthroughPager } from './components';
 
 export const OnboardingScreen = () => {
   const pager = useOnboardingPager();

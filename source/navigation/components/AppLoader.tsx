@@ -2,8 +2,9 @@
 
 import React from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
-import { colors } from '@/theme';
+
 import { testIds } from '@/testing/testIds';
+import { colors } from '@/theme';
 
 export const AppLoader = () => (
   <View style={styles.container} testID={testIds.app.loader}>

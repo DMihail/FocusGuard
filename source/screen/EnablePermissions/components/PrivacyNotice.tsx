@@ -2,8 +2,10 @@
 
 import React from 'react';
 import { Text, View } from 'react-native';
+
 import { PERMISSIONS_PRIVACY_NOTICE } from '@/content/privacy';
 import { testIds } from '@/testing/testIds';
+
 import { permissionsStyles } from '../styles';
 
 export const PrivacyNotice = () => (

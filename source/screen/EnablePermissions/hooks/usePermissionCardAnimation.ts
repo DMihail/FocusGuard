@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Animated, Easing, LayoutAnimation } from 'react-native';
+
 import { PERMISSION_CARD_ANIMATION_MS } from '../constants';
 import type { PermissionStatus } from '../types';
 
