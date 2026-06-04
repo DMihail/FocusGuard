@@ -1,0 +1,131 @@
+/** @format */
+
+import React, { memo, useMemo } from 'react';
+import { Animated, type Animated as AnimatedNamespace, StyleSheet, Text, View } from 'react-native';
+
+import { Shield } from '@/assets/svg/Onboarding';
+import { splashDotPulseMin, useSplashDotPulse } from '@/hooks/useSplashDotPulse';
+import { testIds } from '@/testing/testIds';
+import { borderRadius, colors, fontSize, lineHeight, spacing, typography } from '@/theme';
+
+const SPLASH_DOT_COUNT = 3;
+const APP_NAME = 'Keept';
+const APP_TAGLINE = 'Reclaim your time, restore your focus';
+const LOADING_LABEL = `Loading ${APP_NAME}`;
+
+type SplashPulseDotProps = {
+  pulse: AnimatedNamespace.Value;
+};
+
+const SplashPulseDot = memo(({ pulse }: SplashPulseDotProps) => {
+  const animatedStyle = useMemo(
+    () => ({
+      opacity: pulse,
+      transform: [
+        {
+          scale: pulse.interpolate({
+            inputRange: [splashDotPulseMin, 1],
+            outputRange: [0.85, 1.15],
+          }),
+        },
+      ],
+    }),
+    [pulse],
+  );
+
+  return <Animated.View style={[styles.dot, animatedStyle]} />;
+});
+
+SplashPulseDot.displayName = 'SplashPulseDot';
+
+const SplashLoadingDots = () => {
+  const pulseValues = useSplashDotPulse(SPLASH_DOT_COUNT);
+
+  return (
+    <View style={styles.dots} accessible={false}>
+      {pulseValues.map((pulse, index) => (
+        <SplashPulseDot key={index} pulse={pulse} />
+      ))}
+    </View>
+  );
+};
+
+const SplashBrandingView = () => (
+  <View
+    style={styles.container}
+    testID={testIds.app.loader}
+    accessible
+    accessibilityRole="progressbar"
+    accessibilityLabel={LOADING_LABEL}
+    accessibilityState={{ busy: true }}
+  >
+    <View style={styles.content} importantForAccessibility="no-hide-descendants">
+      <View style={styles.iconBox} accessible={false}>
+        <Shield width={82} height={101} stroke={colors.accent} />
+      </View>
+
+      <Text style={styles.title} accessibilityRole="header">
+        {APP_NAME}
+      </Text>
+      <Text style={styles.subtitle}>{APP_TAGLINE}</Text>
+
+      <SplashLoadingDots />
+    </View>
+  </View>
+);
+
+export const SplashBranding = memo(SplashBrandingView);
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.background,
+  },
+  content: {
+    alignItems: 'center',
+    gap: spacing.lg,
+    paddingHorizontal: spacing.xl,
+  },
+  iconBox: {
+    width: 208,
+    height: 208,
+    borderRadius: borderRadius.xl,
+    backgroundColor: colors.surface,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: spacing.xxl,
+    shadowColor: colors.shadow,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 1,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  title: {
+    ...typography.title,
+    fontSize: 32,
+    lineHeight: 40,
+    color: colors.textPrimary,
+    textAlign: 'center',
+  },
+  subtitle: {
+    ...typography.body,
+    fontSize: fontSize.md,
+    lineHeight: lineHeight.md,
+    color: colors.textSecondary,
+    textAlign: 'center',
+  },
+  dots: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    marginTop: spacing.md,
+  },
+  dot: {
+    width: 8,
+    height: 8,
+    borderRadius: borderRadius.pill,
+    backgroundColor: colors.accent,
+  },
+});

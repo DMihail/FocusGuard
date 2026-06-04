@@ -12,7 +12,7 @@ import { resolveEntryRoute } from './resolveEntryRoute';
 import { RootNavigator } from './RootNavigator';
 import type { RootStackParamList } from './types';
 
-import { AppLoader } from './components/AppLoader';
+import { SplashBranding } from '@/components';
 
 export const RootNavigationGate = () => {
   const hasHydrated = onboardingStore((state) => state.hasHydrated);
@@ -33,7 +33,7 @@ export const RootNavigationGate = () => {
   useMonitoringServiceSync(isNavigationReady);
 
   if (!hasHydrated || initialRoute === null) {
-    return <AppLoader />;
+    return <SplashBranding />;
   }
 
   return <RootNavigator initialRoute={initialRoute} navigationRef={navigationRef} />;

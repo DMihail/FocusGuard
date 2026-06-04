@@ -14,14 +14,14 @@ object NotificationNavigation {
         activityPendingIntent(
             context,
             REQUEST_CODE_DASHBOARD,
-            DeepLinks.dashboardTapIntent(context),
+            DeepLinks.dashboardIntent(context),
         )
 
     fun configureLimitsTapIntent(context: Context, packageName: String): PendingIntent =
         activityPendingIntent(
             context,
             REQUEST_CODE_CONFIGURE_LIMITS + (packageName.hashCode() and 0xFFF),
-            DeepLinks.configureLimitsTapIntent(context, packageName),
+            DeepLinks.configureIntent(context, packageName),
         )
 
     private fun activityPendingIntent(

@@ -18,14 +18,6 @@ const mockOnboardingState = {
   setHasHydrated: jest.fn(),
 };
 
-jest.mock('../../source/navigation/components/AppLoader', () => {
-  const React = require('react');
-  const { View } = require('react-native');
-  return {
-    AppLoader: () => <View testID="app-loader" />,
-  };
-});
-
 jest.mock('../../source/navigation/resolveEntryRoute', () => ({
   resolveEntryRoute: (isConfirm: boolean) => (isConfirm ? 'Dashboard' : 'Onboarding'),
 }));
@@ -88,7 +80,18 @@ jest.spyOn(AppState, 'addEventListener').mockImplementation((_, listener) => {
 
 import { RootNavigationGate } from '@/navigation/RootNavigationGate';
 
+let testRenderer: ReactTestRenderer.ReactTestRenderer | undefined;
+
 describe('RootNavigationGate', () => {
+  afterEach(() => {
+    if (testRenderer) {
+      ReactTestRenderer.act(() => {
+        testRenderer?.unmount();
+      });
+      testRenderer = undefined;
+    }
+  });
+
   beforeEach(() => {
     jest.clearAllMocks();
     appStateListener = undefined;
@@ -102,7 +105,8 @@ describe('RootNavigationGate', () => {
     let tree: ReactTestRenderer.ReactTestRenderer;
 
     ReactTestRenderer.act(() => {
-      tree = ReactTestRenderer.create(<RootNavigationGate />);
+      testRenderer = ReactTestRenderer.create(<RootNavigationGate />);
+      tree = testRenderer;
     });
 
     expect(tree!.root.findByProps({ testID: 'app-loader' })).toBeDefined();
@@ -116,7 +120,8 @@ describe('RootNavigationGate', () => {
     let tree: ReactTestRenderer.ReactTestRenderer;
 
     ReactTestRenderer.act(() => {
-      tree = ReactTestRenderer.create(<RootNavigationGate />);
+      testRenderer = ReactTestRenderer.create(<RootNavigationGate />);
+      tree = testRenderer;
     });
 
     expect(tree!.root.findByProps({ testID: 'navigation-root' })).toBeDefined();
@@ -130,7 +135,7 @@ describe('RootNavigationGate', () => {
     mockGetCurrentRoute.mockReturnValue({ name: 'Dashboard' });
 
     ReactTestRenderer.act(() => {
-      ReactTestRenderer.create(<RootNavigationGate />);
+      testRenderer = ReactTestRenderer.create(<RootNavigationGate />);
     });
 
     ReactTestRenderer.act(() => {

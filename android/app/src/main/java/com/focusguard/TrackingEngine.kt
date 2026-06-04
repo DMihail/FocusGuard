@@ -288,7 +288,7 @@ class TrackingEngine(
         private const val POLL_INTERVAL_MS = 1000L
         private const val FOREGROUND_STABLE_POLLS = 1
         private const val FOREGROUND_MISS_POLLS = 3
-        private const val WARNING_CHANNEL_ID = "focusguard_warnings"
+        private const val WARNING_CHANNEL_ID = "keept_warnings"
         private const val WARNING_NOTIFICATION_ID_BASE = 2001
     }
 }

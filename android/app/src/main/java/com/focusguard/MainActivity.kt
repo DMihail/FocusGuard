@@ -2,6 +2,7 @@ package com.focusguard
 
 import android.content.Intent
 import android.os.Bundle
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate
 import com.facebook.react.bridge.ReactContext
@@ -17,9 +18,10 @@ class MainActivity : ReactActivity() {
    * Returns the name of the main component registered from JavaScript. This is used to schedule
    * rendering of the component.
    */
-  override fun getMainComponentName(): String = "FocusGuard"
+  override fun getMainComponentName(): String = "Keept"
 
   override fun onCreate(savedInstanceState: Bundle?) {
+    installSplashScreen()
     supportFragmentManager.fragmentFactory = RNScreensFragmentFactory()
     super.onCreate(savedInstanceState)
   }
