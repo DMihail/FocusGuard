@@ -1,19 +1,19 @@
 /** @format */
 
-import React, { useCallback } from 'react';
-import { FlatList, type ListRenderItem, View } from 'react-native';
+import React, { useCallback, useMemo } from 'react';
+import { FlatList, View } from 'react-native';
 
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { APP_LIST_FLAT_LIST_PROPS } from '@/list';
 import { useRootNavigation } from '@/navigation';
 import { testIds } from '@/testing/testIds';
-import { APP_LIST_FLAT_LIST_PROPS } from '@/utils/flatListDefaults';
 
 import { usePermissionsSync } from './hooks/usePermissionsSync';
+import { createPermissionListRenderItem, permissionKeyExtractor } from './list';
 import { permissionsStyles } from './styles';
-import type { PermissionItem } from './types';
 
-import { PermissionCard, PermissionsFooter, PermissionsHeader, PrivacyNotice } from './components';
+import { PermissionsFooter, PermissionsHeader, PrivacyNotice } from './components';
 
 export const EnablePermissionsScreen = () => {
   const navigation = useRootNavigation();
@@ -26,12 +26,7 @@ export const EnablePermissionsScreen = () => {
     navigation.navigate('Dashboard');
   }, [canContinue, navigation]);
 
-  const renderItem: ListRenderItem<PermissionItem> = useCallback(
-    ({ item }) => <PermissionCard {...item} onGrant={() => handleGrant(item.id)} />,
-    [handleGrant],
-  );
-
-  const keyExtractor = useCallback((item: PermissionItem) => item.id, []);
+  const renderItem = useMemo(() => createPermissionListRenderItem(handleGrant), [handleGrant]);
 
   return (
     <SafeAreaView style={permissionsStyles.screen} edges={['top', 'bottom']} testID={testIds.enablePermissions.screen}>
@@ -39,7 +34,7 @@ export const EnablePermissionsScreen = () => {
         testID={testIds.enablePermissions.scroll}
         data={permissions}
         renderItem={renderItem}
-        keyExtractor={keyExtractor}
+        keyExtractor={permissionKeyExtractor}
         ListHeaderComponent={PermissionsHeader}
         contentContainerStyle={permissionsStyles.scrollContent}
         showsVerticalScrollIndicator={false}

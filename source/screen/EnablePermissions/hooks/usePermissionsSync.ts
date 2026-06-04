@@ -43,9 +43,9 @@ export const usePermissionsSync = () => {
   const permissions = useMemo(() => buildPermissionsWithStatus(statusById), [statusById]);
   const canContinue = areRequiredPermissionsGranted(statusById);
 
-  const handleGrant = (id: PermissionId) => {
+  const handleGrant = useCallback((id: PermissionId) => {
     requestPermissionById(id);
-  };
+  }, []);
 
   return { statusById, permissions, canContinue, handleGrant, syncStatuses };
 };

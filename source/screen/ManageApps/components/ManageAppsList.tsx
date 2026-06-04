@@ -1,15 +1,15 @@
 /** @format */
 
-import React, { useCallback } from 'react';
-import { ActivityIndicator, FlatList, type ListRenderItem, Text, View } from 'react-native';
+import React, { useMemo } from 'react';
+import { ActivityIndicator, FlatList, View } from 'react-native';
 
+import { APP_LIST_FLAT_LIST_PROPS } from '@/list';
 import { testIds } from '@/testing/testIds';
 import { colors } from '@/theme';
-import { APP_LIST_FLAT_LIST_PROPS } from '@/utils/flatListDefaults';
 
+import { createManageAppListRenderItem, manageAppKeyExtractor, ManageAppsListEmpty } from '../list';
 import { manageAppsStyles } from '../styles';
 import type { ManageApp } from '../types';
-import { ManageAppListItem } from './ManageAppListItem';
 
 type ManageAppsListProps = {
   apps: ManageApp[];
@@ -28,22 +28,7 @@ export const ManageAppsList = ({
   onToggle,
   ListHeaderComponent,
 }: ManageAppsListProps) => {
-  const renderItem: ListRenderItem<ManageApp> = useCallback(
-    ({ item }) => <ManageAppListItem app={item} isSelected={isSelected(item.packageName)} onToggle={onToggle} />,
-    [isSelected, onToggle],
-  );
-
-  const keyExtractor = useCallback((item: ManageApp) => item.packageName, []);
-
-  const listEmptyComponent = useCallback(
-    () =>
-      !isFiltering ? (
-        <Text style={manageAppsStyles.emptyText} testID={testIds.manageApps.appsEmpty}>
-          No apps found
-        </Text>
-      ) : null,
-    [isFiltering],
-  );
+  const renderItem = useMemo(() => createManageAppListRenderItem(isSelected, onToggle), [isSelected, onToggle]);
 
   return (
     <View style={manageAppsStyles.listFlex} testID={testIds.manageApps.appsList}>
@@ -61,9 +46,9 @@ export const ManageAppsList = ({
           testID={testIds.manageApps.scroll}
           data={apps}
           renderItem={renderItem}
-          keyExtractor={keyExtractor}
+          keyExtractor={manageAppKeyExtractor}
           ListHeaderComponent={ListHeaderComponent}
-          ListEmptyComponent={listEmptyComponent}
+          ListEmptyComponent={<ManageAppsListEmpty isFiltering={isFiltering} />}
           contentContainerStyle={manageAppsStyles.scrollContent}
           showsVerticalScrollIndicator={false}
           accessibilityRole="list"

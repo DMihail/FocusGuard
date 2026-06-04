@@ -1,19 +1,19 @@
 /** @format */
 
-import React, { useCallback, useLayoutEffect, useRef } from 'react';
-import { Button, FlatList, type ListRenderItem, Text, View } from 'react-native';
+import React, { useLayoutEffect, useMemo, useRef } from 'react';
+import { Button, FlatList, Text, View } from 'react-native';
 
 import { Link } from '@react-navigation/native';
 
+import { APP_LIST_FLAT_LIST_PROPS } from '@/list';
 import { useDistractingAppsSection } from '@/screen/Dashboard/hooks';
-import type { ManageApp } from '@/screen/ManageApps/types';
+import { manageAppKeyExtractor } from '@/screen/ManageApps/list';
 import { testIds } from '@/testing/testIds';
 import { colors } from '@/theme';
-import { APP_LIST_FLAT_LIST_PROPS } from '@/utils/flatListDefaults';
 import { configureSectionLayoutAnimation } from '@/utils/layoutAnimation';
 
+import { createDistractingAppRenderItem, DistractingAppsListEmpty } from '../list';
 import { dashboardStyles } from '../styles';
-import { DistractingAppRow } from './DistractingAppRow';
 
 export const DistractingAppsSection = () => {
   const { selectedApps, isMonitoring, monitoringButtonTitle, toggleMonitoring, openConfigureLimits } =
@@ -28,21 +28,7 @@ export const DistractingAppsSection = () => {
     }
   }, [selectedApps.length]);
 
-  const renderItem: ListRenderItem<ManageApp> = useCallback(
-    ({ item }) => <DistractingAppRow {...item} onPress={openConfigureLimits} />,
-    [openConfigureLimits],
-  );
-
-  const keyExtractor = useCallback((item: ManageApp) => item.packageName, []);
-
-  const listEmptyComponent = useCallback(
-    () => (
-      <Text style={dashboardStyles.emptyText} testID={testIds.dashboard.appsEmpty}>
-        No apps selected yet
-      </Text>
-    ),
-    [],
-  );
+  const renderItem = useMemo(() => createDistractingAppRenderItem(openConfigureLimits), [openConfigureLimits]);
 
   return (
     <View
@@ -69,10 +55,10 @@ export const DistractingAppsSection = () => {
       <FlatList
         data={selectedApps}
         renderItem={renderItem}
-        keyExtractor={keyExtractor}
+        keyExtractor={manageAppKeyExtractor}
         scrollEnabled={false}
         nestedScrollEnabled
-        ListEmptyComponent={listEmptyComponent}
+        ListEmptyComponent={DistractingAppsListEmpty}
         testID={testIds.dashboard.appsList}
         accessibilityRole="list"
         accessibilityLabel="Selected distracting apps"

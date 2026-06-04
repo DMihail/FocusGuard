@@ -1,6 +1,6 @@
 /** @format */
 
-import React, { memo, useCallback } from 'react';
+import React, { memo } from 'react';
 import { Pressable, Text, View } from 'react-native';
 
 import { testIds } from '@/testing/testIds';
@@ -11,15 +11,11 @@ import type { DistractingAppRowProps } from '../types';
 import { AppIcon } from '@/components';
 
 function DistractingAppRowView({ packageName, appImage, appName, onPress }: DistractingAppRowProps) {
-  const handlePress = useCallback(() => {
-    onPress(packageName);
-  }, [onPress, packageName]);
-
   return (
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={`Configure limits for ${appName}`}
-      onPress={handlePress}
+      onPress={() => onPress(packageName)}
       style={dashboardStyles.appItem}
       testID={testIds.dashboard.appRow(packageName)}
     >
