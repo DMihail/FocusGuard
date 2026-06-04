@@ -26,4 +26,21 @@ describe('dashboardStats', () => {
     expect(rows[0]?.isOverLimit).toBe(true);
     expect(rows[0]?.percentUsed).toBeGreaterThanOrEqual(100);
   });
+
+  it('sums remaining budget per app instead of subtracting totals', () => {
+    const secondApp = { ...app, packageName: 'com.other', appName: 'Other' };
+    const rows = buildDashboardAppRows(
+      [app, secondApp],
+      {},
+      {
+        [app.packageName]: 50 * 60_000,
+        [secondApp.packageName]: 10 * 60_000,
+      },
+      () => DEFAULT_APP_LIMITS,
+    );
+    const summary = buildDashboardSummary(rows);
+
+    expect(summary.remainingMs).toBe(60 * 60_000);
+    expect(summary.totalUsedMs).toBe(60 * 60_000);
+  });
 });

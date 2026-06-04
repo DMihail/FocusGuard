@@ -1,5 +1,7 @@
 /** @format */
 
+import { act } from 'react-test-renderer';
+
 const mockStartMonitorService = jest.fn();
 const mockStopMonitorService = jest.fn();
 const mockCanStartMonitoring = jest.fn(() => true);
@@ -13,10 +15,12 @@ jest.mock('@/specs', () => ({
   stopMonitorService: (...args: unknown[]) => mockStopMonitorService(...args),
 }));
 
+const mockGetItem = jest.fn((_name: string): string | null => null);
+
 jest.mock('@/store/mmkv', () => ({
   zustandStorage: {
     setItem: jest.fn(),
-    getItem: jest.fn(() => null),
+    getItem: (name: string) => mockGetItem(name),
     removeItem: jest.fn(),
   },
 }));
@@ -24,9 +28,11 @@ jest.mock('@/store/mmkv', () => ({
 import { monitoringStore } from '@/store/monitoringStore';
 
 describe('monitoringStore', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     jest.clearAllMocks();
     mockCanStartMonitoring.mockReturnValue(true);
+    mockGetItem.mockReturnValue(null);
+    await monitoringStore.persist.clearStorage();
     monitoringStore.setState({ isMonitoring: false });
   });
 
@@ -71,5 +77,28 @@ describe('monitoringStore', () => {
     monitoringStore.getState().toggle();
     expect(monitoringStore.getState().isMonitoring).toBe(false);
     expect(mockStopMonitorService).toHaveBeenCalledTimes(1);
+  });
+
+  it('restarts monitor service after rehydrate when monitoring was enabled', async () => {
+    mockGetItem.mockReturnValue(JSON.stringify({ state: { isMonitoring: true }, version: 0 }));
+
+    await act(async () => {
+      await monitoringStore.persist.rehydrate();
+    });
+
+    expect(mockStartMonitorService).toHaveBeenCalledTimes(1);
+    expect(monitoringStore.getState().isMonitoring).toBe(true);
+  });
+
+  it('disables monitoring after rehydrate when permissions are missing', async () => {
+    mockCanStartMonitoring.mockReturnValue(false);
+    mockGetItem.mockReturnValue(JSON.stringify({ state: { isMonitoring: true }, version: 0 }));
+
+    await act(async () => {
+      await monitoringStore.persist.rehydrate();
+    });
+
+    expect(mockStartMonitorService).not.toHaveBeenCalled();
+    expect(monitoringStore.getState().isMonitoring).toBe(false);
   });
 });
