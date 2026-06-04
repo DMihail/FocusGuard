@@ -2,10 +2,13 @@
 
 const mockStartMonitorService = jest.fn();
 const mockStopMonitorService = jest.fn();
-const mockCheckForPermission = jest.fn(() => true);
+const mockCanStartMonitoring = jest.fn(() => true);
+
+jest.mock('@/utils/monitoring/canStartMonitoring', () => ({
+  canStartMonitoring: () => mockCanStartMonitoring(),
+}));
 
 jest.mock('@/specs', () => ({
-  checkForPermission: () => mockCheckForPermission(),
   startMonitorService: (...args: unknown[]) => mockStartMonitorService(...args),
   stopMonitorService: (...args: unknown[]) => mockStopMonitorService(...args),
 }));
@@ -23,7 +26,7 @@ import { monitoringStore } from '@/store/monitoringStore';
 describe('monitoringStore', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    mockCheckForPermission.mockReturnValue(true);
+    mockCanStartMonitoring.mockReturnValue(true);
     monitoringStore.setState({ isMonitoring: false });
   });
 
@@ -49,8 +52,8 @@ describe('monitoringStore', () => {
     expect(monitoringStore.getState().isMonitoring).toBe(false);
   });
 
-  it('does not enable monitoring when usage access is missing', () => {
-    mockCheckForPermission.mockReturnValue(false);
+  it('does not enable monitoring when required permissions are missing', () => {
+    mockCanStartMonitoring.mockReturnValue(false);
 
     monitoringStore.getState().toggle();
 

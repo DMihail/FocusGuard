@@ -13,6 +13,7 @@ import androidx.core.app.ServiceCompat
 import com.focusguard.R
 import com.focusguard.TrackingEngine
 import com.focusguard.monitor.MonitorPermissions
+import com.focusguard.navigation.DeepLinks
 
 /**
  * Long-running foreground service that keeps the app-monitoring process alive.
@@ -101,14 +102,19 @@ class FocusGuardMonitorService : Service() {
   }
 
   /** Builds the ongoing foreground notification shown while the service is active. */
-  private fun buildNotification(): Notification =
-      NotificationCompat.Builder(this, CHANNEL_ID)
-          .setSmallIcon(R.mipmap.ic_launcher)
-          .setContentTitle(getString(R.string.monitor_notification_title))
-          .setContentText(getString(R.string.monitor_notification_text))
-          .setOngoing(true)
-          .setCategory(NotificationCompat.CATEGORY_SERVICE)
-          .build()
+  private fun buildNotification(): Notification {
+    val contentIntent =
+        DeepLinks.activityPendingIntent(this, DeepLinks.dashboardIntent(this), NOTIFICATION_ID)
+
+    return NotificationCompat.Builder(this, CHANNEL_ID)
+        .setSmallIcon(R.mipmap.ic_launcher)
+        .setContentTitle(getString(R.string.monitor_notification_title))
+        .setContentText(getString(R.string.monitor_notification_text))
+        .setOngoing(true)
+        .setCategory(NotificationCompat.CATEGORY_SERVICE)
+        .setContentIntent(contentIntent)
+        .build()
+  }
 
   companion object {
     private const val CHANNEL_ID = "focusguard_monitor"

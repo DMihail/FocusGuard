@@ -1,8 +1,8 @@
 /** @format */
 
-import { Button } from 'react-native';
-
 import type React from 'react';
+
+import type { DashboardAppRow } from '@/utils/usage/dashboardStats';
 
 import {
   cleanupTestTrees,
@@ -14,28 +14,7 @@ import {
 
 import { DistractingAppsSection } from '@/screen/Dashboard/components/DistractingAppsSection';
 
-const mockToggle = jest.fn();
 const mockNavigate = jest.fn();
-let mockApps: Array<{
-  packageName: string;
-  appName: string;
-  appImage: string;
-  category: string;
-  categoryLabel: string;
-}> = [];
-let mockIsMonitoring = false;
-
-jest.mock('@/navigation/hooks/useNavigateToConfigureLimits', () => ({
-  useNavigateToConfigureLimits: () => (packageName: string) => {
-    mockNavigate('ConfigureLimits', { packageName });
-  },
-}));
-
-jest.mock('@/store', () => ({
-  selectedAppsStore: (selector: (s: { apps: typeof mockApps }) => unknown) => selector({ apps: mockApps }),
-  monitoringStore: (selector: (s: { isMonitoring: boolean; toggle: () => void }) => unknown) =>
-    selector({ isMonitoring: mockIsMonitoring, toggle: mockToggle }),
-}));
 
 jest.mock('@react-navigation/native', () => {
   const React = require('react');
@@ -50,12 +29,22 @@ jest.mock('@react-navigation/native', () => {
   };
 });
 
+const buildRow = (packageName: string, appName: string): DashboardAppRow => ({
+  packageName,
+  appName,
+  appImage: '',
+  category: 'Social',
+  categoryLabel: 'Social',
+  usedMs: 15 * 60_000,
+  limitMs: 60 * 60_000,
+  percentUsed: 25,
+  isOverLimit: false,
+});
+
 describe('DistractingAppsSection', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     jest.useFakeTimers();
-    mockApps = [];
-    mockIsMonitoring = false;
   });
 
   afterEach(async () => {
@@ -66,66 +55,28 @@ describe('DistractingAppsSection', () => {
   });
 
   it('shows empty text when no apps are selected', () => {
-    const tree = renderTestTree(<DistractingAppsSection />);
+    const tree = renderTestTree(<DistractingAppsSection appRows={[]} onConfigureLimits={mockNavigate} />);
     flushVirtualizedListTimers();
     const emptyText = tree.root.findByProps({ testID: 'dashboard-apps-empty' });
 
     expect(emptyText.props.children).toBe('No apps selected yet');
   });
 
-  it('does not show Start/Stop button when no apps are selected', () => {
-    const tree = renderTestTree(<DistractingAppsSection />);
-    flushVirtualizedListTimers();
-    const buttons = tree.root.findAllByType(Button);
-
-    expect(buttons).toHaveLength(0);
-  });
-
-  it('renders app rows when apps are selected', () => {
-    mockApps = [
-      { packageName: 'com.test.app', appName: 'Test App', appImage: '', category: 'Social', categoryLabel: 'Social' },
-    ];
-
-    const tree = renderTestTree(<DistractingAppsSection />);
+  it('renders app rows with usage data', () => {
+    const tree = renderTestTree(
+      <DistractingAppsSection appRows={[buildRow('com.test.app', 'Test App')]} onConfigureLimits={mockNavigate} />,
+    );
     flushVirtualizedListTimers();
     const appRow = tree.root.findByProps({ testID: 'dashboard-app-row-com-test-app' });
 
     expect(appRow).toBeDefined();
   });
 
-  it('shows Start button when apps are selected and monitoring is off', () => {
-    mockApps = [
-      { packageName: 'com.test.app', appName: 'Test App', appImage: '', category: 'Social', categoryLabel: 'Social' },
-    ];
-    mockIsMonitoring = false;
-
-    const tree = renderTestTree(<DistractingAppsSection />);
-    flushVirtualizedListTimers();
-    const button = tree.root.findByType(Button);
-
-    expect(button.props.title).toBe('Start');
-  });
-
-  it('shows Stop button with red color when monitoring is active', () => {
-    mockApps = [
-      { packageName: 'com.test.app', appName: 'Test App', appImage: '', category: 'Social', categoryLabel: 'Social' },
-    ];
-    mockIsMonitoring = true;
-
-    const tree = renderTestTree(<DistractingAppsSection />);
-    flushVirtualizedListTimers();
-    const button = tree.root.findByType(Button);
-
-    expect(button.props.title).toBe('Stop');
-    expect(button.props.color).toBe('#E74C3C');
-  });
-
   it('navigates to ConfigureLimits when an app row is pressed', () => {
-    mockApps = [
-      { packageName: 'com.test.app', appName: 'Test App', appImage: '', category: 'Social', categoryLabel: 'Social' },
-    ];
-
-    const tree = renderTestTree(<DistractingAppsSection />);
+    const onConfigureLimits = jest.fn();
+    const tree = renderTestTree(
+      <DistractingAppsSection appRows={[buildRow('com.test.app', 'Test App')]} onConfigureLimits={onConfigureLimits} />,
+    );
     flushVirtualizedListTimers();
     const row = tree.root.findByProps({ testID: 'dashboard-app-row-com-test-app' });
 
@@ -133,22 +84,6 @@ describe('DistractingAppsSection', () => {
       row.props.onPress();
     });
 
-    expect(mockNavigate).toHaveBeenCalledWith('ConfigureLimits', { packageName: 'com.test.app' });
-  });
-
-  it('calls toggle when the button is pressed', () => {
-    mockApps = [
-      { packageName: 'com.test.app', appName: 'Test App', appImage: '', category: 'Social', categoryLabel: 'Social' },
-    ];
-
-    const tree = renderTestTree(<DistractingAppsSection />);
-    flushVirtualizedListTimers();
-    const button = tree.root.findByType(Button);
-
-    runTestAct(() => {
-      button.props.onPress();
-    });
-
-    expect(mockToggle).toHaveBeenCalledTimes(1);
+    expect(onConfigureLimits).toHaveBeenCalledWith('com.test.app');
   });
 });

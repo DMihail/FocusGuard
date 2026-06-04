@@ -29,6 +29,7 @@ const rootScreens = {
   },
   Dashboard: {
     screen: DashboardScreen,
+    linking: 'dashboard',
     options: {
       headerShown: false,
     },
@@ -41,6 +42,7 @@ const rootScreens = {
   },
   ConfigureLimits: {
     screen: ConfigureLimitsScreen,
+    linking: 'configure/:packageName',
     options: {
       headerShown: false,
     },

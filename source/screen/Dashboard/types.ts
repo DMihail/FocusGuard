@@ -1,7 +1,7 @@
 /** @format */
 
-import type { ManageApp } from '@/screen/ManageApps/types';
+import type { DashboardAppRow } from '@/utils/usage/dashboardStats';
 
-export type DistractingAppRowProps = Pick<ManageApp, 'packageName' | 'appName' | 'appImage'> & {
+export type DistractingAppRowProps = DashboardAppRow & {
   onPress: (packageName: string) => void;
 };

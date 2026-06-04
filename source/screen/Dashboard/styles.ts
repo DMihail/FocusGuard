@@ -2,20 +2,33 @@
 
 import { StyleSheet } from 'react-native';
 
-import { borderRadius, colors, iconBoxPresets, layoutPresets, spacing, textPresets, typography } from '@/theme';
+import {
+  borderRadius,
+  colors,
+  fontSize,
+  iconBoxPresets,
+  layoutPresets,
+  spacing,
+  textPresets,
+  typography,
+} from '@/theme';
 
 export const dashboardStyles = StyleSheet.create({
   screen: layoutPresets.screen,
-  scrollContent: layoutPresets.scrollContent(),
+  scrollContent: {
+    ...layoutPresets.scrollContent(spacing.lg),
+    paddingBottom: spacing.xxl,
+  },
   header: {
     flexDirection: 'row',
     alignItems: 'flex-start',
     justifyContent: 'space-between',
     paddingTop: spacing.sm,
-    gap: spacing.lg,
+    gap: spacing.md,
   },
   headerText: {
     flex: 1,
+    minWidth: 0,
     gap: spacing.xs,
   },
   greeting: {
@@ -24,7 +37,9 @@ export const dashboardStyles = StyleSheet.create({
   },
   subtitle: {
     ...typography.body,
-    color: colors.textMuted,
+    color: colors.textSecondary,
+    fontSize: fontSize.sm,
+    lineHeight: 20,
   },
   settingsButton: {
     width: 48,
@@ -32,24 +47,145 @@ export const dashboardStyles = StyleSheet.create({
     borderRadius: borderRadius.xxl,
     alignItems: 'center',
     justifyContent: 'center',
+    flexShrink: 0,
   },
-  section: {
+  focusCard: {
+    ...layoutPresets.card,
+    padding: spacing.lg,
     gap: spacing.md,
   },
-  sectionHeader: layoutPresets.rowBetween,
-  sectionTitle: textPresets.sectionTitle,
-  viewAllButton: layoutPresets.linkButton,
+  focusCardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
+  focusIconBadge: {
+    width: 36,
+    height: 36,
+    borderRadius: borderRadius.md,
+    backgroundColor: colors.primaryContainer,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
+  },
+  focusIconLabel: {
+    color: colors.accent,
+    fontSize: 18,
+  },
+  focusCardLabel: {
+    ...typography.caption,
+    color: colors.textSecondary,
+    fontWeight: '500',
+    letterSpacing: 0.5,
+    flex: 1,
+    minWidth: 0,
+  },
+  focusScoreBlock: {
+    gap: spacing.sm,
+  },
+  focusScoreValue: {
+    fontSize: 45,
+    lineHeight: 52,
+    color: colors.textPrimary,
+    fontWeight: '400',
+  },
+  focusBudgetPill: {
+    alignSelf: 'stretch',
+    backgroundColor: colors.successIconBg,
+    borderRadius: borderRadius.md,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+  },
+  focusBudgetText: {
+    ...typography.caption,
+    color: colors.success,
+    fontWeight: '500',
+    fontSize: fontSize.xs,
+    lineHeight: 16,
+  },
+  focusProgress: {
+    marginTop: spacing.xs,
+  },
+  statsRow: {
+    flexDirection: 'row',
+    gap: spacing.md,
+    alignItems: 'stretch',
+  },
+  statCard: {
+    flex: 1,
+    minWidth: 0,
+    ...layoutPresets.card,
+    padding: spacing.md,
+    gap: spacing.sm,
+  },
+  statIconBadge: {
+    width: 32,
+    height: 32,
+    borderRadius: borderRadius.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  statIconUsed: {
+    backgroundColor: colors.successIconBg,
+  },
+  statIconRemaining: {
+    backgroundColor: colors.overLimitMuted,
+  },
+  statIconEmoji: {
+    fontSize: 14,
+  },
+  statLabel: {
+    ...typography.caption,
+    color: colors.textSecondary,
+    fontWeight: '500',
+    fontSize: 11,
+    letterSpacing: 0.56,
+  },
+  statValueBlock: {
+    gap: 2,
+  },
+  statValueMain: {
+    fontSize: fontSize.xl,
+    lineHeight: 28,
+    color: colors.textPrimary,
+    fontWeight: '400',
+  },
+  statValueUnit: {
+    fontSize: fontSize.xs,
+    lineHeight: 16,
+    color: colors.textSecondary,
+    fontWeight: '400',
+  },
+  section: {
+    ...layoutPresets.card,
+    padding: spacing.lg,
+    gap: spacing.md,
+  },
+  sectionHeader: {
+    ...layoutPresets.rowBetween,
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
+  sectionTitle: {
+    ...textPresets.sectionTitle,
+    flex: 1,
+    minWidth: 0,
+  },
+  viewAllButton: {
+    ...layoutPresets.linkButton,
+    flexShrink: 0,
+  },
   viewAllText: textPresets.accentButton,
   appsListSeparator: {
     height: spacing.md,
   },
   appItem: {
-    ...layoutPresets.card,
-    padding: spacing.md,
+    gap: spacing.sm,
   },
   appRow: {
     ...layoutPresets.rowCenter,
     gap: spacing.md,
+    minWidth: 0,
   },
   appIconBox: iconBoxPresets.sm,
   appIcon: {
@@ -59,10 +195,75 @@ export const dashboardStyles = StyleSheet.create({
   appIconFallback: textPresets.label,
   appInfo: {
     flex: 1,
+    minWidth: 0,
+    gap: 2,
   },
   appName: textPresets.label,
+  appUsage: {
+    ...typography.caption,
+    color: colors.textSecondary,
+    fontSize: fontSize.xs,
+  },
+  appPercent: {
+    ...typography.caption,
+    color: colors.textSecondary,
+    fontWeight: '500',
+    letterSpacing: 0.5,
+    flexShrink: 0,
+    minWidth: 36,
+    textAlign: 'right',
+  },
+  appPercentOver: {
+    color: colors.overLimit,
+  },
   emptyText: {
     ...textPresets.empty,
     paddingVertical: spacing.lg,
+  },
+  quickActions: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.md,
+  },
+  quickActionCard: {
+    flexGrow: 1,
+    flexBasis: '46%',
+    minWidth: 140,
+    ...layoutPresets.card,
+    padding: spacing.lg,
+    gap: spacing.xs,
+  },
+  quickActionCardActive: {
+    borderWidth: 1,
+    borderColor: colors.accent,
+  },
+  quickActionCardDisabled: {
+    opacity: 0.5,
+  },
+  quickActionIconBadge: {
+    width: 48,
+    height: 48,
+    borderRadius: borderRadius.lg,
+    backgroundColor: colors.accentIconBg,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: spacing.sm,
+  },
+  quickActionIconMuted: {
+    backgroundColor: colors.accentMuted,
+  },
+  quickActionIcon: {
+    fontSize: 22,
+  },
+  quickActionTitle: {
+    ...typography.sectionTitle,
+    color: colors.onSurface,
+  },
+  quickActionSubtitle: {
+    ...typography.caption,
+    color: colors.onSurface,
+    opacity: 0.8,
+    fontSize: fontSize.xs,
+    lineHeight: 16,
   },
 });

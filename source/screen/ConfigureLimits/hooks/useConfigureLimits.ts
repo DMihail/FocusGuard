@@ -1,7 +1,11 @@
 /** @format */
 
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
+import { useFocusEffect } from '@react-navigation/native';
+
+import { useAppStateOnActive } from '@/hooks/useAppStateOnActive';
+import { getAppsUsageStats } from '@/specs/NativeUsageStats';
 import {
   type AppLimits,
   appLimitsStore,
@@ -13,12 +17,29 @@ import {
 
 import type { UseConfigureLimitsResult } from '../types';
 
+const MS_PER_MINUTE = 60_000;
+
 export const useConfigureLimits = (packageName: string): UseConfigureLimitsResult => {
   const app = selectedAppsStore((state) => state.apps.find((item) => item.packageName === packageName));
   const storedLimits = appLimitsStore((state) => state.limitsByPackage[packageName] ?? DEFAULT_APP_LIMITS);
   const setStoredLimits = appLimitsStore((state) => state.setLimits);
 
   const [draft, setDraft] = useState<AppLimits>(storedLimits);
+  const [usedMsToday, setUsedMsToday] = useState(0);
+
+  const refreshUsage = useCallback(() => {
+    const stats = getAppsUsageStats();
+    const match = stats.find((item) => item.packageName === packageName);
+    setUsedMsToday(match?.totalTimeForeground ?? 0);
+  }, [packageName]);
+
+  useFocusEffect(
+    useCallback(() => {
+      refreshUsage();
+    }, [refreshUsage]),
+  );
+
+  useAppStateOnActive(refreshUsage);
 
   useEffect(() => {
     setDraft(storedLimits);
@@ -51,10 +72,14 @@ export const useConfigureLimits = (packageName: string): UseConfigureLimitsResul
     setStoredLimits(packageName, normalizeAppLimits(draft));
   };
 
+  const limitMsToday = draft.hardBlockMinutes * MS_PER_MINUTE;
+
   return {
     app,
     draft,
     hardBlockMin,
+    usedMsToday,
+    limitMsToday,
     setWarningMinutes,
     setHardBlockMinutes,
     setStrictMode,

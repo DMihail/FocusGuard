@@ -60,7 +60,9 @@ class BlockOverlayActivity : AppCompatActivity() {
             finish()
         }
 
-        BlockOverlayManager.onActivityShown()
+        if (packageName.isNotEmpty()) {
+            BlockOverlayManager.onActivityShown(packageName)
+        }
     }
 
     override fun onDestroy() {
