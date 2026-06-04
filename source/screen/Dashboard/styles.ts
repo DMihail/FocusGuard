@@ -169,6 +169,9 @@ export const dashboardStyles = StyleSheet.create({
     flexShrink: 0,
   },
   viewAllText: textPresets.accentButton,
+  appsList: {
+    gap: spacing.md,
+  },
   appItem: {
     gap: spacing.sm,
   },

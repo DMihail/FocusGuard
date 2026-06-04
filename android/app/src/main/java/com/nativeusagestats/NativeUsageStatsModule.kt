@@ -25,6 +25,7 @@ import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.WritableArray
 import com.facebook.react.bridge.WritableMap
 import com.focusguard.monitor.MonitorPermissions
+import com.focusguard.permissions.NotificationPermission
 import com.focusguard.monitor.MonitorServiceHelper
 import com.focusguard.monitor.OverlayAccess
 import com.focusguard.monitor.UsageAccess
@@ -206,7 +207,7 @@ class NativeUsageStatsModule(reactContext: ReactApplicationContext) :
         ActivityCompat.requestPermissions(
             activity,
             arrayOf(Manifest.permission.POST_NOTIFICATIONS),
-            REQUEST_CODE_POST_NOTIFICATIONS,
+            NotificationPermission.REQUEST_CODE_POST_NOTIFICATIONS,
         )
         return
       }
@@ -474,6 +475,5 @@ class NativeUsageStatsModule(reactContext: ReactApplicationContext) :
 
   companion object {
     const val NAME = NativeUsageStatsSpec.NAME
-    private const val REQUEST_CODE_POST_NOTIFICATIONS = 1001
   }
 }

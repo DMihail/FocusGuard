@@ -48,15 +48,6 @@ function FocusOverviewCardView({ summary }: FocusOverviewCardProps) {
         </Text>
       </View>
 
-      <View style={dashboardStyles.focusScoreBlock} importantForAccessibility="no-hide-descendants">
-        <Text style={dashboardStyles.focusScoreValue}>{summary.focusScore}</Text>
-        <View style={dashboardStyles.focusBudgetPill}>
-          <Text style={dashboardStyles.focusBudgetText}>
-            {formatUsageMinutes(summary.remainingMs)} left of {formatUsageMinutes(summary.totalAllowedMs)}
-          </Text>
-        </View>
-      </View>
-
       <ProgressBar
         progress={usedPercent}
         style={dashboardStyles.focusProgress}

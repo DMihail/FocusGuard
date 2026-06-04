@@ -8,6 +8,7 @@ export type RootStackParamList = {
   Onboarding: undefined;
   EnablePermissions: undefined;
   Dashboard: undefined;
+  TrackedApps: undefined;
   ManageApps: undefined;
   ConfigureLimits: { packageName: string };
   Settings: undefined;

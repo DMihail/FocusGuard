@@ -44,6 +44,10 @@ export const DashboardScreen = () => {
     navigation.navigate('ManageApps');
   }, [navigation]);
 
+  const openTrackedApps = useCallback(() => {
+    navigation.navigate('TrackedApps');
+  }, [navigation]);
+
   return (
     <SafeAreaView
       style={dashboardStyles.screen}
@@ -71,7 +75,11 @@ export const DashboardScreen = () => {
 
         <DailyStatsRow summary={summary} />
 
-        <DistractingAppsSection appRows={appRows} onConfigureLimits={openConfigureLimits} />
+        <DistractingAppsSection
+          appRows={appRows}
+          onConfigureLimits={openConfigureLimits}
+          onViewAllPress={openTrackedApps}
+        />
 
         <QuickActionsSection
           isMonitoring={isMonitoring}

@@ -19,7 +19,10 @@ export const manageAppsStyles = StyleSheet.create({
   listFlex: {
     flex: 1,
   },
-  scrollContent: layoutPresets.scrollContent(10),
+  scrollContent: {
+    ...layoutPresets.scrollContent(spacing.md),
+    paddingBottom: spacing.xxxl,
+  },
   header: {
     ...layoutPresets.rowCenter,
     gap: spacing.lg,

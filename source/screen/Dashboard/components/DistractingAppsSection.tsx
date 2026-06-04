@@ -1,9 +1,7 @@
 /** @format */
 
-import React, { memo, useLayoutEffect, useRef } from 'react';
-import { Text, View } from 'react-native';
-
-import { Link } from '@react-navigation/native';
+import React, { memo, useLayoutEffect, useMemo, useRef } from 'react';
+import { Pressable, Text, View } from 'react-native';
 
 import { testIds } from '@/testing/testIds';
 import { configureSectionLayoutAnimation } from '@/utils/layoutAnimation';
@@ -13,20 +11,24 @@ import { DistractingAppsListEmpty } from '../list';
 import { dashboardStyles } from '../styles';
 import { DistractingAppRow } from './DistractingAppRow';
 
+const MAX_VISIBLE_APPS = 4;
+
 type DistractingAppsSectionProps = {
   appRows: DashboardAppRow[];
   onConfigureLimits: (packageName: string) => void;
+  onViewAllPress: () => void;
 };
 
-function DistractingAppsSectionView({ appRows, onConfigureLimits }: DistractingAppsSectionProps) {
-  const previousAppsCount = useRef(appRows.length);
+function DistractingAppsSectionView({ appRows, onConfigureLimits, onViewAllPress }: DistractingAppsSectionProps) {
+  const visibleApps = useMemo(() => appRows.slice(0, MAX_VISIBLE_APPS), [appRows]);
+  const previousAppsCount = useRef(visibleApps.length);
 
   useLayoutEffect(() => {
-    if (previousAppsCount.current !== appRows.length) {
+    if (previousAppsCount.current !== visibleApps.length) {
       configureSectionLayoutAnimation();
-      previousAppsCount.current = appRows.length;
+      previousAppsCount.current = visibleApps.length;
     }
-  }, [appRows.length]);
+  }, [visibleApps.length]);
 
   return (
     <View
@@ -39,24 +41,29 @@ function DistractingAppsSectionView({ appRows, onConfigureLimits }: DistractingA
         <Text style={dashboardStyles.sectionTitle} accessibilityRole="header" numberOfLines={1}>
           Top Distracting Apps
         </Text>
-        {appRows.length > 0 ? (
-          <Link
-            screen="ManageApps"
-            testID={testIds.dashboard.viewAllAppsButton}
+        {appRows.length > MAX_VISIBLE_APPS ? (
+          <Pressable
             accessibilityRole="button"
-            accessibilityLabel="View all apps"
+            accessibilityLabel="View all tracked apps"
+            onPress={onViewAllPress}
             style={dashboardStyles.viewAllButton}
+            testID={testIds.dashboard.viewAllAppsButton}
           >
             <Text style={dashboardStyles.viewAllText}>View All</Text>
-          </Link>
+          </Pressable>
         ) : null}
       </View>
 
-      <View testID={testIds.dashboard.appsList} accessibilityRole="list" accessibilityLabel="Selected distracting apps">
-        {appRows.length === 0 ? (
+      <View
+        style={dashboardStyles.appsList}
+        testID={testIds.dashboard.appsList}
+        accessibilityRole="list"
+        accessibilityLabel="Selected distracting apps"
+      >
+        {visibleApps.length === 0 ? (
           <DistractingAppsListEmpty />
         ) : (
-          appRows.map((row) => <DistractingAppRow key={row.packageName} {...row} onPress={onConfigureLimits} />)
+          visibleApps.map((row) => <DistractingAppRow key={row.packageName} {...row} onPress={onConfigureLimits} />)
         )}
       </View>
     </View>
@@ -69,5 +76,9 @@ function areDistractingAppsSectionPropsEqual(
   previous: DistractingAppsSectionProps,
   next: DistractingAppsSectionProps,
 ): boolean {
-  return previous.onConfigureLimits === next.onConfigureLimits && previous.appRows === next.appRows;
+  return (
+    previous.onConfigureLimits === next.onConfigureLimits &&
+    previous.onViewAllPress === next.onViewAllPress &&
+    previous.appRows === next.appRows
+  );
 }

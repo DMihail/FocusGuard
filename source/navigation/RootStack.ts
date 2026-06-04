@@ -10,6 +10,7 @@ import {
   ManageAppsScreen,
   OnboardingScreen,
   SettingsScreen,
+  TrackedAppsScreen,
 } from '@/screen';
 
 import type { RootStackParamList } from './types';
@@ -36,6 +37,12 @@ const rootScreens = {
   },
   ManageApps: {
     screen: ManageAppsScreen,
+    options: {
+      headerShown: false,
+    },
+  },
+  TrackedApps: {
+    screen: TrackedAppsScreen,
     options: {
       headerShown: false,
     },

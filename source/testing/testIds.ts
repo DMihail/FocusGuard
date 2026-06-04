@@ -43,6 +43,15 @@ export const testIds = {
     appsEmpty: 'dashboard-apps-empty',
     appRow: (packageName: string) => `dashboard-app-row-${toSegment(packageName)}`,
   },
+  trackedApps: {
+    screen: 'tracked-apps-screen',
+    scroll: 'tracked-apps-scroll',
+    header: 'tracked-apps-header',
+    backButton: 'tracked-apps-back-button',
+    appCount: 'tracked-apps-count',
+    list: 'tracked-apps-list',
+    empty: 'tracked-apps-empty',
+  },
   legal: {
     dataPrivacy: {
       screen: 'data-privacy-screen',
