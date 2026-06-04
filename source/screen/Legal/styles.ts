@@ -47,8 +47,8 @@ export const legalStyles = StyleSheet.create({
     color: colors.textDisabled,
     marginBottom: spacing.xl,
   },
-  sections: {
-    gap: spacing.xxl,
+  sectionSeparator: {
+    height: spacing.xxl,
   },
   section: {
     gap: spacing.md,

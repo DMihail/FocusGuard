@@ -1,6 +1,6 @@
 /** @format */
 
-import React from 'react';
+import React, { memo } from 'react';
 import { Pressable, Text, View } from 'react-native';
 
 import { CheckIcon } from '@/assets/svg/EnablePermissions';
@@ -16,43 +16,40 @@ type ManageAppListItemProps = ManageApp & {
   onToggle: () => void;
 };
 
-export const ManageAppListItem = ({
-  packageName,
-  appName,
-  appImage,
-  categoryLabel,
-  isSelected,
-  onToggle,
-}: ManageAppListItemProps) => (
-  <Pressable
-    testID={testIds.manageApps.appRow(packageName)}
-    accessibilityRole="button"
-    accessibilityState={{ selected: isSelected }}
-    accessibilityLabel={`${appName}, ${categoryLabel}`}
-    style={manageAppsStyles.appItem}
-    onPress={onToggle}
-  >
-    <AppIcon
-      appName={appName}
-      appImage={appImage}
-      size="sm"
-      boxStyle={manageAppsStyles.appIconBox}
-      imageStyle={manageAppsStyles.appIcon}
-      fallbackStyle={manageAppsStyles.appIconFallback}
-    />
-
-    <View style={manageAppsStyles.appInfo}>
-      <Text style={manageAppsStyles.appName} numberOfLines={1}>
-        {appName}
-      </Text>
-      <Text style={manageAppsStyles.appCategory}>{categoryLabel}</Text>
-    </View>
-
-    <View
-      testID={testIds.manageApps.appSelectionControl(packageName)}
-      style={[manageAppsStyles.selectionControl, isSelected && manageAppsStyles.selectionControlSelected]}
+export const ManageAppListItem = memo(
+  ({ packageName, appName, appImage, categoryLabel, isSelected, onToggle }: ManageAppListItemProps) => (
+    <Pressable
+      testID={testIds.manageApps.appRow(packageName)}
+      accessibilityRole="button"
+      accessibilityState={{ selected: isSelected }}
+      accessibilityLabel={`${appName}, ${categoryLabel}`}
+      style={manageAppsStyles.appItem}
+      onPress={onToggle}
     >
-      {isSelected ? <CheckIcon /> : null}
-    </View>
-  </Pressable>
+      <AppIcon
+        appName={appName}
+        appImage={appImage}
+        size="sm"
+        boxStyle={manageAppsStyles.appIconBox}
+        imageStyle={manageAppsStyles.appIcon}
+        fallbackStyle={manageAppsStyles.appIconFallback}
+      />
+
+      <View style={manageAppsStyles.appInfo}>
+        <Text style={manageAppsStyles.appName} numberOfLines={1}>
+          {appName}
+        </Text>
+        <Text style={manageAppsStyles.appCategory}>{categoryLabel}</Text>
+      </View>
+
+      <View
+        testID={testIds.manageApps.appSelectionControl(packageName)}
+        style={[manageAppsStyles.selectionControl, isSelected && manageAppsStyles.selectionControlSelected]}
+      >
+        {isSelected ? <CheckIcon /> : null}
+      </View>
+    </Pressable>
+  ),
 );
+
+ManageAppListItem.displayName = 'ManageAppListItem';

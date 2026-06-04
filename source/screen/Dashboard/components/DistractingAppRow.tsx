@@ -1,6 +1,6 @@
 /** @format */
 
-import React from 'react';
+import React, { memo } from 'react';
 import { Pressable, Text, View } from 'react-native';
 
 import { testIds } from '@/testing/testIds';
@@ -10,7 +10,7 @@ import type { DistractingAppRowProps } from '../types';
 
 import { AppIcon } from '@/components';
 
-export const DistractingAppRow = ({ packageName, appImage, appName, onPress }: DistractingAppRowProps) => (
+export const DistractingAppRow = memo(({ packageName, appImage, appName, onPress }: DistractingAppRowProps) => (
   <Pressable
     accessibilityRole="button"
     accessibilityLabel={`Configure limits for ${appName}`}
@@ -35,4 +35,6 @@ export const DistractingAppRow = ({ packageName, appImage, appName, onPress }: D
       </View>
     </View>
   </Pressable>
-);
+));
+
+DistractingAppRow.displayName = 'DistractingAppRow';

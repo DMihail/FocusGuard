@@ -1,15 +1,17 @@
 /** @format */
 
-import React, { useCallback } from 'react';
-import { ScrollView, View } from 'react-native';
+import React, { useCallback, useMemo } from 'react';
+import { FlatList, type ListRenderItem, View } from 'react-native';
 
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useRootNavigation } from '@/navigation';
 import { testIds } from '@/testing/testIds';
+import { APP_LIST_FLAT_LIST_PROPS } from '@/utils/flatListDefaults';
 
 import { usePermissionsSync } from './hooks/usePermissionsSync';
 import { permissionsStyles } from './styles';
+import type { PermissionItem } from './types';
 
 import { PermissionCard, PermissionsFooter, PermissionsHeader, PrivacyNotice } from './components';
 
@@ -24,21 +26,29 @@ export const EnablePermissionsScreen = () => {
     navigation.navigate('Dashboard');
   }, [canContinue, navigation]);
 
+  const keyExtractor = useCallback((item: PermissionItem) => item.id, []);
+
+  const renderItem: ListRenderItem<PermissionItem> = useCallback(
+    ({ item }) => <PermissionCard {...item} onGrant={() => handleGrant(item.id)} />,
+    [handleGrant],
+  );
+
+  const ListHeaderComponent = useMemo(() => <PermissionsHeader />, []);
+
   return (
     <SafeAreaView style={permissionsStyles.screen} edges={['top', 'bottom']} testID={testIds.enablePermissions.screen}>
-      <ScrollView
+      <FlatList
         testID={testIds.enablePermissions.scroll}
+        data={permissions}
+        renderItem={renderItem}
+        keyExtractor={keyExtractor}
+        ListHeaderComponent={ListHeaderComponent}
         contentContainerStyle={permissionsStyles.scrollContent}
         showsVerticalScrollIndicator={false}
-      >
-        <PermissionsHeader />
-
-        <View style={permissionsStyles.cards} testID={testIds.enablePermissions.cards}>
-          {permissions.map((item) => (
-            <PermissionCard key={item.id} {...item} onGrant={() => handleGrant(item.id)} />
-          ))}
-        </View>
-      </ScrollView>
+        accessibilityRole="list"
+        accessibilityLabel="Required permissions"
+        {...APP_LIST_FLAT_LIST_PROPS}
+      />
 
       <View style={permissionsStyles.footer}>
         <PrivacyNotice />

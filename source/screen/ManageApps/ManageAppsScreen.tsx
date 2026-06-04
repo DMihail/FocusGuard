@@ -1,7 +1,6 @@
 /** @format */
 
-import React, { useCallback } from 'react';
-import { ScrollView } from 'react-native';
+import React, { useCallback, useMemo } from 'react';
 
 import { useFocusEffect } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -13,7 +12,8 @@ import { testIds } from '@/testing/testIds';
 import { useManageApps } from './hooks/useManageApps';
 import { manageAppsStyles } from './styles';
 
-import { AppSearchField, CategoryFilters, ManageAppsHeader, ManageAppsList, SelectedAppsSection } from './components';
+import { ManageAppsHeader, ManageAppsList } from './components';
+import { ManageAppsListHeader } from './components/ManageAppsListHeader';
 
 export const ManageAppsScreen = () => {
   const goBack = useGoBack();
@@ -40,6 +40,31 @@ export const ManageAppsScreen = () => {
     }, [refreshInstalledApps]),
   );
 
+  const listHeader = useMemo(
+    () => (
+      <ManageAppsListHeader
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        isSearchActive={isSearchActive}
+        categoryFilters={categoryFilters}
+        activeCategoryId={activeCategory.id}
+        onCategoryChange={setActiveCategory}
+        selectedApps={selectedApps}
+        onSelectedAppPress={openConfigureLimits}
+      />
+    ),
+    [
+      searchQuery,
+      setSearchQuery,
+      isSearchActive,
+      categoryFilters,
+      activeCategory.id,
+      setActiveCategory,
+      selectedApps,
+      openConfigureLimits,
+    ],
+  );
+
   return (
     <SafeAreaView
       style={manageAppsStyles.screen}
@@ -48,26 +73,14 @@ export const ManageAppsScreen = () => {
       accessibilityLabel="Manage apps screen"
     >
       <ManageAppsHeader selectedCount={selectedCount} onBack={goBack} />
-      <ScrollView
-        testID={testIds.manageApps.scroll}
-        contentContainerStyle={manageAppsStyles.scrollContent}
-        showsVerticalScrollIndicator={false}
-        keyboardShouldPersistTaps="handled"
-      >
-        <AppSearchField value={searchQuery} onChangeText={setSearchQuery} />
-
-        {!isSearchActive ? (
-          <CategoryFilters
-            filters={categoryFilters}
-            activeCategoryId={activeCategory.id}
-            onCategoryChange={setActiveCategory}
-          />
-        ) : null}
-
-        <SelectedAppsSection apps={selectedApps} onAppPress={openConfigureLimits} />
-
-        <ManageAppsList apps={apps} isFiltering={isFiltering} isSelected={isSelected} onToggle={toggleAppSelection} />
-      </ScrollView>
+      <ManageAppsList
+        apps={apps}
+        isFiltering={isFiltering}
+        selectedCount={selectedCount}
+        isSelected={isSelected}
+        onToggle={toggleAppSelection}
+        ListHeaderComponent={listHeader}
+      />
     </SafeAreaView>
   );
 };

@@ -40,9 +40,8 @@ export const dashboardStyles = StyleSheet.create({
   sectionTitle: textPresets.sectionTitle,
   viewAllButton: layoutPresets.linkButton,
   viewAllText: textPresets.accentButton,
-  appsList: {
-    gap: spacing.md,
-    backgroundColor: colors.surfaceDark,
+  appsListSeparator: {
+    height: spacing.md,
   },
   appItem: {
     ...layoutPresets.card,
