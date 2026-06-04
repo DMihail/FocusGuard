@@ -4,22 +4,23 @@ import type { LinkingOptions } from '@react-navigation/native';
 
 import type { RootStackParamList } from './types';
 
-/** Custom URL scheme for in-app and notification deep links. */
-export const DEEP_LINK_SCHEME = 'focusguard';
+export const DEEP_LINK_PREFIX = 'focusguard://';
 
-export const DEEP_LINK_PREFIX = `${DEEP_LINK_SCHEME}://`;
-
-export const linking: LinkingOptions<RootStackParamList> = {
+export const rootLinking: LinkingOptions<RootStackParamList> = {
   prefixes: [DEEP_LINK_PREFIX],
   config: {
     screens: {
-      Onboarding: 'onboarding',
-      EnablePermissions: 'permissions',
       Dashboard: 'dashboard',
-      ManageApps: 'manage-apps',
-      ConfigureLimits: 'configure/:packageName',
-      Settings: 'settings',
-      LegalDocument: 'legal/:documentId',
+      TrackedApps: 'tracked-apps',
+      ConfigureLimits: {
+        path: 'configure/:packageName',
+        parse: {
+          packageName: (value: string) => decodeURIComponent(value),
+        },
+        stringify: {
+          packageName: (value: string) => encodeURIComponent(value),
+        },
+      },
     },
   },
 };

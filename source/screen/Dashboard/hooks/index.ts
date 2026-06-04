@@ -1,3 +1,3 @@
 /** @format */
 
-export { useDistractingAppsSection, type UseDistractingAppsSectionResult } from './useDistractingAppsSection';
+export { useDashboard } from './useDashboard';

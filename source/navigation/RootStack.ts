@@ -10,6 +10,7 @@ import {
   ManageAppsScreen,
   OnboardingScreen,
   SettingsScreen,
+  TrackedAppsScreen,
 } from '@/screen';
 
 import type { RootStackParamList } from './types';
@@ -29,6 +30,7 @@ const rootScreens = {
   },
   Dashboard: {
     screen: DashboardScreen,
+    linking: 'dashboard',
     options: {
       headerShown: false,
     },
@@ -39,8 +41,16 @@ const rootScreens = {
       headerShown: false,
     },
   },
+  TrackedApps: {
+    screen: TrackedAppsScreen,
+    linking: 'tracked-apps',
+    options: {
+      headerShown: false,
+    },
+  },
   ConfigureLimits: {
     screen: ConfigureLimitsScreen,
+    linking: 'configure/:packageName',
     options: {
       headerShown: false,
     },

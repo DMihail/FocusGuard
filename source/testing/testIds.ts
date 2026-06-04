@@ -32,11 +32,25 @@ export const testIds = {
     header: 'dashboard-header',
     greeting: 'dashboard-greeting',
     settingsButton: 'dashboard-settings-button',
+    focusOverview: 'dashboard-focus-overview',
+    dailyStats: 'dashboard-daily-stats',
+    quickActions: 'dashboard-quick-actions',
+    focusModeButton: 'dashboard-focus-mode-button',
+    manageAppsButton: 'dashboard-manage-apps-button',
     distractingAppsSection: 'dashboard-distracting-apps-section',
     viewAllAppsButton: 'dashboard-view-all-apps-button',
     appsList: 'dashboard-apps-list',
     appsEmpty: 'dashboard-apps-empty',
     appRow: (packageName: string) => `dashboard-app-row-${toSegment(packageName)}`,
+  },
+  trackedApps: {
+    screen: 'tracked-apps-screen',
+    scroll: 'tracked-apps-scroll',
+    header: 'tracked-apps-header',
+    backButton: 'tracked-apps-back-button',
+    appCount: 'tracked-apps-count',
+    list: 'tracked-apps-list',
+    empty: 'tracked-apps-empty',
   },
   legal: {
     dataPrivacy: {
@@ -78,6 +92,7 @@ export const testIds = {
     strictModeCard: 'configure-limits-strict-mode-card',
     strictModeToggle: 'configure-limits-strict-mode-toggle',
     saveButton: 'configure-limits-save-button',
+    dailyUsageCard: (packageName: string) => `configure-limits-daily-usage-${toSegment(packageName)}`,
   },
   manageApps: {
     screen: 'manage-apps-screen',

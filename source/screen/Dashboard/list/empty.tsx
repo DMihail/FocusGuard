@@ -1,14 +1,23 @@
 /** @format */
 
-import React from 'react';
+import React, { memo } from 'react';
 import { Text } from 'react-native';
 
 import { testIds } from '@/testing/testIds';
 
 import { dashboardStyles } from '../styles';
 
-export const DistractingAppsListEmpty = () => (
-  <Text style={dashboardStyles.emptyText} testID={testIds.dashboard.appsEmpty}>
-    No apps selected yet
-  </Text>
-);
+function DistractingAppsListEmptyView() {
+  return (
+    <Text
+      style={dashboardStyles.emptyText}
+      testID={testIds.dashboard.appsEmpty}
+      accessibilityRole="text"
+      accessibilityLiveRegion="polite"
+    >
+      No apps selected yet
+    </Text>
+  );
+}
+
+export const DistractingAppsListEmpty = memo(DistractingAppsListEmptyView);

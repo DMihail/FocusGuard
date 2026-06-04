@@ -32,6 +32,8 @@ export type UseConfigureLimitsResult = {
   app: ManageApp | undefined;
   draft: AppLimits;
   hardBlockMin: number;
+  usedMsToday: number;
+  limitMsToday: number;
   setWarningMinutes: (minutes: number) => void;
   setHardBlockMinutes: (minutes: number) => void;
   setStrictMode: (strict: boolean) => void;

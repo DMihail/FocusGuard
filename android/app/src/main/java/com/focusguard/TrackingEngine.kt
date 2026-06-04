@@ -6,11 +6,14 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import androidx.core.app.NotificationCompat
-import com.focusguard.monitor.NotificationPermissions
-import com.focusguard.navigation.NotificationNavigation
+import com.focusguard.monitor.MonitorPermissions
+import com.focusguard.navigation.DeepLinks
 import com.focusguard.overlay.BlockOverlayManager
+import com.focusguard.overlay.DailyWarningStore
 import com.focusguard.overlay.TrackingSnoozeStore
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -21,20 +24,21 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 /**
- * Continuously monitors the foreground app and reacts when a tracked (distracting) app is opened.
- *
- * Per-app limits are loaded from [TrackingConfigRepository]:
- * - [TrackingConfigRepository.AppLimitConfig.warningThresholdMs] → push notification
- * - [TrackingConfigRepository.AppLimitConfig.hardBlockThresholdMs] → block overlay
+ * Monitors tracked apps using **daily** usage from [DailyUsageRepository] and
+ * [LiveUsageEstimator] for the active session.
  */
 class TrackingEngine(
-    private val context: Context
+    private val context: Context,
 ) {
 
     private val detector = ForegroundAppDetector(context)
     private val configRepository = TrackingConfigRepository()
+    private val usageRepository = DailyUsageRepository(context)
+    private val liveUsageEstimator = LiveUsageEstimator(usageRepository)
+    private val settingsRepository = SettingsRepository()
     private val notificationManager =
         context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+    private val mainHandler = Handler(Looper.getMainLooper())
 
     private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
     private var monitoringJob: Job? = null
@@ -42,10 +46,7 @@ class TrackingEngine(
     private var stableForeground: String? = null
     private var foregroundCandidate: String? = null
     private var foregroundCandidateHits = 0
-
-    private var trackedSessionPackage: String? = null
-    private var trackedSessionStart = 0L
-    private var warningShown = false
+    private var foregroundMisses = 0
     private var blockShown = false
 
     /** Starts the polling loop. No-op if already running. */
@@ -62,112 +63,136 @@ class TrackingEngine(
         }
     }
 
-    /** Cancels the polling coroutine and resets monitoring state. */
+    /** Cancels the polling coroutine and dismisses any active block overlay. */
     fun stop() {
         monitoringJob?.cancel()
         monitoringJob = null
-        clearTrackedSession(dismissOverlay = true)
         stableForeground = null
         foregroundCandidate = null
         foregroundCandidateHits = 0
-        BlockOverlayManager.dismiss(context)
+        foregroundMisses = 0
+        blockShown = false
+        liveUsageEstimator.clearSession()
+        runOnMainThread { BlockOverlayManager.dismiss(context) }
     }
 
     private fun monitorForegroundApp() {
-        val foregroundApp = resolveStableForeground(detector.getForegroundApp()) ?: return
+        val previousStable = stableForeground
+        val foregroundApp = resolveStableForeground(detector.getForegroundApp())
+
+        if (foregroundApp == null) {
+            if (blockShown && stableForeground != null && isTrackedApp(stableForeground!!)) {
+                evaluateTrackedApp(stableForeground!!)
+                return
+            }
+
+            if (blockShown) {
+                runOnMainThread {
+                    BlockOverlayManager.dismiss(context)
+                    blockShown = false
+                }
+            }
+            return
+        }
+
+        val enteredNewForeground = foregroundApp != previousStable
 
         if (!isTrackedApp(foregroundApp)) {
-            clearTrackedSession(dismissOverlay = true)
+            liveUsageEstimator.clearSession()
+
+            if (blockShown) {
+                runOnMainThread {
+                    BlockOverlayManager.dismiss(context)
+                    blockShown = false
+                }
+            }
             return
         }
 
-        if (trackedSessionPackage != foregroundApp) {
-            startTrackedSession(foregroundApp)
-        }
-
-        val limits = configRepository.getLimitConfig(foregroundApp)
-        val elapsed = System.currentTimeMillis() - trackedSessionStart
-
-        if (TrackingSnoozeStore.isSnoozed(foregroundApp)) {
+        if (enteredNewForeground) {
             blockShown = false
+            liveUsageEstimator.onTrackedAppForeground(foregroundApp)
+        }
+
+        evaluateTrackedApp(foregroundApp)
+    }
+
+    private fun evaluateTrackedApp(packageName: String) {
+        if (TrackingSnoozeStore.isSnoozed(packageName)) {
+            if (blockShown) {
+                runOnMainThread {
+                    BlockOverlayManager.dismiss(context)
+                    blockShown = false
+                }
+            }
             return
         }
 
-        if (!blockShown && elapsed >= limits.hardBlockThresholdMs) {
-            logDebug(
-                "Hard block for $foregroundApp after ${elapsed / 1000}s " +
-                    "(limit ${limits.hardBlockThresholdMs / 1000}s)",
-            )
-            showBlockOverlay(foregroundApp, limits)
+        val limits = configRepository.getLimitConfig(packageName)
+        val usedTodayMs = liveUsageEstimator.getEffectiveUsageMs(packageName)
+
+        if (usedTodayMs >= limits.hardBlockThresholdMs) {
+            if (!blockShown) {
+                logDebug(
+                    "Daily block for $packageName (${usedTodayMs / 60_000}m / ${limits.hardBlockThresholdMs / 60_000}m)",
+                )
+                runOnMainThread { showBlockOverlay(packageName, limits) }
+            }
             blockShown = true
             return
         }
 
-        if (blockShown || warningShown) return
+        if (blockShown) {
+            runOnMainThread {
+                BlockOverlayManager.dismiss(context)
+                blockShown = false
+            }
+        }
 
-        if (elapsed >= limits.warningThresholdMs) {
-            logDebug(
-                "Warning for $foregroundApp after ${elapsed / 1000}s " +
-                    "(limit ${limits.warningThresholdMs / 1000}s)",
-            )
-            showWarningNotification(foregroundApp)
-            warningShown = true
+        if (
+            usedTodayMs >= limits.warningThresholdMs &&
+                !DailyWarningStore.wasWarningShownToday(packageName)
+        ) {
+            logDebug("Daily warning for $packageName (${usedTodayMs / 60_000}m)")
+            showWarningNotification(packageName)
+            DailyWarningStore.markWarningShownToday(packageName)
         }
     }
 
-    /**
-     * Usage stats often flicker (launcher/system UI) for a single poll. Require several
-     * consecutive identical readings before switching foreground, but keep the last stable
-     * value when a poll returns null.
-     */
     private fun resolveStableForeground(raw: String?): String? {
-        if (raw != null) {
-            if (raw == foregroundCandidate) {
-                foregroundCandidateHits++
-            } else {
-                foregroundCandidate = raw
-                foregroundCandidateHits = 1
+        if (raw == null) {
+            foregroundMisses++
+            if (foregroundMisses >= FOREGROUND_MISS_POLLS) {
+                stableForeground = null
+                foregroundCandidate = null
+                foregroundCandidateHits = 0
             }
+            return stableForeground
+        }
 
-            if (foregroundCandidateHits >= FOREGROUND_STABLE_POLLS) {
-                stableForeground = raw
-            }
+        foregroundMisses = 0
+
+        if (raw == foregroundCandidate) {
+            foregroundCandidateHits++
+        } else {
+            foregroundCandidate = raw
+            foregroundCandidateHits = 1
+        }
+
+        if (foregroundCandidateHits >= FOREGROUND_STABLE_POLLS) {
+            stableForeground = raw
         }
 
         return stableForeground
     }
 
-    private fun startTrackedSession(packageName: String) {
-        if (blockShown) {
-            BlockOverlayManager.dismiss(context)
-        }
-
-        trackedSessionPackage = packageName
-        trackedSessionStart = System.currentTimeMillis()
-        warningShown = false
-        blockShown = false
-
-        val limits = configRepository.getLimitConfig(packageName)
-        logDebug(
-            "Tracked session started for $packageName " +
-                "(warning ${limits.warningThresholdMs / 60_000}m, block ${limits.hardBlockThresholdMs / 60_000}m)",
-        )
-    }
-
-    private fun clearTrackedSession(dismissOverlay: Boolean) {
-        if (dismissOverlay && blockShown) {
-            BlockOverlayManager.dismiss(context)
-        }
-
-        trackedSessionPackage = null
-        warningShown = false
-        blockShown = false
-    }
-
     private fun isTrackedApp(packageName: String): Boolean =
         configRepository.getTrackedApps().contains(packageName)
 
-    private fun showBlockOverlay(packageName: String, limits: TrackingConfigRepository.AppLimitConfig) {
+    private fun showBlockOverlay(
+        packageName: String,
+        limits: TrackingConfigRepository.AppLimitConfig,
+    ) {
         context.startActivity(
             Intent(Intent.ACTION_MAIN).apply {
                 addCategory(Intent.CATEGORY_HOME)
@@ -186,36 +211,55 @@ class TrackingEngine(
     private fun ensureWarningChannel() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
 
-        val channel = NotificationChannel(
-            WARNING_CHANNEL_ID,
-            context.getString(R.string.warning_notification_channel_name),
-            NotificationManager.IMPORTANCE_HIGH,
-        ).apply {
-            description = context.getString(R.string.warning_notification_channel_description)
-        }
+        val channel =
+            NotificationChannel(
+                WARNING_CHANNEL_ID,
+                context.getString(R.string.warning_notification_channel_name),
+                NotificationManager.IMPORTANCE_HIGH,
+            ).apply {
+                description = context.getString(R.string.warning_notification_channel_description)
+                enableVibration(true)
+            }
 
         notificationManager.createNotificationChannel(channel)
     }
 
     private fun showWarningNotification(packageName: String) {
-        if (!NotificationPermissions.canPostNotifications(context)) {
-            logDebug("Skipping warning notification — notifications disabled or not permitted")
+        if (!settingsRepository.areNotificationsEnabled()) {
+            return
+        }
+
+        if (!MonitorPermissions.canPostNotifications(context)) {
+            logDebug("Skipping warning notification — POST_NOTIFICATIONS not granted")
             return
         }
 
         val appName = getAppLabel(packageName)
+        val notificationId = warningNotificationId(packageName)
+        val contentIntent =
+            DeepLinks.activityPendingIntent(
+                context,
+                DeepLinks.configureIntent(context, packageName),
+                notificationId,
+            )
 
-        val notification = NotificationCompat.Builder(context, WARNING_CHANNEL_ID)
-            .setSmallIcon(R.mipmap.ic_launcher)
-            .setContentTitle(context.getString(R.string.warning_notification_title))
-            .setContentText(context.getString(R.string.warning_notification_text, appName))
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
-            .setAutoCancel(true)
-            .setContentIntent(NotificationNavigation.configureLimitsTapIntent(context, packageName))
-            .build()
+        val notification =
+            NotificationCompat.Builder(context, WARNING_CHANNEL_ID)
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .setContentTitle(context.getString(R.string.warning_notification_title))
+                .setContentText(context.getString(R.string.warning_notification_text, appName))
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setCategory(NotificationCompat.CATEGORY_REMINDER)
+                .setAutoCancel(true)
+                .setContentIntent(contentIntent)
+                .setDefaults(NotificationCompat.DEFAULT_ALL)
+                .build()
 
-        notificationManager.notify(WARNING_NOTIFICATION_ID, notification)
+        notificationManager.notify(notificationId, notification)
     }
+
+    private fun warningNotificationId(packageName: String): Int =
+        WARNING_NOTIFICATION_ID_BASE + (packageName.hashCode() and 0x7FFF)
 
     private fun getAppLabel(packageName: String): String =
         try {
@@ -224,6 +268,14 @@ class TrackingEngine(
         } catch (_: PackageManager.NameNotFoundException) {
             packageName
         }
+
+    private fun runOnMainThread(action: () -> Unit) {
+        if (Looper.myLooper() == Looper.getMainLooper()) {
+            action()
+        } else {
+            mainHandler.post(action)
+        }
+    }
 
     private fun logDebug(message: String) {
         if (BuildConfig.DEBUG) {
@@ -234,8 +286,9 @@ class TrackingEngine(
     companion object {
         private const val TAG = "TrackingEngine"
         private const val POLL_INTERVAL_MS = 1000L
-        private const val FOREGROUND_STABLE_POLLS = 3
+        private const val FOREGROUND_STABLE_POLLS = 1
+        private const val FOREGROUND_MISS_POLLS = 3
         private const val WARNING_CHANNEL_ID = "focusguard_warnings"
-        private const val WARNING_NOTIFICATION_ID = 2001
+        private const val WARNING_NOTIFICATION_ID_BASE = 2001
     }
 }

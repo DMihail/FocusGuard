@@ -19,7 +19,10 @@ export const manageAppsStyles = StyleSheet.create({
   listFlex: {
     flex: 1,
   },
-  scrollContent: layoutPresets.scrollContent(10),
+  scrollContent: {
+    ...layoutPresets.scrollContent(spacing.md),
+    paddingBottom: spacing.xxxl,
+  },
   header: {
     ...layoutPresets.rowCenter,
     gap: spacing.lg,
@@ -45,6 +48,12 @@ export const manageAppsStyles = StyleSheet.create({
     lineHeight: lineHeight.sm,
     color: colors.textMuted,
   },
+  searchFieldContainer: {
+    paddingHorizontal: spacing.xl,
+    paddingBottom: spacing.lg,
+    flexGrow: 0,
+    flexShrink: 0,
+  },
   searchField: {
     ...layoutPresets.card,
     ...layoutPresets.rowCenter,
@@ -52,7 +61,6 @@ export const manageAppsStyles = StyleSheet.create({
     minHeight: 48,
     paddingHorizontal: spacing.lg,
     borderRadius: borderRadius.lg,
-    marginBottom: spacing.lg,
   },
   searchInput: {
     flex: 1,

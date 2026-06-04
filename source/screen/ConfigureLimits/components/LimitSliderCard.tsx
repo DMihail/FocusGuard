@@ -22,7 +22,7 @@ export const LimitSliderCard = ({
   testID,
 }: LimitSliderCardProps) => {
   const progressMin = progressMinMinutes ?? minMinutes;
-  const { progressPercent, inactivePercent, showInactiveZone } = getSliderLayout(
+  const { progress, progressPercent, inactivePercent, showInactiveZone } = getSliderLayout(
     valueMinutes,
     minMinutes,
     progressMin,
@@ -44,11 +44,15 @@ export const LimitSliderCard = ({
   return (
     <View style={styles.limitCard} testID={testID}>
       <View style={styles.limitCardHeader}>
-        <View style={styles.limitCardTitleRow}>
-          <Text style={styles.limitCardTitle}>{title}</Text>
-          <Text style={styles.limitCardDescription}>{description}</Text>
+        <View style={styles.limitCardHeaderTop}>
+          <Text style={styles.limitCardTitle} numberOfLines={1}>
+            {title}
+          </Text>
+          <Text style={[styles.limitCardValue, { color: accentColor }]} numberOfLines={1}>
+            {formatDurationMinutes(valueMinutes)}
+          </Text>
         </View>
-        <Text style={[styles.limitCardValue, { color: accentColor }]}>{formatDurationMinutes(valueMinutes)}</Text>
+        <Text style={styles.limitCardDescription}>{description}</Text>
       </View>
 
       <View style={styles.sliderRow}>
@@ -64,6 +68,7 @@ export const LimitSliderCard = ({
         <View
           ref={trackRef}
           style={styles.sliderTrackTouch}
+          collapsable={false}
           onLayout={syncTrackMetrics}
           accessibilityRole="adjustable"
           accessibilityLabel={title}
@@ -92,10 +97,11 @@ export const LimitSliderCard = ({
               style={[styles.sliderFill, { width: progressPercent, backgroundColor: accentColor }]}
             />
           </View>
-          <View
-            pointerEvents="none"
-            style={[styles.sliderThumb, { left: progressPercent, backgroundColor: accentColor }]}
-          />
+          <View pointerEvents="none" style={styles.sliderThumbRail}>
+            <View style={[styles.sliderThumbSpacer, { flex: progress }]} />
+            <View style={[styles.sliderThumb, { backgroundColor: accentColor }]} />
+            <View style={{ flex: 1 - progress }} />
+          </View>
         </View>
 
         <Pressable

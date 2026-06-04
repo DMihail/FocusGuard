@@ -32,6 +32,8 @@
         android:exported="false"
         android:excludeFromRecents="true"
         android:launchMode="singleTask"
+        android:showWhenLocked="true"
+        android:turnScreenOn="true"
         android:theme="@style/AppTheme" />
 
       <activity
@@ -49,7 +51,19 @@
             <action android:name="android.intent.action.VIEW" />
             <category android:name="android.intent.category.DEFAULT" />
             <category android:name="android.intent.category.BROWSABLE" />
-            <data android:scheme="focusguard" />
+            <data android:scheme="focusguard" android:host="dashboard" />
+        </intent-filter>
+        <intent-filter>
+            <action android:name="android.intent.action.VIEW" />
+            <category android:name="android.intent.category.DEFAULT" />
+            <category android:name="android.intent.category.BROWSABLE" />
+            <data android:scheme="focusguard" android:host="tracked-apps" />
+        </intent-filter>
+        <intent-filter>
+            <action android:name="android.intent.action.VIEW" />
+            <category android:name="android.intent.category.DEFAULT" />
+            <category android:name="android.intent.category.BROWSABLE" />
+            <data android:scheme="focusguard" android:host="configure" android:pathPrefix="/" />
         </intent-filter>
       </activity>
 
@@ -69,9 +83,5 @@
           <action android:name="android.intent.action.BOOT_COMPLETED" />
         </intent-filter>
       </receiver>
-
-      <receiver
-        android:name=".receiver.MonitorNotificationDismissReceiver"
-        android:exported="false" />
     </application>
 </manifest>

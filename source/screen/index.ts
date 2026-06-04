@@ -7,3 +7,4 @@ export * from './Legal';
 export * from './ManageApps';
 export * from './Onboarding';
 export * from './Settings';
+export * from './TrackedApps';

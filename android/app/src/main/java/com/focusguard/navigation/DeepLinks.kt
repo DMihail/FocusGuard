@@ -1,27 +1,66 @@
 package com.focusguard.navigation
 
+import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import com.focusguard.MainActivity
+import android.os.Build
 
-/** Deep link URLs shared with the React Navigation `linking` config. */
+/** Builds `focusguard://` VIEW intents consumed by React Navigation linking on JS. */
 object DeepLinks {
 
     const val SCHEME = "focusguard"
 
-    fun dashboardUri(): Uri = Uri.parse("$SCHEME://dashboard")
+    fun dashboardUri(): Uri =
+        Uri.Builder()
+            .scheme(SCHEME)
+            .authority("dashboard")
+            .build()
 
-    fun configureLimitsUri(packageName: String): Uri =
-        Uri.parse("$SCHEME://configure/${Uri.encode(packageName)}")
+    fun configureUri(packageName: String): Uri =
+        Uri.Builder()
+            .scheme(SCHEME)
+            .authority("configure")
+            .appendPath(packageName)
+            .build()
 
-    fun dashboardTapIntent(context: Context): Intent = viewIntent(context, dashboardUri())
+    fun trackedAppsUri(): Uri =
+        Uri.Builder()
+            .scheme(SCHEME)
+            .authority("tracked-apps")
+            .build()
 
-    fun configureLimitsTapIntent(context: Context, packageName: String): Intent =
-        viewIntent(context, configureLimitsUri(packageName))
-
-    private fun viewIntent(context: Context, uri: Uri): Intent =
-        Intent(Intent.ACTION_VIEW, uri, context, MainActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+    fun dashboardIntent(context: Context): Intent =
+        Intent(Intent.ACTION_VIEW, dashboardUri()).apply {
+            setPackage(context.packageName)
+            addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
         }
+
+    fun configureIntent(context: Context, packageName: String): Intent =
+        Intent(Intent.ACTION_VIEW, configureUri(packageName)).apply {
+            setPackage(context.packageName)
+            addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
+        }
+
+    fun trackedAppsIntent(context: Context): Intent =
+        Intent(Intent.ACTION_VIEW, trackedAppsUri()).apply {
+            setPackage(context.packageName)
+            addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
+        }
+
+    fun activityPendingIntent(context: Context, intent: Intent, requestCode: Int): PendingIntent {
+        val immutableFlag =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                PendingIntent.FLAG_IMMUTABLE
+            } else {
+                0
+            }
+
+        return PendingIntent.getActivity(
+            context,
+            requestCode,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or immutableFlag,
+        )
+    }
 }

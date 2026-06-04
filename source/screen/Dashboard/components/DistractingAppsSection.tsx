@@ -1,34 +1,35 @@
 /** @format */
 
-import React, { useLayoutEffect, useMemo, useRef } from 'react';
-import { Button, FlatList, Text, View } from 'react-native';
+import React, { memo, useLayoutEffect, useMemo, useRef } from 'react';
+import { Pressable, Text, View } from 'react-native';
 
-import { Link } from '@react-navigation/native';
-
-import { APP_LIST_FLAT_LIST_PROPS } from '@/list';
-import { useDistractingAppsSection } from '@/screen/Dashboard/hooks';
-import { manageAppKeyExtractor } from '@/screen/ManageApps/list';
 import { testIds } from '@/testing/testIds';
-import { colors } from '@/theme';
 import { configureSectionLayoutAnimation } from '@/utils/layoutAnimation';
+import type { DashboardAppRow } from '@/utils/usage/dashboardStats';
 
-import { createDistractingAppRenderItem, DistractingAppsListEmpty } from '../list';
+import { DistractingAppsListEmpty } from '../list';
 import { dashboardStyles } from '../styles';
 
-export const DistractingAppsSection = () => {
-  const { selectedApps, isMonitoring, monitoringButtonTitle, toggleMonitoring, openConfigureLimits } =
-    useDistractingAppsSection();
+import { AppUsageRow } from '@/components';
 
-  const previousAppsCount = useRef(selectedApps.length);
+const MAX_VISIBLE_APPS = 4;
+
+type DistractingAppsSectionProps = {
+  appRows: DashboardAppRow[];
+  onConfigureLimits: (packageName: string) => void;
+  onViewAllPress: () => void;
+};
+
+function DistractingAppsSectionView({ appRows, onConfigureLimits, onViewAllPress }: DistractingAppsSectionProps) {
+  const visibleApps = useMemo(() => appRows.slice(0, MAX_VISIBLE_APPS), [appRows]);
+  const previousAppsCount = useRef(visibleApps.length);
 
   useLayoutEffect(() => {
-    if (previousAppsCount.current !== selectedApps.length) {
+    if (previousAppsCount.current !== visibleApps.length) {
       configureSectionLayoutAnimation();
-      previousAppsCount.current = selectedApps.length;
+      previousAppsCount.current = visibleApps.length;
     }
-  }, [selectedApps.length]);
-
-  const renderItem = useMemo(() => createDistractingAppRenderItem(openConfigureLimits), [openConfigureLimits]);
+  }, [visibleApps.length]);
 
   return (
     <View
@@ -38,42 +39,47 @@ export const DistractingAppsSection = () => {
       accessibilityLabel="Top distracting apps"
     >
       <View style={dashboardStyles.sectionHeader}>
-        <Text style={dashboardStyles.sectionTitle} accessibilityRole="header">
+        <Text style={dashboardStyles.sectionTitle} accessibilityRole="header" numberOfLines={1}>
           Top Distracting Apps
         </Text>
-        <Link
-          screen={'ManageApps'}
-          testID={testIds.dashboard.viewAllAppsButton}
-          accessibilityRole="button"
-          accessibilityLabel="View all apps"
-          style={dashboardStyles.viewAllButton}
-        >
-          <Text style={dashboardStyles.viewAllText}>View All</Text>
-        </Link>
+        {appRows.length > MAX_VISIBLE_APPS ? (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="View all tracked apps"
+            onPress={onViewAllPress}
+            style={dashboardStyles.viewAllButton}
+            testID={testIds.dashboard.viewAllAppsButton}
+          >
+            <Text style={dashboardStyles.viewAllText}>View All</Text>
+          </Pressable>
+        ) : null}
       </View>
 
-      <FlatList
-        data={selectedApps}
-        renderItem={renderItem}
-        keyExtractor={manageAppKeyExtractor}
-        scrollEnabled={false}
-        nestedScrollEnabled
-        ListEmptyComponent={DistractingAppsListEmpty}
+      <View
+        style={dashboardStyles.appsList}
         testID={testIds.dashboard.appsList}
         accessibilityRole="list"
         accessibilityLabel="Selected distracting apps"
-        extraData={selectedApps.length}
-        {...APP_LIST_FLAT_LIST_PROPS}
-      />
-
-      {!!selectedApps.length && (
-        <Button
-          title={monitoringButtonTitle}
-          color={isMonitoring ? colors.danger : undefined}
-          onPress={toggleMonitoring}
-          accessibilityLabel={monitoringButtonTitle}
-        />
-      )}
+      >
+        {visibleApps.length === 0 ? (
+          <DistractingAppsListEmpty />
+        ) : (
+          visibleApps.map((row) => <AppUsageRow key={row.packageName} {...row} onPress={onConfigureLimits} />)
+        )}
+      </View>
     </View>
   );
-};
+}
+
+export const DistractingAppsSection = memo(DistractingAppsSectionView, areDistractingAppsSectionPropsEqual);
+
+function areDistractingAppsSectionPropsEqual(
+  previous: DistractingAppsSectionProps,
+  next: DistractingAppsSectionProps,
+): boolean {
+  return (
+    previous.onConfigureLimits === next.onConfigureLimits &&
+    previous.onViewAllPress === next.onViewAllPress &&
+    previous.appRows === next.appRows
+  );
+}

@@ -7,13 +7,13 @@ import { borderRadius, colors, fontSize, layoutPresets, spacing, textPresets, ty
 export const configureLimitsStyles = StyleSheet.create({
   screen: layoutPresets.screen,
   scrollContent: {
-    ...layoutPresets.scrollContent(spacing.xl),
+    ...layoutPresets.scrollContent(spacing.lg),
     paddingTop: spacing.sm,
     paddingBottom: spacing.xxxl,
   },
   header: {
     ...layoutPresets.rowCenter,
-    gap: spacing.lg,
+    gap: spacing.md,
     paddingBottom: spacing.lg,
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: colors.divider,
@@ -24,9 +24,11 @@ export const configureLimitsStyles = StyleSheet.create({
     borderRadius: borderRadius.pill,
     alignItems: 'center',
     justifyContent: 'center',
+    flexShrink: 0,
   },
   headerText: {
     flex: 1,
+    minWidth: 0,
     gap: spacing.xs,
   },
   title: {
@@ -54,6 +56,7 @@ export const configureLimitsStyles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
+    flexShrink: 0,
   },
   appIcon: {
     width: 48,
@@ -66,32 +69,69 @@ export const configureLimitsStyles = StyleSheet.create({
   appName: {
     ...textPresets.sectionTitle,
     flex: 1,
+    minWidth: 0,
+  },
+  dailyUsageCard: {
+    ...layoutPresets.cardLg,
+    padding: spacing.lg,
+    gap: spacing.sm,
+    marginTop: spacing.md,
+  },
+  dailyUsageTitle: {
+    ...typography.label,
+    color: colors.textSecondary,
+    letterSpacing: 0.5,
+  },
+  dailyUsageValue: {
+    ...typography.display,
+    fontSize: fontSize.xl,
+    lineHeight: 28,
+    color: colors.textPrimary,
+  },
+  dailyUsageHint: {
+    ...typography.caption,
+    color: colors.textMuted,
+  },
+  dailyUsageProgress: {
+    marginTop: spacing.sm,
+  },
+  dailyUsagePercent: {
+    ...typography.caption,
+    color: colors.textSecondary,
+    fontWeight: '500',
+  },
+  dailyUsagePercentOver: {
+    color: colors.overLimit,
   },
   cards: {
-    gap: spacing.lg,
+    gap: spacing.md,
     marginTop: spacing.lg,
   },
   limitCard: {
     ...layoutPresets.cardLg,
-    padding: spacing.xl,
+    padding: spacing.lg,
     gap: spacing.md,
   },
   limitCardHeader: {
-    ...layoutPresets.rowBetween,
-    alignItems: 'flex-start',
-  },
-  limitCardTitleRow: {
-    flex: 1,
     gap: spacing.xs,
-    paddingRight: spacing.md,
+  },
+  limitCardHeaderTop: {
+    ...layoutPresets.rowBetween,
+    alignItems: 'center',
+    gap: spacing.sm,
   },
   limitCardTitle: {
     ...textPresets.sectionTitle,
+    flex: 1,
+    minWidth: 0,
   },
   limitCardValue: {
-    ...typography.display,
-    fontSize: fontSize.xl,
+    ...typography.sectionTitle,
+    fontSize: fontSize.lg,
     lineHeight: 28,
+    flexShrink: 0,
+    minWidth: 56,
+    textAlign: 'right',
   },
   limitCardDescription: {
     ...typography.body,
@@ -101,8 +141,9 @@ export const configureLimitsStyles = StyleSheet.create({
   },
   sliderRow: {
     ...layoutPresets.rowCenter,
-    gap: spacing.md,
-    marginTop: spacing.sm,
+    gap: spacing.sm,
+    marginTop: spacing.xs,
+    minWidth: 0,
   },
   sliderButton: {
     width: 40,
@@ -113,6 +154,7 @@ export const configureLimitsStyles = StyleSheet.create({
     borderColor: colors.cardBorder,
     alignItems: 'center',
     justifyContent: 'center',
+    flexShrink: 0,
   },
   sliderButtonLabel: {
     ...typography.sectionTitle,
@@ -121,7 +163,8 @@ export const configureLimitsStyles = StyleSheet.create({
   },
   sliderTrackTouch: {
     flex: 1,
-    height: 48,
+    minWidth: 0,
+    height: 40,
     justifyContent: 'center',
   },
   sliderTrack: {
@@ -142,34 +185,48 @@ export const configureLimitsStyles = StyleSheet.create({
     height: '100%',
     borderRadius: borderRadius.pill,
   },
-  sliderThumb: {
+  sliderThumbRail: {
     position: 'absolute',
-    top: 14,
+    left: 0,
+    right: 0,
+    top: 10,
+    height: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  sliderThumbSpacer: {
+    minWidth: 0,
+  },
+  sliderThumb: {
     width: 20,
     height: 20,
-    marginLeft: -10,
     borderRadius: borderRadius.pill,
     borderWidth: 2,
     borderColor: colors.textPrimary,
+    flexShrink: 0,
   },
   sliderBounds: {
     ...layoutPresets.rowBetween,
     marginTop: spacing.xs,
+    gap: spacing.sm,
   },
   sliderBoundLabel: {
     ...typography.label,
     fontSize: fontSize.xs,
     color: colors.textDisabled,
+    flexShrink: 1,
   },
   strictCard: {
     ...layoutPresets.cardLg,
     ...layoutPresets.rowBetween,
-    padding: spacing.xl,
-    gap: spacing.lg,
+    alignItems: 'flex-start',
+    padding: spacing.lg,
+    gap: spacing.md,
     marginTop: spacing.md,
   },
   strictText: {
     flex: 1,
+    minWidth: 0,
     gap: spacing.xs,
   },
   strictTitle: {

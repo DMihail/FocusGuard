@@ -41,7 +41,7 @@ export interface Spec extends TurboModule {
   openNotificationsSettings(): void;
   /** Requests the user to disable battery optimizations (API 23+). */
   requestIgnoreBatteryOptimizationsPermission(): void;
-  /** @returns per-app foreground usage stats for the last 24 hours, sorted by time descending. */
+  /** @returns per-app foreground usage stats for the current local day, sorted by time descending. */
   getAppsUsageStats(): AppUsageStat[];
   /** @returns all launchable apps on the device (excluding this app). */
   getInstalledApplications(): InstallApp[];
@@ -105,7 +105,7 @@ export const requestIgnoreBatteryOptimizationsPermission = (): void => {
   usageStats?.requestIgnoreBatteryOptimizationsPermission();
 };
 
-/** @returns per-app foreground usage stats for the last 24 hours, sorted by time descending. */
+/** @returns per-app foreground usage stats for the current local day, sorted by time descending. */
 export const getAppsUsageStats = (): AppUsageStat[] => usageStats?.getAppsUsageStats() ?? [];
 
 /** @returns all launchable apps installed on the device (excluding this app). */

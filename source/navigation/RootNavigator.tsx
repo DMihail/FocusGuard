@@ -5,7 +5,7 @@ import React, { type RefObject } from 'react';
 import type { LinkingOptions, NavigationContainerRef } from '@react-navigation/native';
 import { createStaticNavigation } from '@react-navigation/native';
 
-import { linking } from './linking';
+import { rootLinking } from './linking';
 import { createRootStack } from './RootStack';
 import type { RootStackParamList } from './types';
 
@@ -35,5 +35,5 @@ type RootNavigatorProps = {
 export const RootNavigator = ({ initialRoute, navigationRef }: RootNavigatorProps) => {
   const Navigation = getStaticNavigation(initialRoute);
 
-  return <Navigation ref={navigationRef} linking={linking} />;
+  return <Navigation ref={navigationRef} linking={rootLinking} />;
 };

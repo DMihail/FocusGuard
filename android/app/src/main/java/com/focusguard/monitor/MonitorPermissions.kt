@@ -31,7 +31,9 @@ internal object MonitorPermissions {
    * permissions are granted **and** Usage Stats access is available.
    */
   fun canRunMonitorService(context: Context): Boolean {
-    return hasManifestMonitorPermissions(context) && UsageAccess.hasAccess(context)
+    return hasManifestMonitorPermissions(context) &&
+        UsageAccess.hasAccess(context) &&
+        OverlayAccess.hasAccess(context)
   }
 
   /** @return `true` if `RECEIVE_BOOT_COMPLETED` is granted. */
@@ -51,6 +53,18 @@ internal object MonitorPermissions {
     return ContextCompat.checkSelfPermission(
         context,
         Manifest.permission.FOREGROUND_SERVICE,
+    ) == PackageManager.PERMISSION_GRANTED
+  }
+
+  /** @return `true` if `POST_NOTIFICATIONS` is granted (always `true` below API 33). */
+  fun canPostNotifications(context: Context): Boolean {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+      return true
+    }
+
+    return ContextCompat.checkSelfPermission(
+        context,
+        Manifest.permission.POST_NOTIFICATIONS,
     ) == PackageManager.PERMISSION_GRANTED
   }
 

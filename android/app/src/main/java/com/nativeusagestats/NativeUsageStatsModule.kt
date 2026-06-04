@@ -25,12 +25,13 @@ import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.WritableArray
 import com.facebook.react.bridge.WritableMap
 import com.focusguard.monitor.MonitorPermissions
+import com.focusguard.permissions.NotificationPermission
 import com.focusguard.monitor.MonitorServiceHelper
-import com.focusguard.monitor.MonitoringPreferences
+import com.focusguard.monitor.OverlayAccess
 import com.focusguard.monitor.UsageAccess
-import com.focusguard.service.FocusGuardMonitorService
 import java.io.File
 import java.io.FileOutputStream
+import java.util.Calendar
 
 /**
  * Aggregated usage information for a single application.
@@ -52,7 +53,6 @@ data class AppUsageInfo(
 )
 
 private const val ICON_SIZE_PX = 96
-private const val USAGE_WINDOW_MS = 24 * 60 * 60 * 1000L
 // ApplicationInfo.CATEGORY_SHOPPING (API 31+)
 private const val APPLICATION_CATEGORY_SHOPPING = 9
 
@@ -138,7 +138,8 @@ class NativeUsageStatsModule(reactContext: ReactApplicationContext) :
   override fun checkForPermission(): Boolean = UsageAccess.hasAccess(reactApplicationContext)
 
   /** @return `true` if the app can draw overlays on top of other apps (API 23+). */
-  override fun checkForSystemAlertWindowPermission(): Boolean = hasSystemAlertWindowPermission()
+  override fun checkForSystemAlertWindowPermission(): Boolean =
+      OverlayAccess.hasAccess(reactApplicationContext)
 
   /** @return `true` if the `POST_NOTIFICATIONS` permission is granted (API 33+, always `true` below). */
   override fun checkForNotificationsPermission(): Boolean = hasNotificationsPermission()
@@ -158,12 +159,8 @@ class NativeUsageStatsModule(reactContext: ReactApplicationContext) :
 
   /** Stops [FocusGuardMonitorService], its [TrackingEngine] and removes the notification. */
   override fun stopMonitorService() {
-    MonitoringPreferences.setMonitoringEnabled(false)
     MonitorServiceHelper.stop(reactApplicationContext)
   }
-
-  /** @return `true` while [FocusGuardMonitorService] is alive in this process. */
-  override fun isMonitorServiceRunning(): Boolean = FocusGuardMonitorService.isRunning
 
   /** Opens the system Usage Stats settings screen so the user can grant access. */
   override fun requestUsageStatsPermission() {
@@ -175,7 +172,7 @@ class NativeUsageStatsModule(reactContext: ReactApplicationContext) :
    * No-op if already granted or running below API 23.
    */
   override fun requestSystemAlertWindowPermission() {
-    if (hasSystemAlertWindowPermission()) {
+    if (OverlayAccess.hasAccess(reactApplicationContext)) {
       return
     }
 
@@ -210,7 +207,7 @@ class NativeUsageStatsModule(reactContext: ReactApplicationContext) :
         ActivityCompat.requestPermissions(
             activity,
             arrayOf(Manifest.permission.POST_NOTIFICATIONS),
-            REQUEST_CODE_POST_NOTIFICATIONS,
+            NotificationPermission.REQUEST_CODE_POST_NOTIFICATIONS,
         )
         return
       }
@@ -305,7 +302,7 @@ class NativeUsageStatsModule(reactContext: ReactApplicationContext) :
   }
 
   /**
-   * Returns per-app foreground usage statistics for the last 24 hours,
+   * Returns per-app foreground usage statistics for the current local calendar day,
    * sorted by total foreground time in descending order.
    *
    * Each entry contains `packageName`, `appName`, `appImage`, `category`,
@@ -326,7 +323,7 @@ class NativeUsageStatsModule(reactContext: ReactApplicationContext) :
 
     val packageManager = context.packageManager
     val endTime = System.currentTimeMillis()
-    val startTime = endTime - USAGE_WINDOW_MS
+    val startTime = startOfLocalDayMs()
 
     val stats =
         usageStatsManager.queryUsageStats(
@@ -371,45 +368,6 @@ class NativeUsageStatsModule(reactContext: ReactApplicationContext) :
 
     return reactApplicationContext.checkSelfPermission(Manifest.permission.QUERY_ALL_PACKAGES) ==
         PackageManager.PERMISSION_GRANTED
-  }
-
-  /**
-   * @return `true` if the app can draw overlays.
-   * Checks both [Settings.canDrawOverlays] and the `SYSTEM_ALERT_WINDOW` app-op
-   * to handle edge cases where one check passes but the other doesn't.
-   */
-  private fun hasSystemAlertWindowPermission(): Boolean {
-    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-      return true
-    }
-
-    val context = reactApplicationContext
-    if (!Settings.canDrawOverlays(context)) {
-      return false
-    }
-
-    return isSystemAlertWindowOpAllowed(context)
-  }
-
-  /** Checks the `SYSTEM_ALERT_WINDOW` app-op via [AppOpsManager]. */
-  private fun isSystemAlertWindowOpAllowed(context: Context): Boolean {
-    val appOps = context.getSystemService(AppOpsManager::class.java) ?: return true
-    val mode =
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-          appOps.unsafeCheckOpNoThrow(
-              AppOpsManager.OPSTR_SYSTEM_ALERT_WINDOW,
-              Process.myUid(),
-              context.packageName,
-          )
-        } else {
-          @Suppress("DEPRECATION")
-          appOps.checkOpNoThrow(
-              AppOpsManager.OPSTR_SYSTEM_ALERT_WINDOW,
-              Process.myUid(),
-              context.packageName,
-          )
-        }
-    return mode == AppOpsManager.MODE_ALLOWED
   }
 
   /** @return `true` if `POST_NOTIFICATIONS` is granted (always `true` below API 33). */
@@ -506,8 +464,16 @@ class NativeUsageStatsModule(reactContext: ReactApplicationContext) :
     }
   }
 
+  private fun startOfLocalDayMs(): Long {
+    val calendar = Calendar.getInstance()
+    calendar.set(Calendar.HOUR_OF_DAY, 0)
+    calendar.set(Calendar.MINUTE, 0)
+    calendar.set(Calendar.SECOND, 0)
+    calendar.set(Calendar.MILLISECOND, 0)
+    return calendar.timeInMillis
+  }
+
   companion object {
     const val NAME = NativeUsageStatsSpec.NAME
-    private const val REQUEST_CODE_POST_NOTIFICATIONS = 1001
   }
 }

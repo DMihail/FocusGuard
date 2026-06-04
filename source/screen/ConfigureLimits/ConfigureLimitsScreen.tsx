@@ -15,13 +15,24 @@ import type { ConfigureLimitsScreenProps } from './types';
 
 import { AppLimitsAppBadge } from './components/AppLimitsAppBadge';
 import { ConfigureLimitsHeader } from './components/ConfigureLimitsHeader';
+import { DailyUsageCard } from './components/DailyUsageCard';
 import { LimitSliderCard } from './components/LimitSliderCard';
 import { StrictModeCard } from './components/StrictModeCard';
 
 export const ConfigureLimitsScreen = ({ route }: ConfigureLimitsScreenProps) => {
   const { packageName } = route.params;
-  const { app, draft, hardBlockMin, setWarningMinutes, setHardBlockMinutes, setStrictMode, goBack, handleSave } =
-    useConfigureLimitsScreen(packageName);
+  const {
+    app,
+    draft,
+    hardBlockMin,
+    usedMsToday,
+    limitMsToday,
+    setWarningMinutes,
+    setHardBlockMinutes,
+    setStrictMode,
+    goBack,
+    handleSave,
+  } = useConfigureLimitsScreen(packageName);
 
   if (!app) {
     return (
@@ -47,11 +58,13 @@ export const ConfigureLimitsScreen = ({ route }: ConfigureLimitsScreenProps) => 
           testID={testIds.configureLimits.appBadge(packageName)}
         />
 
+        <DailyUsageCard packageName={packageName} usedMs={usedMsToday} limitMs={limitMsToday} />
+
         <View style={styles.cards}>
           <LimitSliderCard
             testID={testIds.configureLimits.warningCard}
-            title="Warning Threshold"
-            description="You'll receive a gentle reminder when you reach this time"
+            title="Daily warning"
+            description="Notification when today's usage reaches this time"
             valueMinutes={draft.warningMinutes}
             minMinutes={LIMIT_SLIDER_BOUNDS.warning.min}
             maxMinutes={LIMIT_SLIDER_BOUNDS.warning.max}
@@ -62,8 +75,8 @@ export const ConfigureLimitsScreen = ({ route }: ConfigureLimitsScreenProps) => 
 
           <LimitSliderCard
             testID={testIds.configureLimits.hardBlockCard}
-            title="Hard Block"
-            description="Apps will be blocked when you reach this limit"
+            title="Daily limit"
+            description="App is blocked immediately when you open it after today's limit is reached"
             valueMinutes={draft.hardBlockMinutes}
             minMinutes={hardBlockMin}
             progressMinMinutes={LIMIT_SLIDER_BOUNDS.hardBlock.min}

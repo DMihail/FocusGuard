@@ -1,26 +1,43 @@
 /** @format */
 
+import { act } from 'react-test-renderer';
+
 const mockStartMonitorService = jest.fn();
 const mockStopMonitorService = jest.fn();
-const mockCheckForPermission = jest.fn(() => true);
+const mockCanStartMonitoring = jest.fn(() => true);
+
+jest.mock('@/utils/monitoring/canStartMonitoring', () => ({
+  canStartMonitoring: () => mockCanStartMonitoring(),
+}));
 
 jest.mock('@/specs', () => ({
-  checkForPermission: () => mockCheckForPermission(),
   startMonitorService: (...args: unknown[]) => mockStartMonitorService(...args),
   stopMonitorService: (...args: unknown[]) => mockStopMonitorService(...args),
 }));
 
+const mockGetItem = jest.fn((_name: string): string | null => null);
+
 jest.mock('@/store/mmkv', () => ({
-  zustandStorage: require('../helpers/mockZustandMmkv').mockZustandStorage,
+  zustandStorage: {
+    setItem: jest.fn(),
+    getItem: (name: string) => mockGetItem(name),
+    removeItem: jest.fn(),
+  },
 }));
 
 import { monitoringStore } from '@/store/monitoringStore';
 
 describe('monitoringStore', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     jest.clearAllMocks();
-    mockCheckForPermission.mockReturnValue(true);
+    mockCanStartMonitoring.mockReturnValue(true);
+    mockGetItem.mockReturnValue(null);
+    await monitoringStore.persist.clearStorage();
     monitoringStore.setState({ isMonitoring: false });
+  });
+
+  it('starts with monitoring disabled', () => {
+    expect(monitoringStore.getState().isMonitoring).toBe(false);
   });
 
   it('calls startMonitorService and sets isMonitoring to true on first toggle', () => {
@@ -41,8 +58,8 @@ describe('monitoringStore', () => {
     expect(monitoringStore.getState().isMonitoring).toBe(false);
   });
 
-  it('does not enable monitoring when usage access is missing', () => {
-    mockCheckForPermission.mockReturnValue(false);
+  it('does not enable monitoring when required permissions are missing', () => {
+    mockCanStartMonitoring.mockReturnValue(false);
 
     monitoringStore.getState().toggle();
 
@@ -60,5 +77,28 @@ describe('monitoringStore', () => {
     monitoringStore.getState().toggle();
     expect(monitoringStore.getState().isMonitoring).toBe(false);
     expect(mockStopMonitorService).toHaveBeenCalledTimes(1);
+  });
+
+  it('restarts monitor service after rehydrate when monitoring was enabled', async () => {
+    mockGetItem.mockReturnValue(JSON.stringify({ state: { isMonitoring: true }, version: 0 }));
+
+    await act(async () => {
+      await monitoringStore.persist.rehydrate();
+    });
+
+    expect(mockStartMonitorService).toHaveBeenCalledTimes(1);
+    expect(monitoringStore.getState().isMonitoring).toBe(true);
+  });
+
+  it('disables monitoring after rehydrate when permissions are missing', async () => {
+    mockCanStartMonitoring.mockReturnValue(false);
+    mockGetItem.mockReturnValue(JSON.stringify({ state: { isMonitoring: true }, version: 0 }));
+
+    await act(async () => {
+      await monitoringStore.persist.rehydrate();
+    });
+
+    expect(mockStartMonitorService).not.toHaveBeenCalled();
+    expect(monitoringStore.getState().isMonitoring).toBe(false);
   });
 });

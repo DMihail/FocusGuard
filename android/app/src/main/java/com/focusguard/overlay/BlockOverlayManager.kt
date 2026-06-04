@@ -16,8 +16,17 @@ object BlockOverlayManager {
     @Volatile
     private var isShowing = false
 
+    @Volatile
+    private var showingPackage: String? = null
+
     fun show(context: Context, packageName: String, appName: String, strictMode: Boolean) {
-        if (isShowing) return
+        if (isShowing && showingPackage == packageName) {
+            return
+        }
+
+        if (isShowing && showingPackage != packageName) {
+            dismiss(context)
+        }
 
         val intent = Intent(context, BlockOverlayActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
@@ -28,6 +37,7 @@ object BlockOverlayManager {
 
         context.startActivity(intent)
         isShowing = true
+        showingPackage = packageName
     }
 
     fun dismiss(context: Context) {
@@ -40,13 +50,16 @@ object BlockOverlayManager {
 
         context.startActivity(intent)
         isShowing = false
+        showingPackage = null
     }
 
-    fun onActivityShown() {
+    fun onActivityShown(packageName: String) {
         isShowing = true
+        showingPackage = packageName
     }
 
     fun onActivityHidden() {
         isShowing = false
+        showingPackage = null
     }
 }
