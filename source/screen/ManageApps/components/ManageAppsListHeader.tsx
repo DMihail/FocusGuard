@@ -3,13 +3,10 @@
 import React, { memo } from 'react';
 
 import type { CategoryFilterOption, ManageApp } from '../types';
-import { AppSearchField } from './AppSearchField';
 import { CategoryFilters } from './CategoryFilters';
 import { SelectedAppsSection } from './SelectedAppsSection';
 
-type ManageAppsListHeaderProps = {
-  searchQuery: string;
-  onSearchChange: (text: string) => void;
+export type ManageAppsListHeaderProps = {
   isSearchActive: boolean;
   categoryFilters: CategoryFilterOption[];
   activeCategoryId: string;
@@ -19,8 +16,6 @@ type ManageAppsListHeaderProps = {
 };
 
 function ManageAppsListHeaderView({
-  searchQuery,
-  onSearchChange,
   isSearchActive,
   categoryFilters,
   activeCategoryId,
@@ -30,8 +25,6 @@ function ManageAppsListHeaderView({
 }: ManageAppsListHeaderProps) {
   return (
     <>
-      <AppSearchField value={searchQuery} onChangeText={onSearchChange} />
-
       {!isSearchActive ? (
         <CategoryFilters
           filters={categoryFilters}

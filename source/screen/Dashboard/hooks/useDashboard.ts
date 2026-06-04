@@ -37,7 +37,9 @@ export const useDashboard = () => {
   const onRefresh = useCallback(() => {
     setRefreshing(true);
     refreshUsage();
-    setRefreshing(false);
+    requestAnimationFrame(() => {
+      setRefreshing(false);
+    });
   }, [refreshUsage]);
 
   const appRows = useMemo(
@@ -48,11 +50,14 @@ export const useDashboard = () => {
   const summary = useMemo(() => buildDashboardSummary(appRows), [appRows]);
 
   const hasSelectedApps = appRows.length > 0;
-  const monitoringSubtitle = !hasSelectedApps
-    ? 'Select apps first'
-    : isMonitoring
-    ? 'Monitoring is on'
-    : 'Start a session';
+
+  const monitoringSubtitle = useMemo(() => {
+    if (!hasSelectedApps) {
+      return 'Select apps first';
+    }
+
+    return isMonitoring ? 'Monitoring is on' : 'Start a session';
+  }, [hasSelectedApps, isMonitoring]);
 
   return {
     appRows,

@@ -1,7 +1,15 @@
 /** @format */
 
 import React from 'react';
-import { type StyleProp, StyleSheet, View, type ViewStyle } from 'react-native';
+import {
+  type AccessibilityValue,
+  type StyleProp,
+  StyleSheet,
+  View,
+  type ViewAccessibilityRole,
+  type ViewProps,
+  type ViewStyle,
+} from 'react-native';
 
 import { borderRadius, colors } from '@/theme';
 
@@ -11,7 +19,10 @@ type ProgressBarProps = {
   trackColor?: string;
   style?: StyleProp<ViewStyle>;
   height?: number;
-};
+  accessibilityRole?: ViewAccessibilityRole;
+  accessibilityLabel?: string;
+  accessibilityValue?: AccessibilityValue;
+} & Pick<ViewProps, 'accessible' | 'importantForAccessibility'>;
 
 export const ProgressBar = ({
   progress,
@@ -19,13 +30,25 @@ export const ProgressBar = ({
   trackColor = colors.progressTrack,
   style,
   height = 6,
+  accessibilityRole,
+  accessibilityLabel,
+  accessibilityValue,
+  accessible,
+  importantForAccessibility,
 }: ProgressBarProps) => {
   const clamped = Math.max(0, Math.min(100, progress));
   const fillFlex = clamped > 0 ? clamped : 0;
   const emptyFlex = 100 - fillFlex;
 
   return (
-    <View style={[styles.track, { height, backgroundColor: trackColor }, style]}>
+    <View
+      accessible={accessible ?? Boolean(accessibilityRole ?? accessibilityLabel)}
+      accessibilityRole={accessibilityRole}
+      accessibilityLabel={accessibilityLabel}
+      accessibilityValue={accessibilityValue}
+      importantForAccessibility={importantForAccessibility}
+      style={[styles.track, { height, backgroundColor: trackColor }, style]}
+    >
       <View style={styles.row}>
         {fillFlex > 0 && (
           <View

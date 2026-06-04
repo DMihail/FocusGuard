@@ -1,6 +1,6 @@
 /** @format */
 
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useRef } from 'react';
 
 import { useFocusEffect } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -13,6 +13,7 @@ import { useManageApps } from './hooks/useManageApps';
 import { manageAppsStyles } from './styles';
 
 import { ManageAppsHeader, ManageAppsList } from './components';
+import type { ManageAppsListHeaderProps } from './components/ManageAppsListHeader';
 import { ManageAppsListHeader } from './components/ManageAppsListHeader';
 
 export const ManageAppsScreen = () => {
@@ -40,30 +41,25 @@ export const ManageAppsScreen = () => {
     }, [refreshInstalledApps]),
   );
 
-  const listHeader = useMemo(
-    () => (
-      <ManageAppsListHeader
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
-        isSearchActive={isSearchActive}
-        categoryFilters={categoryFilters}
-        activeCategoryId={activeCategory.id}
-        onCategoryChange={setActiveCategory}
-        selectedApps={selectedApps}
-        onSelectedAppPress={openConfigureLimits}
-      />
-    ),
-    [
-      searchQuery,
-      setSearchQuery,
-      isSearchActive,
-      categoryFilters,
-      activeCategory.id,
-      setActiveCategory,
-      selectedApps,
-      openConfigureLimits,
-    ],
-  );
+  const listHeaderPropsRef = useRef<ManageAppsListHeaderProps>({
+    isSearchActive,
+    categoryFilters,
+    activeCategoryId: activeCategory.id,
+    onCategoryChange: setActiveCategory,
+    selectedApps,
+    onSelectedAppPress: openConfigureLimits,
+  });
+
+  listHeaderPropsRef.current = {
+    isSearchActive,
+    categoryFilters,
+    activeCategoryId: activeCategory.id,
+    onCategoryChange: setActiveCategory,
+    selectedApps,
+    onSelectedAppPress: openConfigureLimits,
+  };
+
+  const renderListHeader = useCallback(() => <ManageAppsListHeader {...listHeaderPropsRef.current} />, []);
 
   return (
     <SafeAreaView
@@ -79,7 +75,9 @@ export const ManageAppsScreen = () => {
         selectedCount={selectedCount}
         isSelected={isSelected}
         onToggle={toggleAppSelection}
-        ListHeaderComponent={listHeader}
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        ListHeaderComponent={renderListHeader}
       />
     </SafeAreaView>
   );

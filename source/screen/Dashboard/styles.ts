@@ -68,10 +68,6 @@ export const dashboardStyles = StyleSheet.create({
     justifyContent: 'center',
     flexShrink: 0,
   },
-  focusIconLabel: {
-    color: colors.accent,
-    fontSize: 18,
-  },
   focusCardLabel: {
     ...typography.caption,
     color: colors.textSecondary,
@@ -131,9 +127,6 @@ export const dashboardStyles = StyleSheet.create({
   statIconRemaining: {
     backgroundColor: colors.overLimitMuted,
   },
-  statIconEmoji: {
-    fontSize: 14,
-  },
   statLabel: {
     ...typography.caption,
     color: colors.textSecondary,
@@ -176,9 +169,6 @@ export const dashboardStyles = StyleSheet.create({
     flexShrink: 0,
   },
   viewAllText: textPresets.accentButton,
-  appsListSeparator: {
-    height: spacing.md,
-  },
   appItem: {
     gap: spacing.sm,
   },
@@ -252,17 +242,24 @@ export const dashboardStyles = StyleSheet.create({
   quickActionIconMuted: {
     backgroundColor: colors.accentMuted,
   },
-  quickActionIcon: {
-    fontSize: 22,
-  },
   quickActionTitle: {
     ...typography.sectionTitle,
     color: colors.onSurface,
+  },
+  quickActionTitleMuted: {
+    ...typography.sectionTitle,
+    color: colors.textPrimary,
   },
   quickActionSubtitle: {
     ...typography.caption,
     color: colors.onSurface,
     opacity: 0.8,
+    fontSize: fontSize.xs,
+    lineHeight: 16,
+  },
+  quickActionSubtitleMuted: {
+    ...typography.caption,
+    color: colors.textSecondary,
     fontSize: fontSize.xs,
     lineHeight: 16,
   },

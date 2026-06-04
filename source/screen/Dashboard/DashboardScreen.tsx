@@ -1,6 +1,6 @@
 /** @format */
 
-import React from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { RefreshControl, ScrollView } from 'react-native';
 
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -23,7 +23,7 @@ import {
 
 export const DashboardScreen = () => {
   const navigation = useRootNavigation();
-  const greeting = getGreeting();
+  const greeting = useMemo(() => getGreeting(), []);
   const {
     appRows,
     summary,
@@ -36,8 +36,21 @@ export const DashboardScreen = () => {
     onRefresh,
   } = useDashboard();
 
+  const openSettings = useCallback(() => {
+    navigation.navigate('Settings');
+  }, [navigation]);
+
+  const openManageApps = useCallback(() => {
+    navigation.navigate('ManageApps');
+  }, [navigation]);
+
   return (
-    <SafeAreaView style={dashboardStyles.screen} edges={['top', 'bottom']} testID={testIds.dashboard.screen}>
+    <SafeAreaView
+      style={dashboardStyles.screen}
+      edges={['top', 'bottom']}
+      testID={testIds.dashboard.screen}
+      accessibilityLabel="Dashboard"
+    >
       <ScrollView
         testID={testIds.dashboard.scroll}
         contentContainerStyle={dashboardStyles.scrollContent}
@@ -52,7 +65,7 @@ export const DashboardScreen = () => {
           />
         }
       >
-        <DashboardHeader greeting={greeting} onSettingsPress={() => navigation.navigate('Settings')} />
+        <DashboardHeader greeting={greeting} onSettingsPress={openSettings} />
 
         <FocusOverviewCard summary={summary} />
 
@@ -65,6 +78,7 @@ export const DashboardScreen = () => {
           canStartFocusMode={hasSelectedApps}
           monitoringSubtitle={monitoringSubtitle}
           onToggleMonitoring={toggleMonitoring}
+          onOpenManageApps={openManageApps}
         />
       </ScrollView>
     </SafeAreaView>

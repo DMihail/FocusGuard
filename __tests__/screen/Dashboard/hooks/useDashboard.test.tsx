@@ -100,6 +100,7 @@ describe('useDashboard', () => {
   });
 
   it('refreshes usage on pull-to-refresh', () => {
+    jest.useFakeTimers();
     let latest!: ReturnType<typeof useDashboard>;
 
     act(() => {
@@ -112,7 +113,12 @@ describe('useDashboard', () => {
       latest.onRefresh();
     });
 
+    act(() => {
+      jest.runAllTimers();
+    });
+
     expect(mockGetAppsUsageStats.mock.calls.length).toBeGreaterThan(callsBefore);
     expect(latest.refreshing).toBe(false);
+    jest.useRealTimers();
   });
 });

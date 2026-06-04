@@ -1,25 +1,24 @@
 /** @format */
 
-import React, { useLayoutEffect, useMemo, useRef } from 'react';
-import { FlatList, Text, View } from 'react-native';
+import React, { memo, useLayoutEffect, useRef } from 'react';
+import { Text, View } from 'react-native';
 
 import { Link } from '@react-navigation/native';
 
-import { APP_LIST_FLAT_LIST_PROPS } from '@/list';
-import { manageAppKeyExtractor } from '@/screen/ManageApps/list';
 import { testIds } from '@/testing/testIds';
 import { configureSectionLayoutAnimation } from '@/utils/layoutAnimation';
 import type { DashboardAppRow } from '@/utils/usage/dashboardStats';
 
-import { createDistractingAppRenderItem, DistractingAppsListEmpty } from '../list';
+import { DistractingAppsListEmpty } from '../list';
 import { dashboardStyles } from '../styles';
+import { DistractingAppRow } from './DistractingAppRow';
 
 type DistractingAppsSectionProps = {
   appRows: DashboardAppRow[];
   onConfigureLimits: (packageName: string) => void;
 };
 
-export const DistractingAppsSection = ({ appRows, onConfigureLimits }: DistractingAppsSectionProps) => {
+function DistractingAppsSectionView({ appRows, onConfigureLimits }: DistractingAppsSectionProps) {
   const previousAppsCount = useRef(appRows.length);
 
   useLayoutEffect(() => {
@@ -28,8 +27,6 @@ export const DistractingAppsSection = ({ appRows, onConfigureLimits }: Distracti
       previousAppsCount.current = appRows.length;
     }
   }, [appRows.length]);
-
-  const renderItem = useMemo(() => createDistractingAppRenderItem(onConfigureLimits), [onConfigureLimits]);
 
   return (
     <View
@@ -42,30 +39,35 @@ export const DistractingAppsSection = ({ appRows, onConfigureLimits }: Distracti
         <Text style={dashboardStyles.sectionTitle} accessibilityRole="header" numberOfLines={1}>
           Top Distracting Apps
         </Text>
-        <Link
-          screen="ManageApps"
-          testID={testIds.dashboard.viewAllAppsButton}
-          accessibilityRole="button"
-          accessibilityLabel="View all apps"
-          style={dashboardStyles.viewAllButton}
-        >
-          <Text style={dashboardStyles.viewAllText}>View All</Text>
-        </Link>
+        {appRows.length > 0 ? (
+          <Link
+            screen="ManageApps"
+            testID={testIds.dashboard.viewAllAppsButton}
+            accessibilityRole="button"
+            accessibilityLabel="View all apps"
+            style={dashboardStyles.viewAllButton}
+          >
+            <Text style={dashboardStyles.viewAllText}>View All</Text>
+          </Link>
+        ) : null}
       </View>
 
-      <FlatList
-        data={appRows}
-        renderItem={renderItem}
-        keyExtractor={manageAppKeyExtractor}
-        scrollEnabled={false}
-        nestedScrollEnabled
-        ListEmptyComponent={DistractingAppsListEmpty}
-        testID={testIds.dashboard.appsList}
-        accessibilityRole="list"
-        accessibilityLabel="Selected distracting apps"
-        extraData={appRows}
-        {...APP_LIST_FLAT_LIST_PROPS}
-      />
+      <View testID={testIds.dashboard.appsList} accessibilityRole="list" accessibilityLabel="Selected distracting apps">
+        {appRows.length === 0 ? (
+          <DistractingAppsListEmpty />
+        ) : (
+          appRows.map((row) => <DistractingAppRow key={row.packageName} {...row} onPress={onConfigureLimits} />)
+        )}
+      </View>
     </View>
   );
-};
+}
+
+export const DistractingAppsSection = memo(DistractingAppsSectionView, areDistractingAppsSectionPropsEqual);
+
+function areDistractingAppsSectionPropsEqual(
+  previous: DistractingAppsSectionProps,
+  next: DistractingAppsSectionProps,
+): boolean {
+  return previous.onConfigureLimits === next.onConfigureLimits && previous.appRows === next.appRows;
+}

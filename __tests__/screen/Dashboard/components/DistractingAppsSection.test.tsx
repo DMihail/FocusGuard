@@ -4,13 +4,7 @@ import type React from 'react';
 
 import type { DashboardAppRow } from '@/utils/usage/dashboardStats';
 
-import {
-  cleanupTestTrees,
-  flushVirtualizedListTimers,
-  flushVirtualizedListWork,
-  renderTestTree,
-  runTestAct,
-} from '../../../helpers/testRenderer';
+import { cleanupTestTrees, renderTestTree, runTestAct } from '../../../helpers/testRenderer';
 
 import { DistractingAppsSection } from '@/screen/Dashboard/components/DistractingAppsSection';
 
@@ -44,19 +38,14 @@ const buildRow = (packageName: string, appName: string): DashboardAppRow => ({
 describe('DistractingAppsSection', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    jest.useFakeTimers();
   });
 
-  afterEach(async () => {
-    flushVirtualizedListTimers();
+  afterEach(() => {
     cleanupTestTrees();
-    jest.useRealTimers();
-    await flushVirtualizedListWork();
   });
 
   it('shows empty text when no apps are selected', () => {
     const tree = renderTestTree(<DistractingAppsSection appRows={[]} onConfigureLimits={mockNavigate} />);
-    flushVirtualizedListTimers();
     const emptyText = tree.root.findByProps({ testID: 'dashboard-apps-empty' });
 
     expect(emptyText.props.children).toBe('No apps selected yet');
@@ -66,7 +55,6 @@ describe('DistractingAppsSection', () => {
     const tree = renderTestTree(
       <DistractingAppsSection appRows={[buildRow('com.test.app', 'Test App')]} onConfigureLimits={mockNavigate} />,
     );
-    flushVirtualizedListTimers();
     const appRow = tree.root.findByProps({ testID: 'dashboard-app-row-com-test-app' });
 
     expect(appRow).toBeDefined();
@@ -77,7 +65,6 @@ describe('DistractingAppsSection', () => {
     const tree = renderTestTree(
       <DistractingAppsSection appRows={[buildRow('com.test.app', 'Test App')]} onConfigureLimits={onConfigureLimits} />,
     );
-    flushVirtualizedListTimers();
     const row = tree.root.findByProps({ testID: 'dashboard-app-row-com-test-app' });
 
     runTestAct(() => {

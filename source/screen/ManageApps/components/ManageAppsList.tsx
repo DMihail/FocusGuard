@@ -10,6 +10,7 @@ import { colors } from '@/theme';
 import { createManageAppListRenderItem, manageAppKeyExtractor, ManageAppsListEmpty } from '../list';
 import { manageAppsStyles } from '../styles';
 import type { ManageApp } from '../types';
+import { AppSearchField } from './AppSearchField';
 
 type ManageAppsListProps = {
   apps: ManageApp[];
@@ -17,7 +18,9 @@ type ManageAppsListProps = {
   selectedCount: number;
   isSelected: (packageName: string) => boolean;
   onToggle: (app: ManageApp) => void;
-  ListHeaderComponent: React.ComponentType | React.ReactElement | null;
+  searchQuery: string;
+  onSearchChange: (text: string) => void;
+  ListHeaderComponent: React.ComponentType | React.ReactElement | null | (() => React.ReactElement | null);
 };
 
 export const ManageAppsList = ({
@@ -26,12 +29,18 @@ export const ManageAppsList = ({
   selectedCount,
   isSelected,
   onToggle,
+  searchQuery,
+  onSearchChange,
   ListHeaderComponent,
 }: ManageAppsListProps) => {
   const renderItem = useMemo(() => createManageAppListRenderItem(isSelected, onToggle), [isSelected, onToggle]);
 
   return (
     <View style={manageAppsStyles.listFlex} testID={testIds.manageApps.appsList}>
+      <View style={manageAppsStyles.searchFieldContainer}>
+        <AppSearchField value={searchQuery} onChangeText={onSearchChange} />
+      </View>
+
       <View
         style={[manageAppsStyles.appsListContainer, isFiltering && manageAppsStyles.appsListDimmed]}
         accessibilityState={{ busy: isFiltering }}
@@ -54,6 +63,7 @@ export const ManageAppsList = ({
           accessibilityRole="list"
           accessibilityLabel="Installed apps"
           extraData={selectedCount}
+          keyboardShouldPersistTaps="handled"
           {...APP_LIST_FLAT_LIST_PROPS}
         />
       </View>

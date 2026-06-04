@@ -1,12 +1,11 @@
 /** @format */
 
-import React from 'react';
+import React, { memo, useCallback } from 'react';
 import { Pressable, Text, View } from 'react-native';
 
-import { Link } from '@react-navigation/native';
-
+import { FocusModeSvg } from '@/assets/svg/Dashboard';
+import { ManageAppsSvg } from '@/assets/svg/Dashboard/ManageApps';
 import { testIds } from '@/testing/testIds';
-import { colors } from '@/theme';
 import { configureSectionLayoutAnimation } from '@/utils/layoutAnimation';
 
 import { dashboardStyles } from '../styles';
@@ -16,58 +15,75 @@ type QuickActionsSectionProps = {
   canStartFocusMode: boolean;
   monitoringSubtitle: string;
   onToggleMonitoring: () => void;
+  onOpenManageApps: () => void;
 };
 
-export const QuickActionsSection = ({
+function QuickActionsSectionView({
   isMonitoring,
   canStartFocusMode,
   monitoringSubtitle,
   onToggleMonitoring,
-}: QuickActionsSectionProps) => {
-  const handleToggle = () => {
-    if (!canStartFocusMode && !isMonitoring) {
+  onOpenManageApps,
+}: QuickActionsSectionProps) {
+  const isFocusModeDisabled = !canStartFocusMode && !isMonitoring;
+
+  const handleToggle = useCallback(() => {
+    if (isFocusModeDisabled) {
       return;
     }
 
     configureSectionLayoutAnimation();
     onToggleMonitoring();
-  };
+  }, [isFocusModeDisabled, onToggleMonitoring]);
 
   return (
     <View style={dashboardStyles.quickActions} testID={testIds.dashboard.quickActions}>
       <Pressable
         accessibilityRole="button"
         accessibilityLabel={isMonitoring ? 'Stop focus monitoring' : 'Start focus monitoring'}
-        accessibilityState={{ disabled: !canStartFocusMode && !isMonitoring }}
+        accessibilityState={{ disabled: isFocusModeDisabled }}
         style={[
           dashboardStyles.quickActionCard,
           isMonitoring && dashboardStyles.quickActionCardActive,
-          !canStartFocusMode && !isMonitoring && dashboardStyles.quickActionCardDisabled,
+          isFocusModeDisabled && dashboardStyles.quickActionCardDisabled,
         ]}
         onPress={handleToggle}
-        disabled={!canStartFocusMode && !isMonitoring}
+        disabled={isFocusModeDisabled}
         testID={testIds.dashboard.focusModeButton}
       >
         <View style={dashboardStyles.quickActionIconBadge}>
-          <Text style={dashboardStyles.quickActionIcon}>🛡</Text>
+          <FocusModeSvg />
         </View>
         <Text style={dashboardStyles.quickActionTitle}>{isMonitoring ? 'Stop Focus Mode' : 'Focus Mode'}</Text>
         <Text style={dashboardStyles.quickActionSubtitle}>{monitoringSubtitle}</Text>
       </Pressable>
 
-      <Link
-        screen="ManageApps"
-        testID={testIds.dashboard.manageAppsButton}
+      <Pressable
         accessibilityRole="button"
         accessibilityLabel="Manage apps"
+        accessibilityHint="Opens app selection and limits"
+        onPress={onOpenManageApps}
         style={dashboardStyles.quickActionCard}
+        testID={testIds.dashboard.manageAppsButton}
       >
         <View style={[dashboardStyles.quickActionIconBadge, dashboardStyles.quickActionIconMuted]}>
-          <Text style={dashboardStyles.quickActionIcon}>📊</Text>
+          <ManageAppsSvg />
         </View>
-        <Text style={[dashboardStyles.quickActionTitle, { color: colors.textPrimary }]}>Manage Apps</Text>
-        <Text style={[dashboardStyles.quickActionSubtitle, { color: colors.textSecondary }]}>Set limits</Text>
-      </Link>
+        <Text style={dashboardStyles.quickActionTitleMuted}>Manage Apps</Text>
+        <Text style={dashboardStyles.quickActionSubtitleMuted}>Set limits</Text>
+      </Pressable>
     </View>
   );
-};
+}
+
+export const QuickActionsSection = memo(QuickActionsSectionView, areQuickActionsSectionPropsEqual);
+
+function areQuickActionsSectionPropsEqual(previous: QuickActionsSectionProps, next: QuickActionsSectionProps): boolean {
+  return (
+    previous.isMonitoring === next.isMonitoring &&
+    previous.canStartFocusMode === next.canStartFocusMode &&
+    previous.monitoringSubtitle === next.monitoringSubtitle &&
+    previous.onToggleMonitoring === next.onToggleMonitoring &&
+    previous.onOpenManageApps === next.onOpenManageApps
+  );
+}

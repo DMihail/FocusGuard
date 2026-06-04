@@ -1,6 +1,6 @@
 /** @format */
 
-import React, { memo } from 'react';
+import React, { memo, useCallback } from 'react';
 import { Pressable, Text, View } from 'react-native';
 
 import { testIds } from '@/testing/testIds';
@@ -25,12 +25,14 @@ function DistractingAppRowView({
 }: DistractingAppRowProps) {
   const barProgress = limitMs > 0 ? Math.min(100, (usedMs / limitMs) * 100) : 0;
   const fillColor = isOverLimit ? colors.overLimit : colors.accent;
+  const handlePress = useCallback(() => onPress(packageName), [onPress, packageName]);
 
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={`Configure limits for ${appName}`}
-      onPress={() => onPress(packageName)}
+      accessibilityLabel={`Configure limits for ${appName}, ${percentUsed} percent used`}
+      accessibilityHint="Opens daily limit settings"
+      onPress={handlePress}
       style={dashboardStyles.appItem}
       testID={testIds.dashboard.appRow(packageName)}
     >
@@ -56,9 +58,28 @@ function DistractingAppRowView({
         </Text>
       </View>
 
-      <ProgressBar progress={barProgress} fillColor={fillColor} />
+      <ProgressBar
+        progress={barProgress}
+        fillColor={fillColor}
+        accessibilityRole="progressbar"
+        accessibilityLabel={`${appName} daily usage`}
+        accessibilityValue={{ min: 0, max: 100, now: Math.round(barProgress) }}
+      />
     </Pressable>
   );
 }
 
-export const DistractingAppRow = memo(DistractingAppRowView);
+export const DistractingAppRow = memo(DistractingAppRowView, areDistractingAppRowPropsEqual);
+
+function areDistractingAppRowPropsEqual(previous: DistractingAppRowProps, next: DistractingAppRowProps): boolean {
+  return (
+    previous.packageName === next.packageName &&
+    previous.appName === next.appName &&
+    previous.appImage === next.appImage &&
+    previous.usedMs === next.usedMs &&
+    previous.limitMs === next.limitMs &&
+    previous.percentUsed === next.percentUsed &&
+    previous.isOverLimit === next.isOverLimit &&
+    previous.onPress === next.onPress
+  );
+}
