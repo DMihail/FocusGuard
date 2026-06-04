@@ -30,14 +30,15 @@ export const buildDashboardAppRows = (
       const limits = limitsByPackage[app.packageName] ?? getLimits(app.packageName);
       const usedMs = usageByPackage[app.packageName] ?? 0;
       const limitMs = limits.hardBlockMinutes * MS_PER_MINUTE;
-      const percentUsed = limitMs > 0 ? Math.min(100, Math.round((usedMs / limitMs) * 100)) : 0;
+      const rawPercent = limitMs > 0 ? Math.round((usedMs / limitMs) * 100) : 0;
+      const percentUsed = Math.min(100, rawPercent);
       const isOverLimit = limitMs > 0 && usedMs >= limitMs;
 
       return {
         ...app,
         usedMs,
         limitMs,
-        percentUsed: isOverLimit ? Math.round((usedMs / limitMs) * 100) : percentUsed,
+        percentUsed,
         isOverLimit,
       };
     })

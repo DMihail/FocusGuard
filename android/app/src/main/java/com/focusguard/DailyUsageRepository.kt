@@ -30,6 +30,10 @@ class DailyUsageRepository(
 
         val stats =
             usageStatsManager.queryUsageStats(
+                UsageStatsManager.INTERVAL_BEST,
+                startTime,
+                endTime,
+            ) ?: usageStatsManager.queryUsageStats(
                 UsageStatsManager.INTERVAL_DAILY,
                 startTime,
                 endTime,

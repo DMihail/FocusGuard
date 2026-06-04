@@ -24,7 +24,7 @@ describe('dashboardStats', () => {
     const rows = buildDashboardAppRows([app], {}, { [app.packageName]: 90 * 60_000 }, () => DEFAULT_APP_LIMITS);
 
     expect(rows[0]?.isOverLimit).toBe(true);
-    expect(rows[0]?.percentUsed).toBeGreaterThanOrEqual(100);
+    expect(rows[0]?.percentUsed).toBe(100);
   });
 
   it('sums remaining budget per app instead of subtracting totals', () => {
