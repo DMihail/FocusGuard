@@ -1,11 +1,7 @@
 /** @format */
 
 jest.mock('@/store/mmkv', () => ({
-  zustandStorage: {
-    setItem: jest.fn(),
-    getItem: jest.fn(() => null),
-    removeItem: jest.fn(),
-  },
+  zustandStorage: require('../helpers/mockZustandMmkv').mockZustandStorage,
 }));
 
 import { appLimitsStore, DEFAULT_APP_LIMITS, normalizeAppLimits } from '@/store/appLimitsStore';

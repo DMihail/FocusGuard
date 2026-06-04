@@ -11,11 +11,7 @@ jest.mock('@/specs', () => ({
 }));
 
 jest.mock('@/store/mmkv', () => ({
-  zustandStorage: {
-    setItem: jest.fn(),
-    getItem: jest.fn(() => null),
-    removeItem: jest.fn(),
-  },
+  zustandStorage: require('../helpers/mockZustandMmkv').mockZustandStorage,
 }));
 
 import { monitoringStore } from '@/store/monitoringStore';
@@ -25,10 +21,6 @@ describe('monitoringStore', () => {
     jest.clearAllMocks();
     mockCheckForPermission.mockReturnValue(true);
     monitoringStore.setState({ isMonitoring: false });
-  });
-
-  it('starts with monitoring disabled', () => {
-    expect(monitoringStore.getState().isMonitoring).toBe(false);
   });
 
   it('calls startMonitorService and sets isMonitoring to true on first toggle', () => {

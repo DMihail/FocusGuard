@@ -23,8 +23,3 @@ export const linking: LinkingOptions<RootStackParamList> = {
     },
   },
 };
-
-export const buildDashboardDeepLink = (): string => `${DEEP_LINK_PREFIX}dashboard`;
-
-export const buildConfigureLimitsDeepLink = (packageName: string): string =>
-  `${DEEP_LINK_PREFIX}configure/${encodeURIComponent(packageName)}`;
