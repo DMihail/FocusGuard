@@ -7,7 +7,7 @@ import { LayoutAnimation } from 'react-native';
  * Do not call UIManager.setLayoutAnimationEnabledExperimental — it is a no-op on New Architecture.
  */
 
-export const SECTION_LAYOUT_ANIMATION_MS = 280;
+const SECTION_LAYOUT_ANIMATION_MS = 280;
 export const PERMISSION_CARD_ANIMATION_MS = 380;
 
 type LayoutAnimationConfig = Parameters<typeof LayoutAnimation.configureNext>[0];
@@ -28,7 +28,7 @@ export const configureSectionLayoutAnimation = (): void => {
 };
 
 /** Permission list height when cards collapse after grant. */
-export const PERMISSION_CARD_LAYOUT_ANIM: LayoutAnimationConfig = {
+const PERMISSION_CARD_LAYOUT_ANIM: LayoutAnimationConfig = {
   duration: PERMISSION_CARD_ANIMATION_MS,
   update: { type: LayoutAnimation.Types.easeOut, property: LayoutAnimation.Properties.scaleY },
   delete: { type: LayoutAnimation.Types.easeOut, property: LayoutAnimation.Properties.opacity },

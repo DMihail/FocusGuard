@@ -1,6 +1,6 @@
 /** @format */
 
-export const BORDER_RADIUS = {
+const BORDER_RADIUS = {
   sm: 8,
   md: 12,
   lg: 16,

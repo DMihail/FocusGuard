@@ -22,7 +22,7 @@ const imageSizeByPreset: Record<AppIconSize, ImageStyle> = {
   lg: { width: 52, height: 52 },
 };
 
-export const getAppNameInitial = (appName: string): string => appName.charAt(0).toUpperCase();
+const getAppNameInitial = (appName: string): string => appName.charAt(0).toUpperCase();
 
 export const AppIcon = ({ appName, appImage, size = 'md', boxStyle, imageStyle, fallbackStyle }: AppIconProps) => (
   <View style={[iconBoxPresets[size], boxStyle]}>

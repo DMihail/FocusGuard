@@ -1,6 +1,6 @@
 /** @format */
 
-export const COLORS = {
+const COLORS = {
   background: '#1C1B1F',
   surfaceDark: '#211F26',
   surface: '#4F378B',

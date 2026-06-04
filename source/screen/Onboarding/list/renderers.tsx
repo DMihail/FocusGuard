@@ -3,7 +3,8 @@
 import React from 'react';
 
 import type { ListRenderItem } from '@/list';
-import type { WalkthroughStepData } from '@/screen';
+
+import type { WalkthroughStepData } from '../data/walkthroughSteps';
 
 import { WalkthroughPage } from '../components/WalkthroughPage';
 

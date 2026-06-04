@@ -3,10 +3,10 @@
 import React, { type RefObject, useMemo } from 'react';
 import { Animated, FlatList, type NativeScrollEvent, type NativeSyntheticEvent } from 'react-native';
 
-import type { WalkthroughStepData } from '@/screen';
 import { testIds } from '@/testing/testIds';
 
 import { FLAT_LIST_WINDOW_SIZE, SCROLL_EVENT_THROTTLE } from '../constants';
+import type { WalkthroughStepData } from '../data/walkthroughSteps';
 import { createWalkthroughPageRenderItem, walkthroughStepKeyExtractor } from '../list';
 
 const AnimatedFlatList = Animated.createAnimatedComponent(FlatList<WalkthroughStepData>);
