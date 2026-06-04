@@ -29,7 +29,7 @@ jobs:
         run: echo "Pipeline profile resolved"
 
   checks:
-    name: ESLint, Prettier & tests
+    name: ESLint, Prettier, types & tests
     runs-on: ubuntu-latest
 
     steps:
@@ -51,34 +51,15 @@ jobs:
       - name: Prettier
         run: npm run format:check
 
-      - name: Test
-        run: npm test -- --ci
-
-  typecheck:
-    name: TypeScript
-    needs: [pipeline, checks]
-    if: needs.pipeline.outputs.run_full == 'true'
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: npm
-
-      - name: Install dependencies
-        run: npm ci
-
       - name: Typecheck
         run: npm run typecheck
 
+      - name: Test
+        run: npm test -- --ci
+
   android:
     name: Android debug build
-    needs: [pipeline, checks, typecheck]
+    needs: [pipeline, checks]
     if: needs.pipeline.outputs.run_full == 'true'
     runs-on: ubuntu-latest
 
@@ -119,7 +100,7 @@ jobs:
 
   android-release:
     name: Android release AAB
-    needs: [pipeline, checks, typecheck]
+    needs: [pipeline, checks]
     if: >-
       needs.pipeline.outputs.run_full == 'true' && github.event_name == 'push' && (github.ref == 'refs/heads/main' ||
       github.ref == 'refs/heads/dev' || startsWith(github.ref, 'refs/heads/release/') || startsWith(github.ref,

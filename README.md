@@ -113,13 +113,12 @@ GitHub Actions workflow (`.github/workflows/ci.yml`) runs on **every** push and 
 
 | Job                 | When                                                               | What it does                                |
 | ------------------- | ------------------------------------------------------------------ | ------------------------------------------- |
-| **checks**          | Always (any branch)                                                | ESLint, Prettier (`format:check`), Jest     |
-| **typecheck**       | `main`, `dev`, `release/*`, or PRs into those branches; manual run | `tsc --noEmit`                              |
-| **android**         | Same as typecheck                                                  | `assembleDebug`, uploads debug APK artifact |
+| **checks**          | Always (any branch)                                                | ESLint, Prettier, TypeScript, Jest          |
+| **android**         | `main`, `dev`, `release/*`, or PRs into those branches; manual run | `assembleDebug`, uploads debug APK artifact |
 | **android-release** | Push to `main`, `dev`, `release/*`, or tag `v*` (see above)        | Signed `bundleRelease` AAB (secrets below)  |
 
-Feature branches (e.g. `app-settings`) only run **checks** on push. Full pipeline runs when merging into `main` / `dev`
-/ `release/*` or when pushing directly to those branches.
+Feature branches (e.g. `app-settings`) run **checks** only (lint, format, types, tests). Android jobs run on `main` /
+`dev` / `release/*` or when opening a PR into those branches.
 
 Manual run: **Actions → CI → Run workflow**.
 
