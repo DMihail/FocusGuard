@@ -119,16 +119,38 @@ export const configureLimitsStyles = StyleSheet.create({
     fontSize: fontSize.lg,
     color: colors.textPrimary,
   },
-  sliderTrack: {
+  sliderTrackTouch: {
     flex: 1,
-    height: 6,
+    height: 48,
+    justifyContent: 'center',
+  },
+  sliderTrack: {
+    height: 8,
     borderRadius: borderRadius.pill,
     backgroundColor: colors.switchTrackOff,
     overflow: 'hidden',
   },
+  sliderTrackInactive: {
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    bottom: 0,
+    backgroundColor: colors.cardBorder,
+    opacity: 0.45,
+  },
   sliderFill: {
     height: '100%',
     borderRadius: borderRadius.pill,
+  },
+  sliderThumb: {
+    position: 'absolute',
+    top: 14,
+    width: 20,
+    height: 20,
+    marginLeft: -10,
+    borderRadius: borderRadius.pill,
+    borderWidth: 2,
+    borderColor: colors.textPrimary,
   },
   sliderBounds: {
     ...layoutPresets.rowBetween,

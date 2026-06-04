@@ -17,7 +17,10 @@ export type LimitSliderCardProps = {
   title: string;
   description: string;
   valueMinutes: number;
+  /** Clamps value and maps touch position to minutes. */
   minMinutes: number;
+  /** Track fill/thumb scale (defaults to minMinutes). Use a fixed min so a sibling slider does not shift this thumb. */
+  progressMinMinutes?: number;
   maxMinutes: number;
   stepMinutes: number;
   accentColor: string;

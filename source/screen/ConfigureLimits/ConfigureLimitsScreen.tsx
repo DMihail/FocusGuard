@@ -47,6 +47,7 @@ export const ConfigureLimitsScreen = ({ route }: ConfigureLimitsScreenProps) => 
         testID={testIds.configureLimits.scroll}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
       >
         <ConfigureLimitsHeader appName={app.appName} onBack={handleBack} />
 
@@ -82,6 +83,7 @@ export const ConfigureLimitsScreen = ({ route }: ConfigureLimitsScreenProps) => 
             description="Apps will be blocked when you reach this limit"
             valueMinutes={draft.hardBlockMinutes}
             minMinutes={hardBlockMin}
+            progressMinMinutes={LIMIT_SLIDER_BOUNDS.hardBlock.min}
             maxMinutes={LIMIT_SLIDER_BOUNDS.hardBlock.max}
             stepMinutes={LIMIT_SLIDER_BOUNDS.hardBlock.step}
             accentColor={LIMIT_CARD_COLORS.hardBlock}
