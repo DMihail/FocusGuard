@@ -5,6 +5,7 @@ import { ScrollView, View } from 'react-native';
 
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { useGoBack } from '@/hooks/useGoBack';
 import { useRootNavigation } from '@/navigation';
 import type { LegalDocumentId } from '@/screen/Legal';
 import { testIds } from '@/testing/testIds';
@@ -24,11 +25,8 @@ import {
 
 export const SettingsScreen = () => {
   const navigation = useRootNavigation();
+  const goBack = useGoBack();
   const { isEnabled: notificationsEnabled, setEnabled: setNotificationsEnabled } = useNotificationsSetting();
-
-  const handleBack = useCallback(() => {
-    navigation.goBack();
-  }, [navigation]);
 
   const openLegalDocument = useCallback(
     (documentId: LegalDocumentId) => {
@@ -52,7 +50,7 @@ export const SettingsScreen = () => {
         contentContainerStyle={settingsStyles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        <SettingsHeader onBack={handleBack} />
+        <SettingsHeader onBack={goBack} />
 
         <View style={settingsStyles.sections}>
           <SettingsSection title="Preferences" testID={testIds.settings.preferencesSection}>

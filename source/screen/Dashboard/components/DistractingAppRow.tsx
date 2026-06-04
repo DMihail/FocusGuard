@@ -1,12 +1,14 @@
 /** @format */
 
 import React from 'react';
-import { Image, Pressable, Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 
 import { testIds } from '@/testing/testIds';
 
 import { dashboardStyles } from '../styles';
 import type { DistractingAppRowProps } from '../types';
+
+import { AppIcon } from '@/components';
 
 export const DistractingAppRow = ({ packageName, appImage, appName, onPress }: DistractingAppRowProps) => (
   <Pressable
@@ -17,13 +19,14 @@ export const DistractingAppRow = ({ packageName, appImage, appName, onPress }: D
     testID={testIds.dashboard.appRow(packageName)}
   >
     <View style={dashboardStyles.appRow}>
-      <View style={dashboardStyles.appIconBox}>
-        {appImage ? (
-          <Image source={{ uri: appImage }} style={dashboardStyles.appIcon} resizeMode="cover" />
-        ) : (
-          <Text style={dashboardStyles.appIconFallback}>{appName.charAt(0).toUpperCase()}</Text>
-        )}
-      </View>
+      <AppIcon
+        appName={appName}
+        appImage={appImage}
+        size="sm"
+        boxStyle={dashboardStyles.appIconBox}
+        imageStyle={dashboardStyles.appIcon}
+        fallbackStyle={dashboardStyles.appIconFallback}
+      />
 
       <View style={dashboardStyles.appInfo}>
         <Text style={dashboardStyles.appName} numberOfLines={1}>

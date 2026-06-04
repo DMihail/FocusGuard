@@ -1,10 +1,10 @@
 /** @format */
 
-import { type RefObject, useEffect } from 'react';
-import { AppState, type AppStateStatus } from 'react-native';
+import { type RefObject, useCallback, useEffect } from 'react';
 
 import type { NavigationContainerRef } from '@react-navigation/native';
 
+import { useAppStateOnActive } from '@/hooks/useAppStateOnActive';
 import { areAllPermissionsGranted } from '@/screen/EnablePermissions/utils/permissionStatus';
 import { onboardingStore } from '@/store/onboardingStore';
 
@@ -14,34 +14,31 @@ export const useAppPermissionGuard = (
   navigationRef: RefObject<NavigationContainerRef<RootStackParamList> | null>,
   isEnabled: boolean,
 ) => {
+  const redirectIfPermissionsMissing = useCallback(() => {
+    const { isConfirm } = onboardingStore.getState();
+
+    if (!isConfirm || areAllPermissionsGranted()) {
+      return;
+    }
+
+    const currentRoute = navigationRef.current?.getCurrentRoute()?.name;
+
+    if (currentRoute !== 'EnablePermissions') {
+      navigationRef.current?.navigate('EnablePermissions');
+    }
+  }, [navigationRef]);
+
   useEffect(() => {
     if (!isEnabled) {
       return;
     }
 
-    const redirectIfPermissionsMissing = () => {
-      const { isConfirm } = onboardingStore.getState();
-
-      if (!isConfirm || areAllPermissionsGranted()) {
-        return;
-      }
-
-      const currentRoute = navigationRef.current?.getCurrentRoute()?.name;
-
-      if (currentRoute !== 'EnablePermissions') {
-        navigationRef.current?.navigate('EnablePermissions');
-      }
-    };
-
-    const handleAppStateChange = (nextState: AppStateStatus) => {
-      if (nextState === 'active') {
-        redirectIfPermissionsMissing();
-      }
-    };
-
     redirectIfPermissionsMissing();
+  }, [isEnabled, redirectIfPermissionsMissing]);
 
-    const subscription = AppState.addEventListener('change', handleAppStateChange);
-    return () => subscription.remove();
-  }, [isEnabled, navigationRef]);
+  useAppStateOnActive(() => {
+    if (isEnabled) {
+      redirectIfPermissionsMissing();
+    }
+  });
 };

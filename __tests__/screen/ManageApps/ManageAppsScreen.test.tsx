@@ -26,10 +26,12 @@ const mockStoreState: {
   isSelected: (packageName) => mockStoreState.apps.some((app) => app.packageName === packageName),
 };
 
-jest.mock('../../../source/navigation', () => ({
-  useRootNavigation: () => ({
-    goBack: mockGoBack,
-  }),
+jest.mock('@/hooks/useGoBack', () => ({
+  useGoBack: () => mockGoBack,
+}));
+
+jest.mock('@/navigation/hooks/useNavigateToConfigureLimits', () => ({
+  useNavigateToConfigureLimits: () => jest.fn(),
 }));
 
 jest.mock('@react-navigation/native', () => {
@@ -81,9 +83,7 @@ describe('ManageAppsScreen', () => {
     expect(tree!.root.findByProps({ testID: testIds.manageApps.searchInput })).toBeDefined();
     expect(tree!.root.findByProps({ testID: testIds.manageApps.categoryFilters })).toBeDefined();
     expect(tree!.root.findByProps({ testID: testIds.manageApps.appsList })).toBeDefined();
-    expect(tree!.root.findByProps({ testID: testIds.manageApps.selectedCount }).props.children).toEqual(
-      expect.arrayContaining([0, ' selected']),
-    );
+    expect(tree!.root.findByProps({ testID: testIds.manageApps.selectedCount }).props.children).toBe('0 selected');
     expect(tree!.root.findByProps({ children: 'Social Chat' })).toBeDefined();
   });
 
@@ -118,9 +118,7 @@ describe('ManageAppsScreen', () => {
 
     expect(tree!.root.findByProps({ testID: testIds.manageApps.selectedSection })).toBeDefined();
     expect(tree!.root.findByProps({ testID: testIds.manageApps.selectedChip('com.game.puzzle') })).toBeDefined();
-    expect(tree!.root.findByProps({ testID: testIds.manageApps.selectedCount }).props.children).toEqual(
-      expect.arrayContaining([1, ' selected']),
-    );
+    expect(tree!.root.findByProps({ testID: testIds.manageApps.selectedCount }).props.children).toBe('1 selected');
   });
 
   it('filters apps when search query changes', () => {

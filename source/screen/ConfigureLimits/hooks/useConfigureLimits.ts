@@ -2,9 +2,14 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import type { AppLimits } from '@/store';
-import { appLimitsStore, DEFAULT_APP_LIMITS, LIMIT_SLIDER_BOUNDS, normalizeAppLimits } from '@/store';
-import { selectedAppsStore } from '@/store/selectedAppsStore';
+import {
+  type AppLimits,
+  appLimitsStore,
+  DEFAULT_APP_LIMITS,
+  LIMIT_SLIDER_BOUNDS,
+  normalizeAppLimits,
+  selectedAppsStore,
+} from '@/store';
 
 import type { UseConfigureLimitsResult } from '../types';
 

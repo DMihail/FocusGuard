@@ -1,6 +1,6 @@
 /** @format */
 
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback } from 'react';
 import { ScrollView, View } from 'react-native';
 
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -8,23 +8,14 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRootNavigation } from '@/navigation';
 import { testIds } from '@/testing/testIds';
 
-import { PERMISSIONS } from './data/permissions';
 import { usePermissionsSync } from './hooks/usePermissionsSync';
 import { permissionsStyles } from './styles';
-import { areAllPermissionsGranted } from './utils/permissionStatus';
 
 import { PermissionCard, PermissionsFooter, PermissionsHeader, PrivacyNotice } from './components';
 
 export const EnablePermissionsScreen = () => {
   const navigation = useRootNavigation();
-  const { statusById, handleGrant } = usePermissionsSync();
-
-  const permissions = useMemo(
-    () => PERMISSIONS.map((item) => ({ ...item, status: statusById[item.id] ?? item.status })),
-    [statusById],
-  );
-
-  const canContinue = areAllPermissionsGranted();
+  const { permissions, canContinue, handleGrant } = usePermissionsSync();
 
   const handleContinue = useCallback(() => {
     if (!canContinue) {

@@ -13,6 +13,7 @@ const mockRequestPermissionById = jest.fn();
 jest.mock('../../../../source/screen/EnablePermissions/utils/permissionStatus', () => ({
   readPermissionStatuses: () => mockReadPermissionStatuses(),
   requestPermissionById: (id: PermissionId) => mockRequestPermissionById(id),
+  areAllPermissionsGranted: jest.fn(() => false),
 }));
 
 import { usePermissionsSync } from '@/screen/EnablePermissions/hooks/usePermissionsSync';

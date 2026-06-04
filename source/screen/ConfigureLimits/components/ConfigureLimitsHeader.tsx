@@ -1,31 +1,19 @@
 /** @format */
 
 import React from 'react';
-import { Pressable, Text, View } from 'react-native';
 
-import { BackIcon } from '@/assets/svg/ManageApps';
 import { testIds } from '@/testing/testIds';
 
-import { configureLimitsStyles as styles } from '../styles';
 import type { ConfigureLimitsHeaderProps } from '../types';
 
-export const ConfigureLimitsHeader = ({ appName, onBack }: ConfigureLimitsHeaderProps) => (
-  <View style={styles.header} testID={testIds.configureLimits.header}>
-    <Pressable
-      testID={testIds.configureLimits.backButton}
-      accessibilityRole="button"
-      accessibilityLabel="Go back"
-      style={styles.backButton}
-      onPress={onBack}
-    >
-      <BackIcon />
-    </Pressable>
+import { ScreenBackHeader } from '@/components';
 
-    <View style={styles.headerText}>
-      <Text style={styles.title}>Configure Limits</Text>
-      <Text style={styles.subtitle} numberOfLines={1}>
-        {appName}
-      </Text>
-    </View>
-  </View>
+export const ConfigureLimitsHeader = ({ appName, onBack }: ConfigureLimitsHeaderProps) => (
+  <ScreenBackHeader
+    title="Configure Limits"
+    subtitle={appName}
+    onBack={onBack}
+    testID={testIds.configureLimits.header}
+    backButtonTestID={testIds.configureLimits.backButton}
+  />
 );

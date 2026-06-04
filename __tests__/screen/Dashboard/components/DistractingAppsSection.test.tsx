@@ -14,10 +14,10 @@ let mockApps: Array<{
 }> = [];
 let mockIsMonitoring = false;
 
-jest.mock('@/navigation', () => ({
-  useRootNavigation: () => ({
-    navigate: mockNavigate,
-  }),
+jest.mock('@/navigation/hooks/useNavigateToConfigureLimits', () => ({
+  useNavigateToConfigureLimits: () => (packageName: string) => {
+    mockNavigate('ConfigureLimits', { packageName });
+  },
 }));
 
 jest.mock('@/store', () => ({
@@ -33,6 +33,9 @@ jest.mock('@react-navigation/native', () => {
     Link: ({ children, ...props }: { children: React.ReactNode; testID?: string }) => (
       <Text {...props}>{children}</Text>
     ),
+    useNavigation: () => ({
+      navigate: mockNavigate,
+    }),
   };
 });
 
@@ -102,7 +105,7 @@ describe('DistractingAppsSection', () => {
     const button = tree.root.findByType(Button);
 
     expect(button.props.title).toBe('Stop');
-    expect(button.props.color).toBe('#e74c3c');
+    expect(button.props.color).toBe('#E74C3C');
   });
 
   it('navigates to ConfigureLimits when an app row is pressed', async () => {

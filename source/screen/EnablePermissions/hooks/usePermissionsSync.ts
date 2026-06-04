@@ -1,11 +1,14 @@
 /** @format */
 
-import { useCallback, useEffect, useState } from 'react';
-import { AppState, type AppStateStatus, LayoutAnimation } from 'react-native';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { LayoutAnimation } from 'react-native';
+
+import { useAppStateOnActive } from '@/hooks/useAppStateOnActive';
 
 import { PERMISSIONS } from '../data/permissions';
 import type { PermissionId, PermissionStatus } from '../types';
-import { readPermissionStatuses, requestPermissionById } from '../utils/permissionStatus';
+import { buildPermissionsWithStatus } from '../utils/buildPermissionsWithStatus';
+import { areAllPermissionsGranted, readPermissionStatuses, requestPermissionById } from '../utils/permissionStatus';
 
 const configureCardLayoutAnimation = () => {
   LayoutAnimation.configureNext(LayoutAnimation.create(380, 'easeInEaseOut', 'opacity'));
@@ -33,20 +36,16 @@ export const usePermissionsSync = () => {
 
   useEffect(() => {
     syncStatuses();
-
-    const handleAppStateChange = (nextState: AppStateStatus) => {
-      if (nextState === 'active') {
-        syncStatuses();
-      }
-    };
-
-    const subscription = AppState.addEventListener('change', handleAppStateChange);
-    return () => subscription.remove();
   }, [syncStatuses]);
+
+  useAppStateOnActive(syncStatuses);
+
+  const permissions = useMemo(() => buildPermissionsWithStatus(statusById), [statusById]);
+  const canContinue = areAllPermissionsGranted();
 
   const handleGrant = useCallback((id: PermissionId) => {
     requestPermissionById(id);
   }, []);
 
-  return { statusById, handleGrant, syncStatuses };
+  return { statusById, permissions, canContinue, handleGrant, syncStatuses };
 };

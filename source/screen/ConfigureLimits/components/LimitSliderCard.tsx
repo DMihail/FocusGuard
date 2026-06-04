@@ -1,17 +1,13 @@
 /** @format */
 
-import React, { useMemo } from 'react';
-import { type DimensionValue, Pressable, Text, View } from 'react-native';
+import React from 'react';
+import { Pressable, Text, View } from 'react-native';
 
 import { useSliderTrackGesture } from '../hooks/useSliderTrackGesture';
 import { configureLimitsStyles as styles } from '../styles';
 import type { LimitSliderCardProps } from '../types';
 import { formatDurationMinutes } from '../utils/formatDuration';
-import { getSliderProgress } from '../utils/sliderValueFromPosition';
-
-const clamp01 = (value: number) => Math.min(1, Math.max(0, value));
-
-const toPercentDimension = (ratio: number): DimensionValue => `${clamp01(ratio) * 100}%` as DimensionValue;
+import { getSliderLayout } from '../utils/sliderLayout';
 
 export const LimitSliderCard = ({
   title,
@@ -26,22 +22,12 @@ export const LimitSliderCard = ({
   testID,
 }: LimitSliderCardProps) => {
   const progressMin = progressMinMinutes ?? minMinutes;
-
-  const progress = useMemo(
-    () => clamp01(getSliderProgress(valueMinutes, progressMin, maxMinutes)),
-    [maxMinutes, progressMin, valueMinutes],
+  const { progressPercent, inactivePercent, showInactiveZone } = getSliderLayout(
+    valueMinutes,
+    minMinutes,
+    progressMin,
+    maxMinutes,
   );
-
-  const inactiveRatio = useMemo(() => {
-    if (maxMinutes <= progressMin || minMinutes <= progressMin) {
-      return 0;
-    }
-
-    return clamp01((minMinutes - progressMin) / (maxMinutes - progressMin));
-  }, [maxMinutes, minMinutes, progressMin]);
-
-  const progressPercent = toPercentDimension(progress);
-  const inactivePercent = toPercentDimension(inactiveRatio);
 
   const { trackRef, panHandlers, syncTrackMetrics } = useSliderTrackGesture({
     valueMinutes,
@@ -98,7 +84,7 @@ export const LimitSliderCard = ({
           {...panHandlers}
         >
           <View style={styles.sliderTrack}>
-            {inactiveRatio > 0 ? (
+            {showInactiveZone ? (
               <View pointerEvents="none" style={[styles.sliderTrackInactive, { width: inactivePercent }]} />
             ) : null}
             <View

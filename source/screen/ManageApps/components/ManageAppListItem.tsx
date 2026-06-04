@@ -1,13 +1,15 @@
 /** @format */
 
 import React from 'react';
-import { Image, Pressable, Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 
 import { CheckIcon } from '@/assets/svg/EnablePermissions';
 import { testIds } from '@/testing/testIds';
 
 import { manageAppsStyles } from '../styles';
 import type { ManageApp } from '../types';
+
+import { AppIcon } from '@/components';
 
 type ManageAppListItemProps = ManageApp & {
   isSelected: boolean;
@@ -30,13 +32,14 @@ export const ManageAppListItem = ({
     style={manageAppsStyles.appItem}
     onPress={onToggle}
   >
-    <View style={manageAppsStyles.appIconBox}>
-      {appImage ? (
-        <Image source={{ uri: appImage }} style={manageAppsStyles.appIcon} resizeMode="cover" />
-      ) : (
-        <Text style={manageAppsStyles.appIconFallback}>{appName.charAt(0).toUpperCase()}</Text>
-      )}
-    </View>
+    <AppIcon
+      appName={appName}
+      appImage={appImage}
+      size="sm"
+      boxStyle={manageAppsStyles.appIconBox}
+      imageStyle={manageAppsStyles.appIcon}
+      fallbackStyle={manageAppsStyles.appIconFallback}
+    />
 
     <View style={manageAppsStyles.appInfo}>
       <Text style={manageAppsStyles.appName} numberOfLines={1}>

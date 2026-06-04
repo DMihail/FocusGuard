@@ -6,7 +6,8 @@ import { ScrollView } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { useRootNavigation } from '@/navigation';
+import { useGoBack } from '@/hooks/useGoBack';
+import { useNavigateToConfigureLimits } from '@/navigation/hooks/useNavigateToConfigureLimits';
 import { testIds } from '@/testing/testIds';
 
 import { useManageApps } from './hooks/useManageApps';
@@ -15,7 +16,8 @@ import { manageAppsStyles } from './styles';
 import { AppSearchField, CategoryFilters, ManageAppsHeader, ManageAppsList, SelectedAppsSection } from './components';
 
 export const ManageAppsScreen = () => {
-  const navigation = useRootNavigation();
+  const goBack = useGoBack();
+  const openConfigureLimits = useNavigateToConfigureLimits();
   const {
     apps,
     refreshInstalledApps,
@@ -32,17 +34,6 @@ export const ManageAppsScreen = () => {
     toggleAppSelection,
   } = useManageApps();
 
-  const handleBack = useCallback(() => {
-    navigation.goBack();
-  }, [navigation]);
-
-  const openConfigureLimits = useCallback(
-    (packageName: string) => {
-      navigation.navigate('ConfigureLimits', { packageName });
-    },
-    [navigation],
-  );
-
   useFocusEffect(
     useCallback(() => {
       refreshInstalledApps();
@@ -56,7 +47,7 @@ export const ManageAppsScreen = () => {
       testID={testIds.manageApps.screen}
       accessibilityLabel="Manage apps screen"
     >
-      <ManageAppsHeader selectedCount={selectedCount} onBack={handleBack} />
+      <ManageAppsHeader selectedCount={selectedCount} onBack={goBack} />
       <ScrollView
         testID={testIds.manageApps.scroll}
         contentContainerStyle={manageAppsStyles.scrollContent}
