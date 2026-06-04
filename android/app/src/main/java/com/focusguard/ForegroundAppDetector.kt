@@ -16,6 +16,10 @@ import android.os.Build
  * recent `lastTimeUsed` timestamp. Less precise but works on devices/OEMs
  * that restrict event-level access from foreground services.
  *
+ * While the user stays inside one app, usage queries often stop returning fresh
+ * events. A short-lived sticky cache keeps the last known foreground package so
+ * session timers are not reset every poll.
+ *
  * Requires the `PACKAGE_USAGE_STATS` permission (Usage Stats access).
  */
 class ForegroundAppDetector(
@@ -25,12 +29,28 @@ class ForegroundAppDetector(
     private val usageStatsManager =
         context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
 
+    private var stickyForeground: String? = null
+    private var stickyForegroundAt = 0L
+
     /**
      * Returns the package name of the app that most recently moved to the foreground,
-     * or `null` if detection fails.
+     * or `null` if detection fails and no recent sticky value is available.
      */
-    fun getForegroundApp(): String? =
-        getForegroundAppFromEvents() ?: getForegroundAppFromStats()
+    fun getForegroundApp(): String? {
+        val detected = getForegroundAppFromEvents() ?: getForegroundAppFromStats()
+        if (detected != null) {
+            stickyForeground = detected
+            stickyForegroundAt = System.currentTimeMillis()
+            return detected
+        }
+
+        val cached = stickyForeground
+        if (cached != null && System.currentTimeMillis() - stickyForegroundAt <= STICKY_FOREGROUND_MS) {
+            return cached
+        }
+
+        return null
+    }
 
     private fun getForegroundAppFromEvents(): String? {
         val endTime = System.currentTimeMillis()
@@ -82,6 +102,8 @@ class ForegroundAppDetector(
     companion object {
         private const val EVENTS_WINDOW_MS = 120_000L
         private const val STATS_WINDOW_MS = 60_000L
-        private const val STATS_RECENCY_MS = 5_000L
+        /** Was 5s — too strict; breaks timers after a few seconds in one app. */
+        private const val STATS_RECENCY_MS = 30_000L
+        private const val STICKY_FOREGROUND_MS = 90_000L
     }
 }

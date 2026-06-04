@@ -15,6 +15,7 @@ const mockUsageStats = {
   requestIgnoreBatteryOptimizationsPermission: jest.fn(),
   getAppsUsageStats: jest.fn(),
   getInstalledApplications: jest.fn(),
+  isMonitorServiceRunning: jest.fn(),
 };
 
 const mockGet = jest.fn();
@@ -39,6 +40,7 @@ describe('NativeUsageStats', () => {
     mockUsageStats.checkForPermission.mockReturnValue(false);
     mockUsageStats.getAppsUsageStats.mockReturnValue([]);
     mockUsageStats.getInstalledApplications.mockReturnValue([]);
+    mockUsageStats.isMonitorServiceRunning.mockReturnValue(false);
   });
 
   it('delegates checkForPermission to the native module', () => {
@@ -132,6 +134,13 @@ describe('NativeUsageStats', () => {
     expect(specs.getInstalledApplications()).toEqual(apps);
   });
 
+  it('delegates isMonitorServiceRunning to the native module', () => {
+    mockUsageStats.isMonitorServiceRunning.mockReturnValue(true);
+    const specs = loadSpecs();
+
+    expect(specs.isMonitorServiceRunning()).toBe(true);
+  });
+
   it('returns safe defaults when native module is unavailable', () => {
     mockGet.mockReturnValue(null);
     const specs = loadSpecs();
@@ -150,5 +159,6 @@ describe('NativeUsageStats', () => {
     expect(() => specs.stopMonitorService()).not.toThrow();
     expect(() => specs.requestNotificationsPermission()).not.toThrow();
     expect(() => specs.openNotificationsSettings()).not.toThrow();
+    expect(specs.isMonitorServiceRunning()).toBe(false);
   });
 });

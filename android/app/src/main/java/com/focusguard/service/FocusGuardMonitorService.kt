@@ -3,6 +3,7 @@ package com.focusguard.service
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.app.Service
 import android.content.Intent
 import android.content.pm.ServiceInfo
@@ -13,6 +14,9 @@ import androidx.core.app.ServiceCompat
 import com.focusguard.R
 import com.focusguard.TrackingEngine
 import com.focusguard.monitor.MonitorPermissions
+import com.focusguard.monitor.MonitoringPreferences
+import com.focusguard.navigation.NotificationNavigation
+import com.focusguard.receiver.MonitorNotificationDismissReceiver
 
 /**
  * Long-running foreground service that keeps the app-monitoring process alive.
@@ -34,6 +38,7 @@ class FocusGuardMonitorService : Service() {
 
   /** Creates the notification channel on first launch (API 26+). */
   override fun onCreate() {
+    isRunning = true
     super.onCreate()
     ensureNotificationChannel()
   }
@@ -72,6 +77,7 @@ class FocusGuardMonitorService : Service() {
 
   /** Stops the [TrackingEngine], removes the foreground notification and releases resources. */
   override fun onDestroy() {
+    isRunning = false
     trackingEngine?.stop()
     trackingEngine = null
     stopForeground(STOP_FOREGROUND_REMOVE)
@@ -108,10 +114,34 @@ class FocusGuardMonitorService : Service() {
           .setContentText(getString(R.string.monitor_notification_text))
           .setOngoing(true)
           .setCategory(NotificationCompat.CATEGORY_SERVICE)
+          .setContentIntent(NotificationNavigation.dashboardTapIntent(this))
+          .setDeleteIntent(monitorDismissPendingIntent())
           .build()
+
+  private fun monitorDismissPendingIntent(): PendingIntent {
+    val intent =
+        Intent(this, MonitorNotificationDismissReceiver::class.java).apply {
+          action = MonitorNotificationDismissReceiver.ACTION_DISMISS_MONITOR
+        }
+
+    val flags =
+        PendingIntent.FLAG_UPDATE_CURRENT or
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+              PendingIntent.FLAG_IMMUTABLE
+            } else {
+              0
+            }
+
+    return PendingIntent.getBroadcast(this, REQUEST_CODE_DISMISS_MONITOR, intent, flags)
+  }
 
   companion object {
     private const val CHANNEL_ID = "focusguard_monitor"
     private const val NOTIFICATION_ID = 1001
+    private const val REQUEST_CODE_DISMISS_MONITOR = 3003
+
+    @Volatile
+    var isRunning: Boolean = false
+        private set
   }
 }
