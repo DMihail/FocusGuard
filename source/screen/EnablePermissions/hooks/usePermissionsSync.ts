@@ -1,9 +1,11 @@
 /** @format */
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { DeviceEventEmitter } from 'react-native';
 
 import { useAppStateOnActive } from '@/hooks/useAppStateOnActive';
 import { configurePermissionStatusSyncAnimation } from '@/utils/layoutAnimation';
+import { PERMISSIONS_CHANGED_EVENT } from '@/utils/permissions/notificationPermissionEvents';
 
 import { PERMISSIONS } from '../data/permissions';
 import type { PermissionId, PermissionStatus } from '../types';
@@ -39,6 +41,12 @@ export const usePermissionsSync = () => {
   }, [syncStatuses]);
 
   useAppStateOnActive(syncStatuses);
+
+  useEffect(() => {
+    const subscription = DeviceEventEmitter.addListener(PERMISSIONS_CHANGED_EVENT, syncStatuses);
+
+    return () => subscription.remove();
+  }, [syncStatuses]);
 
   const permissions = useMemo(() => buildPermissionsWithStatus(statusById), [statusById]);
   const canContinue = areRequiredPermissionsGranted(statusById);

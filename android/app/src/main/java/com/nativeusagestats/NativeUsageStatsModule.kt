@@ -2,6 +2,7 @@ package com.nativeusagestats
 
 import android.Manifest
 import android.app.AppOpsManager
+import android.app.Application
 import android.app.usage.UsageStats
 import android.app.usage.UsageStatsManager
 import android.content.ActivityNotFoundException
@@ -21,11 +22,13 @@ import android.os.PowerManager
 import android.os.Process
 import android.provider.Settings
 import com.facebook.react.bridge.Arguments
+import com.facebook.react.bridge.LifecycleEventListener
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.WritableArray
 import com.facebook.react.bridge.WritableMap
 import com.focusguard.monitor.MonitorPermissions
 import com.focusguard.permissions.NotificationPermission
+import com.focusguard.permissions.PermissionEventEmitter
 import com.focusguard.monitor.MonitorServiceHelper
 import com.focusguard.monitor.OverlayAccess
 import com.focusguard.monitor.UsageAccess
@@ -134,6 +137,30 @@ private fun getCategoryName(category: Int): String =
 class NativeUsageStatsModule(reactContext: ReactApplicationContext) :
     NativeUsageStatsSpec(reactContext) {
 
+  private val lifecycleEventListener =
+      object : LifecycleEventListener {
+        override fun onHostResume() {
+          emitPermissionsChanged()
+        }
+
+        override fun onHostPause() = Unit
+
+        override fun onHostDestroy() = Unit
+      }
+
+  init {
+    reactApplicationContext.addLifecycleEventListener(lifecycleEventListener)
+  }
+
+  override fun invalidate() {
+    reactApplicationContext.removeLifecycleEventListener(lifecycleEventListener)
+    super.invalidate()
+  }
+
+  private fun emitPermissionsChanged() {
+    PermissionEventEmitter.emit(reactApplicationContext.applicationContext as Application)
+  }
+
   /** @return `true` if the app has Usage Stats access. */
   override fun checkForPermission(): Boolean = UsageAccess.hasAccess(reactApplicationContext)
 
@@ -239,6 +266,7 @@ class NativeUsageStatsModule(reactContext: ReactApplicationContext) :
     }
 
     val context = reactApplicationContext
+    val activity = context.currentActivity
     val packageUri = Uri.parse("package:${context.packageName}")
     val intents =
         listOf(
@@ -248,7 +276,11 @@ class NativeUsageStatsModule(reactContext: ReactApplicationContext) :
 
     for (intent in intents) {
       try {
-        context.startActivity(intent.apply { flags = Intent.FLAG_ACTIVITY_NEW_TASK })
+        if (activity != null) {
+          activity.startActivity(intent)
+        } else {
+          context.startActivity(intent.apply { flags = Intent.FLAG_ACTIVITY_NEW_TASK })
+        }
         return
       } catch (_: ActivityNotFoundException) {
         // Try the next settings screen.
