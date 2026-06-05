@@ -3,8 +3,8 @@ package com.focusguard
 import android.app.usage.UsageStats
 import android.app.usage.UsageStatsManager
 import android.content.Context
-import android.os.Build
-import java.util.Calendar
+import com.focusguard.usage.UsageStatsExtensions.foregroundTimeMs
+import com.focusguard.usage.UsageStatsExtensions.startOfLocalDayMs
 
 /** Reads per-app foreground usage for the current local calendar day. */
 class DailyUsageRepository(
@@ -41,21 +41,4 @@ class DailyUsageRepository(
 
         return stats?.filter { it.packageName.isNotEmpty() }
     }
-
-    private fun startOfLocalDayMs(): Long {
-        val calendar = Calendar.getInstance()
-        calendar.set(Calendar.HOUR_OF_DAY, 0)
-        calendar.set(Calendar.MINUTE, 0)
-        calendar.set(Calendar.SECOND, 0)
-        calendar.set(Calendar.MILLISECOND, 0)
-        return calendar.timeInMillis
-    }
-
-    private fun UsageStats.foregroundTimeMs(): Long =
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            totalTimeVisible
-        } else {
-            @Suppress("DEPRECATION")
-            totalTimeInForeground
-        }
 }

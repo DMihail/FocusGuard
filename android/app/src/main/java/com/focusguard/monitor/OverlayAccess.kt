@@ -1,10 +1,14 @@
 package com.focusguard.monitor
 
+import android.app.Activity
 import android.app.AppOpsManager
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import android.os.Process
 import android.provider.Settings
+import com.focusguard.permissions.ActivityIntents
 
 /** Checks whether the app may draw over other apps (block overlay). */
 object OverlayAccess {
@@ -19,6 +23,19 @@ object OverlayAccess {
         }
 
         return isSystemAlertWindowOpAllowed(context)
+    }
+
+    fun openSettings(context: Context, activity: Activity? = null) {
+        if (hasAccess(context) || Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            return
+        }
+
+        val intent =
+            Intent(
+                Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                Uri.parse("package:${context.packageName}"),
+            )
+        ActivityIntents.start(context, intent, activity)
     }
 
     private fun isSystemAlertWindowOpAllowed(context: Context): Boolean {
