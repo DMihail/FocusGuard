@@ -1,4 +1,4 @@
 /** @format */
 
 export * from './NativeUsageStats';
-export type { AppUsageStat, InstallApp } from './types';
+export type { InstallApp } from './types';

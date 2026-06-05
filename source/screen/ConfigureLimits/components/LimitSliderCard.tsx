@@ -5,10 +5,11 @@ import { Pressable, Text, View } from 'react-native';
 
 import { GestureDetector } from 'react-native-gesture-handler';
 
+import { formatDurationMinutes } from '@/utils/usage/formatUsage';
+
 import { useSliderTrackGesture } from '../hooks/useSliderTrackGesture';
 import { configureLimitsStyles as styles } from '../styles';
 import type { LimitSliderCardProps } from '../types';
-import { formatDurationMinutes } from '../utils/formatDuration';
 import { getSliderLayout } from '../utils/sliderLayout';
 
 export const LimitSliderCard = ({

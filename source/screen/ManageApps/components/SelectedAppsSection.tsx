@@ -41,7 +41,7 @@ SelectedChip.displayName = 'SelectedChip';
  * Uses `ScrollView` (not `FlatList`) to preserve the two-row wrapped layout
  * defined in `selectedAppsRows` styles.
  */
-export const SelectedAppsSection = ({ apps, onAppPress }: SelectedAppsSectionProps) => {
+const SelectedAppsSectionView = ({ apps, onAppPress }: SelectedAppsSectionProps) => {
   if (!apps.length) {
     return null;
   }
@@ -67,3 +67,5 @@ export const SelectedAppsSection = ({ apps, onAppPress }: SelectedAppsSectionPro
     </View>
   );
 };
+
+export const SelectedAppsSection = memo(SelectedAppsSectionView);

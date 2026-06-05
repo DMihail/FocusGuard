@@ -1,6 +1,6 @@
 /** @format */
 
-import React, { useCallback, useRef } from 'react';
+import React, { useCallback, useMemo } from 'react';
 
 import { useFocusEffect } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -13,7 +13,6 @@ import { useManageApps } from './hooks/useManageApps';
 import { manageAppsStyles } from './styles';
 
 import { ManageAppsHeader, ManageAppsList } from './components';
-import type { ManageAppsListHeaderProps } from './components/ManageAppsListHeader';
 import { ManageAppsListHeader } from './components/ManageAppsListHeader';
 
 export const ManageAppsScreen = () => {
@@ -41,25 +40,19 @@ export const ManageAppsScreen = () => {
     }, [refreshInstalledApps]),
   );
 
-  const listHeaderPropsRef = useRef<ManageAppsListHeaderProps>({
-    isSearchActive,
-    categoryFilters,
-    activeCategoryId: activeCategory.id,
-    onCategoryChange: setActiveCategory,
-    selectedApps,
-    onSelectedAppPress: openConfigureLimits,
-  });
-
-  listHeaderPropsRef.current = {
-    isSearchActive,
-    categoryFilters,
-    activeCategoryId: activeCategory.id,
-    onCategoryChange: setActiveCategory,
-    selectedApps,
-    onSelectedAppPress: openConfigureLimits,
-  };
-
-  const renderListHeader = useCallback(() => <ManageAppsListHeader {...listHeaderPropsRef.current} />, []);
+  const listHeader = useMemo(
+    () => (
+      <ManageAppsListHeader
+        isSearchActive={isSearchActive}
+        categoryFilters={categoryFilters}
+        activeCategoryId={activeCategory.id}
+        onCategoryChange={setActiveCategory}
+        selectedApps={selectedApps}
+        onSelectedAppPress={openConfigureLimits}
+      />
+    ),
+    [activeCategory.id, categoryFilters, isSearchActive, openConfigureLimits, selectedApps, setActiveCategory],
+  );
 
   return (
     <SafeAreaView
@@ -77,7 +70,7 @@ export const ManageAppsScreen = () => {
         onToggle={toggleAppSelection}
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
-        ListHeaderComponent={renderListHeader}
+        ListHeaderComponent={listHeader}
       />
     </SafeAreaView>
   );

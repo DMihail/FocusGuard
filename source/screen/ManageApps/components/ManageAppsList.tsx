@@ -1,6 +1,6 @@
 /** @format */
 
-import React, { useMemo } from 'react';
+import React, { memo, useMemo } from 'react';
 import { ActivityIndicator, FlatList, View } from 'react-native';
 
 import { APP_LIST_FLAT_LIST_PROPS } from '@/list';
@@ -23,7 +23,7 @@ type ManageAppsListProps = {
   ListHeaderComponent: React.ComponentType | React.ReactElement | null | (() => React.ReactElement | null);
 };
 
-export const ManageAppsList = ({
+const ManageAppsListView = ({
   apps,
   isFiltering = false,
   selectedCount,
@@ -70,3 +70,5 @@ export const ManageAppsList = ({
     </View>
   );
 };
+
+export const ManageAppsList = memo(ManageAppsListView);

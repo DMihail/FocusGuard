@@ -1,6 +1,6 @@
 /** @format */
 
-import { useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { type NativeScrollEvent, type NativeSyntheticEvent, useWindowDimensions } from 'react-native';
 
 import type { FlatList } from 'react-native';
@@ -33,13 +33,17 @@ export const useOnboardingPager = () => {
   const isLastStep = step === LAST_STEP_INDEX;
   const isPagerReady = pageWidth > 0;
 
-  const indicatorProps: ScrollIndicatorProps | null = isPagerReady
-    ? {
-        count: STEP_COUNT,
-        scrollX,
-        pageWidth,
-      }
-    : null;
+  const indicatorProps = useMemo<ScrollIndicatorProps | null>(
+    () =>
+      isPagerReady
+        ? {
+            count: STEP_COUNT,
+            scrollX,
+            pageWidth,
+          }
+        : null,
+    [isPagerReady, pageWidth, scrollX],
+  );
 
   const handleScroll = useAnimatedScrollHandler({
     onScroll: (event) => {
@@ -47,35 +51,40 @@ export const useOnboardingPager = () => {
     },
   });
 
-  const handleMomentumScrollEnd = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-    const nextStep = getStepFromOffset(event.nativeEvent.contentOffset.x, pageWidth, LAST_STEP_INDEX);
-    setStep(nextStep);
-  };
+  const handleMomentumScrollEnd = useCallback(
+    (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+      const nextStep = getStepFromOffset(event.nativeEvent.contentOffset.x, pageWidth, LAST_STEP_INDEX);
+      setStep(nextStep);
+    },
+    [pageWidth],
+  );
 
-  const goToStep = (index: number) => {
+  const goToStep = useCallback((index: number) => {
     listRef.current?.scrollToIndex({
       index: clampStepIndex(index, LAST_STEP_INDEX),
       animated: true,
     });
-  };
+  }, []);
 
-  const onSkip = () => {
+  const onSkip = useCallback(() => {
     onboardingStore.getState().setIsConfirm(true);
     navigation.navigate('EnablePermissions');
-  };
+  }, [navigation]);
 
-  const handleContinue = () => {
+  const handleContinue = useCallback(() => {
     if (!isLastStep) {
-      return goToStep(step + 1);
+      goToStep(step + 1);
+      return;
     }
-    onSkip();
-  };
 
-  const handlePagerLayout = (width: number) => {
+    onSkip();
+  }, [goToStep, isLastStep, onSkip, step]);
+
+  const handlePagerLayout = useCallback((width: number) => {
     if (width > 0) {
       setPageWidth((current) => (current === width ? current : width));
     }
-  };
+  }, []);
 
   const getItemLayout = useMemo(() => createGetItemLayout(pageWidth), [pageWidth]);
 

@@ -1,6 +1,6 @@
 /** @format */
 
-import React from 'react';
+import React, { memo } from 'react';
 import { View } from 'react-native';
 
 import { testIds } from '@/testing/testIds';
@@ -16,7 +16,7 @@ type WalkthroughPageProps = {
   width: number;
 };
 
-export const WalkthroughPage = ({ item, width }: WalkthroughPageProps) => {
+const WalkthroughPageView = ({ item, width }: WalkthroughPageProps) => {
   const { Icon } = item;
 
   return (
@@ -29,3 +29,5 @@ export const WalkthroughPage = ({ item, width }: WalkthroughPageProps) => {
     </View>
   );
 };
+
+export const WalkthroughPage = memo(WalkthroughPageView);

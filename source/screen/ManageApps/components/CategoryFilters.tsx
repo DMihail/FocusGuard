@@ -1,6 +1,6 @@
 /** @format */
 
-import React, { useMemo } from 'react';
+import React, { memo, useMemo } from 'react';
 import { FlatList } from 'react-native';
 
 import { CHIP_ROW_FLAT_LIST_PROPS } from '@/list';
@@ -16,7 +16,7 @@ type CategoryFiltersProps = {
   onCategoryChange: (categoryId: string) => void;
 };
 
-export const CategoryFilters = ({ filters, activeCategoryId, onCategoryChange }: CategoryFiltersProps) => {
+const CategoryFiltersView = ({ filters, activeCategoryId, onCategoryChange }: CategoryFiltersProps) => {
   const renderItem = useMemo(
     () => createCategoryFilterRenderItem(activeCategoryId, onCategoryChange),
     [activeCategoryId, onCategoryChange],
@@ -39,3 +39,5 @@ export const CategoryFilters = ({ filters, activeCategoryId, onCategoryChange }:
     />
   );
 };
+
+export const CategoryFilters = memo(CategoryFiltersView);

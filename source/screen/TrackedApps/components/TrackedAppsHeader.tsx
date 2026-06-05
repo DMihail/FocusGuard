@@ -1,6 +1,6 @@
 /** @format */
 
-import React from 'react';
+import React, { memo } from 'react';
 
 import { testIds } from '@/testing/testIds';
 
@@ -11,7 +11,7 @@ type TrackedAppsHeaderProps = {
   onBack: () => void;
 };
 
-export const TrackedAppsHeader = ({ appCount, onBack }: TrackedAppsHeaderProps) => (
+const TrackedAppsHeaderView = ({ appCount, onBack }: TrackedAppsHeaderProps) => (
   <ScreenBackHeader
     title="Tracked Apps"
     subtitle={`${appCount} ${appCount === 1 ? 'app' : 'apps'} monitored`}
@@ -21,3 +21,5 @@ export const TrackedAppsHeader = ({ appCount, onBack }: TrackedAppsHeaderProps) 
     subtitleTestID={testIds.trackedApps.appCount}
   />
 );
+
+export const TrackedAppsHeader = memo(TrackedAppsHeaderView);
