@@ -1,12 +1,16 @@
 <resources>
-    <string name="app_name">FocusGuard</string>
+    <string name="app_name">Keept</string>
     <string name="monitor_notification_channel_name">Focus monitoring</string>
-    <string name="monitor_notification_channel_description">Keeps FocusGuard active to enforce app limits</string>
-    <string name="monitor_notification_title">FocusGuard is active</string>
+    <string name="monitor_notification_channel_description">Keeps Keept active to enforce app limits</string>
+    <string name="monitor_notification_title">Keept is active</string>
     <string name="monitor_notification_text">Monitoring app usage in the background</string>
     <string name="special_use_fgs_subtype">focus_monitoring</string>
     <string name="warning_notification_channel_name">Usage warnings</string>
     <string name="warning_notification_channel_description">Alerts when you spend too long in a distracting app</string>
     <string name="warning_notification_title">Time to take a break!</string>
-    <string name="warning_notification_text">You\'ve been using %s for over a minute</string>
+    <string name="warning_notification_text">You\'ve been using %s for longer than your warning limit</string>
+    <string name="block_overlay_title">Time\'s up</string>
+    <string name="block_overlay_message">You\'ve reached your limit for %s. Take a break.</string>
+    <string name="block_overlay_snooze">5 more minutes</string>
+    <string name="block_overlay_home">Go to Home</string>
 </resources>

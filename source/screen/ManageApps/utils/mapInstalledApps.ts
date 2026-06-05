@@ -1,6 +1,7 @@
 /** @format */
 
 import type { InstallApp } from '@/specs';
+
 import type { ManageApp } from '../types';
 
 export const mapInstalledApps = (apps: InstallApp[]): ManageApp[] =>

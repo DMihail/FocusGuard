@@ -1,6 +1,7 @@
 /** @format */
 
 import { StyleSheet } from 'react-native';
+
 import { borderRadius, colors, fontSize, layoutPresets, spacing, textPresets, typography } from '@/theme';
 
 export const settingsStyles = StyleSheet.create({
@@ -8,35 +9,6 @@ export const settingsStyles = StyleSheet.create({
   scrollContent: {
     ...layoutPresets.scrollContent(spacing.xxl),
     paddingTop: spacing.sm,
-  },
-  header: {
-    ...layoutPresets.rowCenter,
-    gap: spacing.lg,
-    paddingBottom: spacing.lg,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: colors.divider,
-  },
-  backButton: {
-    width: 44,
-    height: 44,
-    borderRadius: borderRadius.pill,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  headerText: {
-    flex: 1,
-    gap: spacing.xs,
-  },
-  title: {
-    ...typography.display,
-    fontSize: fontSize.xxl,
-    lineHeight: 32,
-    color: colors.textPrimary,
-  },
-  subtitle: {
-    ...typography.body,
-    fontSize: fontSize.sm,
-    color: colors.textMuted,
   },
   sections: {
     gap: spacing.xxl,
@@ -61,10 +33,6 @@ export const settingsStyles = StyleSheet.create({
     paddingHorizontal: spacing.xl,
     paddingVertical: spacing.xl,
     gap: spacing.lg,
-  },
-  rowBorder: {
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: colors.divider,
   },
   rowLeading: {
     ...layoutPresets.rowCenter,

@@ -1,50 +1,69 @@
 /** @format */
 
-import React from 'react';
-import { Button, Text, View } from 'react-native';
-import { Link } from '@react-navigation/native';
-import { monitoringStore, selectedAppsStore } from '@/store';
-import { testIds } from '@/testing/testIds';
-import { dashboardStyles } from '../styles';
-import { DistractingAppRow } from './DistractingAppRow';
+import React, { useLayoutEffect, useMemo, useRef } from 'react';
+import { FlatList, Pressable, Text, View } from 'react-native';
 
-export const DistractingAppsSection = () => {
-  const selectedApps = selectedAppsStore((state) => state.apps);
-  const isMonitoring = monitoringStore((state) => state.isMonitoring);
-  const toggleMonitoring = monitoringStore((state) => state.toggle);
+import { NESTED_FLAT_LIST_PROPS } from '@/list';
+import { testIds } from '@/testing/testIds';
+import { spacing } from '@/theme';
+import { configureSectionLayoutAnimation } from '@/utils/layoutAnimation';
+import type { DashboardAppRow } from '@/utils/usage/dashboardStats';
+
+import { createDashboardAppRowRenderItem } from '../list';
+import { DistractingAppsListEmpty } from '../list/empty';
+import { dashboardStyles } from '../styles';
+
+const MAX_VISIBLE_APPS = 4;
+
+type DistractingAppsSectionProps = {
+  appRows: DashboardAppRow[];
+  onConfigureLimits: (packageName: string) => void;
+  onViewAllPress: () => void;
+};
+
+export function DistractingAppsSection({ appRows, onConfigureLimits, onViewAllPress }: DistractingAppsSectionProps) {
+  const visibleApps = useMemo(() => appRows.slice(0, MAX_VISIBLE_APPS), [appRows]);
+  const previousAppsCount = useRef(visibleApps.length);
+
+  useLayoutEffect(() => {
+    if (previousAppsCount.current !== visibleApps.length) {
+      configureSectionLayoutAnimation();
+      previousAppsCount.current = visibleApps.length;
+    }
+  }, [visibleApps.length]);
+
+  const renderItem = useMemo(() => createDashboardAppRowRenderItem(onConfigureLimits), [onConfigureLimits]);
 
   return (
     <View style={dashboardStyles.section} testID={testIds.dashboard.distractingAppsSection}>
       <View style={dashboardStyles.sectionHeader}>
-        <Text style={dashboardStyles.sectionTitle}>Top Distracting Apps</Text>
-        <Link
-          screen={'ManageApps'}
-          testID={testIds.dashboard.viewAllAppsButton}
-          accessibilityRole="button"
-          accessibilityLabel="View all apps"
-          style={dashboardStyles.viewAllButton}
-        >
-          <Text style={dashboardStyles.viewAllText}>View All</Text>
-        </Link>
+        <Text style={dashboardStyles.sectionTitle} accessibilityRole="header" numberOfLines={1}>
+          Top Distracting Apps
+        </Text>
+        {appRows.length > MAX_VISIBLE_APPS ? (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="View all tracked apps"
+            onPress={onViewAllPress}
+            style={dashboardStyles.viewAllButton}
+            testID={testIds.dashboard.viewAllAppsButton}
+          >
+            <Text style={dashboardStyles.viewAllText}>View All</Text>
+          </Pressable>
+        ) : null}
       </View>
 
-      <View style={dashboardStyles.appsList} testID={testIds.dashboard.appsList}>
-        {!selectedApps.length ? (
-          <Text style={dashboardStyles.emptyText} testID={testIds.dashboard.appsEmpty}>
-            No apps selected yet
-          </Text>
-        ) : (
-          selectedApps.map((app) => <DistractingAppRow key={app.packageName} {...app} />)
-        )}
-      </View>
-
-      {!!selectedApps.length && (
-        <Button
-          title={isMonitoring ? 'Stop' : 'Start'}
-          color={isMonitoring ? '#e74c3c' : undefined}
-          onPress={toggleMonitoring}
-        />
-      )}
+      <FlatList
+        data={visibleApps}
+        renderItem={renderItem}
+        keyExtractor={(item) => item.packageName}
+        ListEmptyComponent={DistractingAppsListEmpty}
+        contentContainerStyle={dashboardStyles.appsList}
+        style={{ gap: spacing.md }}
+        testID={testIds.dashboard.appsList}
+        extraData={onConfigureLimits}
+        {...NESTED_FLAT_LIST_PROPS}
+      />
     </View>
   );
-};
+}

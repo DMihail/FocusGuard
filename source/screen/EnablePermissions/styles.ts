@@ -1,6 +1,7 @@
 /** @format */
 
 import { StyleSheet } from 'react-native';
+
 import { borderRadius, colors, iconBoxPresets, layoutPresets, spacing, textPresets, typography } from '@/theme';
 
 export const permissionsStyles = StyleSheet.create({
@@ -14,9 +15,6 @@ export const permissionsStyles = StyleSheet.create({
   subtitle: {
     ...typography.body,
     color: colors.textMuted,
-  },
-  cards: {
-    gap: spacing.lg,
   },
   card: {
     borderRadius: borderRadius.xl,

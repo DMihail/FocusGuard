@@ -1,7 +1,9 @@
 /** @format */
 
 import * as React from 'react';
-import Svg, { Path, SvgProps } from 'react-native-svg';
+
+import type { SvgProps } from 'react-native-svg';
+import Svg, { Path } from 'react-native-svg';
 
 export const BellIcon = ({ stroke = '#D0BCFF', ...props }: SvgProps) => (
   <Svg width={20} height={20} viewBox="0 0 17 15" fill="none" {...props}>

@@ -1,14 +1,21 @@
 /** @format */
 
 import { BatteryOptimization, DisplayOverApps, NotificationsIcon, UsageAccess } from '@/assets/svg/EnablePermissions';
-import type { PermissionItem } from '../types';
 
-export const PERMISSIONS: PermissionItem[] = [
+import type { PermissionId, PermissionItem } from '../types';
+
+export const PERMISSION_IDS: PermissionId[] = [
+  'usage-access',
+  'display-over-apps',
+  'battery-optimization',
+  'notifications',
+];
+
+export const createPermissions = (appDisplayName: string): PermissionItem[] => [
   {
     id: 'usage-access',
     title: 'Usage Access',
-    description:
-      'Enable “Usage access” for FocusGuard. On Xiaomi/Redmi: Settings → Privacy → Special permissions → Usage access, or use Grant to open app permissions.',
+    description: `Enable “Usage access” for ${appDisplayName}. On Xiaomi/Redmi: Settings → Privacy → Special permissions → Usage access, or use Grant to open app permissions.`,
     status: 'pending',
     Icon: UsageAccess,
   },

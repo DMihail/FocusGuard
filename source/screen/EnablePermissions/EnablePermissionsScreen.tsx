@@ -1,26 +1,30 @@
 /** @format */
 
 import React, { useCallback, useMemo } from 'react';
-import { ScrollView, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { FlatList, View } from 'react-native';
+
+import { useFocusEffect } from '@react-navigation/native';
+
+import { APP_LIST_FLAT_LIST_PROPS } from '@/list';
 import { useRootNavigation } from '@/navigation';
-import { PermissionCard, PermissionsFooter, PermissionsHeader, PrivacyNotice } from './components';
-import { PERMISSIONS } from './data/permissions';
-import { usePermissionsSync } from './hooks/usePermissionsSync';
-import { areAllPermissionsGranted } from './utils/permissionStatus';
 import { testIds } from '@/testing/testIds';
+
+import { usePermissionsSync } from './hooks/usePermissionsSync';
+import { createPermissionListRenderItem, permissionKeyExtractor } from './list';
 import { permissionsStyles } from './styles';
+
+import { PermissionsFooter, PermissionsHeader, PrivacyNotice } from './components';
+import { ScreenSafeArea } from '@/components';
 
 export const EnablePermissionsScreen = () => {
   const navigation = useRootNavigation();
-  const { statusById, handleGrant } = usePermissionsSync();
+  const { permissions, canContinue, handleGrant, syncStatuses } = usePermissionsSync();
 
-  const permissions = useMemo(
-    () => PERMISSIONS.map((item) => ({ ...item, status: statusById[item.id] ?? item.status })),
-    [statusById],
+  useFocusEffect(
+    useCallback(() => {
+      syncStatuses();
+    }, [syncStatuses]),
   );
-
-  const canContinue = areAllPermissionsGranted();
 
   const handleContinue = useCallback(() => {
     if (!canContinue) {
@@ -29,26 +33,28 @@ export const EnablePermissionsScreen = () => {
     navigation.navigate('Dashboard');
   }, [canContinue, navigation]);
 
+  const renderItem = useMemo(() => createPermissionListRenderItem(handleGrant), [handleGrant]);
+
   return (
-    <SafeAreaView style={permissionsStyles.screen} edges={['top', 'bottom']} testID={testIds.enablePermissions.screen}>
-      <ScrollView
+    <ScreenSafeArea style={permissionsStyles.screen} testID={testIds.enablePermissions.screen}>
+      <FlatList
         testID={testIds.enablePermissions.scroll}
+        data={permissions}
+        renderItem={renderItem}
+        keyExtractor={permissionKeyExtractor}
+        ListHeaderComponent={PermissionsHeader}
         contentContainerStyle={permissionsStyles.scrollContent}
         showsVerticalScrollIndicator={false}
-      >
-        <PermissionsHeader />
-
-        <View style={permissionsStyles.cards} testID={testIds.enablePermissions.cards}>
-          {permissions.map((item) => (
-            <PermissionCard key={item.id} {...item} onGrant={() => handleGrant(item.id)} />
-          ))}
-        </View>
-      </ScrollView>
+        accessibilityRole="list"
+        accessibilityLabel="Required permissions"
+        extraData={permissions}
+        {...APP_LIST_FLAT_LIST_PROPS}
+      />
 
       <View style={permissionsStyles.footer}>
         <PrivacyNotice />
         <PermissionsFooter canContinue={canContinue} onContinue={handleContinue} />
       </View>
-    </SafeAreaView>
+    </ScreenSafeArea>
   );
 };

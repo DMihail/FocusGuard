@@ -2,17 +2,26 @@
 
 import { useCallback, useMemo, useRef, useState } from 'react';
 import {
-  Animated,
-  FlatList,
-  useWindowDimensions,
+  type LayoutChangeEvent,
   type NativeScrollEvent,
   type NativeSyntheticEvent,
+  useWindowDimensions,
 } from 'react-native';
-import { WALKTHROUGH_STEPS, type WalkthroughStepData } from '../data/walkthroughSteps';
-import type { ScrollIndicatorProps } from '../types';
-import { clampStepIndex, createGetItemLayout, createScrollToIndexFailedHandler, getStepFromOffset } from '../utils';
+
+import type { FlatList } from 'react-native';
+import { useAnimatedScrollHandler, useSharedValue } from 'react-native-reanimated';
+
 import { useRootNavigation } from '@/navigation';
 import { onboardingStore } from '@/store/onboardingStore';
+
+import { WALKTHROUGH_STEPS, type WalkthroughStepData } from '../data/walkthroughSteps';
+import type { ScrollIndicatorProps } from '../types';
+import {
+  clampStepIndex,
+  createGetItemLayout,
+  createScrollToIndexFailedHandler,
+  getStepFromOffset,
+} from '../utils/scroll';
 
 const STEP_COUNT = WALKTHROUGH_STEPS.length;
 const LAST_STEP_INDEX = STEP_COUNT - 1;
@@ -21,7 +30,7 @@ export const useOnboardingPager = () => {
   const navigation = useRootNavigation();
   const { width: windowWidth } = useWindowDimensions();
   const listRef = useRef<FlatList<WalkthroughStepData>>(null);
-  const scrollX = useRef(new Animated.Value(0)).current;
+  const scrollX = useSharedValue(0);
   const [step, setStep] = useState(0);
   const [pageWidth, setPageWidth] = useState(windowWidth);
 
@@ -40,13 +49,11 @@ export const useOnboardingPager = () => {
     [isPagerReady, pageWidth, scrollX],
   );
 
-  const handleScroll = useMemo(
-    () =>
-      Animated.event([{ nativeEvent: { contentOffset: { x: scrollX } } }], {
-        useNativeDriver: true,
-      }),
-    [scrollX],
-  );
+  const handleScroll = useAnimatedScrollHandler({
+    onScroll: (event) => {
+      scrollX.value = event.contentOffset.x;
+    },
+  });
 
   const handleMomentumScrollEnd = useCallback(
     (event: NativeSyntheticEvent<NativeScrollEvent>) => {
@@ -70,14 +77,16 @@ export const useOnboardingPager = () => {
 
   const handleContinue = useCallback(() => {
     if (!isLastStep) {
-      return goToStep(step + 1);
+      goToStep(step + 1);
+      return;
     }
+
     onSkip();
   }, [goToStep, isLastStep, onSkip, step]);
 
-  const handlePagerLayout = useCallback((width: number) => {
-    if (width > 0) {
-      setPageWidth((current) => (current === width ? current : width));
+  const handlePagerContainerLayout = useCallback(({ nativeEvent: { layout } }: LayoutChangeEvent) => {
+    if (layout.width > 0) {
+      setPageWidth((current) => (current === layout.width ? current : layout.width));
     }
   }, []);
 
@@ -96,7 +105,7 @@ export const useOnboardingPager = () => {
     handleScroll,
     handleMomentumScrollEnd,
     handleContinue,
-    handlePagerLayout,
+    handlePagerContainerLayout,
     getItemLayout,
     handleScrollToIndexFailed,
     onSkip,

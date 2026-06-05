@@ -1,35 +1,12 @@
 /** @format */
 
-import type { TurboModule } from 'react-native';
 import { TurboModuleRegistry } from 'react-native';
 
-/** Per-app foreground usage statistics for the last 24 hours. */
-export type AppUsageStat = Readonly<{
-  /** Unique application identifier, e.g. `com.example.app`. */
-  packageName: string;
-  /** Human-readable application label. */
-  appName: string;
-  /** `file://` URI to the cached app icon, or empty string on failure. */
-  appImage: string;
-  /** Category name derived from `ApplicationInfo.category` (e.g. "Social", "Game"). */
-  category: string;
-  /** Time the app spent in the foreground during the query window, in milliseconds. */
-  totalTimeForeground: number;
-  /** Epoch timestamp (ms) of the app's last foreground session. */
-  lastTimeUsed: number;
-}>;
+import type { TurboModule } from 'react-native';
 
-/** Basic info about an installed launchable application. */
-export type InstallApp = Readonly<{
-  /** Unique application identifier, e.g. `com.example.app`. */
-  packageName: string;
-  /** Human-readable application label. */
-  appName: string;
-  /** `file://` URI to the cached app icon, or empty string on failure. */
-  appImage: string;
-  /** Category name derived from `ApplicationInfo.category`. */
-  category: string;
-}>;
+import type { AppUsageStat, InstallApp } from './types';
+
+export type { AppUsageStat, InstallApp } from './types';
 
 /**
  * Turbo Module spec for `NativeUsageStats`.
@@ -52,6 +29,8 @@ export interface Spec extends TurboModule {
   startMonitorService(): void;
   /** Stops `FocusGuardMonitorService`, its `TrackingEngine`, and removes the notification. */
   stopMonitorService(): void;
+  /** @returns `true` while the monitor foreground service is running. */
+  isMonitorServiceRunning(): boolean;
   /** Opens the system Usage Stats settings screen. */
   requestUsageStatsPermission(): void;
   /** Opens the system overlay permission screen (API 23+). */
@@ -62,10 +41,16 @@ export interface Spec extends TurboModule {
   openNotificationsSettings(): void;
   /** Requests the user to disable battery optimizations (API 23+). */
   requestIgnoreBatteryOptimizationsPermission(): void;
-  /** @returns per-app foreground usage stats for the last 24 hours, sorted by time descending. */
+  /** @returns per-app foreground usage stats for the current local day, sorted by time descending. */
   getAppsUsageStats(): AppUsageStat[];
+  /** @returns today's foreground milliseconds for a single package (same source as the monitor). */
+  getPackageUsageToday(packageName: string): number;
   /** @returns all launchable apps on the device (excluding this app). */
   getInstalledApplications(): InstallApp[];
+  /** @returns the user-facing app name from native resources (`app_name` / CFBundleDisplayName). */
+  getAppDisplayName(): string;
+  /** @returns the marketing version from native build config (`versionName` / CFBundleShortVersionString). */
+  getAppVersion(): string;
 }
 
 const usageStats = TurboModuleRegistry.get<Spec>('NativeUsageStats');
@@ -98,6 +83,9 @@ export const stopMonitorService = (): void => {
   usageStats?.stopMonitorService();
 };
 
+/** @returns `true` while the monitor foreground service is running. */
+export const isMonitorServiceRunning = (): boolean => usageStats?.isMonitorServiceRunning() ?? false;
+
 /** Opens the system Usage Stats settings screen. */
 export const requestUsageStatsPermission = (): void => {
   usageStats?.requestUsageStatsPermission();
@@ -123,8 +111,17 @@ export const requestIgnoreBatteryOptimizationsPermission = (): void => {
   usageStats?.requestIgnoreBatteryOptimizationsPermission();
 };
 
-/** @returns per-app foreground usage stats for the last 24 hours, sorted by time descending. */
+/** @returns per-app foreground usage stats for the current local day, sorted by time descending. */
 export const getAppsUsageStats = (): AppUsageStat[] => usageStats?.getAppsUsageStats() ?? [];
+
+/** @returns today's foreground usage in ms for one package (0 when unavailable). */
+export const getPackageUsageToday = (packageName: string): number => usageStats?.getPackageUsageToday(packageName) ?? 0;
 
 /** @returns all launchable apps installed on the device (excluding this app). */
 export const getInstalledApplications = (): InstallApp[] => usageStats?.getInstalledApplications() ?? [];
+
+/** @returns the user-facing app name configured in native resources. */
+export const getAppDisplayName = (): string => usageStats?.getAppDisplayName()?.trim() ?? '';
+
+/** @returns the marketing version configured in native build settings. */
+export const getAppVersion = (): string => usageStats?.getAppVersion()?.trim() ?? '';

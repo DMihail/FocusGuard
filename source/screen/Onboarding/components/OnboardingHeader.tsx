@@ -2,9 +2,11 @@
 
 import React from 'react';
 import { Pressable, Text, View } from 'react-native';
-import type { ScrollIndicatorProps } from '../types';
-import { onboardingStyles } from '../styles';
+
 import { testIds } from '@/testing/testIds';
+
+import { onboardingStyles } from '../styles';
+import type { ScrollIndicatorProps } from '../types';
 import { ScrollIndicator } from './ScrollIndicator';
 
 type OnboardingHeaderProps = {

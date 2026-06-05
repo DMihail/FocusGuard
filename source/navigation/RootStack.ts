@@ -1,14 +1,18 @@
 /** @format */
 
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+
 import {
+  ConfigureLimitsScreen,
   DashboardScreen,
   EnablePermissionsScreen,
+  LegalDocumentScreen,
   ManageAppsScreen,
   OnboardingScreen,
   SettingsScreen,
-  LegalDocumentScreen,
+  TrackedAppsScreen,
 } from '@/screen';
+
 import type { RootStackParamList } from './types';
 
 const rootScreens = {
@@ -26,12 +30,27 @@ const rootScreens = {
   },
   Dashboard: {
     screen: DashboardScreen,
+    linking: 'dashboard',
     options: {
       headerShown: false,
     },
   },
   ManageApps: {
     screen: ManageAppsScreen,
+    options: {
+      headerShown: false,
+    },
+  },
+  TrackedApps: {
+    screen: TrackedAppsScreen,
+    linking: 'tracked-apps',
+    options: {
+      headerShown: false,
+    },
+  },
+  ConfigureLimits: {
+    screen: ConfigureLimitsScreen,
+    linking: 'configure/:packageName',
     options: {
       headerShown: false,
     },

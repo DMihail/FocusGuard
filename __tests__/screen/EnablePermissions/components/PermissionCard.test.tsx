@@ -1,18 +1,21 @@
 /** @format */
 
 import React from 'react';
+
 import ReactTestRenderer from 'react-test-renderer';
+
 import { UsageAccess } from '@/assets/svg/EnablePermissions';
+
 import { PermissionCard } from '@/screen/EnablePermissions/components/PermissionCard';
 
 jest.mock('../../../../source/screen/EnablePermissions/hooks/usePermissionCardAnimation', () => ({
   usePermissionCardAnimation: (status: 'granted' | 'pending') => ({
-    cardStyle: {},
-    iconBoxStyle: {},
-    pendingIconOpacity: status === 'pending' ? 1 : 0,
-    grantedIconOpacity: status === 'granted' ? 1 : 0,
+    grantedOverlayStyle: {},
+    pendingIconStyle: {},
+    grantedIconStyle: {},
     badgeStyle: {},
     grantButtonStyle: {},
+    collapsed: status === 'granted',
     isGranted: status === 'granted',
   }),
 }));
@@ -61,13 +64,13 @@ describe('PermissionCard', () => {
     expect(onGrant).toHaveBeenCalledTimes(1);
   });
 
-  it('disables grant button for granted permissions', () => {
+  it('hides grant button for granted permissions', () => {
     let tree: ReactTestRenderer.ReactTestRenderer;
 
     ReactTestRenderer.act(() => {
       tree = ReactTestRenderer.create(<PermissionCard {...baseProps} status="granted" onGrant={jest.fn()} />);
     });
 
-    expect(tree!.root.findByProps({ accessibilityLabel: 'Grant Usage Access' }).props.disabled).toBe(true);
+    expect(() => tree!.root.findByProps({ accessibilityLabel: 'Grant Usage Access' })).toThrow();
   });
 });

@@ -2,13 +2,13 @@ package com.focusguard.monitor
 
 import android.app.AppOpsManager
 import android.app.usage.UsageStatsManager
-import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Process
 import android.provider.Settings
+import com.focusguard.permissions.ActivityIntents
 
 /**
  * Utility for checking and requesting the Usage Stats (`PACKAGE_USAGE_STATS`) permission.
@@ -72,14 +72,7 @@ internal object UsageAccess {
             Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply { data = packageUri },
         )
 
-    for (intent in intents) {
-      try {
-        context.startActivity(intent.apply { flags = Intent.FLAG_ACTIVITY_NEW_TASK })
-        return
-      } catch (_: ActivityNotFoundException) {
-        // Try the next MIUI / AOSP settings screen.
-      }
-    }
+    ActivityIntents.startFirstAvailable(context, intents)
   }
 
   /**

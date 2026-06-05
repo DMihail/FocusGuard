@@ -1,10 +1,14 @@
 /** @format */
 
-import React from 'react';
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import React, { memo, useMemo } from 'react';
+import { FlatList } from 'react-native';
+
+import { CHIP_ROW_FLAT_LIST_PROPS } from '@/list';
 import { testIds } from '@/testing/testIds';
-import type { CategoryFilterOption } from '../types';
+
+import { categoryFilterKeyExtractor, createCategoryFilterRenderItem } from '../list';
 import { manageAppsStyles } from '../styles';
+import type { CategoryFilterOption } from '../types';
 
 type CategoryFiltersProps = {
   filters: CategoryFilterOption[];
@@ -12,34 +16,28 @@ type CategoryFiltersProps = {
   onCategoryChange: (categoryId: string) => void;
 };
 
-export const CategoryFilters = ({ filters, activeCategoryId, onCategoryChange }: CategoryFiltersProps) => (
-  <View style={manageAppsStyles.filters}>
-    <ScrollView
+const CategoryFiltersView = ({ filters, activeCategoryId, onCategoryChange }: CategoryFiltersProps) => {
+  const renderItem = useMemo(
+    () => createCategoryFilterRenderItem(activeCategoryId, onCategoryChange),
+    [activeCategoryId, onCategoryChange],
+  );
+
+  return (
+    <FlatList
       horizontal
+      data={filters}
+      renderItem={renderItem}
+      keyExtractor={categoryFilterKeyExtractor}
       showsHorizontalScrollIndicator={false}
       style={manageAppsStyles.filters}
       contentContainerStyle={manageAppsStyles.filtersContent}
       testID={testIds.manageApps.categoryFilters}
-    >
-      {filters.map((category) => {
-        const isActive = activeCategoryId === category.id;
+      accessibilityRole="list"
+      accessibilityLabel="App category filters"
+      extraData={activeCategoryId}
+      {...CHIP_ROW_FLAT_LIST_PROPS}
+    />
+  );
+};
 
-        return (
-          <Pressable
-            key={category.id}
-            testID={testIds.manageApps.categoryFilter(category.id)}
-            accessibilityRole="button"
-            accessibilityLabel={`Category filter ${category.label}`}
-            accessibilityState={{ selected: isActive }}
-            style={[manageAppsStyles.filterChip, isActive && manageAppsStyles.filterChipActive]}
-            onPress={() => onCategoryChange(category.id)}
-          >
-            <Text style={[manageAppsStyles.filterChipText, isActive && manageAppsStyles.filterChipTextActive]}>
-              {category.label}
-            </Text>
-          </Pressable>
-        );
-      })}
-    </ScrollView>
-  </View>
-);
+export const CategoryFilters = memo(CategoryFiltersView);

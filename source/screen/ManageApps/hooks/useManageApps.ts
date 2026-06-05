@@ -1,9 +1,12 @@
 /** @format */
 
-import { useCallback, useDeferredValue, useEffect, useMemo, useState, useTransition } from 'react';
-import { selectedAppsStore } from '@/store';
+import { useCallback, useEffect, useMemo, useState, useTransition } from 'react';
+
 import { getInstalledApplications } from '@/specs';
-import type { CategoryFilterOption } from '../types';
+import { selectedAppsStore } from '@/store';
+import { configureSectionLayoutAnimation } from '@/utils/layoutAnimation';
+
+import type { CategoryFilterOption, ManageApp } from '../types';
 import { ALL_CATEGORY_FILTER, buildCategoryFilters } from '../utils/buildCategoryFilters';
 import { mapInstalledApps } from '../utils/mapInstalledApps';
 import { matchesCategoryFilter } from '../utils/matchesCategoryFilter';
@@ -15,21 +18,36 @@ export const useManageApps = () => {
     setInstalledApps(mapInstalledApps(getInstalledApplications()));
   }, []);
 
-  const apps = installedApps;
-  const categoryFilters = useMemo(() => buildCategoryFilters(apps), [apps]);
+  const categoryFilters = useMemo(() => buildCategoryFilters(installedApps), [installedApps]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [isSearchInputActive, setIsSearchInputActive] = useState(false);
   const [activeCategory, setActiveCategory] = useState<CategoryFilterOption>(ALL_CATEGORY_FILTER);
   const [isCategoryPending, startCategoryTransition] = useTransition();
   const selectedApps = selectedAppsStore((state) => state.apps);
-  const toggleAppSelection = selectedAppsStore((state) => state.toggleApp);
+  const toggleAppInStore = selectedAppsStore((state) => state.toggleApp);
   const isSelected = selectedAppsStore((state) => state.isSelected);
 
-  const deferredSearchQuery = useDeferredValue(searchQuery);
+  const toggleAppSelection = useCallback(
+    (app: ManageApp) => {
+      configureSectionLayoutAnimation();
+      toggleAppInStore(app);
+    },
+    [toggleAppInStore],
+  );
+
+  const handleSearchActiveChange = useCallback((isActive: boolean) => {
+    setIsSearchInputActive((previous) => {
+      if (previous !== isActive) {
+        configureSectionLayoutAnimation();
+      }
+
+      return isActive;
+    });
+  }, []);
+
   const normalizedSearchQuery = searchQuery.trim().toLowerCase();
-  const normalizedDeferredQuery = deferredSearchQuery.trim().toLowerCase();
-  const isSearchActive = normalizedSearchQuery.length > 0;
-  const isSearchPending = searchQuery !== deferredSearchQuery;
-  const isFiltering = isSearchPending || (!isSearchActive && isCategoryPending);
+  const isSearchActive = isSearchInputActive || normalizedSearchQuery.length > 0;
+  const isFiltering = !isSearchActive && isCategoryPending;
 
   useEffect(() => {
     const isActiveFilterAvailable = categoryFilters.some((filter) => filter.id === activeCategory.id);
@@ -40,17 +58,17 @@ export const useManageApps = () => {
   }, [activeCategory.id, categoryFilters]);
 
   const filteredApps = useMemo(() => {
-    return apps.filter((app) => {
-      if (normalizedDeferredQuery.length > 0) {
+    return installedApps.filter((app) => {
+      if (normalizedSearchQuery.length > 0) {
         return (
-          app.appName.toLowerCase().includes(normalizedDeferredQuery) ||
-          app.packageName.toLowerCase().includes(normalizedDeferredQuery)
+          app.appName.toLowerCase().includes(normalizedSearchQuery) ||
+          app.packageName.toLowerCase().includes(normalizedSearchQuery)
         );
       }
 
       return matchesCategoryFilter(app, activeCategory);
     });
-  }, [activeCategory, apps, normalizedDeferredQuery]);
+  }, [activeCategory, installedApps, normalizedSearchQuery]);
 
   const handleCategoryChange = useCallback(
     (filterId: string) => {
@@ -75,11 +93,10 @@ export const useManageApps = () => {
     isFiltering,
     isSearchActive,
     selectedApps,
-    selectedCount: selectedApps.length,
-    searchQuery,
     setSearchQuery,
+    setSearchInputActive: handleSearchActiveChange,
     categoryFilters,
-    activeCategory,
+    activeCategoryId: activeCategory.id,
     setActiveCategory: handleCategoryChange,
     isSelected,
     toggleAppSelection,

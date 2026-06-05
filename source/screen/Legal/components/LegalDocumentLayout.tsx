@@ -1,12 +1,16 @@
 /** @format */
 
 import React, { useCallback } from 'react';
-import { Pressable, ScrollView, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { BackIcon } from '@/assets/svg/ManageApps';
-import { useRootNavigation } from '@/navigation';
-import type { LegalDocument } from '../types';
+import { FlatList, View } from 'react-native';
+
+import { APP_LIST_FLAT_LIST_PROPS } from '@/list';
+
+import { legalSectionKeyExtractor, renderLegalSectionItem } from '../list';
 import { legalStyles } from '../styles';
+import type { LegalDocument } from '../types';
+import { LegalDocumentListHeader } from './LegalDocumentListHeader';
+
+import { ScreenSafeArea } from '@/components';
 
 type LegalDocumentLayoutProps = {
   document: LegalDocument;
@@ -16,6 +20,8 @@ type LegalDocumentLayoutProps = {
   backButtonTestId: string;
 };
 
+const LegalSectionSeparator = () => <View style={legalStyles.sectionSeparator} />;
+
 export const LegalDocumentLayout = ({
   document,
   screenTestId,
@@ -23,51 +29,28 @@ export const LegalDocumentLayout = ({
   headerTestId,
   backButtonTestId,
 }: LegalDocumentLayoutProps) => {
-  const navigation = useRootNavigation();
-
-  const handleBack = useCallback(() => {
-    navigation.goBack();
-  }, [navigation]);
+  const renderListHeader = useCallback(
+    () => (
+      <LegalDocumentListHeader document={document} headerTestId={headerTestId} backButtonTestId={backButtonTestId} />
+    ),
+    [backButtonTestId, document, headerTestId],
+  );
 
   return (
-    <SafeAreaView style={legalStyles.screen} edges={['top', 'bottom']} testID={screenTestId}>
-      <ScrollView
+    <ScreenSafeArea style={legalStyles.screen} testID={screenTestId}>
+      <FlatList
         testID={scrollTestId}
+        data={document.sections}
+        renderItem={renderLegalSectionItem}
+        keyExtractor={legalSectionKeyExtractor}
+        ListHeaderComponent={renderListHeader}
         contentContainerStyle={legalStyles.scrollContent}
+        ItemSeparatorComponent={LegalSectionSeparator}
         showsVerticalScrollIndicator={false}
-      >
-        <View style={legalStyles.header} testID={headerTestId}>
-          <Pressable
-            testID={backButtonTestId}
-            accessibilityRole="button"
-            accessibilityLabel="Go back"
-            style={legalStyles.backButton}
-            onPress={handleBack}
-          >
-            <BackIcon />
-          </Pressable>
-
-          <View style={legalStyles.headerText}>
-            <Text style={legalStyles.title}>{document.title}</Text>
-            <Text style={legalStyles.subtitle}>{document.subtitle}</Text>
-          </View>
-        </View>
-
-        <Text style={legalStyles.meta}>{`Last updated: ${document.lastUpdated}`}</Text>
-
-        <View style={legalStyles.sections}>
-          {document.sections.map((section) => (
-            <View key={section.title} style={legalStyles.section}>
-              <Text style={legalStyles.sectionTitle}>{section.title}</Text>
-              {section.paragraphs.map((paragraph, index) => (
-                <Text key={`${section.title}-${index}`} style={legalStyles.paragraph}>
-                  {paragraph}
-                </Text>
-              ))}
-            </View>
-          ))}
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+        accessibilityRole="list"
+        accessibilityLabel={document.title}
+        {...APP_LIST_FLAT_LIST_PROPS}
+      />
+    </ScreenSafeArea>
   );
 };

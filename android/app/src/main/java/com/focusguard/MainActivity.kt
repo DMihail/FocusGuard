@@ -1,11 +1,15 @@
 package com.focusguard
 
+import android.content.Intent
 import android.os.Bundle
-import com.swmansion.rnscreens.fragment.restoration.RNScreensFragmentFactory
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate
 import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint.fabricEnabled
 import com.facebook.react.defaults.DefaultReactActivityDelegate
+import com.focusguard.permissions.NotificationPermission
+import com.focusguard.permissions.PermissionEventEmitter
+import com.swmansion.rnscreens.fragment.restoration.RNScreensFragmentFactory
 
 class MainActivity : ReactActivity() {
 
@@ -13,11 +17,29 @@ class MainActivity : ReactActivity() {
    * Returns the name of the main component registered from JavaScript. This is used to schedule
    * rendering of the component.
    */
-  override fun getMainComponentName(): String = "FocusGuard"
+  override fun getMainComponentName(): String = "Keept"
 
   override fun onCreate(savedInstanceState: Bundle?) {
+    installSplashScreen()
     supportFragmentManager.fragmentFactory = RNScreensFragmentFactory()
     super.onCreate(savedInstanceState)
+  }
+
+  override fun onNewIntent(intent: Intent) {
+    super.onNewIntent(intent)
+    setIntent(intent)
+  }
+
+  override fun onRequestPermissionsResult(
+      requestCode: Int,
+      permissions: Array<out String>,
+      grantResults: IntArray,
+  ) {
+    super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+
+    if (requestCode == NotificationPermission.REQUEST_CODE_POST_NOTIFICATIONS) {
+      PermissionEventEmitter.emit(application)
+    }
   }
 
   /**

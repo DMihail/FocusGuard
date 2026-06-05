@@ -1,9 +1,15 @@
 /** @format */
 
-import { useCallback, useEffect, useState } from 'react';
-import { AppState, Platform, type AppStateStatus } from 'react-native';
-import { checkForNotificationsPermission, openNotificationsSettings, requestNotificationsPermission } from '@/specs';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { DeviceEventEmitter, Platform } from 'react-native';
+
+import { useFocusEffect } from '@react-navigation/native';
+
+import { useAppStateOnActive } from '@/hooks/useAppStateOnActive';
+import { checkForNotificationsPermission, openNotificationsSettings } from '@/specs';
 import { settingsStore } from '@/store';
+import { PERMISSIONS_CHANGED_EVENT } from '@/utils/permissions/notificationPermissionEvents';
+import { requestPostNotificationsPermission } from '@/utils/permissions/requestNotificationPermission';
 
 const readSystemNotificationsGranted = (): boolean =>
   Platform.OS !== 'android' ? true : checkForNotificationsPermission();
@@ -12,10 +18,19 @@ export const useNotificationsSetting = () => {
   const notificationsEnabled = settingsStore((state) => state.notificationsEnabled);
   const setNotificationsEnabled = settingsStore((state) => state.setNotificationsEnabled);
   const [systemGranted, setSystemGranted] = useState(readSystemNotificationsGranted);
+  const permissionRequestInFlightRef = useRef(false);
 
-  const syncFromSystem = useCallback(() => {
+  const refreshSystemGrant = useCallback(() => {
+    setSystemGranted(readSystemNotificationsGranted());
+  }, []);
+
+  const reconcileRevokedPermission = useCallback(() => {
     const granted = readSystemNotificationsGranted();
     setSystemGranted(granted);
+
+    if (permissionRequestInFlightRef.current) {
+      return;
+    }
 
     if (!granted && notificationsEnabled) {
       setNotificationsEnabled(false);
@@ -23,32 +38,52 @@ export const useNotificationsSetting = () => {
   }, [notificationsEnabled, setNotificationsEnabled]);
 
   useEffect(() => {
-    syncFromSystem();
+    refreshSystemGrant();
+  }, [refreshSystemGrant]);
 
-    const handleAppStateChange = (nextState: AppStateStatus) => {
-      if (nextState === 'active') {
-        syncFromSystem();
-      }
-    };
+  useEffect(() => {
+    const subscription = DeviceEventEmitter.addListener(PERMISSIONS_CHANGED_EVENT, reconcileRevokedPermission);
 
-    const subscription = AppState.addEventListener('change', handleAppStateChange);
     return () => subscription.remove();
-  }, [syncFromSystem]);
+  }, [reconcileRevokedPermission]);
+
+  useAppStateOnActive(reconcileRevokedPermission);
+
+  useFocusEffect(
+    useCallback(() => {
+      reconcileRevokedPermission();
+    }, [reconcileRevokedPermission]),
+  );
 
   const isEnabled = notificationsEnabled && (Platform.OS !== 'android' || systemGranted);
 
   const setEnabled = useCallback(
-    (value: boolean) => {
+    async (value: boolean) => {
       if (value) {
+        permissionRequestInFlightRef.current = true;
         setNotificationsEnabled(true);
-        requestNotificationsPermission();
+
+        try {
+          const requestGranted = await requestPostNotificationsPermission();
+          const granted = requestGranted || readSystemNotificationsGranted();
+          setSystemGranted(granted);
+
+          if (!granted) {
+            setNotificationsEnabled(false);
+          }
+        } finally {
+          permissionRequestInFlightRef.current = false;
+        }
+
         return;
       }
 
+      permissionRequestInFlightRef.current = false;
       setNotificationsEnabled(false);
+      refreshSystemGrant();
       openNotificationsSettings();
     },
-    [setNotificationsEnabled],
+    [refreshSystemGrant, setNotificationsEnabled],
   );
 
   return { isEnabled, setEnabled };

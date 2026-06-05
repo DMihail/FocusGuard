@@ -1,8 +1,9 @@
 /** @format */
 
-import React from 'react';
+import type React from 'react';
+import { makeMutable } from 'react-native-reanimated';
 import ReactTestRenderer from 'react-test-renderer';
-import { Animated } from 'react-native';
+
 import type { ScrollIndicatorProps } from '@/screen/Onboarding/types';
 
 const mockPager: {
@@ -16,7 +17,7 @@ const mockPager: {
   handleScroll: jest.Mock;
   handleMomentumScrollEnd: jest.Mock;
   handleContinue: jest.Mock;
-  handlePagerLayout: jest.Mock;
+  handlePagerContainerLayout: jest.Mock;
   getItemLayout: jest.Mock;
   handleScrollToIndexFailed: jest.Mock;
   onSkip: jest.Mock;
@@ -27,11 +28,11 @@ const mockPager: {
   pageWidth: 390,
   isLastStep: false,
   isPagerReady: true,
-  indicatorProps: { count: 3, scrollX: new Animated.Value(0), pageWidth: 390 },
+  indicatorProps: { count: 3, scrollX: makeMutable(0), pageWidth: 390 },
   handleScroll: jest.fn(),
   handleMomentumScrollEnd: jest.fn(),
   handleContinue: jest.fn(),
-  handlePagerLayout: jest.fn(),
+  handlePagerContainerLayout: jest.fn(),
   getItemLayout: jest.fn(),
   handleScrollToIndexFailed: jest.fn(),
   onSkip: jest.fn(),
@@ -67,7 +68,7 @@ describe('OnboardingScreen', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockPager.isPagerReady = true;
-    mockPager.indicatorProps = { count: 3, scrollX: new Animated.Value(0), pageWidth: 390 };
+    mockPager.indicatorProps = { count: 3, scrollX: makeMutable(0), pageWidth: 390 };
   });
 
   it('renders header, pager, and footer', () => {

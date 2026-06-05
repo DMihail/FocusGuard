@@ -1,8 +1,9 @@
 /** @format */
 
-import React from 'react';
-import ReactTestRenderer from 'react-test-renderer';
 import { AppState } from 'react-native';
+
+import type React from 'react';
+import ReactTestRenderer from 'react-test-renderer';
 
 const mockNavigate = jest.fn();
 const mockGetCurrentRoute = jest.fn();
@@ -17,20 +18,20 @@ const mockOnboardingState = {
   setHasHydrated: jest.fn(),
 };
 
-jest.mock('../../source/navigation/components/AppLoader', () => {
-  const React = require('react');
-  const { View } = require('react-native');
-  return {
-    AppLoader: () => <View testID="app-loader" />,
-  };
-});
-
 jest.mock('../../source/navigation/resolveEntryRoute', () => ({
   resolveEntryRoute: (isConfirm: boolean) => (isConfirm ? 'Dashboard' : 'Onboarding'),
 }));
 
 jest.mock('../../source/screen/EnablePermissions/utils/permissionStatus', () => ({
   areAllPermissionsGranted: () => mockAreAllPermissionsGranted(),
+}));
+
+jest.mock('../../source/store/mmkv', () => ({
+  zustandStorage: require('../helpers/mockZustandMmkv').mockZustandStorage,
+}));
+
+jest.mock('../../source/specs', () => ({
+  isMonitorServiceRunning: jest.fn(() => false),
 }));
 
 jest.mock('../../source/store/onboardingStore', () => {
@@ -79,7 +80,18 @@ jest.spyOn(AppState, 'addEventListener').mockImplementation((_, listener) => {
 
 import { RootNavigationGate } from '@/navigation/RootNavigationGate';
 
+let testRenderer: ReactTestRenderer.ReactTestRenderer | undefined;
+
 describe('RootNavigationGate', () => {
+  afterEach(() => {
+    if (testRenderer) {
+      ReactTestRenderer.act(() => {
+        testRenderer?.unmount();
+      });
+      testRenderer = undefined;
+    }
+  });
+
   beforeEach(() => {
     jest.clearAllMocks();
     appStateListener = undefined;
@@ -93,7 +105,8 @@ describe('RootNavigationGate', () => {
     let tree: ReactTestRenderer.ReactTestRenderer;
 
     ReactTestRenderer.act(() => {
-      tree = ReactTestRenderer.create(<RootNavigationGate />);
+      testRenderer = ReactTestRenderer.create(<RootNavigationGate />);
+      tree = testRenderer;
     });
 
     expect(tree!.root.findByProps({ testID: 'app-loader' })).toBeDefined();
@@ -107,7 +120,8 @@ describe('RootNavigationGate', () => {
     let tree: ReactTestRenderer.ReactTestRenderer;
 
     ReactTestRenderer.act(() => {
-      tree = ReactTestRenderer.create(<RootNavigationGate />);
+      testRenderer = ReactTestRenderer.create(<RootNavigationGate />);
+      tree = testRenderer;
     });
 
     expect(tree!.root.findByProps({ testID: 'navigation-root' })).toBeDefined();
@@ -121,7 +135,7 @@ describe('RootNavigationGate', () => {
     mockGetCurrentRoute.mockReturnValue({ name: 'Dashboard' });
 
     ReactTestRenderer.act(() => {
-      ReactTestRenderer.create(<RootNavigationGate />);
+      testRenderer = ReactTestRenderer.create(<RootNavigationGate />);
     });
 
     ReactTestRenderer.act(() => {

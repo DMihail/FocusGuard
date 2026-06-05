@@ -3,6 +3,7 @@ package com.focusguard.receiver
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import com.focusguard.monitor.MonitoringStateRepository
 import com.focusguard.monitor.MonitorServiceHelper
 
 /**
@@ -24,6 +25,8 @@ class BootCompletedReceiver : BroadcastReceiver() {
       return
     }
 
-    MonitorServiceHelper.start(context.applicationContext)
+    if (MonitoringStateRepository.isMonitoringEnabled()) {
+      MonitorServiceHelper.start(context.applicationContext)
+    }
   }
 }

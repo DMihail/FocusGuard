@@ -1,25 +1,23 @@
 /** @format */
 
-import React, { useCallback, type RefObject } from 'react';
-import {
-  Animated,
-  FlatList,
-  type ListRenderItem,
-  type NativeScrollEvent,
-  type NativeSyntheticEvent,
-} from 'react-native';
+import React, { type RefObject, useMemo } from 'react';
+import { FlatList, type NativeScrollEvent, type NativeSyntheticEvent } from 'react-native';
+
+import Animated, { type ScrollHandlerProcessed } from 'react-native-reanimated';
+
+import { testIds } from '@/testing/testIds';
+
 import { FLAT_LIST_WINDOW_SIZE, SCROLL_EVENT_THROTTLE } from '../constants';
 import type { WalkthroughStepData } from '../data/walkthroughSteps';
-import { testIds } from '@/testing/testIds';
-import { WalkthroughPage } from './WalkthroughPage';
+import { createWalkthroughPageRenderItem, walkthroughStepKeyExtractor } from '../list';
 
-const AnimatedFlatList = Animated.createAnimatedComponent(FlatList<WalkthroughStepData>);
+const ReanimatedFlatList = Animated.createAnimatedComponent(FlatList<WalkthroughStepData>);
 
 type WalkthroughPagerProps = {
   listRef: RefObject<FlatList<WalkthroughStepData> | null>;
   steps: WalkthroughStepData[];
   pageWidth: number;
-  onScroll: ReturnType<typeof Animated.event>;
+  onScroll: ScrollHandlerProcessed;
   onMomentumScrollEnd: (event: NativeSyntheticEvent<NativeScrollEvent>) => void;
   getItemLayout: NonNullable<FlatList<WalkthroughStepData>['props']['getItemLayout']>;
   onScrollToIndexFailed: NonNullable<FlatList<WalkthroughStepData>['props']['onScrollToIndexFailed']>;
@@ -34,24 +32,19 @@ export const WalkthroughPager = ({
   getItemLayout,
   onScrollToIndexFailed,
 }: WalkthroughPagerProps) => {
-  const renderItem: ListRenderItem<WalkthroughStepData> = useCallback(
-    ({ item }) => <WalkthroughPage item={item} width={pageWidth} />,
-    [pageWidth],
-  );
-
-  const keyExtractor = useCallback((item: WalkthroughStepData) => item.id, []);
+  const renderItem = useMemo(() => createWalkthroughPageRenderItem(pageWidth), [pageWidth]);
 
   if (pageWidth <= 0) {
     return null;
   }
 
   return (
-    <AnimatedFlatList
+    <ReanimatedFlatList
       testID={testIds.onboarding.walkthroughPager}
       ref={listRef}
       data={steps}
       renderItem={renderItem}
-      keyExtractor={keyExtractor}
+      keyExtractor={walkthroughStepKeyExtractor}
       horizontal
       pagingEnabled
       bounces={false}

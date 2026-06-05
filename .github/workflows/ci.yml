@@ -5,14 +5,31 @@ name: CI
 on:
   push:
   pull_request:
+  workflow_dispatch:
 
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 jobs:
-  quality:
-    name: Lint & Test
+  pipeline:
+    name: Pipeline profile
+    runs-on: ubuntu-latest
+    outputs:
+      run_full:
+        ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && (github.ref == 'refs/heads/main'
+        || github.ref == 'refs/heads/dev' || startsWith(github.ref, 'refs/heads/release/'))) || (github.event_name ==
+        'pull_request' && (github.base_ref == 'main' || github.base_ref == 'dev' || startsWith(github.base_ref,
+        'release/'))) }}
+    steps:
+      - name: Resolve profile
+        run: echo "Pipeline profile resolved"
+
+  checks:
+    name: ESLint, Prettier, types & tests
     runs-on: ubuntu-latest
 
     steps:
@@ -28,8 +45,55 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Lint
+      - name: ESLint
         run: npm run lint
+
+      - name: Prettier
+        run: npm run format:check
+
+      - name: Typecheck
+        run: npm run typecheck
 
       - name: Test
         run: npm test -- --ci
+
+  android:
+    name: Android debug build
+    needs: [pipeline, checks]
+    if: needs.pipeline.outputs.run_full == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+          cache: gradle
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Build debug APK
+        working-directory: android
+        run: ./gradlew assembleDebug --no-daemon
+
+      - name: Upload debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-debug-apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+          retention-days: 14

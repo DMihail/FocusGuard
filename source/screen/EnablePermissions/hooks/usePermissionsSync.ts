@@ -1,51 +1,65 @@
 /** @format */
 
-import { useCallback, useEffect, useState } from 'react';
-import { AppState, LayoutAnimation, type AppStateStatus } from 'react-native';
-import { PERMISSIONS } from '../data/permissions';
-import type { PermissionId, PermissionStatus } from '../types';
-import { readPermissionStatuses, requestPermissionById } from '../utils/permissionStatus';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { DeviceEventEmitter } from 'react-native';
 
-const configureCardLayoutAnimation = () => {
-  LayoutAnimation.configureNext(LayoutAnimation.create(380, 'easeInEaseOut', 'opacity'));
-};
+import { getAppDisplayName } from '@/constants/appDisplayName';
+import { useAppStateOnActive } from '@/hooks/useAppStateOnActive';
+import { configurePermissionStatusSyncAnimation } from '@/utils/layoutAnimation';
+import { PERMISSIONS_CHANGED_EVENT } from '@/utils/permissions/notificationPermissionEvents';
+
+import { createPermissions, PERMISSION_IDS } from '../data/permissions';
+import type { PermissionId, PermissionStatus } from '../types';
+import { buildPermissionsWithStatus } from '../utils/buildPermissionsWithStatus';
+import {
+  areRequiredPermissionsGranted,
+  readPermissionStatuses,
+  requestPermissionById,
+} from '../utils/permissionStatus';
 
 const hasStatusChanged = (
   previous: Record<PermissionId, PermissionStatus>,
   next: Record<PermissionId, PermissionStatus>,
-): boolean => PERMISSIONS.some((item) => previous[item.id] !== next[item.id]);
+): boolean => PERMISSION_IDS.some((id) => previous[id] !== next[id]);
 
 export const usePermissionsSync = () => {
+  const permissionItems = useMemo(() => createPermissions(getAppDisplayName()), []);
   const [statusById, setStatusById] = useState<Record<PermissionId, PermissionStatus>>(() => readPermissionStatuses());
 
   const syncStatuses = useCallback(() => {
     setStatusById((previous) => {
       const next = readPermissionStatuses();
 
-      if (hasStatusChanged(previous, next)) {
-        configureCardLayoutAnimation();
+      if (!hasStatusChanged(previous, next)) {
+        return previous;
       }
 
+      configurePermissionStatusSyncAnimation();
       return next;
     });
   }, []);
 
   useEffect(() => {
     syncStatuses();
+  }, [syncStatuses]);
 
-    const handleAppStateChange = (nextState: AppStateStatus) => {
-      if (nextState === 'active') {
-        syncStatuses();
-      }
-    };
+  useAppStateOnActive(syncStatuses);
 
-    const subscription = AppState.addEventListener('change', handleAppStateChange);
+  useEffect(() => {
+    const subscription = DeviceEventEmitter.addListener(PERMISSIONS_CHANGED_EVENT, syncStatuses);
+
     return () => subscription.remove();
   }, [syncStatuses]);
+
+  const permissions = useMemo(
+    () => buildPermissionsWithStatus(permissionItems, statusById),
+    [permissionItems, statusById],
+  );
+  const canContinue = areRequiredPermissionsGranted(statusById);
 
   const handleGrant = useCallback((id: PermissionId) => {
     requestPermissionById(id);
   }, []);
 
-  return { statusById, handleGrant, syncStatuses };
+  return { statusById, permissions, canContinue, handleGrant, syncStatuses };
 };

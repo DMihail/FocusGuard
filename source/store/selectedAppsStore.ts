@@ -2,15 +2,11 @@
 
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
-import type { ManageApp } from '@/screen/ManageApps/types';
+
 import { zustandStorage } from './mmkv';
+import type { SelectedAppsStore } from './types';
 
-type SelectedAppsStore = {
-  apps: ManageApp[];
-  toggleApp: (app: ManageApp) => void;
-  isSelected: (packageName: string) => boolean;
-};
-
+/** Persisted list of user-selected apps to track and limit. */
 export const selectedAppsStore = create<SelectedAppsStore>()(
   persist(
     (set, get) => ({

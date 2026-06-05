@@ -1,30 +1,24 @@
 /** @format */
 
-import React, { useMemo } from 'react';
+import React from 'react';
 import { StyleSheet, View } from 'react-native';
+
 import { spacing } from '@/theme';
+
 import type { ScrollIndicatorProps } from '../types';
-import { createIndicatorProgress } from '../utils';
 import { AnimatedIndicatorDot, type IndicatorVariant } from './AnimatedIndicatorDot';
 
 type ScrollIndicatorPropsWithVariant = ScrollIndicatorProps & {
   variant: IndicatorVariant;
 };
 
-export const ScrollIndicator = ({ count, scrollX, pageWidth, variant }: ScrollIndicatorPropsWithVariant) => {
-  const progressByIndex = useMemo(
-    () => Array.from({ length: count }, (_, index) => createIndicatorProgress(scrollX, index, pageWidth)),
-    [count, pageWidth, scrollX],
-  );
-
-  return (
-    <View style={[styles.container, variant === 'page' && styles.containerCentered]}>
-      {progressByIndex.map((progress, index) => (
-        <AnimatedIndicatorDot key={index} variant={variant} progress={progress} />
-      ))}
-    </View>
-  );
-};
+export const ScrollIndicator = ({ count, scrollX, pageWidth, variant }: ScrollIndicatorPropsWithVariant) => (
+  <View style={[styles.container, variant === 'page' && styles.containerCentered]}>
+    {Array.from({ length: count }, (_, index) => (
+      <AnimatedIndicatorDot key={index} scrollX={scrollX} index={index} pageWidth={pageWidth} variant={variant} />
+    ))}
+  </View>
+);
 
 const styles = StyleSheet.create({
   container: {

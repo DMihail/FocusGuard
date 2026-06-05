@@ -1,6 +1,6 @@
 /** @format */
 
-export const COLORS = {
+const COLORS = {
   background: '#1C1B1F',
   surfaceDark: '#211F26',
   surface: '#4F378B',
@@ -12,7 +12,13 @@ export const COLORS = {
   textDisabled: 'rgba(147, 143, 153, 0.5)',
   indicatorInactive: '#49454F',
   shadow: 'rgba(0, 0, 0, 0.15)',
+  danger: '#E74C3C',
   success: '#4CAF50',
+  warning: '#FFC107',
+  overLimit: '#F2B8B5',
+  overLimitMuted: 'rgba(255, 193, 7, 0.2)',
+  primaryContainer: 'rgba(79, 55, 139, 1)',
+  progressTrack: 'rgba(73, 69, 79, 0.3)',
   successMuted: 'rgba(76, 175, 80, 0.06)',
   successBorder: 'rgba(76, 175, 80, 0.3)',
   successIconBg: 'rgba(76, 175, 80, 0.2)',

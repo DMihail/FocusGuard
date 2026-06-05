@@ -2,6 +2,7 @@
 
 import { BellIcon, LockPrivacyIcon } from '@/assets/svg/Settings';
 import { colors } from '@/theme';
+
 import type { SettingsLinkItem, SettingsToggleItem } from '../types';
 
 export const NOTIFICATIONS_TOGGLE: SettingsToggleItem = {

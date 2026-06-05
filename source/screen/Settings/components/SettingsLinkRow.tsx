@@ -2,10 +2,12 @@
 
 import React from 'react';
 import { Pressable, Text, View } from 'react-native';
+
 import { ChevronRightIcon } from '@/assets/svg/Settings';
 import { testIds } from '@/testing/testIds';
-import type { SettingsLinkItem } from '../types';
+
 import { settingsStyles } from '../styles';
+import type { SettingsLinkItem } from '../types';
 
 type SettingsLinkRowProps = SettingsLinkItem & {
   onPress: () => void;

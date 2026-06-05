@@ -2,8 +2,11 @@
 
 import React from 'react';
 import { Pressable, Text, View } from 'react-native';
+
+import { getAppDisplayName } from '@/constants/appDisplayName';
+import { getAppVersion } from '@/constants/appVersion';
 import { testIds } from '@/testing/testIds';
-import { APP_VERSION } from '../constants';
+
 import { settingsStyles } from '../styles';
 
 type SettingsFooterProps = {
@@ -13,7 +16,7 @@ type SettingsFooterProps = {
 export const SettingsFooter = ({ onTermsPress }: SettingsFooterProps) => (
   <View style={settingsStyles.footer} testID={testIds.settings.footer}>
     <Text style={settingsStyles.version} testID={testIds.settings.version}>
-      {`FocusGuard v${APP_VERSION}`}
+      {`${getAppDisplayName()} v${getAppVersion()}`}
     </Text>
     <Pressable
       testID={testIds.settings.termsButton}

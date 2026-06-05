@@ -1,17 +1,21 @@
 /** @format */
 
 import React from 'react';
-import { useRoute, type RouteProp } from '@react-navigation/native';
+
+import { type RouteProp, useRoute } from '@react-navigation/native';
+
 import type { RootStackParamList } from '@/navigation/types';
 import { testIds } from '@/testing/testIds';
+
+import { getLegalDocument } from './data/documents';
+
 import { LegalDocumentLayout } from './components/LegalDocumentLayout';
-import { LEGAL_DOCUMENTS } from './data/documents';
 
 type LegalDocumentRoute = RouteProp<RootStackParamList, 'LegalDocument'>;
 
 export const LegalDocumentScreen = () => {
   const { documentId } = useRoute<LegalDocumentRoute>().params;
-  const document = LEGAL_DOCUMENTS[documentId];
+  const document = getLegalDocument(documentId);
   const ids = testIds.legal[documentId];
 
   return (

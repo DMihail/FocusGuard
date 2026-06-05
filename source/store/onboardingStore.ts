@@ -1,23 +1,16 @@
 /** @format */
+
 import { create } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
+import { createJSONStorage, persist } from 'zustand/middleware';
+
 import { zustandStorage } from './mmkv';
+import type { OnboardingStore } from './types';
 
-type OnboardingStore = {
-  isConfirm: boolean;
-
-  hasHydrated: boolean;
-
-  setIsConfirm: (value: boolean) => void;
-
-  setHasHydrated: (value: boolean) => void;
-};
-
+/** Persisted onboarding completion flag and hydration state for navigation gating. */
 export const onboardingStore = create<OnboardingStore>()(
   persist(
     (set) => ({
       isConfirm: false,
-
       hasHydrated: false,
 
       setIsConfirm: (value) => {
@@ -28,14 +21,10 @@ export const onboardingStore = create<OnboardingStore>()(
         set({ hasHydrated: value });
       },
     }),
-
     {
       name: 'onboarding-storage',
-
       storage: createJSONStorage(() => zustandStorage),
-
       partialize: (state) => ({ isConfirm: state.isConfirm }),
-
       onRehydrateStorage: () => (state) => {
         state?.setHasHydrated(true);
       },

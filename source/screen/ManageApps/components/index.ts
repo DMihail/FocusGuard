@@ -1,7 +1,5 @@
 /** @format */
 
-export { AppSearchField } from './AppSearchField';
-export { CategoryFilters } from './CategoryFilters';
+export { ManageAppsContent } from './ManageAppsContent';
 export { ManageAppsHeader } from './ManageAppsHeader';
-export { ManageAppsList } from './ManageAppsList';
-export { SelectedAppsSection } from './SelectedAppsSection';
+export { ManageAppsSearchToolbar } from './ManageAppsSearchToolbar';

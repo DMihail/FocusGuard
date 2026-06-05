@@ -1,6 +1,7 @@
 /** @format */
 
 import type { TextStyle, ViewStyle } from 'react-native';
+
 import { borderRadius } from './borderRadius';
 import { colors } from './colors';
 import { spacing } from './spacing';
@@ -117,4 +118,9 @@ export const iconBoxPresets = {
     justifyContent: 'center',
     overflow: 'hidden',
   } satisfies ViewStyle,
+} as const;
+
+export const switchTrackColors = {
+  false: colors.switchTrackOff,
+  true: colors.accent,
 } as const;

@@ -1,45 +1,43 @@
 /** @format */
 
 import { StyleSheet } from 'react-native';
-import {
-  borderRadius,
-  colors,
-  fontSize,
-  iconBoxPresets,
-  layoutPresets,
-  lineHeight,
-  spacing,
-  textPresets,
-  typography,
-} from '@/theme';
+
+import { borderRadius, colors, iconBoxPresets, layoutPresets, lineHeight, spacing, textPresets } from '@/theme';
+
+export const SELECTED_APPS_SCROLL_HEIGHT = 96;
+
+/** Title line + section gap + chip scroll area + bottom spacing. */
+export const selectedAppsSectionExpandedHeight = lineHeight.md + spacing.md + SELECTED_APPS_SCROLL_HEIGHT + spacing.md;
 
 export const manageAppsStyles = StyleSheet.create({
   screen: layoutPresets.screen,
-  scrollContent: layoutPresets.scrollContent(),
-  header: {
-    ...layoutPresets.rowCenter,
-    gap: spacing.lg,
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.xl,
-  },
-  backButton: {
-    ...layoutPresets.card,
-    width: 40,
-    height: 40,
-    borderRadius: borderRadius.xl,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  headerText: {
+  content: {
     flex: 1,
-    gap: spacing.xs,
+    minHeight: 0,
+    position: 'relative',
   },
-  title: textPresets.heading,
-  subtitle: {
-    ...typography.body,
-    fontSize: fontSize.sm,
-    lineHeight: lineHeight.sm,
-    color: colors.textMuted,
+  flatList: {
+    flex: 1,
+  },
+  listWrapper: {
+    flex: 1,
+    minHeight: 0,
+    position: 'relative',
+  },
+  listHeader: {
+    gap: spacing.md,
+    paddingBottom: spacing.md,
+  },
+  searchToolbar: {
+    paddingHorizontal: spacing.xl,
+    paddingTop: spacing.lg,
+    paddingBottom: spacing.md,
+    flexGrow: 0,
+    flexShrink: 0,
+  },
+  scrollContent: {
+    ...layoutPresets.scrollContent(spacing.md),
+    paddingBottom: spacing.xxxl,
   },
   searchField: {
     ...layoutPresets.card,
@@ -86,18 +84,22 @@ export const manageAppsStyles = StyleSheet.create({
     flexGrow: 0,
     flexShrink: 0,
   },
+  selectedAppsSectionOuter: {
+    flexGrow: 0,
+    flexShrink: 0,
+  },
   sectionTitle: textPresets.sectionTitle,
   selectedAppsScroll: {
     flexGrow: 0,
     flexShrink: 0,
-    height: 96,
+    height: SELECTED_APPS_SCROLL_HEIGHT,
     overflow: 'hidden',
   },
   selectedAppsRows: {
     flexDirection: 'column',
     flexWrap: 'wrap',
     alignContent: 'flex-start',
-    height: 96,
+    height: SELECTED_APPS_SCROLL_HEIGHT,
     columnGap: spacing.sm,
     rowGap: spacing.sm,
   },
@@ -106,15 +108,23 @@ export const manageAppsStyles = StyleSheet.create({
     ...layoutPresets.rowCenter,
     flexShrink: 0,
     width: 148,
-    paddingHorizontal: spacing.md,
+    paddingLeft: spacing.md,
+    paddingRight: spacing.xs,
     paddingVertical: spacing.sm,
+    gap: spacing.xs,
+  },
+  selectedChipBody: {
+    flex: 1,
+    minWidth: 0,
   },
   selectedChipLabel: textPresets.label,
-  appsListContainer: {
-    position: 'relative',
-    minHeight: 120,
+  selectedChipRemove: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 24,
+    height: 24,
   },
-  appsListDimmed: {
+  contentDimmed: {
     opacity: 0.45,
   },
   filterLoader: {
@@ -122,9 +132,6 @@ export const manageAppsStyles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     zIndex: 1,
-  },
-  appsList: {
-    gap: spacing.md,
   },
   appItem: {
     ...layoutPresets.rowCenter,

@@ -15,3 +15,26 @@ export type ManageApp = {
   category: AppCategory;
   categoryLabel: string;
 };
+
+export type SelectedAppsSectionProps = {
+  apps: ManageApp[];
+  onAppPress: (packageName: string) => void;
+  onAppRemove: (app: ManageApp) => void;
+};
+
+export type ManageAppsListHeaderProps = {
+  selectedApps: ManageApp[];
+  onSelectedAppPress: (packageName: string) => void;
+  onSelectedAppRemove: (app: ManageApp) => void;
+  isSearchActive: boolean;
+  categoryFilters: CategoryFilterOption[];
+  activeCategoryId: string;
+  onCategoryChange: (categoryId: string) => void;
+};
+
+export type ManageAppsContentProps = ManageAppsListHeaderProps & {
+  apps: ManageApp[];
+  isFiltering: boolean;
+  isSelected: (packageName: string) => boolean;
+  onToggle: (app: ManageApp) => void;
+};
