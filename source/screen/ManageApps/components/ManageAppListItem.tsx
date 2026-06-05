@@ -17,7 +17,7 @@ type ManageAppListItemProps = {
   onToggle: (app: ManageApp) => void;
 };
 
-function ManageAppListItemView({ app, isSelected, onToggle }: ManageAppListItemProps) {
+export const ManageAppListItem = memo(({ app, isSelected, onToggle }: ManageAppListItemProps) => {
   const { packageName, appName, appImage, categoryLabel } = app;
 
   return (
@@ -53,9 +53,7 @@ function ManageAppListItemView({ app, isSelected, onToggle }: ManageAppListItemP
       </View>
     </Pressable>
   );
-}
-
-export const ManageAppListItem = memo(ManageAppListItemView, areManageAppListItemPropsEqual);
+}, areManageAppListItemPropsEqual);
 
 function areManageAppListItemPropsEqual(previous: ManageAppListItemProps, next: ManageAppListItemProps): boolean {
   return (

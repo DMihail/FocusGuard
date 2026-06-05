@@ -11,6 +11,7 @@ import { normalizeAppLimits } from './utils/normalizeAppLimits';
 export { DEFAULT_APP_LIMITS, LIMIT_SLIDER_BOUNDS } from './constants/appLimits';
 export { normalizeAppLimits } from './utils/normalizeAppLimits';
 
+/** Persisted per-app warning, hard-block, and strict-mode limits (MMKV). */
 export const appLimitsStore = create<AppLimitsStore>()(
   persist(
     (set, get) => ({

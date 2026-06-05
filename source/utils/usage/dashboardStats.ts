@@ -19,6 +19,7 @@ export type DashboardSummary = {
   remainingMs: number;
 };
 
+/** Builds dashboard rows with usage percentages sorted by time spent. */
 export const buildDashboardAppRows = (
   apps: ManageApp[],
   limitsByPackage: Record<string, AppLimits>,
@@ -44,6 +45,7 @@ export const buildDashboardAppRows = (
     })
     .sort((left, right) => right.usedMs - left.usedMs);
 
+/** Aggregates focus score and daily totals from dashboard rows. */
 export const buildDashboardSummary = (rows: DashboardAppRow[]): DashboardSummary => {
   const totalAllowedMs = rows.reduce((sum, row) => sum + row.limitMs, 0);
   const totalUsedMs = rows.reduce((sum, row) => sum + Math.min(row.usedMs, row.limitMs), 0);

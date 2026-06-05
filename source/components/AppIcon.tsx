@@ -24,12 +24,14 @@ const imageSizeByPreset: Record<AppIconSize, ImageStyle> = {
 
 const getAppNameInitial = (appName: string): string => appName.charAt(0).toUpperCase();
 
-export const AppIcon = ({ appName, appImage, size = 'md', boxStyle, imageStyle, fallbackStyle }: AppIconProps) => (
-  <View style={[iconBoxPresets[size], boxStyle]}>
-    {appImage ? (
-      <Image source={{ uri: appImage }} style={[imageSizeByPreset[size], imageStyle]} resizeMode="cover" />
-    ) : (
-      <Text style={[textPresets.iconFallbackLg, fallbackStyle]}>{getAppNameInitial(appName)}</Text>
-    )}
-  </View>
-);
+export function AppIcon({ appName, appImage, size = 'md', boxStyle, imageStyle, fallbackStyle }: AppIconProps) {
+  return (
+    <View style={[iconBoxPresets[size], boxStyle]}>
+      {appImage ? (
+        <Image source={{ uri: appImage }} style={[imageSizeByPreset[size], imageStyle]} resizeMode="cover" />
+      ) : (
+        <Text style={[textPresets.iconFallbackLg, fallbackStyle]}>{getAppNameInitial(appName)}</Text>
+      )}
+    </View>
+  );
+}

@@ -1,11 +1,12 @@
 /** @format */
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { useFocusEffect } from '@react-navigation/native';
+import { useShallow } from 'zustand/react/shallow';
 
 import { useAppStateOnActive } from '@/hooks/useAppStateOnActive';
-import { getAppsUsageStats } from '@/specs/NativeUsageStats';
+import { getPackageUsageToday } from '@/specs/NativeUsageStats';
 import {
   type AppLimits,
   appLimitsStore,
@@ -20,7 +21,7 @@ import type { UseConfigureLimitsResult } from '../types';
 const MS_PER_MINUTE = 60_000;
 
 export const useConfigureLimits = (packageName: string): UseConfigureLimitsResult => {
-  const app = selectedAppsStore((state) => state.apps.find((item) => item.packageName === packageName));
+  const app = selectedAppsStore(useShallow((state) => state.apps.find((item) => item.packageName === packageName)));
   const storedLimits = appLimitsStore((state) => state.limitsByPackage[packageName] ?? DEFAULT_APP_LIMITS);
   const setStoredLimits = appLimitsStore((state) => state.setLimits);
 
@@ -28,9 +29,8 @@ export const useConfigureLimits = (packageName: string): UseConfigureLimitsResul
   const [usedMsToday, setUsedMsToday] = useState(0);
 
   const refreshUsage = useCallback(() => {
-    const stats = getAppsUsageStats();
-    const match = stats.find((item) => item.packageName === packageName);
-    setUsedMsToday(match?.totalTimeForeground ?? 0);
+    const nextUsage = getPackageUsageToday(packageName);
+    setUsedMsToday((previous) => (previous === nextUsage ? previous : nextUsage));
   }, [packageName]);
 
   useFocusEffect(
@@ -45,12 +45,9 @@ export const useConfigureLimits = (packageName: string): UseConfigureLimitsResul
     setDraft(storedLimits);
   }, [packageName, storedLimits]);
 
-  const hardBlockMin = useMemo(
-    () => Math.max(LIMIT_SLIDER_BOUNDS.hardBlock.min, draft.warningMinutes),
-    [draft.warningMinutes],
-  );
+  const hardBlockMin = Math.max(LIMIT_SLIDER_BOUNDS.hardBlock.min, draft.warningMinutes);
 
-  const setWarningMinutes = (warningMinutes: number) => {
+  const setWarningMinutes = useCallback((warningMinutes: number) => {
     setDraft((current) => {
       const next = { ...current, warningMinutes };
       if (next.hardBlockMinutes < warningMinutes) {
@@ -58,19 +55,19 @@ export const useConfigureLimits = (packageName: string): UseConfigureLimitsResul
       }
       return next;
     });
-  };
+  }, []);
 
-  const setHardBlockMinutes = (hardBlockMinutes: number) => {
+  const setHardBlockMinutes = useCallback((hardBlockMinutes: number) => {
     setDraft((current) => ({ ...current, hardBlockMinutes }));
-  };
+  }, []);
 
-  const setStrictMode = (strictMode: boolean) => {
+  const setStrictMode = useCallback((strictMode: boolean) => {
     setDraft((current) => ({ ...current, strictMode }));
-  };
+  }, []);
 
-  const save = () => {
+  const save = useCallback(() => {
     setStoredLimits(packageName, normalizeAppLimits(draft));
-  };
+  }, [draft, packageName, setStoredLimits]);
 
   const limitMsToday = draft.hardBlockMinutes * MS_PER_MINUTE;
 

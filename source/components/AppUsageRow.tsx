@@ -1,6 +1,6 @@
 /** @format */
 
-import React, { memo, useCallback } from 'react';
+import React, { memo } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { testIds } from '@/testing/testIds';
@@ -15,63 +15,53 @@ export type AppUsageRowProps = DashboardAppRow & {
   onPress: (packageName: string) => void;
 };
 
-function AppUsageRowView({
-  packageName,
-  appImage,
-  appName,
-  usedMs,
-  limitMs,
-  percentUsed,
-  isOverLimit,
-  onPress,
-}: AppUsageRowProps) {
-  const barProgress = limitMs > 0 ? Math.min(100, (usedMs / limitMs) * 100) : 0;
-  const fillColor = isOverLimit ? colors.overLimit : colors.accent;
-  const handlePress = useCallback(() => onPress(packageName), [onPress, packageName]);
+export const AppUsageRow = memo(
+  ({ packageName, appImage, appName, usedMs, limitMs, percentUsed, isOverLimit, onPress }: AppUsageRowProps) => {
+    const barProgress = limitMs > 0 ? Math.min(100, (usedMs / limitMs) * 100) : 0;
+    const fillColor = isOverLimit ? colors.overLimit : colors.accent;
 
-  return (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel={`Configure limits for ${appName}, ${percentUsed} percent used`}
-      accessibilityHint="Opens daily limit settings"
-      onPress={handlePress}
-      style={styles.item}
-      testID={testIds.dashboard.appRow(packageName)}
-    >
-      <View style={styles.row}>
-        <AppIcon
-          appName={appName}
-          appImage={appImage}
-          size="sm"
-          boxStyle={styles.iconBox}
-          imageStyle={styles.icon}
-          fallbackStyle={styles.iconFallback}
-        />
+    return (
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={`Configure limits for ${appName}, ${percentUsed} percent used`}
+        onPress={() => onPress(packageName)}
+        style={styles.item}
+        testID={testIds.dashboard.appRow(packageName)}
+      >
+        <View style={styles.row}>
+          <AppIcon
+            appName={appName}
+            appImage={appImage}
+            size="sm"
+            boxStyle={styles.iconBox}
+            imageStyle={styles.icon}
+            fallbackStyle={styles.iconFallback}
+          />
 
-        <View style={styles.info}>
-          <Text style={styles.name} numberOfLines={1}>
-            {appName}
+          <View style={styles.info}>
+            <Text style={styles.name} numberOfLines={1}>
+              {appName}
+            </Text>
+            <Text style={styles.usage}>{formatUsagePair(usedMs, limitMs)}</Text>
+          </View>
+
+          <Text style={[styles.percent, isOverLimit && styles.percentOver]} numberOfLines={1}>
+            {percentUsed}%
           </Text>
-          <Text style={styles.usage}>{formatUsagePair(usedMs, limitMs)}</Text>
         </View>
 
-        <Text style={[styles.percent, isOverLimit && styles.percentOver]} numberOfLines={1}>
-          {percentUsed}%
-        </Text>
-      </View>
-
-      <ProgressBar
-        progress={barProgress}
-        fillColor={fillColor}
-        accessibilityRole="progressbar"
-        accessibilityLabel={`${appName} daily usage`}
-        accessibilityValue={{ min: 0, max: 100, now: Math.round(barProgress) }}
-      />
-    </Pressable>
-  );
-}
-
-export const AppUsageRow = memo(AppUsageRowView, areAppUsageRowPropsEqual);
+        <ProgressBar
+          progress={barProgress}
+          fillColor={fillColor}
+          accessibilityRole="progressbar"
+          accessibilityLabel={`${appName} daily usage`}
+          accessibilityValue={{ min: 0, max: 100, now: Math.round(barProgress) }}
+        />
+      </Pressable>
+    );
+  },
+  areAppUsageRowPropsEqual,
+);
 
 function areAppUsageRowPropsEqual(previous: AppUsageRowProps, next: AppUsageRowProps): boolean {
   return (

@@ -1,14 +1,12 @@
 /** @format */
 
-import { useCallback, useRef } from 'react';
-import { PanResponder, type View } from 'react-native';
+import { useCallback, useMemo, useRef } from 'react';
+
+import type { LayoutChangeEvent, View } from 'react-native';
+import { Gesture } from 'react-native-gesture-handler';
+import { runOnJS } from 'react-native-reanimated';
 
 import { sliderValueFromPosition } from '../utils/sliderValueFromPosition';
-
-type TrackMetrics = {
-  width: number;
-  pageX: number;
-};
 
 type SliderGestureParams = {
   valueMinutes: number;
@@ -19,6 +17,7 @@ type SliderGestureParams = {
   onChange: (minutes: number) => void;
 };
 
+/** Pan gesture for the limit slider track (UI thread + relative coordinates). */
 export const useSliderTrackGesture = ({
   valueMinutes,
   minMinutes,
@@ -28,7 +27,7 @@ export const useSliderTrackGesture = ({
   onChange,
 }: SliderGestureParams) => {
   const trackRef = useRef<View>(null);
-  const metricsRef = useRef<TrackMetrics>({ width: 0, pageX: 0 });
+  const widthRef = useRef(0);
   const paramsRef = useRef<SliderGestureParams>({
     valueMinutes,
     minMinutes,
@@ -47,17 +46,16 @@ export const useSliderTrackGesture = ({
     onChange,
   };
 
-  const applyPageX = useCallback((pageX: number) => {
+  const applyRelativeX = useCallback((x: number) => {
     const params = paramsRef.current;
-    const { width, pageX: trackPageX } = metricsRef.current;
+    const width = widthRef.current;
 
     if (width <= 0) {
       return;
     }
 
-    const positionX = pageX - trackPageX;
     const next = sliderValueFromPosition(
-      positionX,
+      x,
       width,
       params.minMinutes,
       params.maxMinutes,
@@ -70,32 +68,30 @@ export const useSliderTrackGesture = ({
     }
   }, []);
 
-  const syncTrackMetrics = useCallback(() => {
-    trackRef.current?.measureInWindow((pageX, _y, width) => {
-      if (width > 0) {
-        metricsRef.current = { pageX, width };
-      }
-    });
+  const handleTrackLayout = useCallback((event: LayoutChangeEvent) => {
+    const width = event.nativeEvent.layout.width;
+
+    if (width > 0) {
+      widthRef.current = width;
+    }
   }, []);
 
-  const panResponder = useRef(
-    PanResponder.create({
-      onStartShouldSetPanResponder: () => true,
-      onMoveShouldSetPanResponder: () => true,
-      onPanResponderTerminationRequest: () => false,
-      onPanResponderGrant: (event) => {
-        syncTrackMetrics();
-        applyPageX(event.nativeEvent.pageX);
-      },
-      onPanResponderMove: (event) => {
-        applyPageX(event.nativeEvent.pageX);
-      },
-    }),
-  ).current;
+  const panGesture = useMemo(
+    () =>
+      Gesture.Pan()
+        .minDistance(0)
+        .onBegin((event) => {
+          runOnJS(applyRelativeX)(event.x);
+        })
+        .onUpdate((event) => {
+          runOnJS(applyRelativeX)(event.x);
+        }),
+    [applyRelativeX],
+  );
 
   return {
     trackRef,
-    panHandlers: panResponder.panHandlers,
-    syncTrackMetrics,
+    panGesture,
+    handleTrackLayout,
   };
 };

@@ -6,6 +6,7 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 import { zustandStorage } from './mmkv';
 import type { OnboardingStore } from './types';
 
+/** Persisted onboarding completion flag and hydration state for navigation gating. */
 export const onboardingStore = create<OnboardingStore>()(
   persist(
     (set) => ({

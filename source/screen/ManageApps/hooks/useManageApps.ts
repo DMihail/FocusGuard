@@ -1,6 +1,6 @@
 /** @format */
 
-import { useCallback, useDeferredValue, useEffect, useMemo, useState, useTransition } from 'react';
+import { useCallback, useEffect, useMemo, useState, useTransition } from 'react';
 
 import { getInstalledApplications } from '@/specs';
 import { selectedAppsStore } from '@/store';
@@ -18,15 +18,14 @@ export const useManageApps = () => {
     setInstalledApps(mapInstalledApps(getInstalledApplications()));
   }, []);
 
-  const apps = installedApps;
-  const categoryFilters = useMemo(() => buildCategoryFilters(apps), [apps]);
+  const categoryFilters = useMemo(() => buildCategoryFilters(installedApps), [installedApps]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [isSearchInputActive, setIsSearchInputActive] = useState(false);
   const [activeCategory, setActiveCategory] = useState<CategoryFilterOption>(ALL_CATEGORY_FILTER);
   const [isCategoryPending, startCategoryTransition] = useTransition();
   const selectedApps = selectedAppsStore((state) => state.apps);
   const toggleAppInStore = selectedAppsStore((state) => state.toggleApp);
   const isSelected = selectedAppsStore((state) => state.isSelected);
-  const selectedCount = useMemo(() => selectedApps.length, [selectedApps]);
 
   const toggleAppSelection = useCallback(
     (app: ManageApp) => {
@@ -36,25 +35,19 @@ export const useManageApps = () => {
     [toggleAppInStore],
   );
 
-  const handleSearchQueryChange = useCallback((text: string) => {
-    setSearchQuery((previous) => {
-      const wasSearchActive = previous.trim().length > 0;
-      const willBeSearchActive = text.trim().length > 0;
-
-      if (wasSearchActive !== willBeSearchActive) {
+  const handleSearchActiveChange = useCallback((isActive: boolean) => {
+    setIsSearchInputActive((previous) => {
+      if (previous !== isActive) {
         configureSectionLayoutAnimation();
       }
 
-      return text;
+      return isActive;
     });
   }, []);
 
-  const deferredSearchQuery = useDeferredValue(searchQuery);
   const normalizedSearchQuery = searchQuery.trim().toLowerCase();
-  const normalizedDeferredQuery = deferredSearchQuery.trim().toLowerCase();
-  const isSearchActive = normalizedSearchQuery.length > 0;
-  const isSearchPending = searchQuery !== deferredSearchQuery;
-  const isFiltering = isSearchPending || (!isSearchActive && isCategoryPending);
+  const isSearchActive = isSearchInputActive || normalizedSearchQuery.length > 0;
+  const isFiltering = !isSearchActive && isCategoryPending;
 
   useEffect(() => {
     const isActiveFilterAvailable = categoryFilters.some((filter) => filter.id === activeCategory.id);
@@ -65,17 +58,17 @@ export const useManageApps = () => {
   }, [activeCategory.id, categoryFilters]);
 
   const filteredApps = useMemo(() => {
-    return apps.filter((app) => {
-      if (normalizedDeferredQuery.length > 0) {
+    return installedApps.filter((app) => {
+      if (normalizedSearchQuery.length > 0) {
         return (
-          app.appName.toLowerCase().includes(normalizedDeferredQuery) ||
-          app.packageName.toLowerCase().includes(normalizedDeferredQuery)
+          app.appName.toLowerCase().includes(normalizedSearchQuery) ||
+          app.packageName.toLowerCase().includes(normalizedSearchQuery)
         );
       }
 
       return matchesCategoryFilter(app, activeCategory);
     });
-  }, [activeCategory, apps, normalizedDeferredQuery]);
+  }, [activeCategory, installedApps, normalizedSearchQuery]);
 
   const handleCategoryChange = useCallback(
     (filterId: string) => {
@@ -100,11 +93,10 @@ export const useManageApps = () => {
     isFiltering,
     isSearchActive,
     selectedApps,
-    selectedCount,
-    searchQuery,
-    setSearchQuery: handleSearchQueryChange,
+    setSearchQuery,
+    setSearchInputActive: handleSearchActiveChange,
     categoryFilters,
-    activeCategory,
+    activeCategoryId: activeCategory.id,
     setActiveCategory: handleCategoryChange,
     isSelected,
     toggleAppSelection,

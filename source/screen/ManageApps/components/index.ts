@@ -1,4 +1,5 @@
 /** @format */
 
+export { ManageAppsContent } from './ManageAppsContent';
 export { ManageAppsHeader } from './ManageAppsHeader';
-export { ManageAppsList } from './ManageAppsList';
+export { ManageAppsSearchToolbar } from './ManageAppsSearchToolbar';

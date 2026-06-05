@@ -14,9 +14,9 @@ type AppSearchFieldProps = {
   onChangeText: (value: string) => void;
 };
 
-function AppSearchFieldView({ value, onChangeText }: AppSearchFieldProps) {
+export const AppSearchField = memo(({ value, onChangeText }: AppSearchFieldProps) => {
   return (
-    <View style={manageAppsStyles.searchField} testID={testIds.manageApps.searchField}>
+    <View style={manageAppsStyles.searchField}>
       <SearchIcon />
       <TextInput
         testID={testIds.manageApps.searchInput}
@@ -32,6 +32,4 @@ function AppSearchFieldView({ value, onChangeText }: AppSearchFieldProps) {
       />
     </View>
   );
-}
-
-export const AppSearchField = memo(AppSearchFieldView);
+});

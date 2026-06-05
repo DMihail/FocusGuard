@@ -3,26 +3,24 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
-import type { FC } from 'react';
-
 import { borderRadius, colors, spacing, typography } from '@/theme';
 
 type WalkthroughProps = {
   title: string;
   text: string;
-  icon: React.ReactNode;
+  children: React.ReactNode;
 };
 
-export const Walkthrough: FC<WalkthroughProps> = ({ title, text, icon }) => {
+export function Walkthrough({ title, text, children }: WalkthroughProps) {
   return (
     <View style={styles.content}>
-      <View style={styles.iconContainer}>{icon}</View>
+      <View style={styles.iconContainer}>{children}</View>
 
       <Text style={styles.title}>{title}</Text>
       <Text style={styles.description}>{text}</Text>
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   content: {

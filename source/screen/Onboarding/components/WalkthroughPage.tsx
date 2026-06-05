@@ -1,6 +1,6 @@
 /** @format */
 
-import React from 'react';
+import React, { memo } from 'react';
 import { View } from 'react-native';
 
 import { testIds } from '@/testing/testIds';
@@ -16,16 +16,14 @@ type WalkthroughPageProps = {
   width: number;
 };
 
-export const WalkthroughPage = ({ item, width }: WalkthroughPageProps) => {
+export const WalkthroughPage = memo(({ item, width }: WalkthroughPageProps) => {
   const { Icon } = item;
 
   return (
     <View style={[onboardingStyles.page, { width }]} testID={testIds.onboarding.walkthroughStep(item.id)}>
-      <Walkthrough
-        title={item.title}
-        text={item.text}
-        icon={<Icon stroke={colors.accent} width={WALKTHROUGH_ICON_SIZE} height={WALKTHROUGH_ICON_SIZE} />}
-      />
+      <Walkthrough title={item.title} text={item.text}>
+        <Icon stroke={colors.accent} width={WALKTHROUGH_ICON_SIZE} height={WALKTHROUGH_ICON_SIZE} />
+      </Walkthrough>
     </View>
   );
-};
+});

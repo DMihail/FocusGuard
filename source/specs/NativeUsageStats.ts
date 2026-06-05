@@ -43,8 +43,14 @@ export interface Spec extends TurboModule {
   requestIgnoreBatteryOptimizationsPermission(): void;
   /** @returns per-app foreground usage stats for the current local day, sorted by time descending. */
   getAppsUsageStats(): AppUsageStat[];
+  /** @returns today's foreground milliseconds for a single package (same source as the monitor). */
+  getPackageUsageToday(packageName: string): number;
   /** @returns all launchable apps on the device (excluding this app). */
   getInstalledApplications(): InstallApp[];
+  /** @returns the user-facing app name from native resources (`app_name` / CFBundleDisplayName). */
+  getAppDisplayName(): string;
+  /** @returns the marketing version from native build config (`versionName` / CFBundleShortVersionString). */
+  getAppVersion(): string;
 }
 
 const usageStats = TurboModuleRegistry.get<Spec>('NativeUsageStats');
@@ -108,5 +114,14 @@ export const requestIgnoreBatteryOptimizationsPermission = (): void => {
 /** @returns per-app foreground usage stats for the current local day, sorted by time descending. */
 export const getAppsUsageStats = (): AppUsageStat[] => usageStats?.getAppsUsageStats() ?? [];
 
+/** @returns today's foreground usage in ms for one package (0 when unavailable). */
+export const getPackageUsageToday = (packageName: string): number => usageStats?.getPackageUsageToday(packageName) ?? 0;
+
 /** @returns all launchable apps installed on the device (excluding this app). */
 export const getInstalledApplications = (): InstallApp[] => usageStats?.getInstalledApplications() ?? [];
+
+/** @returns the user-facing app name configured in native resources. */
+export const getAppDisplayName = (): string => usageStats?.getAppDisplayName()?.trim() ?? '';
+
+/** @returns the marketing version configured in native build settings. */
+export const getAppVersion = (): string => usageStats?.getAppVersion()?.trim() ?? '';

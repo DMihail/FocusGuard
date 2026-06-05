@@ -1,37 +1,32 @@
 /** @format */
 
-import React, { memo, useMemo } from 'react';
-import { Animated, type Animated as AnimatedNamespace, StyleSheet, Text, View } from 'react-native';
+import React, { memo } from 'react';
+import { StyleSheet, Text, View } from 'react-native';
+
+import Animated, { interpolate, type SharedValue, useAnimatedStyle } from 'react-native-reanimated';
 
 import { Shield } from '@/assets/svg/Onboarding';
+import { getAppDisplayName } from '@/constants/appDisplayName';
 import { splashDotPulseMin, useSplashDotPulse } from '@/hooks/useSplashDotPulse';
 import { testIds } from '@/testing/testIds';
 import { borderRadius, colors, fontSize, lineHeight, spacing, typography } from '@/theme';
 
 const SPLASH_DOT_COUNT = 3;
-const APP_NAME = 'Keept';
 const APP_TAGLINE = 'Reclaim your time, restore your focus';
-const LOADING_LABEL = `Loading ${APP_NAME}`;
 
 type SplashPulseDotProps = {
-  pulse: AnimatedNamespace.Value;
+  pulse: SharedValue<number>;
 };
 
 const SplashPulseDot = memo(({ pulse }: SplashPulseDotProps) => {
-  const animatedStyle = useMemo(
-    () => ({
-      opacity: pulse,
-      transform: [
-        {
-          scale: pulse.interpolate({
-            inputRange: [splashDotPulseMin, 1],
-            outputRange: [0.85, 1.15],
-          }),
-        },
-      ],
-    }),
-    [pulse],
-  );
+  const animatedStyle = useAnimatedStyle(() => ({
+    opacity: pulse.value,
+    transform: [
+      {
+        scale: interpolate(pulse.value, [splashDotPulseMin, 1], [0.85, 1.15]),
+      },
+    ],
+  }));
 
   return <Animated.View style={[styles.dot, animatedStyle]} />;
 });
@@ -50,29 +45,33 @@ const SplashLoadingDots = () => {
   );
 };
 
-const SplashBrandingView = () => (
-  <View
-    style={styles.container}
-    testID={testIds.app.loader}
-    accessible
-    accessibilityRole="progressbar"
-    accessibilityLabel={LOADING_LABEL}
-    accessibilityState={{ busy: true }}
-  >
-    <View style={styles.content} importantForAccessibility="no-hide-descendants">
-      <View style={styles.iconBox} accessible={false}>
-        <Shield width={82} height={101} stroke={colors.accent} />
+const SplashBrandingView = () => {
+  const appDisplayName = getAppDisplayName();
+
+  return (
+    <View
+      style={styles.container}
+      testID={testIds.app.loader}
+      accessible
+      accessibilityRole="progressbar"
+      accessibilityLabel={`Loading ${appDisplayName}`}
+      accessibilityState={{ busy: true }}
+    >
+      <View style={styles.content} importantForAccessibility="no-hide-descendants">
+        <View style={styles.iconBox} accessible={false}>
+          <Shield width={82} height={101} stroke={colors.accent} />
+        </View>
+
+        <Text style={styles.title} accessibilityRole="header">
+          {appDisplayName}
+        </Text>
+        <Text style={styles.subtitle}>{APP_TAGLINE}</Text>
+
+        <SplashLoadingDots />
       </View>
-
-      <Text style={styles.title} accessibilityRole="header">
-        {APP_NAME}
-      </Text>
-      <Text style={styles.subtitle}>{APP_TAGLINE}</Text>
-
-      <SplashLoadingDots />
     </View>
-  </View>
-);
+  );
+};
 
 export const SplashBranding = memo(SplashBrandingView);
 

@@ -5,11 +5,10 @@ import android.os.Bundle
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate
-import com.facebook.react.bridge.ReactContext
 import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint.fabricEnabled
 import com.facebook.react.defaults.DefaultReactActivityDelegate
-import com.facebook.react.modules.core.DeviceEventManagerModule
 import com.focusguard.permissions.NotificationPermission
+import com.focusguard.permissions.PermissionEventEmitter
 import com.swmansion.rnscreens.fragment.restoration.RNScreensFragmentFactory
 
 class MainActivity : ReactActivity() {
@@ -39,16 +38,8 @@ class MainActivity : ReactActivity() {
     super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 
     if (requestCode == NotificationPermission.REQUEST_CODE_POST_NOTIFICATIONS) {
-      emitNotificationsPermissionChanged()
+      PermissionEventEmitter.emit(application)
     }
-  }
-
-  private fun emitNotificationsPermissionChanged() {
-    val reactContext: ReactContext = reactInstanceManager.currentReactContext ?: return
-
-    reactContext
-        .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
-        .emit(NotificationPermission.PERMISSION_CHANGED_EVENT, null)
   }
 
   /**

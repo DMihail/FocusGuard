@@ -57,16 +57,8 @@ internal object MonitorPermissions {
   }
 
   /** @return `true` if `POST_NOTIFICATIONS` is granted (always `true` below API 33). */
-  fun canPostNotifications(context: Context): Boolean {
-    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
-      return true
-    }
-
-    return ContextCompat.checkSelfPermission(
-        context,
-        Manifest.permission.POST_NOTIFICATIONS,
-    ) == PackageManager.PERMISSION_GRANTED
-  }
+  fun canPostNotifications(context: Context): Boolean =
+      NotificationPermissions.hasPostNotificationsPermission(context)
 
   /** @return `true` if `FOREGROUND_SERVICE_SPECIAL_USE` is granted (always `true` below API 34). */
   fun hasForegroundServiceSpecialUsePermission(context: Context): Boolean {

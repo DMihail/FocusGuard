@@ -14,7 +14,7 @@ import {
   requestUsageStatsPermission,
 } from '@/specs';
 
-import { PERMISSIONS } from '../data/permissions';
+import { PERMISSION_IDS } from '../data/permissions';
 import type { PermissionId, PermissionStatus } from '../types';
 
 /** Required to continue; notifications can be granted later from this screen or Settings. */
@@ -34,19 +34,19 @@ const permissionRequests: Record<PermissionId, () => void> = {
   'battery-optimization': requestIgnoreBatteryOptimizationsPermission,
 };
 
+/** Reads current native permission statuses for all Enable Permissions cards. */
 export const readPermissionStatuses = (): Record<PermissionId, PermissionStatus> => {
   if (Platform.OS !== 'android') {
-    return Object.fromEntries(PERMISSIONS.map((item) => [item.id, 'granted'])) as Record<
-      PermissionId,
-      PermissionStatus
-    >;
+    return Object.fromEntries(PERMISSION_IDS.map((id) => [id, 'granted'])) as Record<PermissionId, PermissionStatus>;
   }
 
-  return Object.fromEntries(
-    PERMISSIONS.map((item) => [item.id, permissionChecks[item.id]() ? 'granted' : 'pending']),
-  ) as Record<PermissionId, PermissionStatus>;
+  return Object.fromEntries(PERMISSION_IDS.map((id) => [id, permissionChecks[id]() ? 'granted' : 'pending'])) as Record<
+    PermissionId,
+    PermissionStatus
+  >;
 };
 
+/** Returns `true` when usage access, overlay, battery exemption, and manifest FGS permissions are granted. */
 export const areRequiredPermissionsGranted = (statuses: Record<PermissionId, PermissionStatus>): boolean => {
   if (Platform.OS !== 'android') {
     return true;
@@ -55,8 +55,10 @@ export const areRequiredPermissionsGranted = (statuses: Record<PermissionId, Per
   return REQUIRED_PERMISSION_IDS.every((id) => statuses[id] === 'granted') && checkForManifestMonitorPermissions();
 };
 
+/** Convenience wrapper around {@link readPermissionStatuses} for navigation guards. */
 export const areAllPermissionsGranted = (): boolean => areRequiredPermissionsGranted(readPermissionStatuses());
 
+/** Opens the system settings screen for a permission card action. */
 export const requestPermissionById = (id: PermissionId): void => {
   if (Platform.OS !== 'android') {
     return;

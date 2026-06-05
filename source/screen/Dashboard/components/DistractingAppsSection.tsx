@@ -1,16 +1,17 @@
 /** @format */
 
-import React, { memo, useLayoutEffect, useMemo, useRef } from 'react';
-import { Pressable, Text, View } from 'react-native';
+import React, { useLayoutEffect, useMemo, useRef } from 'react';
+import { FlatList, Pressable, Text, View } from 'react-native';
 
+import { NESTED_FLAT_LIST_PROPS } from '@/list';
 import { testIds } from '@/testing/testIds';
+import { spacing } from '@/theme';
 import { configureSectionLayoutAnimation } from '@/utils/layoutAnimation';
 import type { DashboardAppRow } from '@/utils/usage/dashboardStats';
 
-import { DistractingAppsListEmpty } from '../list';
+import { createDashboardAppRowRenderItem } from '../list';
+import { DistractingAppsListEmpty } from '../list/empty';
 import { dashboardStyles } from '../styles';
-
-import { AppUsageRow } from '@/components';
 
 const MAX_VISIBLE_APPS = 4;
 
@@ -20,7 +21,7 @@ type DistractingAppsSectionProps = {
   onViewAllPress: () => void;
 };
 
-function DistractingAppsSectionView({ appRows, onConfigureLimits, onViewAllPress }: DistractingAppsSectionProps) {
+export function DistractingAppsSection({ appRows, onConfigureLimits, onViewAllPress }: DistractingAppsSectionProps) {
   const visibleApps = useMemo(() => appRows.slice(0, MAX_VISIBLE_APPS), [appRows]);
   const previousAppsCount = useRef(visibleApps.length);
 
@@ -31,13 +32,10 @@ function DistractingAppsSectionView({ appRows, onConfigureLimits, onViewAllPress
     }
   }, [visibleApps.length]);
 
+  const renderItem = useMemo(() => createDashboardAppRowRenderItem(onConfigureLimits), [onConfigureLimits]);
+
   return (
-    <View
-      style={dashboardStyles.section}
-      testID={testIds.dashboard.distractingAppsSection}
-      accessibilityRole="summary"
-      accessibilityLabel="Top distracting apps"
-    >
+    <View style={dashboardStyles.section} testID={testIds.dashboard.distractingAppsSection}>
       <View style={dashboardStyles.sectionHeader}>
         <Text style={dashboardStyles.sectionTitle} accessibilityRole="header" numberOfLines={1}>
           Top Distracting Apps
@@ -55,31 +53,17 @@ function DistractingAppsSectionView({ appRows, onConfigureLimits, onViewAllPress
         ) : null}
       </View>
 
-      <View
-        style={dashboardStyles.appsList}
+      <FlatList
+        data={visibleApps}
+        renderItem={renderItem}
+        keyExtractor={(item) => item.packageName}
+        ListEmptyComponent={DistractingAppsListEmpty}
+        contentContainerStyle={dashboardStyles.appsList}
+        style={{ gap: spacing.md }}
         testID={testIds.dashboard.appsList}
-        accessibilityRole="list"
-        accessibilityLabel="Selected distracting apps"
-      >
-        {visibleApps.length === 0 ? (
-          <DistractingAppsListEmpty />
-        ) : (
-          visibleApps.map((row) => <AppUsageRow key={row.packageName} {...row} onPress={onConfigureLimits} />)
-        )}
-      </View>
+        extraData={onConfigureLimits}
+        {...NESTED_FLAT_LIST_PROPS}
+      />
     </View>
-  );
-}
-
-export const DistractingAppsSection = memo(DistractingAppsSectionView, areDistractingAppsSectionPropsEqual);
-
-function areDistractingAppsSectionPropsEqual(
-  previous: DistractingAppsSectionProps,
-  next: DistractingAppsSectionProps,
-): boolean {
-  return (
-    previous.onConfigureLimits === next.onConfigureLimits &&
-    previous.onViewAllPress === next.onViewAllPress &&
-    previous.appRows === next.appRows
   );
 }

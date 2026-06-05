@@ -39,7 +39,9 @@ class LiveUsageEstimator(
 
         val baselineMs = baselineMsByPackage[packageName] ?: persistedMs
         val sessionMs = (System.currentTimeMillis() - sessionStartedAtMs).coerceAtLeast(0L)
+        val estimatedMs = baselineMs + sessionMs
 
-        return baselineMs + sessionMs
+        // UsageStats can lag; prefer the higher value so retroactive limits still block.
+        return maxOf(estimatedMs, persistedMs)
     }
 }

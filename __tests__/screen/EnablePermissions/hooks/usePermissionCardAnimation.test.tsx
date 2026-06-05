@@ -1,21 +1,15 @@
 /** @format */
 
 import React from 'react';
-import { Animated, Text } from 'react-native';
+import { Text } from 'react-native';
 
+import * as Reanimated from 'react-native-reanimated';
 import ReactTestRenderer from 'react-test-renderer';
 
 import { usePermissionCardAnimation } from '@/screen/EnablePermissions/hooks/usePermissionCardAnimation';
 import type { PermissionStatus } from '@/screen/EnablePermissions/types';
 
-const timingStart = jest.fn();
-const compositeAnimation = {
-  start: timingStart,
-  stop: jest.fn(),
-  reset: jest.fn(),
-};
-
-jest.spyOn(Animated, 'timing').mockImplementation(() => compositeAnimation);
+const withTimingSpy = jest.spyOn(Reanimated, 'withTiming');
 
 type ProbeProps = {
   status: PermissionStatus;
@@ -28,7 +22,7 @@ const AnimationProbe = ({ status }: ProbeProps) => {
 
 describe('usePermissionCardAnimation', () => {
   beforeEach(() => {
-    timingStart.mockClear();
+    withTimingSpy.mockClear();
   });
 
   it('returns granted state for granted permissions', () => {
@@ -62,6 +56,6 @@ describe('usePermissionCardAnimation', () => {
       tree!.update(<AnimationProbe status="granted" />);
     });
 
-    expect(timingStart).toHaveBeenCalled();
+    expect(withTimingSpy).toHaveBeenCalled();
   });
 });

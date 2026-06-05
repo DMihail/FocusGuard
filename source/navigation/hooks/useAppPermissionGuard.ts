@@ -10,6 +10,10 @@ import { onboardingStore } from '@/store/onboardingStore';
 
 import type { RootStackParamList } from '../types';
 
+/**
+ * Redirects to Enable Permissions when onboarding is complete but required
+ * Android permissions are still missing. Re-checks on navigation ready and app foreground.
+ */
 export const useAppPermissionGuard = (
   navigationRef: RefObject<NavigationContainerRef<RootStackParamList> | null>,
   isEnabled: boolean,
@@ -36,9 +40,11 @@ export const useAppPermissionGuard = (
     redirectIfPermissionsMissing();
   }, [isEnabled, redirectIfPermissionsMissing]);
 
-  useAppStateOnActive(() => {
+  const handleAppBecomeActive = useCallback(() => {
     if (isEnabled) {
       redirectIfPermissionsMissing();
     }
-  });
+  }, [isEnabled, redirectIfPermissionsMissing]);
+
+  useAppStateOnActive(handleAppBecomeActive);
 };

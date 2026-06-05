@@ -1,7 +1,7 @@
 /** @format */
 
 import React from 'react';
-import { AppState, LayoutAnimation } from 'react-native';
+import { AppState, DeviceEventEmitter, LayoutAnimation } from 'react-native';
 
 import ReactTestRenderer from 'react-test-renderer';
 
@@ -21,6 +21,7 @@ jest.mock('../../../../source/screen/EnablePermissions/utils/permissionStatus', 
 }));
 
 import { usePermissionsSync } from '@/screen/EnablePermissions/hooks/usePermissionsSync';
+import { PERMISSIONS_CHANGED_EVENT } from '@/utils/permissions/notificationPermissionEvents';
 
 const pendingStatuses: Record<PermissionId, PermissionStatus> = {
   'usage-access': 'pending',
@@ -163,6 +164,28 @@ describe('usePermissionsSync', () => {
     });
 
     expect(configureNextSpy).not.toHaveBeenCalled();
+  });
+
+  it('syncs statuses when native permissions changed event is emitted', () => {
+    let hook: ReturnType<typeof usePermissionsSync> | undefined;
+
+    ReactTestRenderer.act(() => {
+      ReactTestRenderer.create(
+        <PermissionsProbe
+          onReady={(value) => {
+            hook = value;
+          }}
+        />,
+      );
+    });
+
+    mockReadPermissionStatuses.mockReturnValue(grantedStatuses);
+
+    ReactTestRenderer.act(() => {
+      DeviceEventEmitter.emit(PERMISSIONS_CHANGED_EVENT);
+    });
+
+    expect(hook!.statusById).toEqual(grantedStatuses);
   });
 
   it('removes AppState listener on unmount', () => {

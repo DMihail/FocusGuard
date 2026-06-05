@@ -10,14 +10,12 @@ type PermissionListRowProps = {
   onGrant: (id: PermissionId) => void;
 };
 
-function PermissionListRowView({ item, onGrant }: PermissionListRowProps) {
+export const PermissionListRow = memo(({ item, onGrant }: PermissionListRowProps) => {
   return <PermissionCard {...item} onGrant={() => onGrant(item.id)} />;
-}
+}, arePermissionListRowPropsEqual);
 
 function arePermissionListRowPropsEqual(previous: PermissionListRowProps, next: PermissionListRowProps): boolean {
   return (
     previous.item.id === next.item.id && previous.item.status === next.item.status && previous.onGrant === next.onGrant
   );
 }
-
-export const PermissionListRow = memo(PermissionListRowView, arePermissionListRowPropsEqual);

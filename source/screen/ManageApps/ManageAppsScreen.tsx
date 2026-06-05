@@ -1,9 +1,8 @@
 /** @format */
 
-import React, { useCallback, useRef } from 'react';
+import React, { useCallback } from 'react';
 
 import { useFocusEffect } from '@react-navigation/native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useGoBack } from '@/hooks/useGoBack';
 import { useNavigateToConfigureLimits } from '@/navigation/hooks/useNavigateToConfigureLimits';
@@ -12,9 +11,8 @@ import { testIds } from '@/testing/testIds';
 import { useManageApps } from './hooks/useManageApps';
 import { manageAppsStyles } from './styles';
 
-import { ManageAppsHeader, ManageAppsList } from './components';
-import type { ManageAppsListHeaderProps } from './components/ManageAppsListHeader';
-import { ManageAppsListHeader } from './components/ManageAppsListHeader';
+import { ManageAppsContent, ManageAppsHeader, ManageAppsSearchToolbar } from './components';
+import { ScreenSafeArea } from '@/components';
 
 export const ManageAppsScreen = () => {
   const goBack = useGoBack();
@@ -24,12 +22,11 @@ export const ManageAppsScreen = () => {
     refreshInstalledApps,
     isFiltering,
     selectedApps,
-    selectedCount,
-    searchQuery,
     setSearchQuery,
+    setSearchInputActive,
     isSearchActive,
     categoryFilters,
-    activeCategory,
+    activeCategoryId,
     setActiveCategory,
     isSelected,
     toggleAppSelection,
@@ -41,44 +38,27 @@ export const ManageAppsScreen = () => {
     }, [refreshInstalledApps]),
   );
 
-  const listHeaderPropsRef = useRef<ManageAppsListHeaderProps>({
-    isSearchActive,
-    categoryFilters,
-    activeCategoryId: activeCategory.id,
-    onCategoryChange: setActiveCategory,
-    selectedApps,
-    onSelectedAppPress: openConfigureLimits,
-  });
-
-  listHeaderPropsRef.current = {
-    isSearchActive,
-    categoryFilters,
-    activeCategoryId: activeCategory.id,
-    onCategoryChange: setActiveCategory,
-    selectedApps,
-    onSelectedAppPress: openConfigureLimits,
-  };
-
-  const renderListHeader = useCallback(() => <ManageAppsListHeader {...listHeaderPropsRef.current} />, []);
-
   return (
-    <SafeAreaView
+    <ScreenSafeArea
       style={manageAppsStyles.screen}
-      edges={['top', 'bottom']}
       testID={testIds.manageApps.screen}
       accessibilityLabel="Manage apps screen"
     >
-      <ManageAppsHeader selectedCount={selectedCount} onBack={goBack} />
-      <ManageAppsList
+      <ManageAppsHeader onBack={goBack} />
+      <ManageAppsSearchToolbar onQueryChange={setSearchQuery} onQueryActiveChange={setSearchInputActive} />
+      <ManageAppsContent
         apps={apps}
         isFiltering={isFiltering}
-        selectedCount={selectedCount}
+        selectedApps={selectedApps}
         isSelected={isSelected}
         onToggle={toggleAppSelection}
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
-        ListHeaderComponent={renderListHeader}
+        onSelectedAppPress={openConfigureLimits}
+        onSelectedAppRemove={toggleAppSelection}
+        isSearchActive={isSearchActive}
+        categoryFilters={categoryFilters}
+        activeCategoryId={activeCategoryId}
+        onCategoryChange={setActiveCategory}
       />
-    </SafeAreaView>
+    </ScreenSafeArea>
   );
 };

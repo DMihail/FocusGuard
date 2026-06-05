@@ -6,6 +6,7 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 import { zustandStorage } from './mmkv';
 import type { SettingsStore } from './types';
 
+/** Persisted user preferences (notification toggle). */
 export const settingsStore = create<SettingsStore>()(
   persist(
     (set) => ({

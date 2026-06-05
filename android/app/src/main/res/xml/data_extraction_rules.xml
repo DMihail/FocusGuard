@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
   Android 12+ cloud backup and device-to-device transfer.
-  Matches android:allowBackup="false" — no FocusGuard usage/limits data leaves the device.
+  Matches android:allowBackup="false" — no Keept usage/limits data leaves the device.
 -->
 <data-extraction-rules>
     <cloud-backup>

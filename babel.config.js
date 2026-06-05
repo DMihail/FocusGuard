@@ -13,6 +13,7 @@ module.exports = {
         extensions: ['.ios.js', '.android.js', '.js', '.jsx', '.json', '.ts', '.tsx'],
       },
     ],
+    'react-native-worklets/plugin',
   ],
   env: {
     production: {

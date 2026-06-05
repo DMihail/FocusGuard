@@ -1,3 +1,3 @@
 /** @format */
 
-export const NOTIFICATION_PERMISSION_CHANGED_EVENT = 'focusguard:notificationsPermissionChanged';
+export const PERMISSIONS_CHANGED_EVENT = 'focusguard:permissionsChanged';

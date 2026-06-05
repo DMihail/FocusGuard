@@ -131,7 +131,11 @@ class TrackingEngine(
         val limits = configRepository.getLimitConfig(packageName)
         val usedTodayMs = liveUsageEstimator.getEffectiveUsageMs(packageName)
 
+        // Compares full calendar-day usage (since midnight) against the current limit.
+        // Retroactive limits block on the next poll once usage >= hardBlockThresholdMs.
         if (usedTodayMs >= limits.hardBlockThresholdMs) {
+            DailyWarningStore.markWarningShownToday(packageName)
+
             if (!blockShown) {
                 logDebug(
                     "Daily block for $packageName (${usedTodayMs / 60_000}m / ${limits.hardBlockThresholdMs / 60_000}m)",

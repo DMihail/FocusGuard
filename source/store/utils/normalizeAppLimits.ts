@@ -10,6 +10,7 @@ import type { AppLimits } from '../types';
 
 const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
 
+/** Clamps slider values and enforces hard-block ≥ warning before persistence. */
 export const normalizeAppLimits = (limits: AppLimits): AppLimits => {
   const warningMinutes = clamp(limits.warningMinutes, WARNING_MIN_MINUTES, WARNING_MAX_MINUTES);
   const hardBlockMinutes = clamp(

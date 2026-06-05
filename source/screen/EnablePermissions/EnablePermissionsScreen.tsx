@@ -4,7 +4,6 @@ import React, { useCallback, useMemo } from 'react';
 import { FlatList, View } from 'react-native';
 
 import { useFocusEffect } from '@react-navigation/native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { APP_LIST_FLAT_LIST_PROPS } from '@/list';
 import { useRootNavigation } from '@/navigation';
@@ -15,6 +14,7 @@ import { createPermissionListRenderItem, permissionKeyExtractor } from './list';
 import { permissionsStyles } from './styles';
 
 import { PermissionsFooter, PermissionsHeader, PrivacyNotice } from './components';
+import { ScreenSafeArea } from '@/components';
 
 export const EnablePermissionsScreen = () => {
   const navigation = useRootNavigation();
@@ -36,7 +36,7 @@ export const EnablePermissionsScreen = () => {
   const renderItem = useMemo(() => createPermissionListRenderItem(handleGrant), [handleGrant]);
 
   return (
-    <SafeAreaView style={permissionsStyles.screen} edges={['top', 'bottom']} testID={testIds.enablePermissions.screen}>
+    <ScreenSafeArea style={permissionsStyles.screen} testID={testIds.enablePermissions.screen}>
       <FlatList
         testID={testIds.enablePermissions.scroll}
         data={permissions}
@@ -55,6 +55,6 @@ export const EnablePermissionsScreen = () => {
         <PrivacyNotice />
         <PermissionsFooter canContinue={canContinue} onContinue={handleContinue} />
       </View>
-    </SafeAreaView>
+    </ScreenSafeArea>
   );
 };

@@ -17,10 +17,10 @@ type DailyUsageCardProps = {
   limitMs: number;
 };
 
-export const DailyUsageCard = ({ packageName, usedMs, limitMs }: DailyUsageCardProps) => {
-  const percent = limitMs > 0 ? Math.min(100, Math.round((usedMs / limitMs) * 100)) : 0;
+export function DailyUsageCard({ packageName, usedMs, limitMs }: DailyUsageCardProps) {
   const isOverLimit = limitMs > 0 && usedMs >= limitMs;
   const barProgress = limitMs > 0 ? Math.min(100, (usedMs / limitMs) * 100) : 0;
+  const percent = Math.round(barProgress);
 
   return (
     <View style={styles.dailyUsageCard} testID={testIds.configureLimits.dailyUsageCard(packageName)}>
@@ -29,6 +29,11 @@ export const DailyUsageCard = ({ packageName, usedMs, limitMs }: DailyUsageCardP
         {formatUsagePair(usedMs, limitMs)}
       </Text>
       <Text style={styles.dailyUsageHint}>Daily limit applies until midnight</Text>
+      {isOverLimit ? (
+        <Text style={styles.dailyUsageOverHint}>
+          Already over today&apos;s limit — the app will be blocked on next open while monitoring is on.
+        </Text>
+      ) : null}
       <ProgressBar
         progress={barProgress}
         fillColor={isOverLimit ? colors.overLimit : colors.accent}
@@ -37,4 +42,4 @@ export const DailyUsageCard = ({ packageName, usedMs, limitMs }: DailyUsageCardP
       <Text style={[styles.dailyUsagePercent, isOverLimit && styles.dailyUsagePercentOver]}>{percent}% of limit</Text>
     </View>
   );
-};
+}

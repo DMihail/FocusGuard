@@ -8,7 +8,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useAppStateOnActive } from '@/hooks/useAppStateOnActive';
 import { checkForNotificationsPermission, openNotificationsSettings } from '@/specs';
 import { settingsStore } from '@/store';
-import { NOTIFICATION_PERMISSION_CHANGED_EVENT } from '@/utils/permissions/notificationPermissionEvents';
+import { PERMISSIONS_CHANGED_EVENT } from '@/utils/permissions/notificationPermissionEvents';
 import { requestPostNotificationsPermission } from '@/utils/permissions/requestNotificationPermission';
 
 const readSystemNotificationsGranted = (): boolean =>
@@ -42,10 +42,7 @@ export const useNotificationsSetting = () => {
   }, [refreshSystemGrant]);
 
   useEffect(() => {
-    const subscription = DeviceEventEmitter.addListener(
-      NOTIFICATION_PERMISSION_CHANGED_EVENT,
-      reconcileRevokedPermission,
-    );
+    const subscription = DeviceEventEmitter.addListener(PERMISSIONS_CHANGED_EVENT, reconcileRevokedPermission);
 
     return () => subscription.remove();
   }, [reconcileRevokedPermission]);

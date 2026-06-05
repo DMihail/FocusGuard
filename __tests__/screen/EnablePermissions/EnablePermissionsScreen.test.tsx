@@ -62,11 +62,11 @@ jest.mock('react-native-safe-area-context', () => {
 
 jest.mock('../../../source/screen/EnablePermissions/hooks/usePermissionCardAnimation', () => ({
   usePermissionCardAnimation: (status: 'granted' | 'pending') => ({
-    grantedOverlayOpacity: status === 'pending' ? 0 : 1,
-    pendingIconOpacity: status === 'pending' ? 1 : 0,
-    grantedIconOpacity: status === 'granted' ? 1 : 0,
+    grantedOverlayStyle: {},
+    pendingIconStyle: {},
+    grantedIconStyle: {},
     badgeStyle: {},
-    grantButtonOpacity: status === 'pending' ? 1 : 0,
+    grantButtonStyle: {},
     collapsed: status === 'granted',
     isGranted: status === 'granted',
   }),

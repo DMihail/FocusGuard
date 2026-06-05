@@ -1,9 +1,15 @@
 /** @format */
 
-import { useMemo, useRef, useState } from 'react';
-import { Animated, type NativeScrollEvent, type NativeSyntheticEvent, useWindowDimensions } from 'react-native';
+import { useCallback, useMemo, useRef, useState } from 'react';
+import {
+  type LayoutChangeEvent,
+  type NativeScrollEvent,
+  type NativeSyntheticEvent,
+  useWindowDimensions,
+} from 'react-native';
 
 import type { FlatList } from 'react-native';
+import { useAnimatedScrollHandler, useSharedValue } from 'react-native-reanimated';
 
 import { useRootNavigation } from '@/navigation';
 import { onboardingStore } from '@/store/onboardingStore';
@@ -24,58 +30,65 @@ export const useOnboardingPager = () => {
   const navigation = useRootNavigation();
   const { width: windowWidth } = useWindowDimensions();
   const listRef = useRef<FlatList<WalkthroughStepData>>(null);
-  const scrollX = useRef(new Animated.Value(0)).current;
+  const scrollX = useSharedValue(0);
   const [step, setStep] = useState(0);
   const [pageWidth, setPageWidth] = useState(windowWidth);
 
   const isLastStep = step === LAST_STEP_INDEX;
   const isPagerReady = pageWidth > 0;
 
-  const indicatorProps: ScrollIndicatorProps | null = isPagerReady
-    ? {
-        count: STEP_COUNT,
-        scrollX,
-        pageWidth,
-      }
-    : null;
-
-  const handleScroll = useMemo(
+  const indicatorProps = useMemo<ScrollIndicatorProps | null>(
     () =>
-      Animated.event([{ nativeEvent: { contentOffset: { x: scrollX } } }], {
-        useNativeDriver: true,
-      }),
-    [scrollX],
+      isPagerReady
+        ? {
+            count: STEP_COUNT,
+            scrollX,
+            pageWidth,
+          }
+        : null,
+    [isPagerReady, pageWidth, scrollX],
   );
 
-  const handleMomentumScrollEnd = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-    const nextStep = getStepFromOffset(event.nativeEvent.contentOffset.x, pageWidth, LAST_STEP_INDEX);
-    setStep(nextStep);
-  };
+  const handleScroll = useAnimatedScrollHandler({
+    onScroll: (event) => {
+      scrollX.value = event.contentOffset.x;
+    },
+  });
 
-  const goToStep = (index: number) => {
+  const handleMomentumScrollEnd = useCallback(
+    (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+      const nextStep = getStepFromOffset(event.nativeEvent.contentOffset.x, pageWidth, LAST_STEP_INDEX);
+      setStep(nextStep);
+    },
+    [pageWidth],
+  );
+
+  const goToStep = useCallback((index: number) => {
     listRef.current?.scrollToIndex({
       index: clampStepIndex(index, LAST_STEP_INDEX),
       animated: true,
     });
-  };
+  }, []);
 
-  const onSkip = () => {
+  const onSkip = useCallback(() => {
     onboardingStore.getState().setIsConfirm(true);
     navigation.navigate('EnablePermissions');
-  };
+  }, [navigation]);
 
-  const handleContinue = () => {
+  const handleContinue = useCallback(() => {
     if (!isLastStep) {
-      return goToStep(step + 1);
+      goToStep(step + 1);
+      return;
     }
-    onSkip();
-  };
 
-  const handlePagerLayout = (width: number) => {
-    if (width > 0) {
-      setPageWidth((current) => (current === width ? current : width));
+    onSkip();
+  }, [goToStep, isLastStep, onSkip, step]);
+
+  const handlePagerContainerLayout = useCallback(({ nativeEvent: { layout } }: LayoutChangeEvent) => {
+    if (layout.width > 0) {
+      setPageWidth((current) => (current === layout.width ? current : layout.width));
     }
-  };
+  }, []);
 
   const getItemLayout = useMemo(() => createGetItemLayout(pageWidth), [pageWidth]);
 
@@ -92,7 +105,7 @@ export const useOnboardingPager = () => {
     handleScroll,
     handleMomentumScrollEnd,
     handleContinue,
-    handlePagerLayout,
+    handlePagerContainerLayout,
     getItemLayout,
     handleScrollToIndexFailed,
     onSkip,
