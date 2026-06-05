@@ -16,7 +16,7 @@ type AppSearchFieldProps = {
 
 function AppSearchFieldView({ value, onChangeText }: AppSearchFieldProps) {
   return (
-    <View style={manageAppsStyles.searchField} testID={testIds.manageApps.searchField}>
+    <View style={manageAppsStyles.searchField}>
       <SearchIcon />
       <TextInput
         testID={testIds.manageApps.searchInput}

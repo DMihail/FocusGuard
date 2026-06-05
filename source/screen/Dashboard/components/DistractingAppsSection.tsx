@@ -5,6 +5,7 @@ import { FlatList, Pressable, Text, View } from 'react-native';
 
 import { NESTED_FLAT_LIST_PROPS } from '@/list';
 import { testIds } from '@/testing/testIds';
+import { spacing } from '@/theme';
 import { configureSectionLayoutAnimation } from '@/utils/layoutAnimation';
 import type { DashboardAppRow } from '@/utils/usage/dashboardStats';
 
@@ -63,6 +64,7 @@ function DistractingAppsSectionView({ appRows, onConfigureLimits, onViewAllPress
         keyExtractor={(item) => item.packageName}
         ListEmptyComponent={DistractingAppsListEmpty}
         contentContainerStyle={dashboardStyles.appsList}
+        style={{ gap: spacing.md }}
         testID={testIds.dashboard.appsList}
         accessibilityRole="list"
         accessibilityLabel="Selected distracting apps"

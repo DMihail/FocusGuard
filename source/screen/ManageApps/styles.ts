@@ -14,10 +14,36 @@ import {
   typography,
 } from '@/theme';
 
+export const SELECTED_APPS_SCROLL_HEIGHT = 96;
+
+/** Title line + section gap + chip scroll area + bottom spacing. */
+export const selectedAppsSectionExpandedHeight = lineHeight.md + spacing.md + SELECTED_APPS_SCROLL_HEIGHT + spacing.md;
+
 export const manageAppsStyles = StyleSheet.create({
   screen: layoutPresets.screen,
-  listFlex: {
+  content: {
     flex: 1,
+    minHeight: 0,
+    position: 'relative',
+  },
+  flatList: {
+    flex: 1,
+  },
+  listWrapper: {
+    flex: 1,
+    minHeight: 0,
+    position: 'relative',
+  },
+  listHeader: {
+    gap: spacing.md,
+    paddingBottom: spacing.md,
+  },
+  searchToolbar: {
+    paddingHorizontal: spacing.xl,
+    paddingTop: spacing.lg,
+    paddingBottom: spacing.md,
+    flexGrow: 0,
+    flexShrink: 0,
   },
   scrollContent: {
     ...layoutPresets.scrollContent(spacing.md),
@@ -47,12 +73,6 @@ export const manageAppsStyles = StyleSheet.create({
     fontSize: fontSize.sm,
     lineHeight: lineHeight.sm,
     color: colors.textMuted,
-  },
-  searchFieldContainer: {
-    paddingHorizontal: spacing.xl,
-    paddingBottom: spacing.lg,
-    flexGrow: 0,
-    flexShrink: 0,
   },
   searchField: {
     ...layoutPresets.card,
@@ -99,18 +119,22 @@ export const manageAppsStyles = StyleSheet.create({
     flexGrow: 0,
     flexShrink: 0,
   },
+  selectedAppsSectionOuter: {
+    flexGrow: 0,
+    flexShrink: 0,
+  },
   sectionTitle: textPresets.sectionTitle,
   selectedAppsScroll: {
     flexGrow: 0,
     flexShrink: 0,
-    height: 96,
+    height: SELECTED_APPS_SCROLL_HEIGHT,
     overflow: 'hidden',
   },
   selectedAppsRows: {
     flexDirection: 'column',
     flexWrap: 'wrap',
     alignContent: 'flex-start',
-    height: 96,
+    height: SELECTED_APPS_SCROLL_HEIGHT,
     columnGap: spacing.sm,
     rowGap: spacing.sm,
   },
@@ -119,15 +143,23 @@ export const manageAppsStyles = StyleSheet.create({
     ...layoutPresets.rowCenter,
     flexShrink: 0,
     width: 148,
-    paddingHorizontal: spacing.md,
+    paddingLeft: spacing.md,
+    paddingRight: spacing.xs,
     paddingVertical: spacing.sm,
+    gap: spacing.xs,
+  },
+  selectedChipBody: {
+    flex: 1,
+    minWidth: 0,
   },
   selectedChipLabel: textPresets.label,
-  appsListContainer: {
-    position: 'relative',
-    minHeight: 120,
+  selectedChipRemove: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 24,
+    height: 24,
   },
-  appsListDimmed: {
+  contentDimmed: {
     opacity: 0.45,
   },
   filterLoader: {

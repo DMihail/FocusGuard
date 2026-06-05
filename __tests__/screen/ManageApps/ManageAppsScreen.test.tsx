@@ -3,7 +3,7 @@
 import type React from 'react';
 
 import type { ManageApp } from '@/screen/ManageApps/types';
-import { mockInstallApps } from '@/testing/fixtures/manageApps';
+import { mockInstallApps, mockManageApps } from '@/testing/fixtures/manageApps';
 import { testIds } from '@/testing/testIds';
 
 import {
@@ -127,12 +127,39 @@ describe('ManageAppsScreen', () => {
     expect(tree.root.findByProps({ testID: testIds.manageApps.selectedCount }).props.children).toBe('1 selected');
   });
 
+  it('removes a selected app when chip remove button is pressed', async () => {
+    mockStoreState.apps = [mockManageApps[1]];
+
+    const tree = renderTestTree(<ManageAppsScreen />);
+    flushVirtualizedListTimers();
+
+    expect(tree.root.findByProps({ testID: testIds.manageApps.selectedChip('com.game.puzzle') })).toBeDefined();
+
+    runTestAct(() => {
+      tree.root.findByProps({ testID: testIds.manageApps.selectedChipRemove('com.game.puzzle') }).props.onPress();
+    });
+
+    updateTestTree(tree, <ManageAppsScreen />);
+    flushVirtualizedListTimers();
+
+    expect(
+      tree.root.findAll(
+        (node) => typeof node.props.testID === 'string' && node.props.testID.startsWith('manage-apps-selected-chip-'),
+      ),
+    ).toHaveLength(0);
+    expect(tree.root.findByProps({ testID: testIds.manageApps.selectedCount }).props.children).toBe('0 selected');
+  });
+
   it('filters apps when search query changes', async () => {
     const tree = renderTestTree(<ManageAppsScreen />);
     flushVirtualizedListTimers();
 
     runTestAct(() => {
       tree.root.findByProps({ testID: testIds.manageApps.searchInput }).props.onChangeText('news');
+    });
+
+    runTestAct(() => {
+      jest.advanceTimersByTime(300);
     });
     flushVirtualizedListTimers();
 

@@ -1,6 +1,6 @@
 /** @format */
 
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback } from 'react';
 
 import { useFocusEffect } from '@react-navigation/native';
 
@@ -11,8 +11,7 @@ import { testIds } from '@/testing/testIds';
 import { useManageApps } from './hooks/useManageApps';
 import { manageAppsStyles } from './styles';
 
-import { ManageAppsHeader, ManageAppsList } from './components';
-import { ManageAppsListHeader } from './components/ManageAppsListHeader';
+import { ManageAppsContent, ManageAppsHeader, ManageAppsSearchToolbar } from './components';
 import { ScreenSafeArea } from '@/components';
 
 export const ManageAppsScreen = () => {
@@ -24,8 +23,8 @@ export const ManageAppsScreen = () => {
     isFiltering,
     selectedApps,
     selectedCount,
-    searchQuery,
     setSearchQuery,
+    setSearchInputActive,
     isSearchActive,
     categoryFilters,
     activeCategory,
@@ -40,20 +39,6 @@ export const ManageAppsScreen = () => {
     }, [refreshInstalledApps]),
   );
 
-  const listHeader = useMemo(
-    () => (
-      <ManageAppsListHeader
-        isSearchActive={isSearchActive}
-        categoryFilters={categoryFilters}
-        activeCategoryId={activeCategory.id}
-        onCategoryChange={setActiveCategory}
-        selectedApps={selectedApps}
-        onSelectedAppPress={openConfigureLimits}
-      />
-    ),
-    [activeCategory.id, categoryFilters, isSearchActive, openConfigureLimits, selectedApps, setActiveCategory],
-  );
-
   return (
     <ScreenSafeArea
       style={manageAppsStyles.screen}
@@ -61,15 +46,20 @@ export const ManageAppsScreen = () => {
       accessibilityLabel="Manage apps screen"
     >
       <ManageAppsHeader selectedCount={selectedCount} onBack={goBack} />
-      <ManageAppsList
+      <ManageAppsSearchToolbar onQueryChange={setSearchQuery} onQueryActiveChange={setSearchInputActive} />
+      <ManageAppsContent
         apps={apps}
         isFiltering={isFiltering}
         selectedCount={selectedCount}
+        selectedApps={selectedApps}
         isSelected={isSelected}
         onToggle={toggleAppSelection}
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
-        ListHeaderComponent={listHeader}
+        onSelectedAppPress={openConfigureLimits}
+        onSelectedAppRemove={toggleAppSelection}
+        isSearchActive={isSearchActive}
+        categoryFilters={categoryFilters}
+        activeCategoryId={activeCategory.id}
+        onCategoryChange={setActiveCategory}
       />
     </ScreenSafeArea>
   );

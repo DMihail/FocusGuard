@@ -7,7 +7,8 @@ import { LayoutAnimation } from 'react-native';
  * Do not call UIManager.setLayoutAnimationEnabledExperimental — it is a no-op on New Architecture.
  */
 
-const SECTION_LAYOUT_ANIMATION_MS = 280;
+const SECTION_LAYOUT_ANIMATION_MS = 380;
+export { SECTION_LAYOUT_ANIMATION_MS };
 export const PERMISSION_CARD_ANIMATION_MS = 380;
 
 type LayoutAnimationConfig = Parameters<typeof LayoutAnimation.configureNext>[0];
@@ -18,13 +19,20 @@ const configureNext = (config: LayoutAnimationConfig): void => {
 
 /** Section show/hide: selected chips, filters, dashboard blocks. */
 export const configureSectionLayoutAnimation = (): void => {
-  configureNext(
-    LayoutAnimation.create(
-      SECTION_LAYOUT_ANIMATION_MS,
-      LayoutAnimation.Types.easeInEaseOut,
-      LayoutAnimation.Properties.opacity,
-    ),
-  );
+  configureNext({
+    duration: SECTION_LAYOUT_ANIMATION_MS,
+    create: {
+      type: LayoutAnimation.Types.easeInEaseOut,
+      property: LayoutAnimation.Properties.opacity,
+    },
+    update: {
+      type: LayoutAnimation.Types.easeInEaseOut,
+    },
+    delete: {
+      type: LayoutAnimation.Types.easeInEaseOut,
+      property: LayoutAnimation.Properties.opacity,
+    },
+  });
 };
 
 /** Permission list height when cards collapse after grant. */

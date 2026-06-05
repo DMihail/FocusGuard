@@ -1,30 +1,26 @@
 /** @format */
 
 import React, { memo } from 'react';
+import { View } from 'react-native';
 
-import type { CategoryFilterOption, ManageApp } from '../types';
+import { manageAppsStyles } from '../styles';
+import type { ManageAppsListHeaderProps } from '../types';
 import { CategoryFilters } from './CategoryFilters';
 import { SelectedAppsSection } from './SelectedAppsSection';
 
-export type ManageAppsListHeaderProps = {
-  isSearchActive: boolean;
-  categoryFilters: CategoryFilterOption[];
-  activeCategoryId: string;
-  onCategoryChange: (categoryId: string) => void;
-  selectedApps: ManageApp[];
-  onSelectedAppPress: (packageName: string) => void;
-};
-
 function ManageAppsListHeaderView({
+  selectedApps,
+  onSelectedAppPress,
+  onSelectedAppRemove,
   isSearchActive,
   categoryFilters,
   activeCategoryId,
   onCategoryChange,
-  selectedApps,
-  onSelectedAppPress,
 }: ManageAppsListHeaderProps) {
   return (
-    <>
+    <View style={manageAppsStyles.listHeader}>
+      <SelectedAppsSection apps={selectedApps} onAppPress={onSelectedAppPress} onAppRemove={onSelectedAppRemove} />
+
       {!isSearchActive ? (
         <CategoryFilters
           filters={categoryFilters}
@@ -32,9 +28,7 @@ function ManageAppsListHeaderView({
           onCategoryChange={onCategoryChange}
         />
       ) : null}
-
-      <SelectedAppsSection apps={selectedApps} onAppPress={onSelectedAppPress} />
-    </>
+    </View>
   );
 }
 

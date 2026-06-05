@@ -36,6 +36,68 @@ jest.mock('react-native-reanimated', () => {
       cubic: identity,
     },
     runOnJS: (fn) => fn,
+    LinearTransition: {
+      duration: () => ({
+        easing: () => ({}),
+      }),
+    },
+    FadeIn: {
+      duration: () => ({
+        delay: () => ({
+          easing: () => ({
+            withInitialValues: () => ({}),
+          }),
+        }),
+        easing: () => ({
+          withInitialValues: () => ({}),
+        }),
+      }),
+      easing: () => ({
+        withInitialValues: () => ({}),
+      }),
+      withInitialValues: () => ({}),
+    },
+    FadeOut: {
+      duration: () => ({
+        delay: () => ({
+          easing: () => ({}),
+        }),
+        easing: () => ({}),
+      }),
+      easing: () => ({}),
+    },
+    FadeInDown: {
+      duration: () => ({
+        delay: () => ({
+          easing: () => ({
+            withInitialValues: () => ({}),
+          }),
+        }),
+        easing: () => ({
+          withInitialValues: () => ({}),
+        }),
+      }),
+      easing: () => ({
+        withInitialValues: () => ({}),
+      }),
+      withInitialValues: () => ({}),
+    },
+    FadeOutUp: {
+      duration: () => ({
+        delay: () => ({
+          easing: () => ({
+            withInitialValues: () => ({}),
+          }),
+        }),
+        easing: () => ({
+          withInitialValues: () => ({}),
+        }),
+      }),
+      easing: () => ({
+        withInitialValues: () => ({}),
+      }),
+      withInitialValues: () => ({}),
+    },
   };
 });
 
