@@ -1,6 +1,6 @@
 /** @format */
 
-import React, { memo } from 'react';
+import React from 'react';
 import { Image, type ImageStyle, Text, type TextStyle, View, type ViewStyle } from 'react-native';
 
 import { iconBoxPresets, textPresets } from '@/theme';
@@ -24,7 +24,7 @@ const imageSizeByPreset: Record<AppIconSize, ImageStyle> = {
 
 const getAppNameInitial = (appName: string): string => appName.charAt(0).toUpperCase();
 
-function AppIconView({ appName, appImage, size = 'md', boxStyle, imageStyle, fallbackStyle }: AppIconProps) {
+export function AppIcon({ appName, appImage, size = 'md', boxStyle, imageStyle, fallbackStyle }: AppIconProps) {
   return (
     <View style={[iconBoxPresets[size], boxStyle]}>
       {appImage ? (
@@ -35,18 +35,3 @@ function AppIconView({ appName, appImage, size = 'md', boxStyle, imageStyle, fal
     </View>
   );
 }
-
-export const AppIcon = memo(AppIconView, areAppIconPropsEqual);
-
-function areAppIconPropsEqual(previous: AppIconProps, next: AppIconProps): boolean {
-  return (
-    previous.appName === next.appName &&
-    previous.appImage === next.appImage &&
-    previous.size === next.size &&
-    previous.boxStyle === next.boxStyle &&
-    previous.imageStyle === next.imageStyle &&
-    previous.fallbackStyle === next.fallbackStyle
-  );
-}
-
-AppIcon.displayName = 'AppIcon';

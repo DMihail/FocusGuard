@@ -1,6 +1,6 @@
 /** @format */
 
-import React, { memo } from 'react';
+import React from 'react';
 import { View } from 'react-native';
 
 import { manageAppsStyles } from '../styles';
@@ -8,7 +8,7 @@ import type { ManageAppsListHeaderProps } from '../types';
 import { CategoryFilters } from './CategoryFilters';
 import { SelectedAppsSection } from './SelectedAppsSection';
 
-function ManageAppsListHeaderView({
+export function ManageAppsListHeader({
   selectedApps,
   onSelectedAppPress,
   onSelectedAppRemove,
@@ -31,5 +31,3 @@ function ManageAppsListHeaderView({
     </View>
   );
 }
-
-export const ManageAppsListHeader = memo(ManageAppsListHeaderView);

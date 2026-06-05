@@ -17,128 +17,129 @@ const SLIDER_ACCESSIBILITY_ACTIONS = [
   { name: 'decrement' as const, label: 'Decrease' },
 ];
 
-function LimitSliderCardView({
-  title,
-  description,
-  valueMinutes,
-  minMinutes,
-  progressMinMinutes,
-  maxMinutes,
-  stepMinutes,
-  accentColor,
-  onChange,
-  testID,
-}: LimitSliderCardProps) {
-  const progressMin = progressMinMinutes ?? minMinutes;
-  const { progress, progressPercent, inactivePercent, showInactiveZone } = getSliderLayout(
+export const LimitSliderCard = memo(
+  ({
+    title,
+    description,
     valueMinutes,
     minMinutes,
-    progressMin,
-    maxMinutes,
-  );
-
-  const { trackRef, panGesture, handleTrackLayout } = useSliderTrackGesture({
-    valueMinutes,
-    minMinutes,
-    progressMinMinutes: progressMin,
+    progressMinMinutes,
     maxMinutes,
     stepMinutes,
+    accentColor,
     onChange,
-  });
+    testID,
+  }: LimitSliderCardProps) => {
+    const progressMin = progressMinMinutes ?? minMinutes;
+    const { progress, progressPercent, inactivePercent, showInactiveZone } = getSliderLayout(
+      valueMinutes,
+      minMinutes,
+      progressMin,
+      maxMinutes,
+    );
 
-  const decrease = useCallback(() => {
-    onChange(Math.max(minMinutes, valueMinutes - stepMinutes));
-  }, [minMinutes, onChange, stepMinutes, valueMinutes]);
+    const { trackRef, panGesture, handleTrackLayout } = useSliderTrackGesture({
+      valueMinutes,
+      minMinutes,
+      progressMinMinutes: progressMin,
+      maxMinutes,
+      stepMinutes,
+      onChange,
+    });
 
-  const increase = useCallback(() => {
-    onChange(Math.min(maxMinutes, valueMinutes + stepMinutes));
-  }, [maxMinutes, onChange, stepMinutes, valueMinutes]);
+    const decrease = useCallback(() => {
+      onChange(Math.max(minMinutes, valueMinutes - stepMinutes));
+    }, [minMinutes, onChange, stepMinutes, valueMinutes]);
 
-  const handleAccessibilityAction = useCallback(
-    (event: { nativeEvent: { actionName: string } }) => {
-      if (event.nativeEvent.actionName === 'increment') {
-        increase();
-      }
-      if (event.nativeEvent.actionName === 'decrement') {
-        decrease();
-      }
-    },
-    [decrease, increase],
-  );
+    const increase = useCallback(() => {
+      onChange(Math.min(maxMinutes, valueMinutes + stepMinutes));
+    }, [maxMinutes, onChange, stepMinutes, valueMinutes]);
 
-  return (
-    <View style={styles.limitCard} testID={testID}>
-      <View style={styles.limitCardHeader}>
-        <View style={styles.limitCardHeaderTop}>
-          <Text style={styles.limitCardTitle} numberOfLines={1}>
-            {title}
-          </Text>
-          <Text style={[styles.limitCardValue, { color: accentColor }]} numberOfLines={1}>
-            {formatDurationMinutes(valueMinutes)}
-          </Text>
-        </View>
-        <Text style={styles.limitCardDescription}>{description}</Text>
-      </View>
+    const handleAccessibilityAction = useCallback(
+      (event: { nativeEvent: { actionName: string } }) => {
+        if (event.nativeEvent.actionName === 'increment') {
+          increase();
+        }
+        if (event.nativeEvent.actionName === 'decrement') {
+          decrease();
+        }
+      },
+      [decrease, increase],
+    );
 
-      <View style={styles.sliderRow}>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={`Decrease ${title}`}
-          style={styles.sliderButton}
-          onPress={decrease}
-        >
-          <Text style={styles.sliderButtonLabel}>−</Text>
-        </Pressable>
-
-        <GestureDetector gesture={panGesture}>
-          <View
-            ref={trackRef}
-            style={styles.sliderTrackTouch}
-            collapsable={false}
-            onLayout={handleTrackLayout}
-            accessibilityRole="adjustable"
-            accessibilityLabel={title}
-            accessibilityHint="Drag horizontally on the track or tap to set the limit"
-            accessibilityValue={{ text: formatDurationMinutes(valueMinutes) }}
-            accessibilityActions={SLIDER_ACCESSIBILITY_ACTIONS}
-            onAccessibilityAction={handleAccessibilityAction}
-          >
-            <View style={styles.sliderTrack}>
-              {showInactiveZone ? (
-                <View pointerEvents="none" style={[styles.sliderTrackInactive, { width: inactivePercent }]} />
-              ) : null}
-              <View
-                pointerEvents="none"
-                style={[styles.sliderFill, { width: progressPercent, backgroundColor: accentColor }]}
-              />
-            </View>
-            <View pointerEvents="none" style={styles.sliderThumbRail}>
-              <View style={[styles.sliderThumbSpacer, { flex: progress }]} />
-              <View style={[styles.sliderThumb, { backgroundColor: accentColor }]} />
-              <View style={{ flex: 1 - progress }} />
-            </View>
+    return (
+      <View style={styles.limitCard} testID={testID}>
+        <View style={styles.limitCardHeader}>
+          <View style={styles.limitCardHeaderTop}>
+            <Text style={styles.limitCardTitle} numberOfLines={1}>
+              {title}
+            </Text>
+            <Text style={[styles.limitCardValue, { color: accentColor }]} numberOfLines={1}>
+              {formatDurationMinutes(valueMinutes)}
+            </Text>
           </View>
-        </GestureDetector>
+          <Text style={styles.limitCardDescription}>{description}</Text>
+        </View>
 
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={`Increase ${title}`}
-          style={styles.sliderButton}
-          onPress={increase}
-        >
-          <Text style={styles.sliderButtonLabel}>+</Text>
-        </Pressable>
+        <View style={styles.sliderRow}>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={`Decrease ${title}`}
+            style={styles.sliderButton}
+            onPress={decrease}
+          >
+            <Text style={styles.sliderButtonLabel}>−</Text>
+          </Pressable>
+
+          <GestureDetector gesture={panGesture}>
+            <View
+              ref={trackRef}
+              style={styles.sliderTrackTouch}
+              collapsable={false}
+              onLayout={handleTrackLayout}
+              accessibilityRole="adjustable"
+              accessibilityLabel={title}
+              accessibilityHint="Drag horizontally on the track or tap to set the limit"
+              accessibilityValue={{ text: formatDurationMinutes(valueMinutes) }}
+              accessibilityActions={SLIDER_ACCESSIBILITY_ACTIONS}
+              onAccessibilityAction={handleAccessibilityAction}
+            >
+              <View style={styles.sliderTrack}>
+                {showInactiveZone ? (
+                  <View pointerEvents="none" style={[styles.sliderTrackInactive, { width: inactivePercent }]} />
+                ) : null}
+                <View
+                  pointerEvents="none"
+                  style={[styles.sliderFill, { width: progressPercent, backgroundColor: accentColor }]}
+                />
+              </View>
+              <View pointerEvents="none" style={styles.sliderThumbRail}>
+                <View style={[styles.sliderThumbSpacer, { flex: progress }]} />
+                <View style={[styles.sliderThumb, { backgroundColor: accentColor }]} />
+                <View style={{ flex: 1 - progress }} />
+              </View>
+            </View>
+          </GestureDetector>
+
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={`Increase ${title}`}
+            style={styles.sliderButton}
+            onPress={increase}
+          >
+            <Text style={styles.sliderButtonLabel}>+</Text>
+          </Pressable>
+        </View>
+
+        <View style={styles.sliderBounds}>
+          <Text style={styles.sliderBoundLabel}>{formatDurationMinutes(minMinutes)}</Text>
+          <Text style={styles.sliderBoundLabel}>{formatDurationMinutes(maxMinutes)}</Text>
+        </View>
       </View>
-
-      <View style={styles.sliderBounds}>
-        <Text style={styles.sliderBoundLabel}>{formatDurationMinutes(minMinutes)}</Text>
-        <Text style={styles.sliderBoundLabel}>{formatDurationMinutes(maxMinutes)}</Text>
-      </View>
-    </View>
-  );
-}
-
-export const LimitSliderCard = memo(LimitSliderCardView, areLimitSliderCardPropsEqual);
+    );
+  },
+  areLimitSliderCardPropsEqual,
+);
 
 function areLimitSliderCardPropsEqual(previous: LimitSliderCardProps, next: LimitSliderCardProps): boolean {
   return (

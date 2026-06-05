@@ -26,7 +26,6 @@ import {
 const STEP_COUNT = WALKTHROUGH_STEPS.length;
 const LAST_STEP_INDEX = STEP_COUNT - 1;
 
-/** Onboarding pager state with Reanimated-driven scroll indicator. */
 export const useOnboardingPager = () => {
   const navigation = useRootNavigation();
   const { width: windowWidth } = useWindowDimensions();

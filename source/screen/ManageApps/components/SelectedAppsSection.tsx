@@ -44,10 +44,7 @@ const SelectedChip = memo(({ app, onPress, onRemove }: SelectedChipProps) => (
   </View>
 ));
 
-SelectedChip.displayName = 'SelectedChip';
-
-/** Collapsible selected-apps strip inside the list header. */
-function SelectedAppsSectionView({ apps, onAppPress, onAppRemove }: SelectedAppsSectionProps) {
+export function SelectedAppsSection({ apps, onAppPress, onAppRemove }: SelectedAppsSectionProps) {
   const isExpanded = apps.length > 0;
   const containerStyle = useSelectedAppsAccordion(isExpanded, selectedAppsSectionExpandedHeight);
 
@@ -78,5 +75,3 @@ function SelectedAppsSectionView({ apps, onAppPress, onAppRemove }: SelectedApps
     </Animated.View>
   );
 }
-
-export const SelectedAppsSection = memo(SelectedAppsSectionView);

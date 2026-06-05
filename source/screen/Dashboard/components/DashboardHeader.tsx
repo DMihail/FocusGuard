@@ -1,6 +1,6 @@
 /** @format */
 
-import React, { memo } from 'react';
+import React from 'react';
 import { Pressable, Text, View } from 'react-native';
 
 import { SettingsIcon } from '@/assets/svg/Dashboard';
@@ -13,7 +13,7 @@ type DashboardHeaderProps = {
   onSettingsPress?: () => void;
 };
 
-function DashboardHeaderView({ greeting, onSettingsPress }: DashboardHeaderProps) {
+export function DashboardHeader({ greeting, onSettingsPress }: DashboardHeaderProps) {
   return (
     <View style={dashboardStyles.header} testID={testIds.dashboard.header}>
       <View style={dashboardStyles.headerText}>
@@ -37,5 +37,3 @@ function DashboardHeaderView({ greeting, onSettingsPress }: DashboardHeaderProps
     </View>
   );
 }
-
-export const DashboardHeader = memo(DashboardHeaderView);

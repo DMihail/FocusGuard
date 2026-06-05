@@ -1,6 +1,6 @@
 /** @format */
 
-import React, { memo } from 'react';
+import React from 'react';
 import { Text, View } from 'react-native';
 
 import { testIds } from '@/testing/testIds';
@@ -17,7 +17,7 @@ type DailyUsageCardProps = {
   limitMs: number;
 };
 
-function DailyUsageCardView({ packageName, usedMs, limitMs }: DailyUsageCardProps) {
+export function DailyUsageCard({ packageName, usedMs, limitMs }: DailyUsageCardProps) {
   const isOverLimit = limitMs > 0 && usedMs >= limitMs;
   const barProgress = limitMs > 0 ? Math.min(100, (usedMs / limitMs) * 100) : 0;
   const percent = Math.round(barProgress);
@@ -41,13 +41,5 @@ function DailyUsageCardView({ packageName, usedMs, limitMs }: DailyUsageCardProp
       />
       <Text style={[styles.dailyUsagePercent, isOverLimit && styles.dailyUsagePercentOver]}>{percent}% of limit</Text>
     </View>
-  );
-}
-
-export const DailyUsageCard = memo(DailyUsageCardView, areDailyUsageCardPropsEqual);
-
-function areDailyUsageCardPropsEqual(previous: DailyUsageCardProps, next: DailyUsageCardProps): boolean {
-  return (
-    previous.packageName === next.packageName && previous.usedMs === next.usedMs && previous.limitMs === next.limitMs
   );
 }

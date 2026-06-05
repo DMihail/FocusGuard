@@ -1,6 +1,6 @@
 /** @format */
 
-import React, { memo } from 'react';
+import React from 'react';
 import { Switch, Text, View } from 'react-native';
 
 import { colors, switchTrackColors } from '@/theme';
@@ -14,7 +14,7 @@ export type StrictModeCardProps = {
   toggleTestID?: string;
 };
 
-function StrictModeCardView({ value, onValueChange, testID, toggleTestID }: StrictModeCardProps) {
+export function StrictModeCard({ value, onValueChange, testID, toggleTestID }: StrictModeCardProps) {
   return (
     <View style={styles.strictCard} testID={testID}>
       <View style={styles.strictText}>
@@ -31,16 +31,5 @@ function StrictModeCardView({ value, onValueChange, testID, toggleTestID }: Stri
         thumbColor={colors.textPrimary}
       />
     </View>
-  );
-}
-
-export const StrictModeCard = memo(StrictModeCardView, areStrictModeCardPropsEqual);
-
-function areStrictModeCardPropsEqual(previous: StrictModeCardProps, next: StrictModeCardProps): boolean {
-  return (
-    previous.value === next.value &&
-    previous.onValueChange === next.onValueChange &&
-    previous.testID === next.testID &&
-    previous.toggleTestID === next.toggleTestID
   );
 }

@@ -14,7 +14,7 @@ export type CategoryFilterChipProps = {
   onCategoryChange: (categoryId: string) => void;
 };
 
-function CategoryFilterChipView({ category, isActive, onCategoryChange }: CategoryFilterChipProps) {
+export const CategoryFilterChip = memo(({ category, isActive, onCategoryChange }: CategoryFilterChipProps) => {
   return (
     <Pressable
       testID={testIds.manageApps.categoryFilter(category.id)}
@@ -29,6 +29,4 @@ function CategoryFilterChipView({ category, isActive, onCategoryChange }: Catego
       </Text>
     </Pressable>
   );
-}
-
-export const CategoryFilterChip = memo(CategoryFilterChipView);
+});

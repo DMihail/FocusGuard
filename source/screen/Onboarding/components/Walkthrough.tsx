@@ -1,6 +1,6 @@
 /** @format */
 
-import React, { memo } from 'react';
+import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { borderRadius, colors, spacing, typography } from '@/theme';
@@ -11,16 +11,16 @@ type WalkthroughProps = {
   children: React.ReactNode;
 };
 
-const WalkthroughView = ({ title, text, children }: WalkthroughProps) => (
-  <View style={styles.content}>
-    <View style={styles.iconContainer}>{children}</View>
+export function Walkthrough({ title, text, children }: WalkthroughProps) {
+  return (
+    <View style={styles.content}>
+      <View style={styles.iconContainer}>{children}</View>
 
-    <Text style={styles.title}>{title}</Text>
-    <Text style={styles.description}>{text}</Text>
-  </View>
-);
-
-export const Walkthrough = memo(WalkthroughView);
+      <Text style={styles.title}>{title}</Text>
+      <Text style={styles.description}>{text}</Text>
+    </View>
+  );
+}
 
 const styles = StyleSheet.create({
   content: {

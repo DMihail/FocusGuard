@@ -21,12 +21,6 @@ const hasUsageChanged = (previous: Record<string, number>, next: Record<string, 
   return nextKeys.some((key) => previous[key] !== next[key]);
 };
 
-/**
- * Loads selected apps with today's usage and limit metadata for Dashboard and Tracked Apps.
- *
- * Refreshes usage stats on screen focus and when the app returns to the foreground.
- * Skips React state updates when native usage values are unchanged.
- */
 export const useTrackedAppRows = (): {
   appRows: DashboardAppRow[];
   refreshUsage: () => void;

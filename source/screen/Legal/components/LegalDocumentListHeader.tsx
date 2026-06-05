@@ -1,6 +1,6 @@
 /** @format */
 
-import React, { memo } from 'react';
+import React from 'react';
 import { Text } from 'react-native';
 
 import { useGoBack } from '@/hooks/useGoBack';
@@ -16,7 +16,7 @@ type LegalDocumentListHeaderProps = {
   backButtonTestId: string;
 };
 
-function LegalDocumentListHeaderView({ document, headerTestId, backButtonTestId }: LegalDocumentListHeaderProps) {
+export function LegalDocumentListHeader({ document, headerTestId, backButtonTestId }: LegalDocumentListHeaderProps) {
   const goBack = useGoBack();
 
   return (
@@ -31,20 +31,5 @@ function LegalDocumentListHeaderView({ document, headerTestId, backButtonTestId 
 
       <Text style={legalStyles.meta}>{`Last updated: ${document.lastUpdated}`}</Text>
     </>
-  );
-}
-
-export const LegalDocumentListHeader = memo(LegalDocumentListHeaderView, areLegalDocumentListHeaderPropsEqual);
-
-function areLegalDocumentListHeaderPropsEqual(
-  previous: LegalDocumentListHeaderProps,
-  next: LegalDocumentListHeaderProps,
-): boolean {
-  return (
-    previous.headerTestId === next.headerTestId &&
-    previous.backButtonTestId === next.backButtonTestId &&
-    previous.document.title === next.document.title &&
-    previous.document.subtitle === next.document.subtitle &&
-    previous.document.lastUpdated === next.document.lastUpdated
   );
 }

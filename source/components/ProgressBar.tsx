@@ -1,6 +1,6 @@
 /** @format */
 
-import React, { memo } from 'react';
+import React from 'react';
 import {
   type AccessibilityRole,
   type AccessibilityValue,
@@ -24,7 +24,7 @@ type ProgressBarProps = {
   accessibilityValue?: AccessibilityValue;
 } & Pick<ViewProps, 'accessible' | 'importantForAccessibility'>;
 
-function ProgressBarView({
+export function ProgressBar({
   progress,
   fillColor = colors.accent,
   trackColor = colors.progressTrack,
@@ -65,8 +65,6 @@ function ProgressBarView({
     </View>
   );
 }
-
-export const ProgressBar = memo(ProgressBarView);
 
 const styles = StyleSheet.create({
   track: {

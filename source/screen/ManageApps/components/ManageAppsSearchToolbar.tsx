@@ -1,6 +1,6 @@
 /** @format */
 
-import React, { memo, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View } from 'react-native';
 
 import { testIds } from '@/testing/testIds';
@@ -14,8 +14,7 @@ type ManageAppsSearchToolbarProps = {
   onQueryActiveChange: (isActive: boolean) => void;
 };
 
-/** Local query state + debounced filter updates to keep the input focused and responsive. */
-function ManageAppsSearchToolbarView({ onQueryChange, onQueryActiveChange }: ManageAppsSearchToolbarProps) {
+export function ManageAppsSearchToolbar({ onQueryChange, onQueryActiveChange }: ManageAppsSearchToolbarProps) {
   const [query, setQuery] = useState('');
 
   useEffect(() => {
@@ -36,5 +35,3 @@ function ManageAppsSearchToolbarView({ onQueryChange, onQueryActiveChange }: Man
     </View>
   );
 }
-
-export const ManageAppsSearchToolbar = memo(ManageAppsSearchToolbarView);

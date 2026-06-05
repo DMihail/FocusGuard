@@ -11,11 +11,6 @@ import { ALL_CATEGORY_FILTER, buildCategoryFilters } from '../utils/buildCategor
 import { mapInstalledApps } from '../utils/mapInstalledApps';
 import { matchesCategoryFilter } from '../utils/matchesCategoryFilter';
 
-/**
- * Manage Apps screen state: installed apps, search/category filters, and selection toggles.
- *
- * Search input debounces in `ManageAppsSearchToolbar`; category changes use `useTransition`.
- */
 export const useManageApps = () => {
   const [installedApps, setInstalledApps] = useState(() => mapInstalledApps(getInstalledApplications()));
 

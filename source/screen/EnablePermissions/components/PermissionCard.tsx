@@ -17,7 +17,6 @@ type PermissionCardProps = PermissionItem & {
   onGrant?: () => void;
 };
 
-/** Animated permission card with grant action and granted-state transition. */
 export const PermissionCard = memo(({ id, title, description, status, Icon, onGrant }: PermissionCardProps) => {
   const {
     grantedOverlayStyle,

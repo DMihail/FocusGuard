@@ -1,6 +1,6 @@
 /** @format */
 
-import React, { memo } from 'react';
+import React from 'react';
 import { Text, View } from 'react-native';
 
 import { RemainingSvg, UsedSvg } from '@/assets/svg/Dashboard';
@@ -14,7 +14,7 @@ type DailyStatsRowProps = {
   summary: DashboardSummary;
 };
 
-function DailyStatsRowView({ summary }: DailyStatsRowProps) {
+export function DailyStatsRow({ summary }: DailyStatsRowProps) {
   const usedLabel = `Used today, ${formatUsageMinutes(summary.totalUsedMs)} total`;
   const remainingLabel = `Remaining budget, ${formatUsageMinutes(summary.remainingMs)}`;
 
@@ -46,14 +46,5 @@ function DailyStatsRowView({ summary }: DailyStatsRowProps) {
         </View>
       </View>
     </View>
-  );
-}
-
-export const DailyStatsRow = memo(DailyStatsRowView, areDailyStatsRowPropsEqual);
-
-function areDailyStatsRowPropsEqual(previous: DailyStatsRowProps, next: DailyStatsRowProps): boolean {
-  return (
-    previous.summary.totalUsedMs === next.summary.totalUsedMs &&
-    previous.summary.remainingMs === next.summary.remainingMs
   );
 }

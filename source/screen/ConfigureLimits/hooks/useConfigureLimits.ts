@@ -20,11 +20,6 @@ import type { UseConfigureLimitsResult } from '../types';
 
 const MS_PER_MINUTE = 60_000;
 
-/**
- * Loads draft limit settings and today's usage for a single tracked app.
- *
- * Syncs draft state when persisted limits change and refreshes usage on focus/foreground.
- */
 export const useConfigureLimits = (packageName: string): UseConfigureLimitsResult => {
   const app = selectedAppsStore(useShallow((state) => state.apps.find((item) => item.packageName === packageName)));
   const storedLimits = appLimitsStore((state) => state.limitsByPackage[packageName] ?? DEFAULT_APP_LIMITS);

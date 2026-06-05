@@ -1,6 +1,6 @@
 /** @format */
 
-import React, { memo } from 'react';
+import React from 'react';
 import { Pressable, Text, View } from 'react-native';
 
 import { FocusModeSvg } from '@/assets/svg/Dashboard';
@@ -18,7 +18,7 @@ type QuickActionsSectionProps = {
   onOpenManageApps: () => void;
 };
 
-function QuickActionsSectionView({
+export function QuickActionsSection({
   isMonitoring,
   canStartFocusMode,
   monitoringSubtitle,
@@ -61,7 +61,6 @@ function QuickActionsSectionView({
       <Pressable
         accessibilityRole="button"
         accessibilityLabel="Manage apps"
-        accessibilityHint="Opens app selection and limits"
         onPress={onOpenManageApps}
         style={dashboardStyles.quickActionCard}
         testID={testIds.dashboard.manageAppsButton}
@@ -73,17 +72,5 @@ function QuickActionsSectionView({
         <Text style={dashboardStyles.quickActionSubtitleMuted}>Set limits</Text>
       </Pressable>
     </View>
-  );
-}
-
-export const QuickActionsSection = memo(QuickActionsSectionView, areQuickActionsSectionPropsEqual);
-
-function areQuickActionsSectionPropsEqual(previous: QuickActionsSectionProps, next: QuickActionsSectionProps): boolean {
-  return (
-    previous.isMonitoring === next.isMonitoring &&
-    previous.canStartFocusMode === next.canStartFocusMode &&
-    previous.monitoringSubtitle === next.monitoringSubtitle &&
-    previous.onToggleMonitoring === next.onToggleMonitoring &&
-    previous.onOpenManageApps === next.onOpenManageApps
   );
 }

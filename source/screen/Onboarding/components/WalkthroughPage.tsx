@@ -16,7 +16,7 @@ type WalkthroughPageProps = {
   width: number;
 };
 
-const WalkthroughPageView = ({ item, width }: WalkthroughPageProps) => {
+export const WalkthroughPage = memo(({ item, width }: WalkthroughPageProps) => {
   const { Icon } = item;
 
   return (
@@ -26,6 +26,4 @@ const WalkthroughPageView = ({ item, width }: WalkthroughPageProps) => {
       </Walkthrough>
     </View>
   );
-};
-
-export const WalkthroughPage = memo(WalkthroughPageView);
+});

@@ -1,6 +1,6 @@
 /** @format */
 
-import React, { memo } from 'react';
+import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { BackIcon } from '@/assets/svg/ManageApps';
@@ -47,7 +47,7 @@ export const screenBackHeaderStyles = StyleSheet.create({
   },
 });
 
-function ScreenBackHeaderView({
+export function ScreenBackHeader({
   title,
   subtitle,
   onBack,
@@ -76,18 +76,5 @@ function ScreenBackHeaderView({
         ) : null}
       </View>
     </View>
-  );
-}
-
-export const ScreenBackHeader = memo(ScreenBackHeaderView, areScreenBackHeaderPropsEqual);
-
-function areScreenBackHeaderPropsEqual(previous: ScreenBackHeaderProps, next: ScreenBackHeaderProps): boolean {
-  return (
-    previous.title === next.title &&
-    previous.subtitle === next.subtitle &&
-    previous.onBack === next.onBack &&
-    previous.testID === next.testID &&
-    previous.backButtonTestID === next.backButtonTestID &&
-    previous.subtitleTestID === next.subtitleTestID
   );
 }

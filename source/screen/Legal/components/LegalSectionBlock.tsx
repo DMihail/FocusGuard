@@ -10,7 +10,7 @@ type LegalSectionBlockProps = {
   section: LegalSection;
 };
 
-function LegalSectionBlockView({ section }: LegalSectionBlockProps) {
+export const LegalSectionBlock = memo(({ section }: LegalSectionBlockProps) => {
   return (
     <View style={legalStyles.section}>
       <Text style={legalStyles.sectionTitle} accessibilityRole="header">
@@ -23,6 +23,4 @@ function LegalSectionBlockView({ section }: LegalSectionBlockProps) {
       ))}
     </View>
   );
-}
-
-export const LegalSectionBlock = memo(LegalSectionBlockView);
+});

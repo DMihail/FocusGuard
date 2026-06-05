@@ -11,7 +11,7 @@ type ManageAppsHeaderProps = {
   onBack: () => void;
 };
 
-function ManageAppsHeaderView({ onBack }: ManageAppsHeaderProps) {
+export function ManageAppsHeader({ onBack }: ManageAppsHeaderProps) {
   const selectedCount = selectedAppsStore((state) => state.apps.length);
 
   return (
@@ -25,5 +25,3 @@ function ManageAppsHeaderView({ onBack }: ManageAppsHeaderProps) {
     />
   );
 }
-
-export const ManageAppsHeader = ManageAppsHeaderView;
