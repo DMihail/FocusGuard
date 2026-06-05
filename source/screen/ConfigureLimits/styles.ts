@@ -11,37 +11,6 @@ export const configureLimitsStyles = StyleSheet.create({
     paddingTop: spacing.sm,
     paddingBottom: spacing.xxxl,
   },
-  header: {
-    ...layoutPresets.rowCenter,
-    gap: spacing.md,
-    paddingBottom: spacing.lg,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: colors.divider,
-  },
-  backButton: {
-    width: 44,
-    height: 44,
-    borderRadius: borderRadius.pill,
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexShrink: 0,
-  },
-  headerText: {
-    flex: 1,
-    minWidth: 0,
-    gap: spacing.xs,
-  },
-  title: {
-    ...typography.display,
-    fontSize: fontSize.xxl,
-    lineHeight: 32,
-    color: colors.textPrimary,
-  },
-  subtitle: {
-    ...typography.body,
-    fontSize: fontSize.sm,
-    color: colors.textMuted,
-  },
   appBadge: {
     ...layoutPresets.rowCenter,
     gap: spacing.md,
@@ -61,10 +30,6 @@ export const configureLimitsStyles = StyleSheet.create({
   appIcon: {
     width: 48,
     height: 48,
-  },
-  appIconFallback: {
-    ...typography.sectionTitle,
-    color: colors.textPrimary,
   },
   appName: {
     ...textPresets.sectionTitle,

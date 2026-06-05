@@ -23,8 +23,7 @@ export const useManageApps = () => {
     setInstalledApps(mapInstalledApps(getInstalledApplications()));
   }, []);
 
-  const apps = installedApps;
-  const categoryFilters = useMemo(() => buildCategoryFilters(apps), [apps]);
+  const categoryFilters = useMemo(() => buildCategoryFilters(installedApps), [installedApps]);
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchInputActive, setIsSearchInputActive] = useState(false);
   const [activeCategory, setActiveCategory] = useState<CategoryFilterOption>(ALL_CATEGORY_FILTER);
@@ -32,7 +31,6 @@ export const useManageApps = () => {
   const selectedApps = selectedAppsStore((state) => state.apps);
   const toggleAppInStore = selectedAppsStore((state) => state.toggleApp);
   const isSelected = selectedAppsStore((state) => state.isSelected);
-  const selectedCount = useMemo(() => selectedApps.length, [selectedApps]);
 
   const toggleAppSelection = useCallback(
     (app: ManageApp) => {
@@ -41,10 +39,6 @@ export const useManageApps = () => {
     },
     [toggleAppInStore],
   );
-
-  const handleSearchQueryChange = useCallback((text: string) => {
-    setSearchQuery(text);
-  }, []);
 
   const handleSearchActiveChange = useCallback((isActive: boolean) => {
     setIsSearchInputActive((previous) => {
@@ -69,7 +63,7 @@ export const useManageApps = () => {
   }, [activeCategory.id, categoryFilters]);
 
   const filteredApps = useMemo(() => {
-    return apps.filter((app) => {
+    return installedApps.filter((app) => {
       if (normalizedSearchQuery.length > 0) {
         return (
           app.appName.toLowerCase().includes(normalizedSearchQuery) ||
@@ -79,7 +73,7 @@ export const useManageApps = () => {
 
       return matchesCategoryFilter(app, activeCategory);
     });
-  }, [activeCategory, apps, normalizedSearchQuery]);
+  }, [activeCategory, installedApps, normalizedSearchQuery]);
 
   const handleCategoryChange = useCallback(
     (filterId: string) => {
@@ -104,12 +98,10 @@ export const useManageApps = () => {
     isFiltering,
     isSearchActive,
     selectedApps,
-    selectedCount,
-    searchQuery,
-    setSearchQuery: handleSearchQueryChange,
+    setSearchQuery,
     setSearchInputActive: handleSearchActiveChange,
     categoryFilters,
-    activeCategory,
+    activeCategoryId: activeCategory.id,
     setActiveCategory: handleCategoryChange,
     isSelected,
     toggleAppSelection,

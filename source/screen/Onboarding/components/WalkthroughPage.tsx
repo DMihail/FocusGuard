@@ -21,11 +21,9 @@ const WalkthroughPageView = ({ item, width }: WalkthroughPageProps) => {
 
   return (
     <View style={[onboardingStyles.page, { width }]} testID={testIds.onboarding.walkthroughStep(item.id)}>
-      <Walkthrough
-        title={item.title}
-        text={item.text}
-        icon={<Icon stroke={colors.accent} width={WALKTHROUGH_ICON_SIZE} height={WALKTHROUGH_ICON_SIZE} />}
-      />
+      <Walkthrough title={item.title} text={item.text}>
+        <Icon stroke={colors.accent} width={WALKTHROUGH_ICON_SIZE} height={WALKTHROUGH_ICON_SIZE} />
+      </Walkthrough>
     </View>
   );
 };

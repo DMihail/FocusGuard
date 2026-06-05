@@ -61,18 +61,11 @@ const UseManageAppsHarness = ({ searchQuery = '', categoryId, onReady }: Harness
     }
   }, [categoryId]);
 
-  const {
-    apps: filteredApps,
-    selectedCount,
-    isSearchActive,
-    isFiltering,
-    searchQuery: hookSearchQuery,
-    activeCategory,
-  } = value;
+  const { apps: filteredApps, isSearchActive, isFiltering, activeCategoryId } = value;
 
   useEffect(() => {
     onReadyRef.current(value);
-  }, [filteredApps, selectedCount, isSearchActive, isFiltering, hookSearchQuery, activeCategory.id, value]);
+  }, [filteredApps, isSearchActive, isFiltering, activeCategoryId, value]);
 
   return null;
 };
@@ -189,6 +182,6 @@ describe('useManageApps', () => {
 
     expect(mockStoreState.toggleApp).toHaveBeenCalledWith(targetApp);
     expect(hookValue!.isSelected(targetApp.packageName)).toBe(true);
-    expect(hookValue!.selectedCount).toBe(1);
+    expect(hookValue!.selectedApps).toHaveLength(1);
   });
 });

@@ -9,7 +9,7 @@ import { spacing } from '@/theme';
 import { configureSectionLayoutAnimation } from '@/utils/layoutAnimation';
 import type { DashboardAppRow } from '@/utils/usage/dashboardStats';
 
-import { createDashboardAppRowRenderItem } from '../list/appRowRenderers';
+import { createDashboardAppRowRenderItem } from '../list';
 import { DistractingAppsListEmpty } from '../list/empty';
 import { dashboardStyles } from '../styles';
 

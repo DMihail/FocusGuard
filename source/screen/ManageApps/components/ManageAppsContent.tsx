@@ -1,6 +1,6 @@
 /** @format */
 
-import React, { memo, useCallback, useMemo, useRef } from 'react';
+import React, { useMemo } from 'react';
 import { ActivityIndicator, FlatList, View } from 'react-native';
 
 import { APP_LIST_FLAT_LIST_PROPS } from '@/list';
@@ -9,13 +9,12 @@ import { colors } from '@/theme';
 
 import { createManageAppListRenderItem, manageAppKeyExtractor, ManageAppsListEmpty } from '../list';
 import { manageAppsStyles } from '../styles';
-import type { ManageAppsContentProps, ManageAppsListHeaderProps } from '../types';
+import type { ManageAppsContentProps } from '../types';
 import { ManageAppsListHeader } from './ManageAppsListHeader';
 
-function ManageAppsContentView({
+export function ManageAppsContent({
   apps,
   isFiltering,
-  selectedCount,
   selectedApps,
   isSelected,
   onToggle,
@@ -27,29 +26,31 @@ function ManageAppsContentView({
   onCategoryChange,
 }: ManageAppsContentProps) {
   const renderItem = useMemo(() => createManageAppListRenderItem(isSelected, onToggle), [isSelected, onToggle]);
-  const listEmptyComponent = useMemo(() => <ManageAppsListEmpty isFiltering={isFiltering} />, [isFiltering]);
 
-  const listHeaderPropsRef = useRef<ManageAppsListHeaderProps>({
-    selectedApps,
-    onSelectedAppPress,
-    onSelectedAppRemove,
-    isSearchActive,
-    categoryFilters,
-    activeCategoryId,
-    onCategoryChange,
-  });
+  const listHeader = useMemo(
+    () => (
+      <ManageAppsListHeader
+        selectedApps={selectedApps}
+        onSelectedAppPress={onSelectedAppPress}
+        onSelectedAppRemove={onSelectedAppRemove}
+        isSearchActive={isSearchActive}
+        categoryFilters={categoryFilters}
+        activeCategoryId={activeCategoryId}
+        onCategoryChange={onCategoryChange}
+      />
+    ),
+    [
+      activeCategoryId,
+      categoryFilters,
+      isSearchActive,
+      onCategoryChange,
+      onSelectedAppPress,
+      onSelectedAppRemove,
+      selectedApps,
+    ],
+  );
 
-  listHeaderPropsRef.current = {
-    selectedApps,
-    onSelectedAppPress,
-    onSelectedAppRemove,
-    isSearchActive,
-    categoryFilters,
-    activeCategoryId,
-    onCategoryChange,
-  };
-
-  const renderListHeader = useCallback(() => <ManageAppsListHeader {...listHeaderPropsRef.current} />, []);
+  const listEmpty = useMemo(() => <ManageAppsListEmpty isFiltering={isFiltering} />, [isFiltering]);
 
   return (
     <View style={manageAppsStyles.content} testID={testIds.manageApps.appsList}>
@@ -74,20 +75,16 @@ function ManageAppsContentView({
           data={apps}
           renderItem={renderItem}
           keyExtractor={manageAppKeyExtractor}
-          ListHeaderComponent={renderListHeader}
-          ListEmptyComponent={listEmptyComponent}
+          ListHeaderComponent={listHeader}
+          ListEmptyComponent={listEmpty}
           contentContainerStyle={manageAppsStyles.scrollContent}
           showsVerticalScrollIndicator={false}
           keyboardDismissMode="none"
           accessibilityRole="list"
           accessibilityLabel="Installed apps"
-          extraData={selectedCount}
           {...APP_LIST_FLAT_LIST_PROPS}
-          removeClippedSubviews={false}
         />
       </View>
     </View>
   );
 }
-
-export const ManageAppsContent = memo(ManageAppsContentView);

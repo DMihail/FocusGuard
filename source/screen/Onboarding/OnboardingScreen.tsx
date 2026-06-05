@@ -18,10 +18,7 @@ export const OnboardingScreen = () => {
     <ScreenSafeArea style={onboardingStyles.screen} testID={testIds.onboarding.screen}>
       <OnboardingHeader indicatorProps={pager.indicatorProps} onSkip={pager.onSkip} />
 
-      <View
-        style={onboardingStyles.pagerContainer}
-        onLayout={(event) => pager.handlePagerLayout(event.nativeEvent.layout.width)}
-      >
+      <View style={onboardingStyles.pagerContainer} onLayout={pager.handlePagerContainerLayout}>
         {pager.isPagerReady ? (
           <WalkthroughPager
             listRef={pager.listRef}

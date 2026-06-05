@@ -34,9 +34,6 @@ export const SettingsScreen = () => {
     [navigation],
   );
 
-  const openDataPrivacy = useCallback(() => openLegalDocument('dataPrivacy'), [openLegalDocument]);
-  const openTermsPrivacy = useCallback(() => openLegalDocument('termsPrivacy'), [openLegalDocument]);
-
   return (
     <ScreenSafeArea style={settingsStyles.screen} testID={testIds.settings.screen} accessibilityLabel="Settings">
       <ScrollView
@@ -56,13 +53,13 @@ export const SettingsScreen = () => {
           </SettingsSection>
 
           <SettingsSection title="Privacy & Security" testID={testIds.settings.privacySection}>
-            <SettingsLinkRow {...DATA_PRIVACY_LINK} onPress={openDataPrivacy} />
+            <SettingsLinkRow {...DATA_PRIVACY_LINK} onPress={() => openLegalDocument('dataPrivacy')} />
           </SettingsSection>
 
           <SettingsPrivacyBanner />
         </View>
 
-        <SettingsFooter onTermsPress={openTermsPrivacy} />
+        <SettingsFooter onTermsPress={() => openLegalDocument('termsPrivacy')} />
       </ScrollView>
     </ScreenSafeArea>
   );

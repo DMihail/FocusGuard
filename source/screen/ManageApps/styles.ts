@@ -2,17 +2,7 @@
 
 import { StyleSheet } from 'react-native';
 
-import {
-  borderRadius,
-  colors,
-  fontSize,
-  iconBoxPresets,
-  layoutPresets,
-  lineHeight,
-  spacing,
-  textPresets,
-  typography,
-} from '@/theme';
+import { borderRadius, colors, iconBoxPresets, layoutPresets, lineHeight, spacing, textPresets } from '@/theme';
 
 export const SELECTED_APPS_SCROLL_HEIGHT = 96;
 
@@ -48,31 +38,6 @@ export const manageAppsStyles = StyleSheet.create({
   scrollContent: {
     ...layoutPresets.scrollContent(spacing.md),
     paddingBottom: spacing.xxxl,
-  },
-  header: {
-    ...layoutPresets.rowCenter,
-    gap: spacing.lg,
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.xl,
-  },
-  backButton: {
-    ...layoutPresets.card,
-    width: 40,
-    height: 40,
-    borderRadius: borderRadius.xl,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  headerText: {
-    flex: 1,
-    gap: spacing.xs,
-  },
-  title: textPresets.heading,
-  subtitle: {
-    ...typography.body,
-    fontSize: fontSize.sm,
-    lineHeight: lineHeight.sm,
-    color: colors.textMuted,
   },
   searchField: {
     ...layoutPresets.card,

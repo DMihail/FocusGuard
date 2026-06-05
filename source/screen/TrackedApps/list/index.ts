@@ -1,4 +1,4 @@
 /** @format */
 
 export { trackedAppKeyExtractor } from './keys';
-export { createTrackedAppRenderItem } from './renderers';
+export { createAppUsageRowRenderItem as createTrackedAppRenderItem } from '@/list';

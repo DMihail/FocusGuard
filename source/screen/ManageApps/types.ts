@@ -35,7 +35,6 @@ export type ManageAppsListHeaderProps = {
 export type ManageAppsContentProps = ManageAppsListHeaderProps & {
   apps: ManageApp[];
   isFiltering: boolean;
-  selectedCount: number;
   isSelected: (packageName: string) => boolean;
   onToggle: (app: ManageApp) => void;
 };

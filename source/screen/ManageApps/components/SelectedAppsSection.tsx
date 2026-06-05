@@ -1,6 +1,6 @@
 /** @format */
 
-import React, { memo, useCallback } from 'react';
+import React, { memo } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 
 import Animated from 'react-native-reanimated';
@@ -18,41 +18,31 @@ type SelectedChipProps = {
   onRemove: (app: ManageApp) => void;
 };
 
-const SelectedChip = memo(({ app, onPress, onRemove }: SelectedChipProps) => {
-  const handlePress = useCallback(() => {
-    onPress(app.packageName);
-  }, [app.packageName, onPress]);
+const SelectedChip = memo(({ app, onPress, onRemove }: SelectedChipProps) => (
+  <View style={manageAppsStyles.selectedChip} testID={testIds.manageApps.selectedChip(app.packageName)}>
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={`Configure limits for ${app.appName}`}
+      onPress={() => onPress(app.packageName)}
+      style={manageAppsStyles.selectedChipBody}
+    >
+      <Text style={manageAppsStyles.selectedChipLabel} numberOfLines={1}>
+        {app.appName}
+      </Text>
+    </Pressable>
 
-  const handleRemove = useCallback(() => {
-    onRemove(app);
-  }, [app, onRemove]);
-
-  return (
-    <View style={manageAppsStyles.selectedChip} testID={testIds.manageApps.selectedChip(app.packageName)}>
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel={`Configure limits for ${app.appName}`}
-        onPress={handlePress}
-        style={manageAppsStyles.selectedChipBody}
-      >
-        <Text style={manageAppsStyles.selectedChipLabel} numberOfLines={1}>
-          {app.appName}
-        </Text>
-      </Pressable>
-
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel={`Remove ${app.appName} from selected apps`}
-        onPress={handleRemove}
-        style={manageAppsStyles.selectedChipRemove}
-        hitSlop={8}
-        testID={testIds.manageApps.selectedChipRemove(app.packageName)}
-      >
-        <CloseIcon />
-      </Pressable>
-    </View>
-  );
-});
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={`Remove ${app.appName} from selected apps`}
+      onPress={() => onRemove(app)}
+      style={manageAppsStyles.selectedChipRemove}
+      hitSlop={8}
+      testID={testIds.manageApps.selectedChipRemove(app.packageName)}
+    >
+      <CloseIcon />
+    </Pressable>
+  </View>
+));
 
 SelectedChip.displayName = 'SelectedChip';
 

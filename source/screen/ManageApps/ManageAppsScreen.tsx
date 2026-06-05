@@ -22,12 +22,11 @@ export const ManageAppsScreen = () => {
     refreshInstalledApps,
     isFiltering,
     selectedApps,
-    selectedCount,
     setSearchQuery,
     setSearchInputActive,
     isSearchActive,
     categoryFilters,
-    activeCategory,
+    activeCategoryId,
     setActiveCategory,
     isSelected,
     toggleAppSelection,
@@ -45,12 +44,11 @@ export const ManageAppsScreen = () => {
       testID={testIds.manageApps.screen}
       accessibilityLabel="Manage apps screen"
     >
-      <ManageAppsHeader selectedCount={selectedCount} onBack={goBack} />
+      <ManageAppsHeader onBack={goBack} />
       <ManageAppsSearchToolbar onQueryChange={setSearchQuery} onQueryActiveChange={setSearchInputActive} />
       <ManageAppsContent
         apps={apps}
         isFiltering={isFiltering}
-        selectedCount={selectedCount}
         selectedApps={selectedApps}
         isSelected={isSelected}
         onToggle={toggleAppSelection}
@@ -58,7 +56,7 @@ export const ManageAppsScreen = () => {
         onSelectedAppRemove={toggleAppSelection}
         isSearchActive={isSearchActive}
         categoryFilters={categoryFilters}
-        activeCategoryId={activeCategory.id}
+        activeCategoryId={activeCategoryId}
         onCategoryChange={setActiveCategory}
       />
     </ScreenSafeArea>

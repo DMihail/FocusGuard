@@ -17,7 +17,7 @@ const mockPager: {
   handleScroll: jest.Mock;
   handleMomentumScrollEnd: jest.Mock;
   handleContinue: jest.Mock;
-  handlePagerLayout: jest.Mock;
+  handlePagerContainerLayout: jest.Mock;
   getItemLayout: jest.Mock;
   handleScrollToIndexFailed: jest.Mock;
   onSkip: jest.Mock;
@@ -32,7 +32,7 @@ const mockPager: {
   handleScroll: jest.fn(),
   handleMomentumScrollEnd: jest.fn(),
   handleContinue: jest.fn(),
-  handlePagerLayout: jest.fn(),
+  handlePagerContainerLayout: jest.fn(),
   getItemLayout: jest.fn(),
   handleScrollToIndexFailed: jest.fn(),
   onSkip: jest.fn(),

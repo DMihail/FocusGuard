@@ -4,7 +4,7 @@ import React from 'react';
 import { Switch, Text, View } from 'react-native';
 
 import { testIds } from '@/testing/testIds';
-import { colors } from '@/theme';
+import { colors, switchTrackColors } from '@/theme';
 
 import { settingsStyles } from '../styles';
 import type { SettingsToggleItem } from '../types';
@@ -39,7 +39,7 @@ export const SettingsToggleRow = ({
       accessibilityLabel={title}
       value={value}
       onValueChange={onValueChange}
-      trackColor={{ false: colors.switchTrackOff, true: colors.accent }}
+      trackColor={switchTrackColors}
       thumbColor={colors.textPrimary}
     />
   </View>

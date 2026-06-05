@@ -1,6 +1,6 @@
 /** @format */
 
-import React, { memo, useCallback, useEffect, useState } from 'react';
+import React, { memo, useEffect, useState } from 'react';
 import { View } from 'react-native';
 
 import { testIds } from '@/testing/testIds';
@@ -30,13 +30,9 @@ function ManageAppsSearchToolbarView({ onQueryChange, onQueryActiveChange }: Man
     return () => clearTimeout(timer);
   }, [onQueryChange, query]);
 
-  const handleChange = useCallback((text: string) => {
-    setQuery(text);
-  }, []);
-
   return (
     <View style={manageAppsStyles.searchToolbar} testID={testIds.manageApps.searchField}>
-      <AppSearchField value={query} onChangeText={handleChange} />
+      <AppSearchField value={query} onChangeText={setQuery} />
     </View>
   );
 }

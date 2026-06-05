@@ -1,6 +1,6 @@
 /** @format */
 
-import React from 'react';
+import React, { memo, useCallback } from 'react';
 import { Pressable, Text, View } from 'react-native';
 
 import { GestureDetector } from 'react-native-gesture-handler';
@@ -12,7 +12,12 @@ import { configureLimitsStyles as styles } from '../styles';
 import type { LimitSliderCardProps } from '../types';
 import { getSliderLayout } from '../utils/sliderLayout';
 
-export const LimitSliderCard = ({
+const SLIDER_ACCESSIBILITY_ACTIONS = [
+  { name: 'increment' as const, label: 'Increase' },
+  { name: 'decrement' as const, label: 'Decrease' },
+];
+
+function LimitSliderCardView({
   title,
   description,
   valueMinutes,
@@ -23,7 +28,7 @@ export const LimitSliderCard = ({
   accentColor,
   onChange,
   testID,
-}: LimitSliderCardProps) => {
+}: LimitSliderCardProps) {
   const progressMin = progressMinMinutes ?? minMinutes;
   const { progress, progressPercent, inactivePercent, showInactiveZone } = getSliderLayout(
     valueMinutes,
@@ -41,8 +46,25 @@ export const LimitSliderCard = ({
     onChange,
   });
 
-  const decrease = () => onChange(Math.max(minMinutes, valueMinutes - stepMinutes));
-  const increase = () => onChange(Math.min(maxMinutes, valueMinutes + stepMinutes));
+  const decrease = useCallback(() => {
+    onChange(Math.max(minMinutes, valueMinutes - stepMinutes));
+  }, [minMinutes, onChange, stepMinutes, valueMinutes]);
+
+  const increase = useCallback(() => {
+    onChange(Math.min(maxMinutes, valueMinutes + stepMinutes));
+  }, [maxMinutes, onChange, stepMinutes, valueMinutes]);
+
+  const handleAccessibilityAction = useCallback(
+    (event: { nativeEvent: { actionName: string } }) => {
+      if (event.nativeEvent.actionName === 'increment') {
+        increase();
+      }
+      if (event.nativeEvent.actionName === 'decrement') {
+        decrease();
+      }
+    },
+    [decrease, increase],
+  );
 
   return (
     <View style={styles.limitCard} testID={testID}>
@@ -78,18 +100,8 @@ export const LimitSliderCard = ({
             accessibilityLabel={title}
             accessibilityHint="Drag horizontally on the track or tap to set the limit"
             accessibilityValue={{ text: formatDurationMinutes(valueMinutes) }}
-            accessibilityActions={[
-              { name: 'increment', label: 'Increase' },
-              { name: 'decrement', label: 'Decrease' },
-            ]}
-            onAccessibilityAction={(event) => {
-              if (event.nativeEvent.actionName === 'increment') {
-                increase();
-              }
-              if (event.nativeEvent.actionName === 'decrement') {
-                decrease();
-              }
-            }}
+            accessibilityActions={SLIDER_ACCESSIBILITY_ACTIONS}
+            onAccessibilityAction={handleAccessibilityAction}
           >
             <View style={styles.sliderTrack}>
               {showInactiveZone ? (
@@ -124,4 +136,21 @@ export const LimitSliderCard = ({
       </View>
     </View>
   );
-};
+}
+
+export const LimitSliderCard = memo(LimitSliderCardView, areLimitSliderCardPropsEqual);
+
+function areLimitSliderCardPropsEqual(previous: LimitSliderCardProps, next: LimitSliderCardProps): boolean {
+  return (
+    previous.title === next.title &&
+    previous.description === next.description &&
+    previous.valueMinutes === next.valueMinutes &&
+    previous.minMinutes === next.minMinutes &&
+    previous.progressMinMinutes === next.progressMinMinutes &&
+    previous.maxMinutes === next.maxMinutes &&
+    previous.stepMinutes === next.stepMinutes &&
+    previous.accentColor === next.accentColor &&
+    previous.onChange === next.onChange &&
+    previous.testID === next.testID
+  );
+}

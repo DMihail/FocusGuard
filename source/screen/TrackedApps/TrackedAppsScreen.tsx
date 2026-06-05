@@ -30,6 +30,19 @@ export const TrackedAppsScreen = () => {
     [appRows.length, goBack],
   );
 
+  const refreshControl = useMemo(
+    () => (
+      <RefreshControl
+        refreshing={refreshing}
+        onRefresh={onRefresh}
+        tintColor={colors.accent}
+        colors={[colors.accent]}
+        progressBackgroundColor={colors.surfaceDark}
+      />
+    ),
+    [onRefresh, refreshing],
+  );
+
   return (
     <ScreenSafeArea
       style={trackedAppsStyles.screen}
@@ -47,15 +60,7 @@ export const TrackedAppsScreen = () => {
         showsVerticalScrollIndicator={false}
         accessibilityRole="list"
         accessibilityLabel="Monitored apps with daily usage"
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={onRefresh}
-            tintColor={colors.accent}
-            colors={[colors.accent]}
-            progressBackgroundColor={colors.surfaceDark}
-          />
-        }
+        refreshControl={refreshControl}
         {...APP_LIST_FLAT_LIST_PROPS}
       />
     </ScreenSafeArea>

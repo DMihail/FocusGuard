@@ -1,6 +1,6 @@
 /** @format */
 
-import React, { memo, useMemo } from 'react';
+import React, { memo } from 'react';
 import { Text, View } from 'react-native';
 
 import { RemainingSvg, UsedSvg } from '@/assets/svg/Dashboard';
@@ -15,14 +15,8 @@ type DailyStatsRowProps = {
 };
 
 function DailyStatsRowView({ summary }: DailyStatsRowProps) {
-  const usedLabel = useMemo(
-    () => `Used today, ${formatUsageMinutes(summary.totalUsedMs)} total`,
-    [summary.totalUsedMs],
-  );
-  const remainingLabel = useMemo(
-    () => `Remaining budget, ${formatUsageMinutes(summary.remainingMs)}`,
-    [summary.remainingMs],
-  );
+  const usedLabel = `Used today, ${formatUsageMinutes(summary.totalUsedMs)} total`;
+  const remainingLabel = `Remaining budget, ${formatUsageMinutes(summary.remainingMs)}`;
 
   return (
     <View style={dashboardStyles.statsRow} testID={testIds.dashboard.dailyStats}>

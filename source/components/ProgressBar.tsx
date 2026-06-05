@@ -1,6 +1,6 @@
 /** @format */
 
-import React, { useMemo } from 'react';
+import React, { memo } from 'react';
 import {
   type AccessibilityRole,
   type AccessibilityValue,
@@ -24,7 +24,7 @@ type ProgressBarProps = {
   accessibilityValue?: AccessibilityValue;
 } & Pick<ViewProps, 'accessible' | 'importantForAccessibility'>;
 
-export const ProgressBar = ({
+function ProgressBarView({
   progress,
   fillColor = colors.accent,
   trackColor = colors.progressTrack,
@@ -35,22 +35,10 @@ export const ProgressBar = ({
   accessibilityValue,
   accessible,
   importantForAccessibility,
-}: ProgressBarProps) => {
+}: ProgressBarProps) {
   const clamped = Math.max(0, Math.min(100, progress));
   const fillFlex = clamped > 0 ? clamped : 0;
   const emptyFlex = 100 - fillFlex;
-
-  const fillStyle = useMemo(
-    () => ({
-      flex: fillFlex,
-      height,
-      backgroundColor: fillColor,
-      borderRadius: borderRadius.pill,
-    }),
-    [fillColor, fillFlex, height],
-  );
-
-  const emptyStyle = useMemo(() => ({ flex: emptyFlex, height }), [emptyFlex, height]);
 
   return (
     <View
@@ -62,12 +50,23 @@ export const ProgressBar = ({
       style={[styles.track, { height, backgroundColor: trackColor }, style]}
     >
       <View style={styles.row}>
-        {fillFlex > 0 ? <View style={fillStyle} /> : null}
-        {emptyFlex > 0 ? <View style={emptyStyle} /> : null}
+        {fillFlex > 0 ? (
+          <View
+            style={{
+              flex: fillFlex,
+              height,
+              backgroundColor: fillColor,
+              borderRadius: borderRadius.pill,
+            }}
+          />
+        ) : null}
+        {emptyFlex > 0 ? <View style={{ flex: emptyFlex, height }} /> : null}
       </View>
     </View>
   );
-};
+}
+
+export const ProgressBar = memo(ProgressBarView);
 
 const styles = StyleSheet.create({
   track: {

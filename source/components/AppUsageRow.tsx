@@ -1,6 +1,6 @@
 /** @format */
 
-import React, { memo, useCallback } from 'react';
+import React, { memo } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { testIds } from '@/testing/testIds';
@@ -27,14 +27,13 @@ function AppUsageRowView({
 }: AppUsageRowProps) {
   const barProgress = limitMs > 0 ? Math.min(100, (usedMs / limitMs) * 100) : 0;
   const fillColor = isOverLimit ? colors.overLimit : colors.accent;
-  const handlePress = useCallback(() => onPress(packageName), [onPress, packageName]);
 
   return (
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={`Configure limits for ${appName}, ${percentUsed} percent used`}
       accessibilityHint="Opens daily limit settings"
-      onPress={handlePress}
+      onPress={() => onPress(packageName)}
       style={styles.item}
       testID={testIds.dashboard.appRow(packageName)}
     >

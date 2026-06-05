@@ -1,8 +1,9 @@
 /** @format */
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { useFocusEffect } from '@react-navigation/native';
+import { useShallow } from 'zustand/react/shallow';
 
 import { useAppStateOnActive } from '@/hooks/useAppStateOnActive';
 import { getPackageUsageToday } from '@/specs/NativeUsageStats';
@@ -25,7 +26,7 @@ const MS_PER_MINUTE = 60_000;
  * Syncs draft state when persisted limits change and refreshes usage on focus/foreground.
  */
 export const useConfigureLimits = (packageName: string): UseConfigureLimitsResult => {
-  const app = selectedAppsStore((state) => state.apps.find((item) => item.packageName === packageName));
+  const app = selectedAppsStore(useShallow((state) => state.apps.find((item) => item.packageName === packageName)));
   const storedLimits = appLimitsStore((state) => state.limitsByPackage[packageName] ?? DEFAULT_APP_LIMITS);
   const setStoredLimits = appLimitsStore((state) => state.setLimits);
 
@@ -49,10 +50,7 @@ export const useConfigureLimits = (packageName: string): UseConfigureLimitsResul
     setDraft(storedLimits);
   }, [packageName, storedLimits]);
 
-  const hardBlockMin = useMemo(
-    () => Math.max(LIMIT_SLIDER_BOUNDS.hardBlock.min, draft.warningMinutes),
-    [draft.warningMinutes],
-  );
+  const hardBlockMin = Math.max(LIMIT_SLIDER_BOUNDS.hardBlock.min, draft.warningMinutes);
 
   const setWarningMinutes = useCallback((warningMinutes: number) => {
     setDraft((current) => {

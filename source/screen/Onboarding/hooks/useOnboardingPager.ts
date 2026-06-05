@@ -1,7 +1,12 @@
 /** @format */
 
 import { useCallback, useMemo, useRef, useState } from 'react';
-import { type NativeScrollEvent, type NativeSyntheticEvent, useWindowDimensions } from 'react-native';
+import {
+  type LayoutChangeEvent,
+  type NativeScrollEvent,
+  type NativeSyntheticEvent,
+  useWindowDimensions,
+} from 'react-native';
 
 import type { FlatList } from 'react-native';
 import { useAnimatedScrollHandler, useSharedValue } from 'react-native-reanimated';
@@ -80,9 +85,9 @@ export const useOnboardingPager = () => {
     onSkip();
   }, [goToStep, isLastStep, onSkip, step]);
 
-  const handlePagerLayout = useCallback((width: number) => {
-    if (width > 0) {
-      setPageWidth((current) => (current === width ? current : width));
+  const handlePagerContainerLayout = useCallback(({ nativeEvent: { layout } }: LayoutChangeEvent) => {
+    if (layout.width > 0) {
+      setPageWidth((current) => (current === layout.width ? current : layout.width));
     }
   }, []);
 
@@ -101,7 +106,7 @@ export const useOnboardingPager = () => {
     handleScroll,
     handleMomentumScrollEnd,
     handleContinue,
-    handlePagerLayout,
+    handlePagerContainerLayout,
     getItemLayout,
     handleScrollToIndexFailed,
     onSkip,

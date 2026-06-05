@@ -1,15 +1,14 @@
 /** @format */
 
-import React, { useCallback, useMemo } from 'react';
-import { FlatList, Pressable, Text, View } from 'react-native';
+import React, { useCallback } from 'react';
+import { FlatList, View } from 'react-native';
 
-import { BackIcon } from '@/assets/svg/ManageApps';
 import { APP_LIST_FLAT_LIST_PROPS } from '@/list';
-import { useRootNavigation } from '@/navigation';
 
 import { legalSectionKeyExtractor, renderLegalSectionItem } from '../list';
 import { legalStyles } from '../styles';
 import type { LegalDocument } from '../types';
+import { LegalDocumentListHeader } from './LegalDocumentListHeader';
 
 import { ScreenSafeArea } from '@/components';
 
@@ -30,38 +29,11 @@ export const LegalDocumentLayout = ({
   headerTestId,
   backButtonTestId,
 }: LegalDocumentLayoutProps) => {
-  const navigation = useRootNavigation();
-
-  const handleGoBack = useCallback(() => {
-    navigation.goBack();
-  }, [navigation]);
-
-  const listHeader = useMemo(
+  const renderListHeader = useCallback(
     () => (
-      <>
-        <View style={legalStyles.header} testID={headerTestId}>
-          <Pressable
-            testID={backButtonTestId}
-            accessibilityRole="button"
-            accessibilityLabel="Go back"
-            style={legalStyles.backButton}
-            onPress={handleGoBack}
-          >
-            <BackIcon />
-          </Pressable>
-
-          <View style={legalStyles.headerText}>
-            <Text style={legalStyles.title} accessibilityRole="header">
-              {document.title}
-            </Text>
-            <Text style={legalStyles.subtitle}>{document.subtitle}</Text>
-          </View>
-        </View>
-
-        <Text style={legalStyles.meta}>{`Last updated: ${document.lastUpdated}`}</Text>
-      </>
+      <LegalDocumentListHeader document={document} headerTestId={headerTestId} backButtonTestId={backButtonTestId} />
     ),
-    [backButtonTestId, document.lastUpdated, document.subtitle, document.title, handleGoBack, headerTestId],
+    [backButtonTestId, document, headerTestId],
   );
 
   return (
@@ -71,7 +43,7 @@ export const LegalDocumentLayout = ({
         data={document.sections}
         renderItem={renderLegalSectionItem}
         keyExtractor={legalSectionKeyExtractor}
-        ListHeaderComponent={listHeader}
+        ListHeaderComponent={renderListHeader}
         contentContainerStyle={legalStyles.scrollContent}
         ItemSeparatorComponent={LegalSectionSeparator}
         showsVerticalScrollIndicator={false}

@@ -1,9 +1,9 @@
 /** @format */
 
-import React from 'react';
+import React, { memo } from 'react';
 import { Switch, Text, View } from 'react-native';
 
-import { colors } from '@/theme';
+import { colors, switchTrackColors } from '@/theme';
 
 import { configureLimitsStyles as styles } from '../styles';
 
@@ -14,20 +14,33 @@ export type StrictModeCardProps = {
   toggleTestID?: string;
 };
 
-export const StrictModeCard = ({ value, onValueChange, testID, toggleTestID }: StrictModeCardProps) => (
-  <View style={styles.strictCard} testID={testID}>
-    <View style={styles.strictText}>
-      <Text style={styles.strictTitle}>Strict Mode</Text>
-      <Text style={styles.strictDescription}>Disable the 5-minute snooze when blocked</Text>
+function StrictModeCardView({ value, onValueChange, testID, toggleTestID }: StrictModeCardProps) {
+  return (
+    <View style={styles.strictCard} testID={testID}>
+      <View style={styles.strictText}>
+        <Text style={styles.strictTitle}>Strict Mode</Text>
+        <Text style={styles.strictDescription}>Disable the 5-minute snooze when blocked</Text>
+      </View>
+      <Switch
+        testID={toggleTestID}
+        accessibilityRole="switch"
+        accessibilityLabel="Strict mode"
+        value={value}
+        onValueChange={onValueChange}
+        trackColor={switchTrackColors}
+        thumbColor={colors.textPrimary}
+      />
     </View>
-    <Switch
-      testID={toggleTestID}
-      accessibilityRole="switch"
-      accessibilityLabel="Strict mode"
-      value={value}
-      onValueChange={onValueChange}
-      trackColor={{ false: colors.switchTrackOff, true: colors.accent }}
-      thumbColor={colors.textPrimary}
-    />
-  </View>
-);
+  );
+}
+
+export const StrictModeCard = memo(StrictModeCardView, areStrictModeCardPropsEqual);
+
+function areStrictModeCardPropsEqual(previous: StrictModeCardProps, next: StrictModeCardProps): boolean {
+  return (
+    previous.value === next.value &&
+    previous.onValueChange === next.onValueChange &&
+    previous.testID === next.testID &&
+    previous.toggleTestID === next.toggleTestID
+  );
+}

@@ -119,3 +119,8 @@ export const iconBoxPresets = {
     overflow: 'hidden',
   } satisfies ViewStyle,
 } as const;
+
+export const switchTrackColors = {
+  false: colors.switchTrackOff,
+  true: colors.accent,
+} as const;

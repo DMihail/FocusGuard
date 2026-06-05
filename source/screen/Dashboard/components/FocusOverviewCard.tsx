@@ -1,6 +1,6 @@
 /** @format */
 
-import React, { memo, useMemo } from 'react';
+import React, { memo } from 'react';
 import { Text, View } from 'react-native';
 
 import { FocusScoreSvg } from '@/assets/svg/Dashboard';
@@ -17,19 +17,12 @@ type FocusOverviewCardProps = {
 };
 
 function FocusOverviewCardView({ summary }: FocusOverviewCardProps) {
-  const usedPercent = useMemo(
-    () =>
-      summary.totalAllowedMs > 0 ? Math.min(100, Math.round((summary.totalUsedMs / summary.totalAllowedMs) * 100)) : 0,
-    [summary.totalAllowedMs, summary.totalUsedMs],
-  );
+  const usedPercent =
+    summary.totalAllowedMs > 0 ? Math.min(100, Math.round((summary.totalUsedMs / summary.totalAllowedMs) * 100)) : 0;
 
-  const accessibilityLabel = useMemo(
-    () =>
-      `Focus score ${summary.focusScore}. ${formatUsageMinutes(summary.remainingMs)} remaining of ${formatUsageMinutes(
-        summary.totalAllowedMs,
-      )} daily budget.`,
-    [summary.focusScore, summary.remainingMs, summary.totalAllowedMs],
-  );
+  const accessibilityLabel = `Focus score ${summary.focusScore}. ${formatUsageMinutes(
+    summary.remainingMs,
+  )} remaining of ${formatUsageMinutes(summary.totalAllowedMs)} daily budget.`;
 
   return (
     <View

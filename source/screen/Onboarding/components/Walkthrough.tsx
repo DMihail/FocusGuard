@@ -8,12 +8,12 @@ import { borderRadius, colors, spacing, typography } from '@/theme';
 type WalkthroughProps = {
   title: string;
   text: string;
-  icon: React.ReactNode;
+  children: React.ReactNode;
 };
 
-const WalkthroughView = ({ title, text, icon }: WalkthroughProps) => (
+const WalkthroughView = ({ title, text, children }: WalkthroughProps) => (
   <View style={styles.content}>
-    <View style={styles.iconContainer}>{icon}</View>
+    <View style={styles.iconContainer}>{children}</View>
 
     <Text style={styles.title}>{title}</Text>
     <Text style={styles.description}>{text}</Text>

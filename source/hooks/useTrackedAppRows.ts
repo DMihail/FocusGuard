@@ -3,6 +3,7 @@
 import { useCallback, useMemo, useState } from 'react';
 
 import { useFocusEffect } from '@react-navigation/native';
+import { useShallow } from 'zustand/react/shallow';
 
 import { useAppStateOnActive } from '@/hooks/useAppStateOnActive';
 import { getAppsUsageStats } from '@/specs/NativeUsageStats';
@@ -31,12 +32,16 @@ export const useTrackedAppRows = (): {
   refreshUsage: () => void;
 } => {
   const selectedApps = selectedAppsStore((state) => state.apps);
-  const limitsByPackage = appLimitsStore((state) => state.limitsByPackage);
-  const getLimits = appLimitsStore((state) => state.getLimits);
+  const selectedPackages = useMemo(() => selectedApps.map((app) => app.packageName), [selectedApps]);
+  const limitsByPackage = appLimitsStore(
+    useShallow((state) =>
+      Object.fromEntries(selectedPackages.map((packageName) => [packageName, state.limitsByPackage[packageName]])),
+    ),
+  );
   const [usageByPackage, setUsageByPackage] = useState<Record<string, number>>({});
 
   const refreshUsage = useCallback(() => {
-    const packages = new Set(selectedApps.map((app) => app.packageName));
+    const packages = new Set(selectedPackages);
 
     if (packages.size === 0) {
       setUsageByPackage((previous) => (Object.keys(previous).length === 0 ? previous : {}));
@@ -51,7 +56,7 @@ export const useTrackedAppRows = (): {
     );
 
     setUsageByPackage((previous) => (hasUsageChanged(previous, nextUsage) ? nextUsage : previous));
-  }, [selectedApps]);
+  }, [selectedPackages]);
 
   useFocusEffect(
     useCallback(() => {
@@ -61,10 +66,11 @@ export const useTrackedAppRows = (): {
 
   useAppStateOnActive(refreshUsage);
 
-  const appRows = useMemo(
-    () => buildDashboardAppRows(selectedApps, limitsByPackage, usageByPackage, getLimits),
-    [getLimits, limitsByPackage, selectedApps, usageByPackage],
-  );
+  const getLimits = appLimitsStore((state) => state.getLimits);
+
+  const appRows = useMemo(() => {
+    return buildDashboardAppRows(selectedApps, limitsByPackage, usageByPackage, getLimits);
+  }, [getLimits, limitsByPackage, selectedApps, usageByPackage]);
 
   return { appRows, refreshUsage };
 };

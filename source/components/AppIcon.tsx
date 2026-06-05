@@ -24,15 +24,29 @@ const imageSizeByPreset: Record<AppIconSize, ImageStyle> = {
 
 const getAppNameInitial = (appName: string): string => appName.charAt(0).toUpperCase();
 
-/** Renders a launchable app icon from a base64/URI source, or a letter fallback. */
-export const AppIcon = memo(({ appName, appImage, size = 'md', boxStyle, imageStyle, fallbackStyle }: AppIconProps) => (
-  <View style={[iconBoxPresets[size], boxStyle]}>
-    {appImage ? (
-      <Image source={{ uri: appImage }} style={[imageSizeByPreset[size], imageStyle]} resizeMode="cover" />
-    ) : (
-      <Text style={[textPresets.iconFallbackLg, fallbackStyle]}>{getAppNameInitial(appName)}</Text>
-    )}
-  </View>
-));
+function AppIconView({ appName, appImage, size = 'md', boxStyle, imageStyle, fallbackStyle }: AppIconProps) {
+  return (
+    <View style={[iconBoxPresets[size], boxStyle]}>
+      {appImage ? (
+        <Image source={{ uri: appImage }} style={[imageSizeByPreset[size], imageStyle]} resizeMode="cover" />
+      ) : (
+        <Text style={[textPresets.iconFallbackLg, fallbackStyle]}>{getAppNameInitial(appName)}</Text>
+      )}
+    </View>
+  );
+}
+
+export const AppIcon = memo(AppIconView, areAppIconPropsEqual);
+
+function areAppIconPropsEqual(previous: AppIconProps, next: AppIconProps): boolean {
+  return (
+    previous.appName === next.appName &&
+    previous.appImage === next.appImage &&
+    previous.size === next.size &&
+    previous.boxStyle === next.boxStyle &&
+    previous.imageStyle === next.imageStyle &&
+    previous.fallbackStyle === next.fallbackStyle
+  );
+}
 
 AppIcon.displayName = 'AppIcon';

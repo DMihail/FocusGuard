@@ -16,9 +16,6 @@ export const permissionsStyles = StyleSheet.create({
     ...typography.body,
     color: colors.textMuted,
   },
-  cards: {
-    gap: spacing.lg,
-  },
   card: {
     borderRadius: borderRadius.xl,
     borderWidth: 2,

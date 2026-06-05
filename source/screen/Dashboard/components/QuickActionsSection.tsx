@@ -1,6 +1,6 @@
 /** @format */
 
-import React, { memo, useCallback } from 'react';
+import React, { memo } from 'react';
 import { Pressable, Text, View } from 'react-native';
 
 import { FocusModeSvg } from '@/assets/svg/Dashboard';
@@ -27,14 +27,14 @@ function QuickActionsSectionView({
 }: QuickActionsSectionProps) {
   const isFocusModeDisabled = !canStartFocusMode && !isMonitoring;
 
-  const handleToggle = useCallback(() => {
+  const handleToggle = () => {
     if (isFocusModeDisabled) {
       return;
     }
 
     configureSectionLayoutAnimation();
     onToggleMonitoring();
-  }, [isFocusModeDisabled, onToggleMonitoring]);
+  };
 
   return (
     <View style={dashboardStyles.quickActions} testID={testIds.dashboard.quickActions}>
