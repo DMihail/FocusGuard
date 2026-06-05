@@ -1,10 +1,18 @@
 /** @format */
 
-import type { LegalDocument, LegalDocumentId } from '../types';
-import { DATA_PRIVACY_DOCUMENT } from './dataPrivacy';
-import { TERMS_PRIVACY_DOCUMENT } from './termsPrivacy';
+import { getAppDisplayName } from '@/constants/appDisplayName';
 
-export const LEGAL_DOCUMENTS: Record<LegalDocumentId, LegalDocument> = {
-  dataPrivacy: DATA_PRIVACY_DOCUMENT,
-  termsPrivacy: TERMS_PRIVACY_DOCUMENT,
+import type { LegalDocument, LegalDocumentId } from '../types';
+import { buildDataPrivacyDocument } from './dataPrivacy';
+import { buildTermsPrivacyDocument } from './termsPrivacy';
+
+export const getLegalDocument = (documentId: LegalDocumentId): LegalDocument => {
+  const appDisplayName = getAppDisplayName();
+
+  switch (documentId) {
+    case 'dataPrivacy':
+      return buildDataPrivacyDocument(appDisplayName);
+    case 'termsPrivacy':
+      return buildTermsPrivacyDocument(appDisplayName);
+  }
 };

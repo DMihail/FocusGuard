@@ -1,3 +1,4 @@
 /** @format */
 
-export const APP_VERSION = '1.0.0';
+export { getAppDisplayName } from '@/constants/appDisplayName';
+export { getAppVersion } from '@/constants/appVersion';

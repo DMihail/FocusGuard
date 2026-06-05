@@ -45,6 +45,10 @@ export interface Spec extends TurboModule {
   getAppsUsageStats(): AppUsageStat[];
   /** @returns all launchable apps on the device (excluding this app). */
   getInstalledApplications(): InstallApp[];
+  /** @returns the user-facing app name from native resources (`app_name` / CFBundleDisplayName). */
+  getAppDisplayName(): string;
+  /** @returns the marketing version from native build config (`versionName` / CFBundleShortVersionString). */
+  getAppVersion(): string;
 }
 
 const usageStats = TurboModuleRegistry.get<Spec>('NativeUsageStats');
@@ -110,3 +114,9 @@ export const getAppsUsageStats = (): AppUsageStat[] => usageStats?.getAppsUsageS
 
 /** @returns all launchable apps installed on the device (excluding this app). */
 export const getInstalledApplications = (): InstallApp[] => usageStats?.getInstalledApplications() ?? [];
+
+/** @returns the user-facing app name configured in native resources. */
+export const getAppDisplayName = (): string => usageStats?.getAppDisplayName()?.trim() ?? '';
+
+/** @returns the marketing version configured in native build settings. */
+export const getAppVersion = (): string => usageStats?.getAppVersion()?.trim() ?? '';

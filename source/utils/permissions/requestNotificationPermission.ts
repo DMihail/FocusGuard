@@ -2,6 +2,7 @@
 
 import { PermissionsAndroid, Platform } from 'react-native';
 
+import { getAppDisplayName } from '@/constants/appDisplayName';
 import { checkForNotificationsPermission } from '@/specs';
 
 const ANDROID_API_TIRAMISU = 33;
@@ -23,7 +24,7 @@ export const requestPostNotificationsPermission = async (): Promise<boolean> => 
   try {
     const result = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS, {
       title: 'Notifications',
-      message: 'Allow notifications so FocusGuard can send limit warnings and reminders.',
+      message: `Allow notifications so ${getAppDisplayName()} can send limit warnings and reminders.`,
       buttonPositive: 'Allow',
       buttonNegative: 'Deny',
     });

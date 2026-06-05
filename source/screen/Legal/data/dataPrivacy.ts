@@ -2,21 +2,21 @@
 
 import type { LegalDocument } from '../types';
 
-export const DATA_PRIVACY_DOCUMENT: LegalDocument = {
+export const buildDataPrivacyDocument = (appDisplayName: string): LegalDocument => ({
   title: 'Data Privacy',
-  subtitle: 'How FocusGuard handles information on your device',
+  subtitle: `How ${appDisplayName} handles information on your device`,
   lastUpdated: 'May 19, 2026',
   sections: [
     {
       title: 'Our commitment',
       paragraphs: [
-        'FocusGuard is built to help you understand and limit distracting app use. Your activity data is meant to stay on your phone. We do not run advertising profiles, sell data, or operate a cloud account that stores your usage history.',
+        `${appDisplayName} is built to help you understand and limit distracting app use. Your activity data is meant to stay on your phone. We do not run advertising profiles, sell data, or operate a cloud account that stores your usage history.`,
       ],
     },
     {
       title: 'Information processed on your device',
       paragraphs: [
-        'To provide focus monitoring and limits, FocusGuard may process:',
+        `To provide focus monitoring and limits, ${appDisplayName} may process:`,
         '• Apps you choose to track (package name, display name, and icon shown in the app).',
         '• Usage statistics from Android Usage Access (time in foreground, last used time, and related metrics exposed by the system).',
         '• Settings you configure in the app, such as selected apps, notification preferences, and onboarding completion.',
@@ -26,14 +26,14 @@ export const DATA_PRIVACY_DOCUMENT: LegalDocument = {
     {
       title: 'Where data is stored',
       paragraphs: [
-        'This information is stored locally on your device using on-device storage (including encrypted-capable local storage used by the app). It is not uploaded to FocusGuard servers as part of the current version of the app.',
-        'If you uninstall FocusGuard or clear app data, locally stored settings and selections are removed according to your device settings.',
+        `This information is stored locally on your device using on-device storage (including encrypted-capable local storage used by the app). It is not uploaded to ${appDisplayName} servers as part of the current version of the app.`,
+        `If you uninstall ${appDisplayName} or clear app data, locally stored settings and selections are removed according to your device settings.`,
       ],
     },
     {
       title: 'Android permissions we use',
       paragraphs: [
-        'FocusGuard requests system permissions only to deliver its features:',
+        `${appDisplayName} requests system permissions only to deliver its features:`,
         '• Usage Access — to read app usage statistics for apps you manage.',
         '• Display over other apps — to show blocking or warning overlays when limits apply.',
         '• Notifications — for reminders and limit alerts (you can turn these off in Settings).',
@@ -46,7 +46,7 @@ export const DATA_PRIVACY_DOCUMENT: LegalDocument = {
     {
       title: 'What we do not do',
       paragraphs: [
-        'FocusGuard does not:',
+        `${appDisplayName} does not:`,
         '• Collect your contacts, messages, photos, or browsing history.',
         '• Record keystrokes or screen contents outside what Android Usage Access provides for app usage metrics.',
         '• Share your usage data with third parties for marketing.',
@@ -63,7 +63,7 @@ export const DATA_PRIVACY_DOCUMENT: LegalDocument = {
     {
       title: 'Children',
       paragraphs: [
-        'FocusGuard is not directed at children under 13. If you are a parent or guardian and believe a child has provided personal information through the app, contact us using the details in Terms & Privacy.',
+        `${appDisplayName} is not directed at children under 13. If you are a parent or guardian and believe a child has provided personal information through the app, contact us using the details in Terms & Privacy.`,
       ],
     },
     {
@@ -73,4 +73,4 @@ export const DATA_PRIVACY_DOCUMENT: LegalDocument = {
       ],
     },
   ],
-};
+});

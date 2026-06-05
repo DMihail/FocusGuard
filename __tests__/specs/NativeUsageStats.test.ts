@@ -15,6 +15,8 @@ const mockUsageStats = {
   requestIgnoreBatteryOptimizationsPermission: jest.fn(),
   getAppsUsageStats: jest.fn(),
   getInstalledApplications: jest.fn(),
+  getAppDisplayName: jest.fn(),
+  getAppVersion: jest.fn(),
   isMonitorServiceRunning: jest.fn(),
 };
 
@@ -41,6 +43,8 @@ describe('NativeUsageStats', () => {
     mockUsageStats.getAppsUsageStats.mockReturnValue([]);
     mockUsageStats.getInstalledApplications.mockReturnValue([]);
     mockUsageStats.isMonitorServiceRunning.mockReturnValue(false);
+    mockUsageStats.getAppDisplayName.mockReturnValue('Keept');
+    mockUsageStats.getAppVersion.mockReturnValue('1.0.0');
   });
 
   it('delegates native module calls when the turbo module is available', () => {
@@ -69,6 +73,8 @@ describe('NativeUsageStats', () => {
     expect(specs.getAppsUsageStats()).toEqual([]);
     expect(specs.getInstalledApplications()).toEqual([]);
     expect(specs.isMonitorServiceRunning()).toBe(false);
+    expect(specs.getAppDisplayName()).toBe('');
+    expect(specs.getAppVersion()).toBe('');
     expect(() => specs.requestUsageStatsPermission()).not.toThrow();
     expect(() => specs.startMonitorService()).not.toThrow();
     expect(() => specs.stopMonitorService()).not.toThrow();

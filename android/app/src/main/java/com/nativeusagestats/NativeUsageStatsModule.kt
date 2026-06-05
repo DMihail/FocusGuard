@@ -12,6 +12,7 @@ import com.focusguard.monitor.MonitorServiceHelper
 import com.focusguard.permissions.PermissionChecker
 import com.focusguard.permissions.PermissionEventEmitter
 import com.focusguard.permissions.PermissionRequester
+import com.focusguard.platform.AppInfo
 
 /**
  * Codegen Turbo Module — thin bridge over the FocusGuard Android domain layer.
@@ -97,6 +98,10 @@ class NativeUsageStatsModule(
 
   override fun getAppsUsageStats(): WritableArray =
       ReactBridgeMappers.toUsageStatsArray(usageStatsCatalogRepository.getTodayUsage())
+
+  override fun getAppDisplayName(): String = AppInfo.getDisplayName(appContext)
+
+  override fun getAppVersion(): String = AppInfo.getVersionName()
 
   private fun emitPermissionsChanged() {
     PermissionEventEmitter.emit(appContext as Application)

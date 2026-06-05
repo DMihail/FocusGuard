@@ -19,9 +19,22 @@ export const useTrackedAppRows = (): {
   const [usageByPackage, setUsageByPackage] = useState<Record<string, number>>({});
 
   const refreshUsage = useCallback(() => {
+    const packages = new Set(selectedApps.map((app) => app.packageName));
+
+    if (packages.size === 0) {
+      setUsageByPackage({});
+      return;
+    }
+
     const stats = getAppsUsageStats();
-    setUsageByPackage(Object.fromEntries(stats.map((item) => [item.packageName, item.totalTimeForeground])));
-  }, []);
+    setUsageByPackage(
+      Object.fromEntries(
+        stats
+          .filter((item) => packages.has(item.packageName))
+          .map((item) => [item.packageName, item.totalTimeForeground]),
+      ),
+    );
+  }, [selectedApps]);
 
   useFocusEffect(
     useCallback(() => {

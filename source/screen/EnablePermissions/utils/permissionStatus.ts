@@ -14,7 +14,7 @@ import {
   requestUsageStatsPermission,
 } from '@/specs';
 
-import { PERMISSIONS } from '../data/permissions';
+import { PERMISSION_IDS } from '../data/permissions';
 import type { PermissionId, PermissionStatus } from '../types';
 
 /** Required to continue; notifications can be granted later from this screen or Settings. */
@@ -36,15 +36,13 @@ const permissionRequests: Record<PermissionId, () => void> = {
 
 export const readPermissionStatuses = (): Record<PermissionId, PermissionStatus> => {
   if (Platform.OS !== 'android') {
-    return Object.fromEntries(PERMISSIONS.map((item) => [item.id, 'granted'])) as Record<
-      PermissionId,
-      PermissionStatus
-    >;
+    return Object.fromEntries(PERMISSION_IDS.map((id) => [id, 'granted'])) as Record<PermissionId, PermissionStatus>;
   }
 
-  return Object.fromEntries(
-    PERMISSIONS.map((item) => [item.id, permissionChecks[item.id]() ? 'granted' : 'pending']),
-  ) as Record<PermissionId, PermissionStatus>;
+  return Object.fromEntries(PERMISSION_IDS.map((id) => [id, permissionChecks[id]() ? 'granted' : 'pending'])) as Record<
+    PermissionId,
+    PermissionStatus
+  >;
 };
 
 export const areRequiredPermissionsGranted = (statuses: Record<PermissionId, PermissionStatus>): boolean => {
