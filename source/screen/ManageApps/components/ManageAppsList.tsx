@@ -34,6 +34,7 @@ export const ManageAppsList = ({
   ListHeaderComponent,
 }: ManageAppsListProps) => {
   const renderItem = useMemo(() => createManageAppListRenderItem(isSelected, onToggle), [isSelected, onToggle]);
+  const listEmptyComponent = useMemo(() => <ManageAppsListEmpty isFiltering={isFiltering} />, [isFiltering]);
 
   return (
     <View style={manageAppsStyles.listFlex} testID={testIds.manageApps.appsList}>
@@ -57,7 +58,7 @@ export const ManageAppsList = ({
           renderItem={renderItem}
           keyExtractor={manageAppKeyExtractor}
           ListHeaderComponent={ListHeaderComponent}
-          ListEmptyComponent={<ManageAppsListEmpty isFiltering={isFiltering} />}
+          ListEmptyComponent={listEmptyComponent}
           contentContainerStyle={manageAppsStyles.scrollContent}
           showsVerticalScrollIndicator={false}
           accessibilityRole="list"

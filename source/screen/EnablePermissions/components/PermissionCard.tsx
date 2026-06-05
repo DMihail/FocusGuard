@@ -1,6 +1,6 @@
 /** @format */
 
-import React from 'react';
+import React, { memo } from 'react';
 import { Animated, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { CheckIcon } from '@/assets/svg/EnablePermissions';
@@ -15,7 +15,8 @@ type PermissionCardProps = PermissionItem & {
   onGrant?: () => void;
 };
 
-export const PermissionCard = ({ id, title, description, status, Icon, onGrant }: PermissionCardProps) => {
+/** Animated permission card with grant action and granted-state transition. */
+export const PermissionCard = memo(({ id, title, description, status, Icon, onGrant }: PermissionCardProps) => {
   const {
     grantedOverlayOpacity,
     pendingIconOpacity,
@@ -82,7 +83,9 @@ export const PermissionCard = ({ id, title, description, status, Icon, onGrant }
       </View>
     </View>
   );
-};
+});
+
+PermissionCard.displayName = 'PermissionCard';
 
 const styles = StyleSheet.create({
   cardWrapper: {

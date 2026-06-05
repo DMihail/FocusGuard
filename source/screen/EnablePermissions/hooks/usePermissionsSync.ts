@@ -22,6 +22,12 @@ const hasStatusChanged = (
   next: Record<PermissionId, PermissionStatus>,
 ): boolean => PERMISSION_IDS.some((id) => previous[id] !== next[id]);
 
+/**
+ * Keeps Enable Permissions cards in sync with native permission state.
+ *
+ * Re-reads statuses on mount, screen focus, app foreground, and when the native
+ * bridge emits `focusguard:permissionsChanged`. Skips re-renders when values are unchanged.
+ */
 export const usePermissionsSync = () => {
   const permissionItems = useMemo(() => createPermissions(getAppDisplayName()), []);
   const [statusById, setStatusById] = useState<Record<PermissionId, PermissionStatus>>(() => readPermissionStatuses());
@@ -30,10 +36,11 @@ export const usePermissionsSync = () => {
     setStatusById((previous) => {
       const next = readPermissionStatuses();
 
-      if (hasStatusChanged(previous, next)) {
-        configurePermissionStatusSyncAnimation();
+      if (!hasStatusChanged(previous, next)) {
+        return previous;
       }
 
+      configurePermissionStatusSyncAnimation();
       return next;
     });
   }, []);

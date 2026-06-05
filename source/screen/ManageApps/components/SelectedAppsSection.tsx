@@ -1,6 +1,6 @@
 /** @format */
 
-import React from 'react';
+import React, { memo, useCallback } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 
 import { testIds } from '@/testing/testIds';
@@ -8,20 +8,39 @@ import { testIds } from '@/testing/testIds';
 import { manageAppsStyles } from '../styles';
 import type { ManageApp, SelectedAppsSectionProps } from '../types';
 
-const SelectedChip = ({ app, onPress }: { app: ManageApp; onPress: (packageName: string) => void }) => (
-  <Pressable
-    accessibilityRole="button"
-    accessibilityLabel={`Configure limits for ${app.appName}`}
-    onPress={() => onPress(app.packageName)}
-    style={manageAppsStyles.selectedChip}
-    testID={testIds.manageApps.selectedChip(app.packageName)}
-  >
-    <Text style={manageAppsStyles.selectedChipLabel} numberOfLines={1}>
-      {app.appName}
-    </Text>
-  </Pressable>
-);
+type SelectedChipProps = {
+  app: ManageApp;
+  onPress: (packageName: string) => void;
+};
 
+const SelectedChip = memo(({ app, onPress }: SelectedChipProps) => {
+  const handlePress = useCallback(() => {
+    onPress(app.packageName);
+  }, [app.packageName, onPress]);
+
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={`Configure limits for ${app.appName}`}
+      onPress={handlePress}
+      style={manageAppsStyles.selectedChip}
+      testID={testIds.manageApps.selectedChip(app.packageName)}
+    >
+      <Text style={manageAppsStyles.selectedChipLabel} numberOfLines={1}>
+        {app.appName}
+      </Text>
+    </Pressable>
+  );
+});
+
+SelectedChip.displayName = 'SelectedChip';
+
+/**
+ * Horizontal chip strip for already-selected apps.
+ *
+ * Uses `ScrollView` (not `FlatList`) to preserve the two-row wrapped layout
+ * defined in `selectedAppsRows` styles.
+ */
 export const SelectedAppsSection = ({ apps, onAppPress }: SelectedAppsSectionProps) => {
   if (!apps.length) {
     return null;

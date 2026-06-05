@@ -11,6 +11,11 @@ import { ALL_CATEGORY_FILTER, buildCategoryFilters } from '../utils/buildCategor
 import { mapInstalledApps } from '../utils/mapInstalledApps';
 import { matchesCategoryFilter } from '../utils/matchesCategoryFilter';
 
+/**
+ * Manage Apps screen state: installed apps, search/category filters, and selection toggles.
+ *
+ * Uses `useDeferredValue` and `useTransition` to keep filtering responsive on large lists.
+ */
 export const useManageApps = () => {
   const [installedApps, setInstalledApps] = useState(() => mapInstalledApps(getInstalledApplications()));
 

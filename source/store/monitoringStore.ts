@@ -9,6 +9,7 @@ import { canStartMonitoring } from '@/utils/monitoring/canStartMonitoring';
 import { zustandStorage } from './mmkv';
 import type { MonitoringStore } from './types';
 
+/** Persisted focus-mode toggle; starts/stops the native monitor foreground service. */
 export const monitoringStore = create<MonitoringStore>()(
   persist(
     (set, get) => ({

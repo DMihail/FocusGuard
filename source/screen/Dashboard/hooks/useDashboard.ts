@@ -8,6 +8,7 @@ import { useNavigateToConfigureLimits } from '@/navigation/hooks/useNavigateToCo
 import { monitoringStore } from '@/store';
 import { buildDashboardSummary } from '@/utils/usage/dashboardStats';
 
+/** Dashboard screen state: tracked rows, summary stats, monitoring toggle, pull-to-refresh. */
 export const useDashboard = () => {
   const { appRows, refreshUsage } = useTrackedAppRows();
   const isMonitoring = monitoringStore((state) => state.isMonitoring);

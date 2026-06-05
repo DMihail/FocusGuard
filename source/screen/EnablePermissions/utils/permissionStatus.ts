@@ -34,6 +34,7 @@ const permissionRequests: Record<PermissionId, () => void> = {
   'battery-optimization': requestIgnoreBatteryOptimizationsPermission,
 };
 
+/** Reads current native permission statuses for all Enable Permissions cards. */
 export const readPermissionStatuses = (): Record<PermissionId, PermissionStatus> => {
   if (Platform.OS !== 'android') {
     return Object.fromEntries(PERMISSION_IDS.map((id) => [id, 'granted'])) as Record<PermissionId, PermissionStatus>;
@@ -45,6 +46,7 @@ export const readPermissionStatuses = (): Record<PermissionId, PermissionStatus>
   >;
 };
 
+/** Returns `true` when usage access, overlay, battery exemption, and manifest FGS permissions are granted. */
 export const areRequiredPermissionsGranted = (statuses: Record<PermissionId, PermissionStatus>): boolean => {
   if (Platform.OS !== 'android') {
     return true;
@@ -53,8 +55,10 @@ export const areRequiredPermissionsGranted = (statuses: Record<PermissionId, Per
   return REQUIRED_PERMISSION_IDS.every((id) => statuses[id] === 'granted') && checkForManifestMonitorPermissions();
 };
 
+/** Convenience wrapper around {@link readPermissionStatuses} for navigation guards. */
 export const areAllPermissionsGranted = (): boolean => areRequiredPermissionsGranted(readPermissionStatuses());
 
+/** Opens the system settings screen for a permission card action. */
 export const requestPermissionById = (id: PermissionId): void => {
   if (Platform.OS !== 'android') {
     return;

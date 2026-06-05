@@ -19,6 +19,11 @@ import type { UseConfigureLimitsResult } from '../types';
 
 const MS_PER_MINUTE = 60_000;
 
+/**
+ * Loads draft limit settings and today's usage for a single tracked app.
+ *
+ * Syncs draft state when persisted limits change and refreshes usage on focus/foreground.
+ */
 export const useConfigureLimits = (packageName: string): UseConfigureLimitsResult => {
   const app = selectedAppsStore((state) => state.apps.find((item) => item.packageName === packageName));
   const storedLimits = appLimitsStore((state) => state.limitsByPackage[packageName] ?? DEFAULT_APP_LIMITS);
@@ -50,7 +55,7 @@ export const useConfigureLimits = (packageName: string): UseConfigureLimitsResul
     [draft.warningMinutes],
   );
 
-  const setWarningMinutes = (warningMinutes: number) => {
+  const setWarningMinutes = useCallback((warningMinutes: number) => {
     setDraft((current) => {
       const next = { ...current, warningMinutes };
       if (next.hardBlockMinutes < warningMinutes) {
@@ -58,19 +63,19 @@ export const useConfigureLimits = (packageName: string): UseConfigureLimitsResul
       }
       return next;
     });
-  };
+  }, []);
 
-  const setHardBlockMinutes = (hardBlockMinutes: number) => {
+  const setHardBlockMinutes = useCallback((hardBlockMinutes: number) => {
     setDraft((current) => ({ ...current, hardBlockMinutes }));
-  };
+  }, []);
 
-  const setStrictMode = (strictMode: boolean) => {
+  const setStrictMode = useCallback((strictMode: boolean) => {
     setDraft((current) => ({ ...current, strictMode }));
-  };
+  }, []);
 
-  const save = () => {
+  const save = useCallback(() => {
     setStoredLimits(packageName, normalizeAppLimits(draft));
-  };
+  }, [draft, packageName, setStoredLimits]);
 
   const limitMsToday = draft.hardBlockMinutes * MS_PER_MINUTE;
 

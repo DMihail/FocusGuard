@@ -1,6 +1,6 @@
 /** @format */
 
-import React from 'react';
+import React, { memo } from 'react';
 import { Image, type ImageStyle, Text, type TextStyle, View, type ViewStyle } from 'react-native';
 
 import { iconBoxPresets, textPresets } from '@/theme';
@@ -24,7 +24,8 @@ const imageSizeByPreset: Record<AppIconSize, ImageStyle> = {
 
 const getAppNameInitial = (appName: string): string => appName.charAt(0).toUpperCase();
 
-export const AppIcon = ({ appName, appImage, size = 'md', boxStyle, imageStyle, fallbackStyle }: AppIconProps) => (
+/** Renders a launchable app icon from a base64/URI source, or a letter fallback. */
+export const AppIcon = memo(({ appName, appImage, size = 'md', boxStyle, imageStyle, fallbackStyle }: AppIconProps) => (
   <View style={[iconBoxPresets[size], boxStyle]}>
     {appImage ? (
       <Image source={{ uri: appImage }} style={[imageSizeByPreset[size], imageStyle]} resizeMode="cover" />
@@ -32,4 +33,6 @@ export const AppIcon = ({ appName, appImage, size = 'md', boxStyle, imageStyle, 
       <Text style={[textPresets.iconFallbackLg, fallbackStyle]}>{getAppNameInitial(appName)}</Text>
     )}
   </View>
-);
+));
+
+AppIcon.displayName = 'AppIcon';

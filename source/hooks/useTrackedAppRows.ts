@@ -9,6 +9,23 @@ import { getAppsUsageStats } from '@/specs/NativeUsageStats';
 import { appLimitsStore, selectedAppsStore } from '@/store';
 import { buildDashboardAppRows, type DashboardAppRow } from '@/utils/usage/dashboardStats';
 
+const hasUsageChanged = (previous: Record<string, number>, next: Record<string, number>): boolean => {
+  const previousKeys = Object.keys(previous);
+  const nextKeys = Object.keys(next);
+
+  if (previousKeys.length !== nextKeys.length) {
+    return true;
+  }
+
+  return nextKeys.some((key) => previous[key] !== next[key]);
+};
+
+/**
+ * Loads selected apps with today's usage and limit metadata for Dashboard and Tracked Apps.
+ *
+ * Refreshes usage stats on screen focus and when the app returns to the foreground.
+ * Skips React state updates when native usage values are unchanged.
+ */
 export const useTrackedAppRows = (): {
   appRows: DashboardAppRow[];
   refreshUsage: () => void;
@@ -22,18 +39,18 @@ export const useTrackedAppRows = (): {
     const packages = new Set(selectedApps.map((app) => app.packageName));
 
     if (packages.size === 0) {
-      setUsageByPackage({});
+      setUsageByPackage((previous) => (Object.keys(previous).length === 0 ? previous : {}));
       return;
     }
 
     const stats = getAppsUsageStats();
-    setUsageByPackage(
-      Object.fromEntries(
-        stats
-          .filter((item) => packages.has(item.packageName))
-          .map((item) => [item.packageName, item.totalTimeForeground]),
-      ),
+    const nextUsage = Object.fromEntries(
+      stats
+        .filter((item) => packages.has(item.packageName))
+        .map((item) => [item.packageName, item.totalTimeForeground]),
     );
+
+    setUsageByPackage((previous) => (hasUsageChanged(previous, nextUsage) ? nextUsage : previous));
   }, [selectedApps]);
 
   useFocusEffect(

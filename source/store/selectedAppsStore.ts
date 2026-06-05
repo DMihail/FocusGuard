@@ -6,6 +6,7 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 import { zustandStorage } from './mmkv';
 import type { SelectedAppsStore } from './types';
 
+/** Persisted list of user-selected apps to track and limit. */
 export const selectedAppsStore = create<SelectedAppsStore>()(
   persist(
     (set, get) => ({
