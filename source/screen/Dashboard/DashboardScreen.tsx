@@ -1,23 +1,24 @@
 /** @format */
 
 import React, { useCallback, useMemo } from 'react';
-import { RefreshControl, ScrollView } from 'react-native';
+import { FlatList, RefreshControl } from 'react-native';
 
+import { SECTION_SCROLL_FLAT_LIST_PROPS } from '@/list';
 import { useRootNavigation } from '@/navigation';
 import { testIds } from '@/testing/testIds';
 import { colors } from '@/theme';
 
 import { useDashboard } from './hooks';
+import {
+  createDashboardSectionRenderItem,
+  DASHBOARD_SECTIONS,
+  dashboardSectionKeyExtractor,
+  type DashboardSectionRenderContext,
+} from './list';
 import { dashboardStyles } from './styles';
 import { getGreeting } from './utils';
 
-import {
-  DailyStatsRow,
-  DashboardHeader,
-  DistractingAppsSection,
-  FocusOverviewCard,
-  QuickActionsSection,
-} from './components';
+import { DashboardHeader } from './components';
 import { ScreenSafeArea } from '@/components';
 
 export const DashboardScreen = () => {
@@ -47,42 +48,65 @@ export const DashboardScreen = () => {
     navigation.navigate('TrackedApps');
   }, [navigation]);
 
+  const sectionContext = useMemo<DashboardSectionRenderContext>(
+    () => ({
+      summary,
+      appRows,
+      isMonitoring,
+      hasSelectedApps,
+      monitoringSubtitle,
+      onConfigureLimits: openConfigureLimits,
+      onViewAllPress: openTrackedApps,
+      onToggleMonitoring: toggleMonitoring,
+      onOpenManageApps: openManageApps,
+    }),
+    [
+      appRows,
+      hasSelectedApps,
+      isMonitoring,
+      monitoringSubtitle,
+      openConfigureLimits,
+      openManageApps,
+      openTrackedApps,
+      summary,
+      toggleMonitoring,
+    ],
+  );
+
+  const renderItem = useMemo(() => createDashboardSectionRenderItem(sectionContext), [sectionContext]);
+
+  const listHeader = useMemo(
+    () => <DashboardHeader greeting={greeting} onSettingsPress={openSettings} />,
+    [greeting, openSettings],
+  );
+
+  const refreshControl = useMemo(
+    () => (
+      <RefreshControl
+        refreshing={refreshing}
+        onRefresh={onRefresh}
+        tintColor={colors.accent}
+        colors={[colors.accent]}
+        progressBackgroundColor={colors.surfaceDark}
+      />
+    ),
+    [onRefresh, refreshing],
+  );
+
   return (
     <ScreenSafeArea style={dashboardStyles.screen} testID={testIds.dashboard.screen} accessibilityLabel="Dashboard">
-      <ScrollView
+      <FlatList
         testID={testIds.dashboard.scroll}
+        data={DASHBOARD_SECTIONS}
+        renderItem={renderItem}
+        keyExtractor={dashboardSectionKeyExtractor}
+        ListHeaderComponent={listHeader}
         contentContainerStyle={dashboardStyles.scrollContent}
         showsVerticalScrollIndicator={false}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={onRefresh}
-            tintColor={colors.accent}
-            colors={[colors.accent]}
-            progressBackgroundColor={colors.surfaceDark}
-          />
-        }
-      >
-        <DashboardHeader greeting={greeting} onSettingsPress={openSettings} />
-
-        <FocusOverviewCard summary={summary} />
-
-        <DailyStatsRow summary={summary} />
-
-        <DistractingAppsSection
-          appRows={appRows}
-          onConfigureLimits={openConfigureLimits}
-          onViewAllPress={openTrackedApps}
-        />
-
-        <QuickActionsSection
-          isMonitoring={isMonitoring}
-          canStartFocusMode={hasSelectedApps}
-          monitoringSubtitle={monitoringSubtitle}
-          onToggleMonitoring={toggleMonitoring}
-          onOpenManageApps={openManageApps}
-        />
-      </ScrollView>
+        refreshControl={refreshControl}
+        extraData={sectionContext}
+        {...SECTION_SCROLL_FLAT_LIST_PROPS}
+      />
     </ScreenSafeArea>
   );
 };

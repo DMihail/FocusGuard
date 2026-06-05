@@ -18,3 +18,19 @@ export const CHIP_ROW_FLAT_LIST_PROPS = {
   windowSize: 5,
   removeClippedSubviews: true,
 } as const satisfies Partial<FlatListProps<unknown>>;
+
+/** Fixed vertical section stacks (dashboard sections, nested app rows). */
+export const SECTION_SCROLL_FLAT_LIST_PROPS = {
+  initialNumToRender: 4,
+  maxToRenderPerBatch: 4,
+  windowSize: 5,
+  removeClippedSubviews: false,
+  keyboardShouldPersistTaps: 'handled',
+} as const satisfies Partial<FlatListProps<unknown>>;
+
+/** Nested non-scrollable lists inside a parent scroller. */
+export const NESTED_FLAT_LIST_PROPS = {
+  scrollEnabled: false,
+  removeClippedSubviews: false,
+  keyboardShouldPersistTaps: 'handled',
+} as const satisfies Partial<FlatListProps<unknown>>;

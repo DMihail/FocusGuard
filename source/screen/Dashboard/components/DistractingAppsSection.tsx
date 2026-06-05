@@ -1,16 +1,16 @@
 /** @format */
 
 import React, { memo, useLayoutEffect, useMemo, useRef } from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { FlatList, Pressable, Text, View } from 'react-native';
 
+import { NESTED_FLAT_LIST_PROPS } from '@/list';
 import { testIds } from '@/testing/testIds';
 import { configureSectionLayoutAnimation } from '@/utils/layoutAnimation';
 import type { DashboardAppRow } from '@/utils/usage/dashboardStats';
 
-import { DistractingAppsListEmpty } from '../list';
+import { createDashboardAppRowRenderItem } from '../list/appRowRenderers';
+import { DistractingAppsListEmpty } from '../list/empty';
 import { dashboardStyles } from '../styles';
-
-import { AppUsageRow } from '@/components';
 
 const MAX_VISIBLE_APPS = 4;
 
@@ -30,6 +30,8 @@ function DistractingAppsSectionView({ appRows, onConfigureLimits, onViewAllPress
       previousAppsCount.current = visibleApps.length;
     }
   }, [visibleApps.length]);
+
+  const renderItem = useMemo(() => createDashboardAppRowRenderItem(onConfigureLimits), [onConfigureLimits]);
 
   return (
     <View
@@ -55,18 +57,18 @@ function DistractingAppsSectionView({ appRows, onConfigureLimits, onViewAllPress
         ) : null}
       </View>
 
-      <View
-        style={dashboardStyles.appsList}
+      <FlatList
+        data={visibleApps}
+        renderItem={renderItem}
+        keyExtractor={(item) => item.packageName}
+        ListEmptyComponent={DistractingAppsListEmpty}
+        contentContainerStyle={dashboardStyles.appsList}
         testID={testIds.dashboard.appsList}
         accessibilityRole="list"
         accessibilityLabel="Selected distracting apps"
-      >
-        {visibleApps.length === 0 ? (
-          <DistractingAppsListEmpty />
-        ) : (
-          visibleApps.map((row) => <AppUsageRow key={row.packageName} {...row} onPress={onConfigureLimits} />)
-        )}
-      </View>
+        extraData={onConfigureLimits}
+        {...NESTED_FLAT_LIST_PROPS}
+      />
     </View>
   );
 }
