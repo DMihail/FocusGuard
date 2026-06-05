@@ -3,8 +3,6 @@
 import React, { useCallback, useMemo } from 'react';
 import { FlatList, RefreshControl } from 'react-native';
 
-import { SafeAreaView } from 'react-native-safe-area-context';
-
 import { useGoBack } from '@/hooks/useGoBack';
 import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { useTrackedAppRows } from '@/hooks/useTrackedAppRows';
@@ -17,6 +15,7 @@ import { createTrackedAppRenderItem, trackedAppKeyExtractor } from './list';
 import { trackedAppsStyles } from './styles';
 
 import { TrackedAppsEmpty, TrackedAppsHeader } from './components';
+import { ScreenSafeArea } from '@/components';
 
 export const TrackedAppsScreen = () => {
   const goBack = useGoBack();
@@ -32,9 +31,8 @@ export const TrackedAppsScreen = () => {
   );
 
   return (
-    <SafeAreaView
+    <ScreenSafeArea
       style={trackedAppsStyles.screen}
-      edges={['top', 'bottom']}
       testID={testIds.trackedApps.screen}
       accessibilityLabel="Tracked apps"
     >
@@ -60,6 +58,6 @@ export const TrackedAppsScreen = () => {
         }
         {...APP_LIST_FLAT_LIST_PROPS}
       />
-    </SafeAreaView>
+    </ScreenSafeArea>
   );
 };

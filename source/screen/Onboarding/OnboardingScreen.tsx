@@ -3,20 +3,19 @@
 import React from 'react';
 import { View } from 'react-native';
 
-import { SafeAreaView } from 'react-native-safe-area-context';
-
 import { testIds } from '@/testing/testIds';
 
 import { useOnboardingPager } from './hooks/useOnboardingPager';
 import { onboardingStyles } from './styles';
 
 import { OnboardingFooter, OnboardingHeader, WalkthroughPager } from './components';
+import { ScreenSafeArea } from '@/components';
 
 export const OnboardingScreen = () => {
   const pager = useOnboardingPager();
 
   return (
-    <SafeAreaView style={onboardingStyles.screen} edges={['top', 'bottom']} testID={testIds.onboarding.screen}>
+    <ScreenSafeArea style={onboardingStyles.screen} testID={testIds.onboarding.screen}>
       <OnboardingHeader indicatorProps={pager.indicatorProps} onSkip={pager.onSkip} />
 
       <View
@@ -41,6 +40,6 @@ export const OnboardingScreen = () => {
         indicatorProps={pager.indicatorProps}
         onContinue={pager.handleContinue}
       />
-    </SafeAreaView>
+    </ScreenSafeArea>
   );
 };

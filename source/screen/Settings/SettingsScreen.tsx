@@ -3,8 +3,6 @@
 import React, { useCallback } from 'react';
 import { ScrollView, View } from 'react-native';
 
-import { SafeAreaView } from 'react-native-safe-area-context';
-
 import { useGoBack } from '@/hooks/useGoBack';
 import { useRootNavigation } from '@/navigation';
 import type { LegalDocumentId } from '@/screen/Legal';
@@ -22,6 +20,7 @@ import {
   SettingsSection,
   SettingsToggleRow,
 } from './components';
+import { ScreenSafeArea } from '@/components';
 
 export const SettingsScreen = () => {
   const navigation = useRootNavigation();
@@ -39,12 +38,7 @@ export const SettingsScreen = () => {
   const openTermsPrivacy = useCallback(() => openLegalDocument('termsPrivacy'), [openLegalDocument]);
 
   return (
-    <SafeAreaView
-      style={settingsStyles.screen}
-      edges={['top', 'bottom']}
-      testID={testIds.settings.screen}
-      accessibilityLabel="Settings"
-    >
+    <ScreenSafeArea style={settingsStyles.screen} testID={testIds.settings.screen} accessibilityLabel="Settings">
       <ScrollView
         testID={testIds.settings.scroll}
         contentContainerStyle={settingsStyles.scrollContent}
@@ -70,6 +64,6 @@ export const SettingsScreen = () => {
 
         <SettingsFooter onTermsPress={openTermsPrivacy} />
       </ScrollView>
-    </SafeAreaView>
+    </ScreenSafeArea>
   );
 };

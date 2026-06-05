@@ -3,8 +3,6 @@
 import React, { useCallback, useMemo } from 'react';
 import { RefreshControl, ScrollView } from 'react-native';
 
-import { SafeAreaView } from 'react-native-safe-area-context';
-
 import { useRootNavigation } from '@/navigation';
 import { testIds } from '@/testing/testIds';
 import { colors } from '@/theme';
@@ -20,6 +18,7 @@ import {
   FocusOverviewCard,
   QuickActionsSection,
 } from './components';
+import { ScreenSafeArea } from '@/components';
 
 export const DashboardScreen = () => {
   const navigation = useRootNavigation();
@@ -49,12 +48,7 @@ export const DashboardScreen = () => {
   }, [navigation]);
 
   return (
-    <SafeAreaView
-      style={dashboardStyles.screen}
-      edges={['top', 'bottom']}
-      testID={testIds.dashboard.screen}
-      accessibilityLabel="Dashboard"
-    >
+    <ScreenSafeArea style={dashboardStyles.screen} testID={testIds.dashboard.screen} accessibilityLabel="Dashboard">
       <ScrollView
         testID={testIds.dashboard.scroll}
         contentContainerStyle={dashboardStyles.scrollContent}
@@ -89,6 +83,6 @@ export const DashboardScreen = () => {
           onOpenManageApps={openManageApps}
         />
       </ScrollView>
-    </SafeAreaView>
+    </ScreenSafeArea>
   );
 };

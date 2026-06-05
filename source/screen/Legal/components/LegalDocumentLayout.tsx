@@ -3,8 +3,6 @@
 import React, { useCallback, useMemo } from 'react';
 import { FlatList, Pressable, Text, View } from 'react-native';
 
-import { SafeAreaView } from 'react-native-safe-area-context';
-
 import { BackIcon } from '@/assets/svg/ManageApps';
 import { APP_LIST_FLAT_LIST_PROPS } from '@/list';
 import { useRootNavigation } from '@/navigation';
@@ -12,6 +10,8 @@ import { useRootNavigation } from '@/navigation';
 import { legalSectionKeyExtractor, renderLegalSectionItem } from '../list';
 import { legalStyles } from '../styles';
 import type { LegalDocument } from '../types';
+
+import { ScreenSafeArea } from '@/components';
 
 type LegalDocumentLayoutProps = {
   document: LegalDocument;
@@ -65,7 +65,7 @@ export const LegalDocumentLayout = ({
   );
 
   return (
-    <SafeAreaView style={legalStyles.screen} edges={['top', 'bottom']} testID={screenTestId}>
+    <ScreenSafeArea style={legalStyles.screen} testID={screenTestId}>
       <FlatList
         testID={scrollTestId}
         data={document.sections}
@@ -79,6 +79,6 @@ export const LegalDocumentLayout = ({
         accessibilityLabel={document.title}
         {...APP_LIST_FLAT_LIST_PROPS}
       />
-    </SafeAreaView>
+    </ScreenSafeArea>
   );
 };

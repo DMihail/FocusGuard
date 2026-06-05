@@ -3,8 +3,6 @@
 import React from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 
-import { SafeAreaView } from 'react-native-safe-area-context';
-
 import { LIMIT_SLIDER_BOUNDS } from '@/store';
 import { testIds } from '@/testing/testIds';
 
@@ -18,6 +16,7 @@ import { ConfigureLimitsHeader } from './components/ConfigureLimitsHeader';
 import { DailyUsageCard } from './components/DailyUsageCard';
 import { LimitSliderCard } from './components/LimitSliderCard';
 import { StrictModeCard } from './components/StrictModeCard';
+import { ScreenSafeArea } from '@/components';
 
 export const ConfigureLimitsScreen = ({ route }: ConfigureLimitsScreenProps) => {
   const { packageName } = route.params;
@@ -36,14 +35,14 @@ export const ConfigureLimitsScreen = ({ route }: ConfigureLimitsScreenProps) => 
 
   if (!app) {
     return (
-      <SafeAreaView style={styles.screen} edges={['top', 'bottom']}>
+      <ScreenSafeArea style={styles.screen}>
         <ConfigureLimitsHeader appName="Unknown app" onBack={goBack} />
-      </SafeAreaView>
+      </ScreenSafeArea>
     );
   }
 
   return (
-    <SafeAreaView style={styles.screen} edges={['top', 'bottom']} testID={testIds.configureLimits.screen}>
+    <ScreenSafeArea style={styles.screen} testID={testIds.configureLimits.screen}>
       <ScrollView
         testID={testIds.configureLimits.scroll}
         contentContainerStyle={styles.scrollContent}
@@ -106,6 +105,6 @@ export const ConfigureLimitsScreen = ({ route }: ConfigureLimitsScreenProps) => 
           </Pressable>
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </ScreenSafeArea>
   );
 };

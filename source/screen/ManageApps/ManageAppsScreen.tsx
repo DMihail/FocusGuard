@@ -3,7 +3,6 @@
 import React, { useCallback, useMemo } from 'react';
 
 import { useFocusEffect } from '@react-navigation/native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useGoBack } from '@/hooks/useGoBack';
 import { useNavigateToConfigureLimits } from '@/navigation/hooks/useNavigateToConfigureLimits';
@@ -14,6 +13,7 @@ import { manageAppsStyles } from './styles';
 
 import { ManageAppsHeader, ManageAppsList } from './components';
 import { ManageAppsListHeader } from './components/ManageAppsListHeader';
+import { ScreenSafeArea } from '@/components';
 
 export const ManageAppsScreen = () => {
   const goBack = useGoBack();
@@ -55,9 +55,8 @@ export const ManageAppsScreen = () => {
   );
 
   return (
-    <SafeAreaView
+    <ScreenSafeArea
       style={manageAppsStyles.screen}
-      edges={['top', 'bottom']}
       testID={testIds.manageApps.screen}
       accessibilityLabel="Manage apps screen"
     >
@@ -72,6 +71,6 @@ export const ManageAppsScreen = () => {
         onSearchChange={setSearchQuery}
         ListHeaderComponent={listHeader}
       />
-    </SafeAreaView>
+    </ScreenSafeArea>
   );
 };
