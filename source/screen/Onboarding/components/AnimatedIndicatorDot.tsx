@@ -1,7 +1,15 @@
 /** @format */
 
 import React from 'react';
-import { Animated, type Animated as AnimatedNamespace, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+
+import Animated, {
+  Extrapolation,
+  interpolate,
+  type SharedValue,
+  useAnimatedStyle,
+  useDerivedValue,
+} from 'react-native-reanimated';
 
 import { borderRadius, colors } from '@/theme';
 
@@ -21,43 +29,48 @@ const VARIANT_CONFIG = {
 } as const;
 
 type AnimatedIndicatorDotProps = {
-  progress: AnimatedNamespace.AnimatedInterpolation<number>;
+  scrollX: SharedValue<number>;
+  index: number;
+  pageWidth: number;
   variant: IndicatorVariant;
 };
 
-export const AnimatedIndicatorDot = ({ progress, variant }: AnimatedIndicatorDotProps) => {
+export const AnimatedIndicatorDot = ({ scrollX, index, pageWidth, variant }: AnimatedIndicatorDotProps) => {
   const config = VARIANT_CONFIG[variant];
   const minScale = config.inactiveWidth / config.activeWidth;
 
-  const scaleX = progress.interpolate({
-    inputRange: [0, 1],
-    outputRange: [minScale, 1],
+  const dotProgress = useDerivedValue(() => {
+    if (pageWidth <= 0) {
+      return index === 0 ? 1 : 0;
+    }
+
+    return interpolate(
+      scrollX.value,
+      [(index - 1) * pageWidth, index * pageWidth, (index + 1) * pageWidth],
+      [0, 1, 0],
+      Extrapolation.CLAMP,
+    );
   });
 
-  const activeOpacity = progress.interpolate({
-    inputRange: [0, 0.5, 1],
-    outputRange: [0, 0, 1],
-  });
+  const dotStyle = useAnimatedStyle(() => ({
+    width: config.activeWidth,
+    height: config.height,
+    transform: [{ scaleX: interpolate(dotProgress.value, [0, 1], [minScale, 1]) }],
+  }));
 
-  const inactiveOpacity = progress.interpolate({
-    inputRange: [0, 0.5, 1],
-    outputRange: [1, 0, 0],
-  });
+  const inactiveOpacityStyle = useAnimatedStyle(() => ({
+    opacity: interpolate(dotProgress.value, [0, 0.5, 1], [1, 0, 0]),
+  }));
+
+  const activeOpacityStyle = useAnimatedStyle(() => ({
+    opacity: interpolate(dotProgress.value, [0, 0.5, 1], [0, 0, 1]),
+  }));
 
   return (
-    <Animated.View
-      style={[
-        styles.dot,
-        {
-          width: config.activeWidth,
-          height: config.height,
-          transform: [{ scaleX }],
-        },
-      ]}
-    >
+    <Animated.View style={[styles.dot, dotStyle]}>
       <View style={[styles.layer, { backgroundColor: colors.indicatorInactive }]} />
-      <Animated.View style={[styles.layer, { backgroundColor: colors.indicatorInactive, opacity: inactiveOpacity }]} />
-      <Animated.View style={[styles.layer, { backgroundColor: colors.accent, opacity: activeOpacity }]} />
+      <Animated.View style={[styles.layer, { backgroundColor: colors.indicatorInactive }, inactiveOpacityStyle]} />
+      <Animated.View style={[styles.layer, { backgroundColor: colors.accent }, activeOpacityStyle]} />
     </Animated.View>
   );
 };

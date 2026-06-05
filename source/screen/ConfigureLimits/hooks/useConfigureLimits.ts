@@ -5,7 +5,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 
 import { useAppStateOnActive } from '@/hooks/useAppStateOnActive';
-import { getAppsUsageStats } from '@/specs/NativeUsageStats';
+import { getPackageUsageToday } from '@/specs/NativeUsageStats';
 import {
   type AppLimits,
   appLimitsStore,
@@ -33,9 +33,8 @@ export const useConfigureLimits = (packageName: string): UseConfigureLimitsResul
   const [usedMsToday, setUsedMsToday] = useState(0);
 
   const refreshUsage = useCallback(() => {
-    const stats = getAppsUsageStats();
-    const match = stats.find((item) => item.packageName === packageName);
-    setUsedMsToday(match?.totalTimeForeground ?? 0);
+    const nextUsage = getPackageUsageToday(packageName);
+    setUsedMsToday((previous) => (previous === nextUsage ? previous : nextUsage));
   }, [packageName]);
 
   useFocusEffect(

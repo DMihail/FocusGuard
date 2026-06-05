@@ -7,6 +7,7 @@ import com.focusguard.apps.InstalledAppsRepository
 import com.focusguard.apps.UsageStatsCatalogRepository
 import com.focusguard.bridge.PermissionsLifecycleBinding
 import com.focusguard.bridge.ReactBridgeMappers
+import com.focusguard.DailyUsageRepository
 import com.focusguard.monitor.MonitorPermissions
 import com.focusguard.monitor.MonitorServiceHelper
 import com.focusguard.permissions.PermissionChecker
@@ -29,6 +30,7 @@ class NativeUsageStatsModule(
       PermissionRequester(appContext) { reactApplicationContext.currentActivity }
   private val installedAppsRepository = InstalledAppsRepository(appContext)
   private val usageStatsCatalogRepository = UsageStatsCatalogRepository(appContext)
+  private val dailyUsageRepository = DailyUsageRepository(appContext)
 
   private val permissionsLifecycleBinding =
       PermissionsLifecycleBinding(::emitPermissionsChanged)
@@ -98,6 +100,9 @@ class NativeUsageStatsModule(
 
   override fun getAppsUsageStats(): WritableArray =
       ReactBridgeMappers.toUsageStatsArray(usageStatsCatalogRepository.getTodayUsage())
+
+  override fun getPackageUsageToday(packageName: String): Double =
+      dailyUsageRepository.getTodayForegroundMs(packageName).toDouble()
 
   override fun getAppDisplayName(): String = AppInfo.getDisplayName(appContext)
 

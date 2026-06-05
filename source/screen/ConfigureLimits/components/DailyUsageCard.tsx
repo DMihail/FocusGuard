@@ -29,6 +29,11 @@ export const DailyUsageCard = ({ packageName, usedMs, limitMs }: DailyUsageCardP
         {formatUsagePair(usedMs, limitMs)}
       </Text>
       <Text style={styles.dailyUsageHint}>Daily limit applies until midnight</Text>
+      {isOverLimit ? (
+        <Text style={styles.dailyUsageOverHint}>
+          Already over today&apos;s limit — the app will be blocked on next open while monitoring is on.
+        </Text>
+      ) : null}
       <ProgressBar
         progress={barProgress}
         fillColor={isOverLimit ? colors.overLimit : colors.accent}

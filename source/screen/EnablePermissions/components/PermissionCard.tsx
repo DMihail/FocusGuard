@@ -1,7 +1,9 @@
 /** @format */
 
 import React, { memo } from 'react';
-import { Animated, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+
+import Animated from 'react-native-reanimated';
 
 import { CheckIcon } from '@/assets/svg/EnablePermissions';
 import { testIds } from '@/testing/testIds';
@@ -18,11 +20,11 @@ type PermissionCardProps = PermissionItem & {
 /** Animated permission card with grant action and granted-state transition. */
 export const PermissionCard = memo(({ id, title, description, status, Icon, onGrant }: PermissionCardProps) => {
   const {
-    grantedOverlayOpacity,
-    pendingIconOpacity,
-    grantedIconOpacity,
+    grantedOverlayStyle,
+    pendingIconStyle,
+    grantedIconStyle,
     badgeStyle,
-    grantButtonOpacity,
+    grantButtonStyle,
     collapsed,
     isGranted,
   } = usePermissionCardAnimation(status);
@@ -30,19 +32,17 @@ export const PermissionCard = memo(({ id, title, description, status, Icon, onGr
   return (
     <View testID={testIds.enablePermissions.permissionCard(id)} style={styles.cardWrapper}>
       <View style={[permissionsStyles.card, styles.cardPending]} />
-      <Animated.View style={[permissionsStyles.card, styles.cardGranted, { opacity: grantedOverlayOpacity }]} />
+      <Animated.View style={[permissionsStyles.card, styles.cardGranted, grantedOverlayStyle]} />
 
       <View style={styles.cardContent}>
         <View style={permissionsStyles.cardRow}>
           <View style={styles.iconBoxWrapper}>
             <View style={[permissionsStyles.iconBox, styles.iconBoxPending]} />
-            <Animated.View
-              style={[permissionsStyles.iconBox, styles.iconBoxGranted, { opacity: grantedOverlayOpacity }]}
-            />
-            <Animated.View style={[permissionsStyles.iconLayer, { opacity: pendingIconOpacity }]}>
+            <Animated.View style={[permissionsStyles.iconBox, styles.iconBoxGranted, grantedOverlayStyle]} />
+            <Animated.View style={[permissionsStyles.iconLayer, pendingIconStyle]}>
               <Icon stroke={colors.accent} />
             </Animated.View>
-            <Animated.View style={[permissionsStyles.iconLayer, { opacity: grantedIconOpacity }]}>
+            <Animated.View style={[permissionsStyles.iconLayer, grantedIconStyle]}>
               <Icon stroke={colors.success} />
             </Animated.View>
           </View>
@@ -63,7 +63,7 @@ export const PermissionCard = memo(({ id, title, description, status, Icon, onGr
 
             {onGrant && !collapsed ? (
               <Animated.View
-                style={[permissionsStyles.grantButtonContainer, { opacity: grantButtonOpacity }]}
+                style={[permissionsStyles.grantButtonContainer, grantButtonStyle]}
                 pointerEvents={isGranted ? 'none' : 'auto'}
               >
                 <Pressable

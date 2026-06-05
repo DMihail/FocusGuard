@@ -1,9 +1,10 @@
 /** @format */
 
 import { useMemo, useRef, useState } from 'react';
-import { Animated, type NativeScrollEvent, type NativeSyntheticEvent, useWindowDimensions } from 'react-native';
+import { type NativeScrollEvent, type NativeSyntheticEvent, useWindowDimensions } from 'react-native';
 
 import type { FlatList } from 'react-native';
+import { useAnimatedScrollHandler, useSharedValue } from 'react-native-reanimated';
 
 import { useRootNavigation } from '@/navigation';
 import { onboardingStore } from '@/store/onboardingStore';
@@ -20,11 +21,12 @@ import {
 const STEP_COUNT = WALKTHROUGH_STEPS.length;
 const LAST_STEP_INDEX = STEP_COUNT - 1;
 
+/** Onboarding pager state with Reanimated-driven scroll indicator. */
 export const useOnboardingPager = () => {
   const navigation = useRootNavigation();
   const { width: windowWidth } = useWindowDimensions();
   const listRef = useRef<FlatList<WalkthroughStepData>>(null);
-  const scrollX = useRef(new Animated.Value(0)).current;
+  const scrollX = useSharedValue(0);
   const [step, setStep] = useState(0);
   const [pageWidth, setPageWidth] = useState(windowWidth);
 
@@ -39,13 +41,11 @@ export const useOnboardingPager = () => {
       }
     : null;
 
-  const handleScroll = useMemo(
-    () =>
-      Animated.event([{ nativeEvent: { contentOffset: { x: scrollX } } }], {
-        useNativeDriver: true,
-      }),
-    [scrollX],
-  );
+  const handleScroll = useAnimatedScrollHandler({
+    onScroll: (event) => {
+      scrollX.value = event.contentOffset.x;
+    },
+  });
 
   const handleMomentumScrollEnd = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const nextStep = getStepFromOffset(event.nativeEvent.contentOffset.x, pageWidth, LAST_STEP_INDEX);

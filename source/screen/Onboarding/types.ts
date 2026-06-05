@@ -1,9 +1,9 @@
 /** @format */
 
-import type { Animated } from 'react-native';
+import type { SharedValue } from 'react-native-reanimated';
 
 export type ScrollIndicatorProps = {
   count: number;
-  scrollX: Animated.Value;
+  scrollX: SharedValue<number>;
   pageWidth: number;
 };

@@ -92,6 +92,10 @@ export const configureLimitsStyles = StyleSheet.create({
     ...typography.caption,
     color: colors.textMuted,
   },
+  dailyUsageOverHint: {
+    ...typography.caption,
+    color: colors.overLimit,
+  },
   dailyUsageProgress: {
     marginTop: spacing.sm,
   },

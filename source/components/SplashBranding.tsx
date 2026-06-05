@@ -1,7 +1,9 @@
 /** @format */
 
-import React, { memo, useMemo } from 'react';
-import { Animated, type Animated as AnimatedNamespace, StyleSheet, Text, View } from 'react-native';
+import React, { memo } from 'react';
+import { StyleSheet, Text, View } from 'react-native';
+
+import Animated, { interpolate, type SharedValue, useAnimatedStyle } from 'react-native-reanimated';
 
 import { Shield } from '@/assets/svg/Onboarding';
 import { getAppDisplayName } from '@/constants/appDisplayName';
@@ -13,24 +15,18 @@ const SPLASH_DOT_COUNT = 3;
 const APP_TAGLINE = 'Reclaim your time, restore your focus';
 
 type SplashPulseDotProps = {
-  pulse: AnimatedNamespace.Value;
+  pulse: SharedValue<number>;
 };
 
 const SplashPulseDot = memo(({ pulse }: SplashPulseDotProps) => {
-  const animatedStyle = useMemo(
-    () => ({
-      opacity: pulse,
-      transform: [
-        {
-          scale: pulse.interpolate({
-            inputRange: [splashDotPulseMin, 1],
-            outputRange: [0.85, 1.15],
-          }),
-        },
-      ],
-    }),
-    [pulse],
-  );
+  const animatedStyle = useAnimatedStyle(() => ({
+    opacity: pulse.value,
+    transform: [
+      {
+        scale: interpolate(pulse.value, [splashDotPulseMin, 1], [0.85, 1.15]),
+      },
+    ],
+  }));
 
   return <Animated.View style={[styles.dot, animatedStyle]} />;
 });

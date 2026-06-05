@@ -3,6 +3,8 @@
 import React from 'react';
 import { Pressable, Text, View } from 'react-native';
 
+import { GestureDetector } from 'react-native-gesture-handler';
+
 import { useSliderTrackGesture } from '../hooks/useSliderTrackGesture';
 import { configureLimitsStyles as styles } from '../styles';
 import type { LimitSliderCardProps } from '../types';
@@ -29,7 +31,7 @@ export const LimitSliderCard = ({
     maxMinutes,
   );
 
-  const { trackRef, panHandlers, syncTrackMetrics } = useSliderTrackGesture({
+  const { trackRef, panGesture, handleTrackLayout } = useSliderTrackGesture({
     valueMinutes,
     minMinutes,
     progressMinMinutes: progressMin,
@@ -65,44 +67,45 @@ export const LimitSliderCard = ({
           <Text style={styles.sliderButtonLabel}>−</Text>
         </Pressable>
 
-        <View
-          ref={trackRef}
-          style={styles.sliderTrackTouch}
-          collapsable={false}
-          onLayout={syncTrackMetrics}
-          accessibilityRole="adjustable"
-          accessibilityLabel={title}
-          accessibilityHint="Drag horizontally on the track or tap to set the limit"
-          accessibilityValue={{ text: formatDurationMinutes(valueMinutes) }}
-          accessibilityActions={[
-            { name: 'increment', label: 'Increase' },
-            { name: 'decrement', label: 'Decrease' },
-          ]}
-          onAccessibilityAction={(event) => {
-            if (event.nativeEvent.actionName === 'increment') {
-              increase();
-            }
-            if (event.nativeEvent.actionName === 'decrement') {
-              decrease();
-            }
-          }}
-          {...panHandlers}
-        >
-          <View style={styles.sliderTrack}>
-            {showInactiveZone ? (
-              <View pointerEvents="none" style={[styles.sliderTrackInactive, { width: inactivePercent }]} />
-            ) : null}
-            <View
-              pointerEvents="none"
-              style={[styles.sliderFill, { width: progressPercent, backgroundColor: accentColor }]}
-            />
+        <GestureDetector gesture={panGesture}>
+          <View
+            ref={trackRef}
+            style={styles.sliderTrackTouch}
+            collapsable={false}
+            onLayout={handleTrackLayout}
+            accessibilityRole="adjustable"
+            accessibilityLabel={title}
+            accessibilityHint="Drag horizontally on the track or tap to set the limit"
+            accessibilityValue={{ text: formatDurationMinutes(valueMinutes) }}
+            accessibilityActions={[
+              { name: 'increment', label: 'Increase' },
+              { name: 'decrement', label: 'Decrease' },
+            ]}
+            onAccessibilityAction={(event) => {
+              if (event.nativeEvent.actionName === 'increment') {
+                increase();
+              }
+              if (event.nativeEvent.actionName === 'decrement') {
+                decrease();
+              }
+            }}
+          >
+            <View style={styles.sliderTrack}>
+              {showInactiveZone ? (
+                <View pointerEvents="none" style={[styles.sliderTrackInactive, { width: inactivePercent }]} />
+              ) : null}
+              <View
+                pointerEvents="none"
+                style={[styles.sliderFill, { width: progressPercent, backgroundColor: accentColor }]}
+              />
+            </View>
+            <View pointerEvents="none" style={styles.sliderThumbRail}>
+              <View style={[styles.sliderThumbSpacer, { flex: progress }]} />
+              <View style={[styles.sliderThumb, { backgroundColor: accentColor }]} />
+              <View style={{ flex: 1 - progress }} />
+            </View>
           </View>
-          <View pointerEvents="none" style={styles.sliderThumbRail}>
-            <View style={[styles.sliderThumbSpacer, { flex: progress }]} />
-            <View style={[styles.sliderThumb, { backgroundColor: accentColor }]} />
-            <View style={{ flex: 1 - progress }} />
-          </View>
-        </View>
+        </GestureDetector>
 
         <Pressable
           accessibilityRole="button"
