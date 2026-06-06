@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectResources">
+    <ignored-resource url="http://schemas.android.com/apk/res/android" />
+    <ignored-resource url="http://schemas.android.com/tools" />
+    <ignored-resource url="http://schemas.android.com/apk/res-auto" />
+  </component>
+</project>

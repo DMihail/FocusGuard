@@ -30,12 +30,28 @@ object OverlayAccess {
             return
         }
 
-        val intent =
-            Intent(
-                Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                Uri.parse("package:${context.packageName}"),
+        val packageUri = Uri.parse("package:${context.packageName}")
+
+        val intents =
+            listOf(
+                Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, packageUri),
+                Intent("miui.intent.action.APP_PERM_EDITOR").apply {
+                    setClassName(
+                        "com.miui.securitycenter",
+                        "com.miui.permcenter.permissions.PermissionsEditorActivity",
+                    )
+                    putExtra("extra_pkgname", context.packageName)
+                },
+                Intent("miui.intent.action.APP_PERM_EDITOR").apply {
+                    setClassName(
+                        "com.miui.securitycenter",
+                        "com.miui.permcenter.permissions.AppPermissionsEditorActivity",
+                    )
+                    putExtra("extra_pkgname", context.packageName)
+                },
             )
-        ActivityIntents.start(context, intent, activity)
+
+        ActivityIntents.startFirstAvailable(context, intents, activity)
     }
 
     private fun isSystemAlertWindowOpAllowed(context: Context): Boolean {
@@ -55,6 +71,8 @@ object OverlayAccess {
                     context.packageName,
                 )
             }
-        return mode == AppOpsManager.MODE_ALLOWED
+
+        return mode == AppOpsManager.MODE_ALLOWED ||
+            (mode == AppOpsManager.MODE_DEFAULT && Settings.canDrawOverlays(context))
     }
 }

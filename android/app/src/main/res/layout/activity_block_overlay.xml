@@ -1,42 +1,110 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#E61C1B1F"
-    android:gravity="center"
-    android:orientation="vertical"
-    android:padding="32dp">
+    android:background="@drawable/bg_block_overlay_scrim">
 
-    <TextView
-        android:id="@+id/block_overlay_title"
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:textColor="#E6E1E5"
-        android:textSize="24sp"
-        android:textStyle="bold" />
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        android:overScrollMode="never"
+        android:scrollbars="none">
 
-    <TextView
-        android:id="@+id/block_overlay_message"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:gravity="center"
-        android:textColor="#938F99"
-        android:textSize="16sp" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:paddingHorizontal="@dimen/spacing_xl"
+            android:paddingVertical="@dimen/spacing_xxl">
 
-    <Button
-        android:id="@+id/block_overlay_snooze"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
-        android:text="@string/block_overlay_snooze" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_block_overlay_card"
+                android:gravity="center_horizontal"
+                android:maxWidth="@dimen/block_card_max_width"
+                android:orientation="vertical"
+                android:paddingHorizontal="@dimen/spacing_xl"
+                android:paddingVertical="@dimen/spacing_xxl">
 
-    <Button
-        android:id="@+id/block_overlay_home"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:text="@string/block_overlay_home" />
+                <FrameLayout
+                    android:layout_width="@dimen/block_icon_box_size"
+                    android:layout_height="@dimen/block_icon_box_size"
+                    android:background="@drawable/bg_block_icon_box"
+                    android:elevation="4dp">
 
-</LinearLayout>
+                    <ImageView
+                        android:layout_width="@dimen/block_icon_size"
+                        android:layout_height="@dimen/block_icon_size"
+                        android:layout_gravity="center"
+                        android:contentDescription="@null"
+                        android:importantForAccessibility="no"
+                        android:src="@drawable/ic_splash_shield" />
+                </FrameLayout>
+
+                <TextView
+                    android:id="@+id/block_overlay_brand"
+                    style="@style/BlockOverlay.Brand"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/spacing_lg"
+                    android:text="@string/app_name" />
+
+                <TextView
+                    android:id="@+id/block_overlay_title"
+                    style="@style/BlockOverlay.Title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/spacing_sm"
+                    android:text="@string/block_overlay_title" />
+
+                <TextView
+                    android:id="@+id/block_overlay_subtitle"
+                    style="@style/BlockOverlay.Subtitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/spacing_sm"
+                    android:text="@string/block_overlay_subtitle" />
+
+                <TextView
+                    android:id="@+id/block_overlay_app_name"
+                    style="@style/BlockOverlay.AppBadge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/spacing_lg"
+                    android:background="@drawable/bg_block_app_badge"
+                    android:paddingHorizontal="@dimen/spacing_lg"
+                    android:paddingVertical="@dimen/spacing_sm" />
+
+                <TextView
+                    android:id="@+id/block_overlay_message"
+                    style="@style/BlockOverlay.Message"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/spacing_lg"
+                    android:text="@string/block_overlay_message" />
+
+                <TextView
+                    android:id="@+id/block_overlay_snooze"
+                    style="@style/BlockOverlay.Button.Secondary"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/block_button_height"
+                    android:layout_marginTop="@dimen/spacing_xxl"
+                    android:gravity="center"
+                    android:text="@string/block_overlay_snooze" />
+
+                <TextView
+                    android:id="@+id/block_overlay_home"
+                    style="@style/BlockOverlay.Button.Primary"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/block_button_height"
+                    android:layout_marginTop="@dimen/spacing_md"
+                    android:gravity="center"
+                    android:text="@string/block_overlay_home" />
+
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+</FrameLayout>
