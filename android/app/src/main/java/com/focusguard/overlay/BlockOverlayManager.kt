@@ -9,7 +9,6 @@ import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.WindowManager
-import android.widget.Button
 import android.widget.TextView
 import com.focusguard.R
 import com.focusguard.monitor.OverlayAccess
@@ -81,16 +80,11 @@ object BlockOverlayManager {
             ?: throw IllegalStateException("WindowManager unavailable")
 
         val view = LayoutInflater.from(context).inflate(R.layout.activity_block_overlay, null)
+        val resolvedAppName = appName.ifEmpty { context.getString(R.string.app_name) }
 
-        view.findViewById<TextView>(R.id.block_overlay_title).text =
-            context.getString(R.string.block_overlay_title)
-        view.findViewById<TextView>(R.id.block_overlay_message).text =
-            context.getString(
-                R.string.block_overlay_message,
-                appName.ifEmpty { context.getString(R.string.app_name) },
-            )
+        view.findViewById<TextView>(R.id.block_overlay_app_name).text = resolvedAppName
 
-        val snoozeButton = view.findViewById<Button>(R.id.block_overlay_snooze)
+        val snoozeButton = view.findViewById<TextView>(R.id.block_overlay_snooze)
         if (strictMode) {
             snoozeButton.visibility = View.GONE
         } else {
@@ -103,7 +97,7 @@ object BlockOverlayManager {
             }
         }
 
-        view.findViewById<Button>(R.id.block_overlay_home).setOnClickListener {
+        view.findViewById<TextView>(R.id.block_overlay_home).setOnClickListener {
             context.startActivity(
                 Intent(Intent.ACTION_MAIN).apply {
                     addCategory(Intent.CATEGORY_HOME)
