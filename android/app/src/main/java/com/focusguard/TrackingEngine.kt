@@ -3,7 +3,6 @@ package com.focusguard
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
-import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Handler
@@ -47,7 +46,9 @@ class TrackingEngine(
     private var foregroundCandidate: String? = null
     private var foregroundCandidateHits = 0
     private var foregroundMisses = 0
-    private var blockShown = false
+
+    /** Package currently over its hard block limit; overlay should stay until snooze or user leaves. */
+    private var activeBlockPackage: String? = null
 
     /** Starts the polling loop. No-op if already running. */
     fun start() {
@@ -71,7 +72,7 @@ class TrackingEngine(
         foregroundCandidate = null
         foregroundCandidateHits = 0
         foregroundMisses = 0
-        blockShown = false
+        activeBlockPackage = null
         liveUsageEstimator.clearSession()
         runOnMainThread { BlockOverlayManager.dismiss(context) }
     }
@@ -81,16 +82,9 @@ class TrackingEngine(
         val foregroundApp = resolveStableForeground(detector.getForegroundApp())
 
         if (foregroundApp == null) {
-            if (blockShown && stableForeground != null && isTrackedApp(stableForeground!!)) {
-                evaluateTrackedApp(stableForeground!!)
-                return
-            }
-
-            if (blockShown) {
-                runOnMainThread {
-                    BlockOverlayManager.dismiss(context)
-                    blockShown = false
-                }
+            val blockedPackage = activeBlockPackage
+            if (blockedPackage != null && isTrackedApp(blockedPackage)) {
+                evaluateTrackedApp(blockedPackage)
             }
             return
         }
@@ -100,17 +94,16 @@ class TrackingEngine(
         if (!isTrackedApp(foregroundApp)) {
             liveUsageEstimator.clearSession()
 
-            if (blockShown) {
-                runOnMainThread {
-                    BlockOverlayManager.dismiss(context)
-                    blockShown = false
-                }
+            if (activeBlockPackage != null && foregroundApp != activeBlockPackage) {
+                clearActiveBlock()
             }
             return
         }
 
         if (enteredNewForeground) {
-            blockShown = false
+            if (activeBlockPackage != null && activeBlockPackage != foregroundApp) {
+                clearActiveBlock()
+            }
             liveUsageEstimator.onTrackedAppForeground(foregroundApp)
         }
 
@@ -119,11 +112,8 @@ class TrackingEngine(
 
     private fun evaluateTrackedApp(packageName: String) {
         if (TrackingSnoozeStore.isSnoozed(packageName)) {
-            if (blockShown) {
-                runOnMainThread {
-                    BlockOverlayManager.dismiss(context)
-                    blockShown = false
-                }
+            if (activeBlockPackage == packageName) {
+                clearActiveBlock()
             }
             return
         }
@@ -131,26 +121,15 @@ class TrackingEngine(
         val limits = configRepository.getLimitConfig(packageName)
         val usedTodayMs = liveUsageEstimator.getEffectiveUsageMs(packageName)
 
-        // Compares full calendar-day usage (since midnight) against the current limit.
-        // Retroactive limits block on the next poll once usage >= hardBlockThresholdMs.
         if (usedTodayMs >= limits.hardBlockThresholdMs) {
             DailyWarningStore.markWarningShownToday(packageName)
-
-            if (!blockShown) {
-                logDebug(
-                    "Daily block for $packageName (${usedTodayMs / 60_000}m / ${limits.hardBlockThresholdMs / 60_000}m)",
-                )
-                runOnMainThread { showBlockOverlay(packageName, limits) }
-            }
-            blockShown = true
+            activeBlockPackage = packageName
+            ensureBlockOverlayVisible(packageName, limits)
             return
         }
 
-        if (blockShown) {
-            runOnMainThread {
-                BlockOverlayManager.dismiss(context)
-                blockShown = false
-            }
+        if (activeBlockPackage == packageName) {
+            clearActiveBlock()
         }
 
         if (
@@ -161,6 +140,42 @@ class TrackingEngine(
             showWarningNotification(packageName)
             DailyWarningStore.markWarningShownToday(packageName)
         }
+    }
+
+    private fun ensureBlockOverlayVisible(
+        packageName: String,
+        limits: TrackingConfigRepository.AppLimitConfig,
+    ) {
+        runOnMainThread {
+            val alreadyVisible =
+                BlockOverlayManager.isShowing() &&
+                    BlockOverlayManager.getShowingPackage() == packageName
+
+            if (alreadyVisible) {
+                return@runOnMainThread
+            }
+
+            logDebug(
+                "Daily block for $packageName (${liveUsageEstimator.getEffectiveUsageMs(packageName) / 60_000}m / ${limits.hardBlockThresholdMs / 60_000}m)",
+            )
+
+            val shown =
+                BlockOverlayManager.show(
+                    context,
+                    packageName,
+                    getAppLabel(packageName),
+                    limits.strictMode,
+                )
+
+            if (!shown) {
+                logDebug("Block overlay not visible for $packageName — will retry on next poll")
+            }
+        }
+    }
+
+    private fun clearActiveBlock() {
+        activeBlockPackage = null
+        runOnMainThread { BlockOverlayManager.dismiss(context) }
     }
 
     private fun resolveStableForeground(raw: String?): String? {
@@ -192,25 +207,6 @@ class TrackingEngine(
 
     private fun isTrackedApp(packageName: String): Boolean =
         configRepository.getTrackedApps().contains(packageName)
-
-    private fun showBlockOverlay(
-        packageName: String,
-        limits: TrackingConfigRepository.AppLimitConfig,
-    ) {
-        context.startActivity(
-            Intent(Intent.ACTION_MAIN).apply {
-                addCategory(Intent.CATEGORY_HOME)
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK
-            },
-        )
-
-        BlockOverlayManager.show(
-            context,
-            packageName,
-            getAppLabel(packageName),
-            limits.strictMode,
-        )
-    }
 
     private fun ensureWarningChannel() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
