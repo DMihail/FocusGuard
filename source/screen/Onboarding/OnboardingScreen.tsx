@@ -15,7 +15,7 @@ export const OnboardingScreen = () => {
   const pager = useOnboardingPager();
 
   return (
-    <ScreenSafeArea style={onboardingStyles.screen} testID={testIds.onboarding.screen}>
+    <ScreenSafeArea style={onboardingStyles.screen} testID={testIds.onboarding.screen} accessibilityLabel="Onboarding">
       <OnboardingHeader indicatorProps={pager.indicatorProps} onSkip={pager.onSkip} />
 
       <View style={onboardingStyles.pagerContainer} onLayout={pager.handlePagerContainerLayout}>

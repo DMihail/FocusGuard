@@ -29,6 +29,9 @@ export const LimitSliderCard = memo(
     accentColor,
     onChange,
     testID,
+    decreaseTestID,
+    increaseTestID,
+    trackTestID,
   }: LimitSliderCardProps) => {
     const progressMin = progressMinMinutes ?? minMinutes;
     const { progress, progressPercent, inactivePercent, showInactiveZone } = getSliderLayout(
@@ -71,7 +74,7 @@ export const LimitSliderCard = memo(
       <View style={styles.limitCard} testID={testID}>
         <View style={styles.limitCardHeader}>
           <View style={styles.limitCardHeaderTop}>
-            <Text style={styles.limitCardTitle} numberOfLines={1}>
+            <Text accessibilityRole="header" style={styles.limitCardTitle} numberOfLines={1}>
               {title}
             </Text>
             <Text style={[styles.limitCardValue, { color: accentColor }]} numberOfLines={1}>
@@ -87,6 +90,7 @@ export const LimitSliderCard = memo(
             accessibilityLabel={`Decrease ${title}`}
             style={styles.sliderButton}
             onPress={decrease}
+            testID={decreaseTestID}
           >
             <Text style={styles.sliderButtonLabel}>−</Text>
           </Pressable>
@@ -97,6 +101,7 @@ export const LimitSliderCard = memo(
               style={styles.sliderTrackTouch}
               collapsable={false}
               onLayout={handleTrackLayout}
+              testID={trackTestID}
               accessibilityRole="adjustable"
               accessibilityLabel={title}
               accessibilityHint="Drag horizontally on the track or tap to set the limit"
@@ -126,6 +131,7 @@ export const LimitSliderCard = memo(
             accessibilityLabel={`Increase ${title}`}
             style={styles.sliderButton}
             onPress={increase}
+            testID={increaseTestID}
           >
             <Text style={styles.sliderButtonLabel}>+</Text>
           </Pressable>
@@ -152,6 +158,9 @@ function areLimitSliderCardPropsEqual(previous: LimitSliderCardProps, next: Limi
     previous.stepMinutes === next.stepMinutes &&
     previous.accentColor === next.accentColor &&
     previous.onChange === next.onChange &&
-    previous.testID === next.testID
+    previous.testID === next.testID &&
+    previous.decreaseTestID === next.decreaseTestID &&
+    previous.increaseTestID === next.increaseTestID &&
+    previous.trackTestID === next.trackTestID
   );
 }

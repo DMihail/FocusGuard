@@ -26,6 +26,9 @@ export type LimitSliderCardProps = {
   accentColor: string;
   onChange: (minutes: number) => void;
   testID?: string;
+  decreaseTestID?: string;
+  increaseTestID?: string;
+  trackTestID?: string;
 };
 
 export type UseConfigureLimitsResult = {

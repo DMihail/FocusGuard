@@ -85,6 +85,10 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.0.0"
+        buildConfigField "boolean", "E2E_ENABLED", "false"
+        testBuildType System.getProperty('testBuildType', 'debug')
+        testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
+        missingDimensionStrategy 'detox', 'full'
     }
     signingConfigs {
         debug {
@@ -105,6 +109,7 @@ android {
     buildTypes {
         debug {
             signingConfig signingConfigs.debug
+            manifestPlaceholders = [usesCleartextTraffic: "true"]
         }
         release {
             // Caution! In production, you need to generate your own keystore file.
@@ -113,6 +118,15 @@ android {
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
             signingConfig signingConfigs.release
+            proguardFile "${rootProject.projectDir}/../node_modules/detox/android/detox/proguard-rules-app.pro"
+            manifestPlaceholders = [usesCleartextTraffic: "false"]
+        }
+        e2eRelease {
+            initWith release
+            signingConfig signingConfigs.debug
+            buildConfigField "boolean", "E2E_ENABLED", "true"
+            matchingFallbacks = ["release", "debug"]
+            manifestPlaceholders = [usesCleartextTraffic: "false"]
         }
     }
 }
@@ -130,4 +144,9 @@ dependencies {
     } else {
         implementation jscFlavor
     }
+
+    androidTestImplementation(project(':detox'))
+    androidTestImplementation 'androidx.test:runner:1.6.2'
+    androidTestImplementation 'androidx.test:rules:1.6.1'
+    androidTestImplementation 'androidx.test.ext:junit:1.2.1'
 }

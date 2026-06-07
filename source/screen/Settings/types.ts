@@ -10,6 +10,8 @@ export type SettingsToggleItem = {
   description: string;
   Icon: ComponentType<SvgProps>;
   iconBackgroundColor: string;
+  rowTestID?: string;
+  toggleTestID?: string;
 };
 
 export type SettingsLinkItem = {

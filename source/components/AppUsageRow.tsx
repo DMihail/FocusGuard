@@ -13,10 +13,21 @@ import { ProgressBar } from './ProgressBar';
 
 export type AppUsageRowProps = DashboardAppRow & {
   onPress: (packageName: string) => void;
+  rowTestID?: string;
 };
 
 export const AppUsageRow = memo(
-  ({ packageName, appImage, appName, usedMs, limitMs, percentUsed, isOverLimit, onPress }: AppUsageRowProps) => {
+  ({
+    packageName,
+    appImage,
+    appName,
+    usedMs,
+    limitMs,
+    percentUsed,
+    isOverLimit,
+    onPress,
+    rowTestID,
+  }: AppUsageRowProps) => {
     const barProgress = limitMs > 0 ? Math.min(100, (usedMs / limitMs) * 100) : 0;
     const fillColor = isOverLimit ? colors.overLimit : colors.accent;
 
@@ -26,7 +37,7 @@ export const AppUsageRow = memo(
         accessibilityLabel={`Configure limits for ${appName}, ${percentUsed} percent used`}
         onPress={() => onPress(packageName)}
         style={styles.item}
-        testID={testIds.dashboard.appRow(packageName)}
+        testID={rowTestID ?? testIds.dashboard.appRow(packageName)}
       >
         <View style={styles.row}>
           <AppIcon
@@ -72,7 +83,8 @@ function areAppUsageRowPropsEqual(previous: AppUsageRowProps, next: AppUsageRowP
     previous.limitMs === next.limitMs &&
     previous.percentUsed === next.percentUsed &&
     previous.isOverLimit === next.isOverLimit &&
-    previous.onPress === next.onPress
+    previous.onPress === next.onPress &&
+    previous.rowTestID === next.rowTestID
   );
 }
 

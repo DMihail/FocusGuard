@@ -1,13 +1,19 @@
 /**
  * @format
+ *
+ * Entry order matters: E2E bootstrap must run before `@/App` loads Zustand stores.
+ * Static `import` is hoisted, so App is loaded via `require()` after bootstrap.
  */
 
-import { AppRegistry } from 'react-native';
+require('@/setup/reanimatedLogger');
+require('react-native-gesture-handler');
 
-import App from '@/App';
+const { AppRegistry } = require('react-native');
+const { applyE2EBootstrapFromLaunchArgs } = require('@/testing/e2eBootstrap');
+const { name: appName } = require('./app.json');
 
-import { name as appName } from './app.json';
+applyE2EBootstrapFromLaunchArgs();
 
-import 'react-native-gesture-handler';
+const App = require('@/App').default;
 
 AppRegistry.registerComponent(appName, () => App);

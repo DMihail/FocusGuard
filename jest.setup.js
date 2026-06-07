@@ -36,6 +36,7 @@ jest.mock('react-native-reanimated', () => {
       cubic: identity,
     },
     runOnJS: (fn) => fn,
+    useReducedMotion: () => false,
     LinearTransition: {
       duration: () => ({
         easing: () => ({}),

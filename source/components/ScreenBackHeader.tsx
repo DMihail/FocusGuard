@@ -68,7 +68,9 @@ export function ScreenBackHeader({
       </Pressable>
 
       <View style={screenBackHeaderStyles.headerText}>
-        <Text style={screenBackHeaderStyles.title}>{title}</Text>
+        <Text accessibilityRole="header" style={screenBackHeaderStyles.title}>
+          {title}
+        </Text>
         {subtitle ? (
           <Text style={screenBackHeaderStyles.subtitle} testID={subtitleTestID} numberOfLines={1}>
             {subtitle}

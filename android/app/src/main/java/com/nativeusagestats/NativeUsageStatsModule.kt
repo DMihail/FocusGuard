@@ -3,6 +3,11 @@ package com.nativeusagestats
 import android.app.Application
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.WritableArray
+import com.focusguard.e2e.E2EAppState
+import com.focusguard.e2e.E2EBootstrap
+import com.focusguard.e2e.E2EFeature
+import com.focusguard.e2e.E2ELaunchArgs
+import com.focusguard.e2e.E2EPermissionOverride
 import com.focusguard.apps.InstalledAppsRepository
 import com.focusguard.apps.UsageStatsCatalogRepository
 import com.focusguard.bridge.PermissionsLifecycleBinding
@@ -44,19 +49,24 @@ class NativeUsageStatsModule(
     super.invalidate()
   }
 
-  override fun checkForPermission(): Boolean = PermissionChecker.hasUsageAccess(appContext)
+  override fun checkForPermission(): Boolean =
+      if (E2EPermissionOverride.isActive()) true else PermissionChecker.hasUsageAccess(appContext)
 
   override fun checkForSystemAlertWindowPermission(): Boolean =
-      PermissionChecker.hasOverlayAccess(appContext)
+      if (E2EPermissionOverride.isActive()) true else PermissionChecker.hasOverlayAccess(appContext)
 
   override fun checkForNotificationsPermission(): Boolean =
-      PermissionChecker.hasNotificationsPermission(appContext)
+      if (E2EPermissionOverride.isActive()) true else PermissionChecker.hasNotificationsPermission(appContext)
 
   override fun checkForIgnoreBatteryOptimizationsPermission(): Boolean =
-      PermissionChecker.hasBatteryOptimizationExemption(appContext)
+      if (E2EPermissionOverride.isActive()) {
+        true
+      } else {
+        PermissionChecker.hasBatteryOptimizationExemption(appContext)
+      }
 
   override fun checkForManifestMonitorPermissions(): Boolean =
-      MonitorPermissions.hasManifestMonitorPermissions(appContext)
+      if (E2EPermissionOverride.isActive()) true else MonitorPermissions.hasManifestMonitorPermissions(appContext)
 
   override fun startMonitorService() {
     MonitorServiceHelper.start(appContext)
@@ -112,6 +122,43 @@ class NativeUsageStatsModule(
     installedAppsRepository.invalidateCache()
     usageStatsCatalogRepository.invalidateCache()
     dailyUsageRepository.invalidateCache()
+  }
+
+  override fun getE2ELaunchArg(key: String): String? = E2ELaunchArgs.get(key)
+
+  override fun isE2EEnabled(): Boolean = E2EFeature.isEnabled()
+
+  override fun configureE2EBootstrap(
+      skipOnboarding: Boolean,
+      permissionsGranted: Boolean,
+      resetStorage: Boolean,
+  ) {
+    if (!E2EFeature.isEnabled()) {
+      return
+    }
+
+    E2ELaunchArgs.bindFromInstrumentation()
+
+    val hasLaunchArgs =
+        E2ELaunchArgs.get("e2ePreset") != null ||
+            E2ELaunchArgs.get("e2eResetStorage") != null ||
+            E2ELaunchArgs.get("e2eSkipOnboarding") != null ||
+            E2ELaunchArgs.get("e2ePermissionsGranted") != null
+
+    if (hasLaunchArgs) {
+      E2EBootstrap.applyFromCachedLaunchArgs()
+      return
+    }
+
+    if (resetStorage) {
+      E2EAppState.resetStorage()
+    }
+
+    if (skipOnboarding) {
+      E2EAppState.setOnboardingComplete()
+    }
+
+    E2EPermissionOverride.permissionsGranted = permissionsGranted
   }
 
   private fun emitPermissionsChanged() {

@@ -66,7 +66,7 @@ describe('TrackedAppsScreen', () => {
     flushVirtualizedListTimers();
 
     expect(tree.root.findByProps({ testID: 'tracked-apps-screen' })).toBeDefined();
-    expect(tree.root.findByProps({ testID: 'tracked-apps-scroll' })).toBeDefined();
-    expect(tree.root.findByProps({ testID: 'dashboard-app-row-com-test-one' })).toBeDefined();
+    expect(tree.root.findByProps({ testID: 'tracked-apps-list' })).toBeDefined();
+    expect(tree.root.findByProps({ testID: 'tracked-apps-row-com-test-one' })).toBeDefined();
   });
 });
