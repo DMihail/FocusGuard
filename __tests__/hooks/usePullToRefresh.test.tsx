@@ -33,7 +33,7 @@ describe('usePullToRefresh', () => {
     jest.useRealTimers();
   });
 
-  it('calls refresh and clears refreshing state', () => {
+  it('calls refresh and clears refreshing state', async () => {
     const refresh = jest.fn();
     let result!: ReturnType<typeof usePullToRefresh>;
 
@@ -43,17 +43,12 @@ describe('usePullToRefresh', () => {
       );
     });
 
-    act(() => {
+    await act(async () => {
       result.onRefresh();
+      await Promise.resolve();
     });
 
     expect(refresh).toHaveBeenCalledTimes(1);
-    expect(result.refreshing).toBe(true);
-
-    act(() => {
-      jest.runAllTimers();
-    });
-
     expect(result.refreshing).toBe(false);
   });
 });

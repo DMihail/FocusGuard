@@ -14,6 +14,9 @@ class DailyUsageRepository(
     private val usageStatsManager =
         context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
 
+    private var cachedStats: List<UsageStats>? = null
+    private var cachedDayStartMs: Long = 0L
+
     /** @return foreground milliseconds for [packageName] since local midnight, or 0. */
     fun getTodayForegroundMs(packageName: String): Long {
         val stats = queryTodayStats() ?: return 0L
@@ -25,20 +28,28 @@ class DailyUsageRepository(
     }
 
     private fun queryTodayStats(): List<UsageStats>? {
-        val endTime = System.currentTimeMillis()
-        val startTime = startOfLocalDayMs()
+        val dayStartMs = startOfLocalDayMs()
+        cachedStats?.let { cached ->
+            if (cachedDayStartMs == dayStartMs) {
+                return cached
+            }
+        }
 
+        val endTime = System.currentTimeMillis()
         val stats =
             usageStatsManager.queryUsageStats(
                 UsageStatsManager.INTERVAL_BEST,
-                startTime,
+                dayStartMs,
                 endTime,
             ) ?: usageStatsManager.queryUsageStats(
                 UsageStatsManager.INTERVAL_DAILY,
-                startTime,
+                dayStartMs,
                 endTime,
             )
 
-        return stats?.filter { it.packageName.isNotEmpty() }
+        val filtered = stats?.filter { it.packageName.isNotEmpty() }
+        cachedStats = filtered
+        cachedDayStartMs = dayStartMs
+        return filtered
     }
 }

@@ -19,6 +19,7 @@ export const ManageAppsScreen = () => {
   const openConfigureLimits = useNavigateToConfigureLimits();
   const {
     apps,
+    isLoadingApps,
     refreshInstalledApps,
     isFiltering,
     selectedApps,
@@ -34,7 +35,7 @@ export const ManageAppsScreen = () => {
 
   useFocusEffect(
     useCallback(() => {
-      refreshInstalledApps();
+      refreshInstalledApps().catch(() => undefined);
     }, [refreshInstalledApps]),
   );
 
@@ -48,6 +49,7 @@ export const ManageAppsScreen = () => {
       <ManageAppsSearchToolbar onQueryChange={setSearchQuery} onQueryActiveChange={setSearchInputActive} />
       <ManageAppsContent
         apps={apps}
+        isLoadingApps={isLoadingApps}
         isFiltering={isFiltering}
         selectedApps={selectedApps}
         isSelected={isSelected}

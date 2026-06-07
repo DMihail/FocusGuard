@@ -1,12 +1,12 @@
 /** @format */
 
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState, useTransition } from 'react';
 
 import { useFocusEffect } from '@react-navigation/native';
 import { useShallow } from 'zustand/react/shallow';
 
+import { invalidateUsageStatsCache, loadUsageByPackage } from '@/domain/usageStatsCatalog';
 import { useAppStateOnActive } from '@/hooks/useAppStateOnActive';
-import { getAppsUsageStats } from '@/specs/NativeUsageStats';
 import { appLimitsStore, selectedAppsStore } from '@/store';
 import { buildDashboardAppRows, type DashboardAppRow } from '@/utils/usage/dashboardStats';
 
@@ -23,7 +23,7 @@ const hasUsageChanged = (previous: Record<string, number>, next: Record<string, 
 
 export const useTrackedAppRows = (): {
   appRows: DashboardAppRow[];
-  refreshUsage: () => void;
+  refreshUsage: (force?: boolean) => Promise<void>;
 } => {
   const selectedApps = selectedAppsStore((state) => state.apps);
   const selectedPackages = useMemo(() => selectedApps.map((app) => app.packageName), [selectedApps]);
@@ -33,28 +33,33 @@ export const useTrackedAppRows = (): {
     ),
   );
   const [usageByPackage, setUsageByPackage] = useState<Record<string, number>>({});
+  const [, startUsageTransition] = useTransition();
 
-  const refreshUsage = useCallback(() => {
-    const packages = new Set(selectedPackages);
+  const refreshUsage = useCallback(
+    async (force = false) => {
+      if (selectedPackages.length === 0) {
+        startUsageTransition(() => {
+          setUsageByPackage((previous) => (Object.keys(previous).length === 0 ? previous : {}));
+        });
+        return;
+      }
 
-    if (packages.size === 0) {
-      setUsageByPackage((previous) => (Object.keys(previous).length === 0 ? previous : {}));
-      return;
-    }
+      if (force) {
+        invalidateUsageStatsCache();
+      }
 
-    const stats = getAppsUsageStats();
-    const nextUsage = Object.fromEntries(
-      stats
-        .filter((item) => packages.has(item.packageName))
-        .map((item) => [item.packageName, item.totalTimeForeground]),
-    );
+      const nextUsage = await loadUsageByPackage(selectedPackages, force);
 
-    setUsageByPackage((previous) => (hasUsageChanged(previous, nextUsage) ? nextUsage : previous));
-  }, [selectedPackages]);
+      startUsageTransition(() => {
+        setUsageByPackage((previous) => (hasUsageChanged(previous, nextUsage) ? nextUsage : previous));
+      });
+    },
+    [selectedPackages],
+  );
 
   useFocusEffect(
     useCallback(() => {
-      refreshUsage();
+      refreshUsage().catch(() => undefined);
     }, [refreshUsage]),
   );
 

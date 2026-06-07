@@ -1,6 +1,7 @@
 /** @format */
 
 import type React from 'react';
+import { act } from 'react-test-renderer';
 
 import type { ManageApp } from '@/screen/ManageApps/types';
 import { mockInstallApps, mockManageApps } from '@/testing/fixtures/manageApps';
@@ -70,15 +71,25 @@ jest.mock('react-native-safe-area-context', () => {
   };
 });
 
+import { invalidateInstalledAppsCache } from '@/domain/installedAppsCatalog';
 import { ManageAppsScreen } from '@/screen/ManageApps/ManageAppsScreen';
 
 describe('ManageAppsScreen', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     jest.useFakeTimers();
+    invalidateInstalledAppsCache();
     mockStoreState.apps = [];
     mockGetInstalledApplications.mockReturnValue(mockInstallApps);
   });
+
+  const flushInstalledAppsLoad = async (tree: ReturnType<typeof renderTestTree>) => {
+    await act(async () => {
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+    updateTestTree(tree, <ManageAppsScreen />);
+  };
 
   afterEach(async () => {
     flushVirtualizedListTimers();
@@ -89,6 +100,7 @@ describe('ManageAppsScreen', () => {
 
   it('renders header, search, filters, and app list', async () => {
     const tree = renderTestTree(<ManageAppsScreen />);
+    await flushInstalledAppsLoad(tree);
     flushVirtualizedListTimers();
 
     expect(tree.root.findByProps({ testID: testIds.manageApps.screen })).toBeDefined();
@@ -102,6 +114,7 @@ describe('ManageAppsScreen', () => {
 
   it('hides selected chips when nothing is selected', async () => {
     const tree = renderTestTree(<ManageAppsScreen />);
+    await flushInstalledAppsLoad(tree);
     flushVirtualizedListTimers();
 
     expect(
@@ -113,6 +126,7 @@ describe('ManageAppsScreen', () => {
 
   it('shows selected chips after toggling an app', async () => {
     const tree = renderTestTree(<ManageAppsScreen />);
+    await flushInstalledAppsLoad(tree);
     flushVirtualizedListTimers();
 
     runTestAct(() => {
@@ -131,6 +145,7 @@ describe('ManageAppsScreen', () => {
     mockStoreState.apps = [mockManageApps[1]];
 
     const tree = renderTestTree(<ManageAppsScreen />);
+    await flushInstalledAppsLoad(tree);
     flushVirtualizedListTimers();
 
     expect(tree.root.findByProps({ testID: testIds.manageApps.selectedChip('com.game.puzzle') })).toBeDefined();
@@ -152,6 +167,7 @@ describe('ManageAppsScreen', () => {
 
   it('filters apps when search query changes', async () => {
     const tree = renderTestTree(<ManageAppsScreen />);
+    await flushInstalledAppsLoad(tree);
     flushVirtualizedListTimers();
 
     runTestAct(() => {
@@ -169,6 +185,7 @@ describe('ManageAppsScreen', () => {
 
   it('filters apps when category chip is pressed', async () => {
     const tree = renderTestTree(<ManageAppsScreen />);
+    await flushInstalledAppsLoad(tree);
     flushVirtualizedListTimers();
 
     runTestAct(() => {
@@ -182,6 +199,7 @@ describe('ManageAppsScreen', () => {
 
   it('navigates back when back button is pressed', async () => {
     const tree = renderTestTree(<ManageAppsScreen />);
+    await flushInstalledAppsLoad(tree);
     flushVirtualizedListTimers();
 
     runTestAct(() => {

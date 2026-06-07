@@ -7,6 +7,7 @@ import { getAppDisplayName } from '@/constants/appDisplayName';
 import { useAppStateOnActive } from '@/hooks/useAppStateOnActive';
 import { configurePermissionStatusSyncAnimation } from '@/utils/layoutAnimation';
 import { PERMISSIONS_CHANGED_EVENT } from '@/utils/permissions/notificationPermissionEvents';
+import { scheduleAfterInteractions } from '@/utils/scheduleAfterInteractions';
 
 import { createPermissions, PERMISSION_IDS } from '../data/permissions';
 import type { PermissionId, PermissionStatus } from '../types';
@@ -24,7 +25,9 @@ const hasStatusChanged = (
 
 export const usePermissionsSync = () => {
   const permissionItems = useMemo(() => createPermissions(getAppDisplayName()), []);
-  const [statusById, setStatusById] = useState<Record<PermissionId, PermissionStatus>>(() => readPermissionStatuses());
+  const [statusById, setStatusById] = useState<Record<PermissionId, PermissionStatus>>(
+    () => Object.fromEntries(PERMISSION_IDS.map((id) => [id, 'pending'])) as Record<PermissionId, PermissionStatus>,
+  );
 
   const syncStatuses = useCallback(() => {
     setStatusById((previous) => {
@@ -40,7 +43,7 @@ export const usePermissionsSync = () => {
   }, []);
 
   useEffect(() => {
-    syncStatuses();
+    scheduleAfterInteractions(syncStatuses);
   }, [syncStatuses]);
 
   useAppStateOnActive(syncStatuses);

@@ -12,6 +12,7 @@ internal class InstalledAppsRepository(
     private val packageManager = appContext.packageManager
     private val iconCache = AppIconCache(appContext)
     private val ownPackage = appContext.packageName
+    private var cachedLaunchableApps: List<InstalledApp>? = null
 
     data class InstalledApp(
         val packageName: String,
@@ -21,6 +22,8 @@ internal class InstalledAppsRepository(
     )
 
     fun getLaunchableApps(): List<InstalledApp> {
+        cachedLaunchableApps?.let { return it }
+
         val launcherIntent =
             Intent(Intent.ACTION_MAIN, null).apply { addCategory(Intent.CATEGORY_LAUNCHER) }
         val launchableApps =
@@ -50,6 +53,6 @@ internal class InstalledAppsRepository(
             }
         }
 
-        return result
+        return result.also { cachedLaunchableApps = it }
     }
 }

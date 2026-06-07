@@ -61,6 +61,7 @@ jest.mock('@/hooks/useAppStateOnActive', () => ({
   useAppStateOnActive: jest.fn(),
 }));
 
+import { invalidateUsageStatsCache } from '@/domain/usageStatsCatalog';
 import { useDashboard } from '@/screen/Dashboard/hooks/useDashboard';
 
 type HarnessProps = {
@@ -83,15 +84,24 @@ const UseDashboardHarness = ({ onReady }: HarnessProps) => {
 describe('useDashboard', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    invalidateUsageStatsCache();
     mockStoreState.isMonitoring = false;
   });
 
-  it('loads usage stats and builds app rows', () => {
+  const flushUsageLoad = async () => {
+    await act(async () => {
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+  };
+
+  it('loads usage stats and builds app rows', async () => {
     let result!: ReturnType<typeof useDashboard>;
 
     act(() => {
       ReactTestRenderer.create(<UseDashboardHarness onReady={(value) => (result = value)} />);
     });
+    await flushUsageLoad();
 
     expect(mockGetAppsUsageStats).toHaveBeenCalled();
     expect(result.appRows).toHaveLength(1);
@@ -99,26 +109,22 @@ describe('useDashboard', () => {
     expect(result.summary.focusScore).toBeGreaterThan(0);
   });
 
-  it('refreshes usage on pull-to-refresh', () => {
-    jest.useFakeTimers();
+  it('refreshes usage on pull-to-refresh', async () => {
     let latest!: ReturnType<typeof useDashboard>;
 
     act(() => {
       ReactTestRenderer.create(<UseDashboardHarness onReady={(value) => (latest = value)} />);
     });
+    await flushUsageLoad();
 
     const callsBefore = mockGetAppsUsageStats.mock.calls.length;
 
-    act(() => {
+    await act(async () => {
       latest.onRefresh();
-    });
-
-    act(() => {
-      jest.runAllTimers();
+      await Promise.resolve();
     });
 
     expect(mockGetAppsUsageStats.mock.calls.length).toBeGreaterThan(callsBefore);
     expect(latest.refreshing).toBe(false);
-    jest.useRealTimers();
   });
 });

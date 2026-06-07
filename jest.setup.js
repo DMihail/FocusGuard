@@ -118,3 +118,10 @@ jest.mock('react-native-gesture-handler', () => {
     },
   };
 });
+
+jest.mock('react-native/Libraries/Interaction/InteractionManager', () => ({
+  runAfterInteractions: (callback) => {
+    callback();
+    return { cancel: jest.fn() };
+  },
+}));

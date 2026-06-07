@@ -2,20 +2,32 @@
 
 import { useCallback, useEffect, useMemo, useState, useTransition } from 'react';
 
-import { getInstalledApplications } from '@/specs';
+import { getCachedInstalledApps, invalidateInstalledAppsCache, loadInstalledApps } from '@/domain/installedAppsCatalog';
 import { selectedAppsStore } from '@/store';
 import { configureSectionLayoutAnimation } from '@/utils/layoutAnimation';
 
 import type { CategoryFilterOption, ManageApp } from '../types';
 import { ALL_CATEGORY_FILTER, buildCategoryFilters } from '../utils/buildCategoryFilters';
-import { mapInstalledApps } from '../utils/mapInstalledApps';
 import { matchesCategoryFilter } from '../utils/matchesCategoryFilter';
 
 export const useManageApps = () => {
-  const [installedApps, setInstalledApps] = useState(() => mapInstalledApps(getInstalledApplications()));
+  const [installedApps, setInstalledApps] = useState<ManageApp[]>(() => getCachedInstalledApps() ?? []);
+  const [isLoadingApps, setIsLoadingApps] = useState(() => getCachedInstalledApps() === null);
 
-  const refreshInstalledApps = useCallback(() => {
-    setInstalledApps(mapInstalledApps(getInstalledApplications()));
+  const refreshInstalledApps = useCallback(async (force = false) => {
+    if (force) {
+      invalidateInstalledAppsCache();
+    }
+
+    const hasCachedApps = getCachedInstalledApps() !== null;
+
+    if (!hasCachedApps) {
+      setIsLoadingApps(true);
+    }
+
+    const apps = await loadInstalledApps(force);
+    setInstalledApps(apps);
+    setIsLoadingApps(false);
   }, []);
 
   const categoryFilters = useMemo(() => buildCategoryFilters(installedApps), [installedApps]);
@@ -89,6 +101,7 @@ export const useManageApps = () => {
 
   return {
     apps: filteredApps,
+    isLoadingApps,
     refreshInstalledApps,
     isFiltering,
     isSearchActive,

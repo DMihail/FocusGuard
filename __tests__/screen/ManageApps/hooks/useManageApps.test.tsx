@@ -33,6 +33,16 @@ jest.mock('../../../../source/store', () => ({
   selectedAppsStore: (selector: (state: typeof mockStoreState) => unknown) => selector(mockStoreState),
 }));
 
+jest.mock('../../../../source/domain/installedAppsCatalog', () => {
+  const actual = jest.requireActual('../../../../source/domain/installedAppsCatalog');
+
+  return {
+    ...actual,
+    invalidateInstalledAppsCache: jest.fn(() => actual.invalidateInstalledAppsCache()),
+  };
+});
+
+import { invalidateInstalledAppsCache } from '@/domain/installedAppsCatalog';
 import { useManageApps } from '@/screen/ManageApps/hooks/useManageApps';
 
 type HarnessProps = {
@@ -48,6 +58,10 @@ const UseManageAppsHarness = ({ searchQuery = '', categoryId, onReady }: Harness
 
   valueRef.current = value;
   onReadyRef.current = onReady;
+
+  useEffect(() => {
+    valueRef.current.refreshInstalledApps().catch(() => undefined);
+  }, []);
 
   useEffect(() => {
     if (searchQuery) {
@@ -73,9 +87,19 @@ const UseManageAppsHarness = ({ searchQuery = '', categoryId, onReady }: Harness
 describe('useManageApps', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    invalidateInstalledAppsCache();
     mockStoreState.apps = [];
     mockGetInstalledApplications.mockReturnValue(mockInstallApps);
   });
+
+  const flushInstalledAppsLoad = async () => {
+    await ReactTestRenderer.act(async () => {
+      await Promise.resolve();
+    });
+    await ReactTestRenderer.act(async () => {
+      await Promise.resolve();
+    });
+  };
 
   it('returns all installed apps by default', async () => {
     let hookValue: ReturnType<typeof useManageApps> | undefined;
@@ -89,6 +113,7 @@ describe('useManageApps', () => {
         />,
       );
     });
+    await flushInstalledAppsLoad();
 
     expect(hookValue!.apps).toHaveLength(mockManageApps.length);
     expect(hookValue!.categoryFilters[0]).toEqual({ id: 'all', label: 'All', category: 'all' });
@@ -107,6 +132,7 @@ describe('useManageApps', () => {
         />,
       );
     });
+    await flushInstalledAppsLoad();
 
     expect(hookValue!.apps).toHaveLength(1);
     expect(hookValue!.apps[0].packageName).toBe('com.game.puzzle');
@@ -126,6 +152,7 @@ describe('useManageApps', () => {
         />,
       );
     });
+    await flushInstalledAppsLoad();
 
     expect(hookValue!.isSearchActive).toBe(true);
     expect(hookValue!.apps).toHaveLength(1);
@@ -138,13 +165,18 @@ describe('useManageApps', () => {
     await ReactTestRenderer.act(async () => {
       ReactTestRenderer.create(
         <UseManageAppsHarness
-          categoryId="Social"
           onReady={(value) => {
             hookValue = value;
           }}
         />,
       );
     });
+    await flushInstalledAppsLoad();
+
+    await ReactTestRenderer.act(async () => {
+      hookValue!.setActiveCategory('Social');
+    });
+    await flushInstalledAppsLoad();
 
     expect(hookValue!.apps).toHaveLength(1);
     expect(hookValue!.apps[0].categoryLabel).toBe('Social');
@@ -163,6 +195,7 @@ describe('useManageApps', () => {
         />,
       );
     });
+    await flushInstalledAppsLoad();
 
     const targetApp = mockManageApps[0];
 
