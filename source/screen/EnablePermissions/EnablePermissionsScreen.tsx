@@ -5,6 +5,7 @@ import { FlatList, View } from 'react-native';
 
 import { useFocusEffect } from '@react-navigation/native';
 
+import { usePrefetchNativeCatalogs } from '@/hooks/usePrefetchNativeCatalogs';
 import { APP_LIST_FLAT_LIST_PROPS } from '@/list';
 import { useRootNavigation } from '@/navigation';
 import { testIds } from '@/testing/testIds';
@@ -19,6 +20,8 @@ import { ScreenSafeArea } from '@/components';
 export const EnablePermissionsScreen = () => {
   const navigation = useRootNavigation();
   const { permissions, canContinue, handleGrant, syncStatuses } = usePermissionsSync();
+
+  usePrefetchNativeCatalogs();
 
   useFocusEffect(
     useCallback(() => {

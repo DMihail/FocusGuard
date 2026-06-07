@@ -1,21 +1,17 @@
-/** @format */
-
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { DeviceEventEmitter } from 'react-native';
 
 import { getAppDisplayName } from '@/constants/appDisplayName';
+import { getPermissionStatuses, invalidatePermissionSnapshot } from '@/domain/permissionSnapshot';
 import { useAppStateOnActive } from '@/hooks/useAppStateOnActive';
 import { configurePermissionStatusSyncAnimation } from '@/utils/layoutAnimation';
 import { PERMISSIONS_CHANGED_EVENT } from '@/utils/permissions/notificationPermissionEvents';
+import { scheduleAfterInteractions } from '@/utils/scheduleAfterInteractions';
 
 import { createPermissions, PERMISSION_IDS } from '../data/permissions';
 import type { PermissionId, PermissionStatus } from '../types';
 import { buildPermissionsWithStatus } from '../utils/buildPermissionsWithStatus';
-import {
-  areRequiredPermissionsGranted,
-  readPermissionStatuses,
-  requestPermissionById,
-} from '../utils/permissionStatus';
+import { areRequiredPermissionsGranted, requestPermissionById } from '../utils/permissionStatus';
 
 const hasStatusChanged = (
   previous: Record<PermissionId, PermissionStatus>,
@@ -24,11 +20,15 @@ const hasStatusChanged = (
 
 export const usePermissionsSync = () => {
   const permissionItems = useMemo(() => createPermissions(getAppDisplayName()), []);
-  const [statusById, setStatusById] = useState<Record<PermissionId, PermissionStatus>>(() => readPermissionStatuses());
+  const [statusById, setStatusById] = useState<Record<PermissionId, PermissionStatus>>(() => getPermissionStatuses());
 
-  const syncStatuses = useCallback(() => {
+  const syncStatuses = useCallback((force = false) => {
+    if (force) {
+      invalidatePermissionSnapshot();
+    }
+
     setStatusById((previous) => {
-      const next = readPermissionStatuses();
+      const next = getPermissionStatuses(force);
 
       if (!hasStatusChanged(previous, next)) {
         return previous;
@@ -40,13 +40,13 @@ export const usePermissionsSync = () => {
   }, []);
 
   useEffect(() => {
-    syncStatuses();
+    scheduleAfterInteractions(() => syncStatuses(true));
   }, [syncStatuses]);
 
-  useAppStateOnActive(syncStatuses);
+  useAppStateOnActive(() => syncStatuses(true));
 
   useEffect(() => {
-    const subscription = DeviceEventEmitter.addListener(PERMISSIONS_CHANGED_EVENT, syncStatuses);
+    const subscription = DeviceEventEmitter.addListener(PERMISSIONS_CHANGED_EVENT, () => syncStatuses(true));
 
     return () => subscription.remove();
   }, [syncStatuses]);
@@ -61,5 +61,5 @@ export const usePermissionsSync = () => {
     requestPermissionById(id);
   }, []);
 
-  return { statusById, permissions, canContinue, handleGrant, syncStatuses };
+  return { permissions, canContinue, handleGrant, syncStatuses };
 };

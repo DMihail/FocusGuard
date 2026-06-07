@@ -1,6 +1,5 @@
 package com.focusguard
 
-import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.content.pm.PackageManager
@@ -11,6 +10,7 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.focusguard.monitor.MonitorPermissions
 import com.focusguard.navigation.DeepLinks
+import com.focusguard.notification.KeeptNotifications
 import com.focusguard.overlay.BlockOverlayManager
 import com.focusguard.overlay.DailyWarningStore
 import com.focusguard.overlay.TrackingSnoozeStore
@@ -209,19 +209,7 @@ class TrackingEngine(
         configRepository.getTrackedApps().contains(packageName)
 
     private fun ensureWarningChannel() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
-
-        val channel =
-            NotificationChannel(
-                WARNING_CHANNEL_ID,
-                context.getString(R.string.warning_notification_channel_name),
-                NotificationManager.IMPORTANCE_HIGH,
-            ).apply {
-                description = context.getString(R.string.warning_notification_channel_description)
-                enableVibration(true)
-            }
-
-        notificationManager.createNotificationChannel(channel)
+        KeeptNotifications.ensureWarningChannel(context, notificationManager)
     }
 
     private fun showWarningNotification(packageName: String) {
@@ -243,11 +231,18 @@ class TrackingEngine(
                 notificationId,
             )
 
+        val summary = context.getString(R.string.warning_notification_text, appName)
+        val details = context.getString(R.string.warning_notification_details, appName)
+
         val notification =
-            NotificationCompat.Builder(context, WARNING_CHANNEL_ID)
-                .setSmallIcon(R.mipmap.ic_launcher)
+            KeeptNotifications.warningBuilder(context)
                 .setContentTitle(context.getString(R.string.warning_notification_title))
-                .setContentText(context.getString(R.string.warning_notification_text, appName))
+                .setContentText(summary)
+                .setStyle(
+                    NotificationCompat.BigTextStyle()
+                        .bigText(details)
+                        .setSummaryText(context.getString(R.string.app_name)),
+                )
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setCategory(NotificationCompat.CATEGORY_REMINDER)
                 .setAutoCancel(true)
@@ -288,7 +283,6 @@ class TrackingEngine(
         private const val POLL_INTERVAL_MS = 1000L
         private const val FOREGROUND_STABLE_POLLS = 1
         private const val FOREGROUND_MISS_POLLS = 3
-        private const val WARNING_CHANNEL_ID = "keept_warnings"
         private const val WARNING_NOTIFICATION_ID_BASE = 2001
     }
 }

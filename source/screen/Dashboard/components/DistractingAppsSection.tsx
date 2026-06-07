@@ -1,17 +1,15 @@
-/** @format */
-
 import React, { useLayoutEffect, useMemo, useRef } from 'react';
-import { FlatList, Pressable, Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 
-import { NESTED_FLAT_LIST_PROPS } from '@/list';
 import { testIds } from '@/testing/testIds';
 import { spacing } from '@/theme';
 import { configureSectionLayoutAnimation } from '@/utils/layoutAnimation';
 import type { DashboardAppRow } from '@/utils/usage/dashboardStats';
 
-import { createDashboardAppRowRenderItem } from '../list';
 import { DistractingAppsListEmpty } from '../list/empty';
 import { dashboardStyles } from '../styles';
+
+import { AppUsageRow } from '@/components';
 
 const MAX_VISIBLE_APPS = 4;
 
@@ -32,8 +30,6 @@ export function DistractingAppsSection({ appRows, onConfigureLimits, onViewAllPr
     }
   }, [visibleApps.length]);
 
-  const renderItem = useMemo(() => createDashboardAppRowRenderItem(onConfigureLimits), [onConfigureLimits]);
-
   return (
     <View style={dashboardStyles.section} testID={testIds.dashboard.distractingAppsSection}>
       <View style={dashboardStyles.sectionHeader}>
@@ -53,17 +49,17 @@ export function DistractingAppsSection({ appRows, onConfigureLimits, onViewAllPr
         ) : null}
       </View>
 
-      <FlatList
-        data={visibleApps}
-        renderItem={renderItem}
-        keyExtractor={(item) => item.packageName}
-        ListEmptyComponent={DistractingAppsListEmpty}
-        contentContainerStyle={dashboardStyles.appsList}
-        style={{ gap: spacing.md }}
+      <View
+        style={[dashboardStyles.appsList, { gap: spacing.md }]}
         testID={testIds.dashboard.appsList}
-        extraData={onConfigureLimits}
-        {...NESTED_FLAT_LIST_PROPS}
-      />
+        accessibilityRole="list"
+      >
+        {visibleApps.length === 0 ? (
+          <DistractingAppsListEmpty />
+        ) : (
+          visibleApps.map((app) => <AppUsageRow key={app.packageName} {...app} onPress={onConfigureLimits} />)
+        )}
+      </View>
     </View>
   );
 }

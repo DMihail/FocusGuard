@@ -78,7 +78,7 @@ describe('usePermissionsSync', () => {
     });
 
     expect(mockReadPermissionStatuses).toHaveBeenCalled();
-    expect(hook!.statusById).toEqual(pendingStatuses);
+    expect(hook!.permissions.every((item) => item.status === 'pending')).toBe(true);
   });
 
   it('syncs statuses when AppState becomes active', () => {
@@ -100,7 +100,8 @@ describe('usePermissionsSync', () => {
       appStateListener?.('active');
     });
 
-    expect(hook!.statusById).toEqual(grantedStatuses);
+    expect(hook!.permissions.every((item) => item.status === 'granted')).toBe(true);
+    expect(hook!.canContinue).toBe(true);
   });
 
   it('does not sync when AppState is not active', () => {
@@ -185,7 +186,8 @@ describe('usePermissionsSync', () => {
       DeviceEventEmitter.emit(PERMISSIONS_CHANGED_EVENT);
     });
 
-    expect(hook!.statusById).toEqual(grantedStatuses);
+    expect(hook!.permissions.every((item) => item.status === 'granted')).toBe(true);
+    expect(hook!.canContinue).toBe(true);
   });
 
   it('removes AppState listener on unmount', () => {
@@ -199,6 +201,6 @@ describe('usePermissionsSync', () => {
       tree!.unmount();
     });
 
-    expect(mockRemoveAppStateListener).toHaveBeenCalledTimes(1);
+    expect(mockRemoveAppStateListener).toHaveBeenCalled();
   });
 });

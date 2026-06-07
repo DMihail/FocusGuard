@@ -55,9 +55,6 @@ export const areRequiredPermissionsGranted = (statuses: Record<PermissionId, Per
   return REQUIRED_PERMISSION_IDS.every((id) => statuses[id] === 'granted') && checkForManifestMonitorPermissions();
 };
 
-/** Convenience wrapper around {@link readPermissionStatuses} for navigation guards. */
-export const areAllPermissionsGranted = (): boolean => areRequiredPermissionsGranted(readPermissionStatuses());
-
 /** Opens the system settings screen for a permission card action. */
 export const requestPermissionById = (id: PermissionId): void => {
   if (Platform.OS !== 'android') {

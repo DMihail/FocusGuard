@@ -1,6 +1,6 @@
 /** @format */
 
-import { areAllPermissionsGranted } from '@/screen/EnablePermissions/utils/permissionStatus';
+import { areAllPermissionsGranted } from '@/domain/permissionSnapshot';
 
 import type { RootStackParamList } from './types';
 

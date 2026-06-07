@@ -21,7 +21,7 @@ export const TrackedAppsScreen = () => {
   const goBack = useGoBack();
   const openConfigureLimits = useNavigateToConfigureLimits();
   const { appRows, refreshUsage } = useTrackedAppRows();
-  const { refreshing, onRefresh } = usePullToRefresh(refreshUsage);
+  const { refreshing, onRefresh } = usePullToRefresh(() => refreshUsage(true));
 
   const renderItem = useMemo(() => createTrackedAppRenderItem(openConfigureLimits), [openConfigureLimits]);
 

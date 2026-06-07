@@ -2,20 +2,35 @@
 
 import { useCallback, useEffect, useMemo, useState, useTransition } from 'react';
 
-import { getInstalledApplications } from '@/specs';
+import { useShallow } from 'zustand/react/shallow';
+
+import { getCachedInstalledApps, invalidateInstalledAppsCache, loadInstalledApps } from '@/domain/installedAppsCatalog';
 import { selectedAppsStore } from '@/store';
 import { configureSectionLayoutAnimation } from '@/utils/layoutAnimation';
 
 import type { CategoryFilterOption, ManageApp } from '../types';
 import { ALL_CATEGORY_FILTER, buildCategoryFilters } from '../utils/buildCategoryFilters';
-import { mapInstalledApps } from '../utils/mapInstalledApps';
 import { matchesCategoryFilter } from '../utils/matchesCategoryFilter';
 
 export const useManageApps = () => {
-  const [installedApps, setInstalledApps] = useState(() => mapInstalledApps(getInstalledApplications()));
+  const [installedApps, setInstalledApps] = useState<ManageApp[]>(() => getCachedInstalledApps() ?? []);
+  const [isLoadingApps, setIsLoadingApps] = useState(() => getCachedInstalledApps() === null);
 
-  const refreshInstalledApps = useCallback(() => {
-    setInstalledApps(mapInstalledApps(getInstalledApplications()));
+  const refreshInstalledApps = useCallback(async (force = false) => {
+    if (force) {
+      invalidateInstalledAppsCache();
+    }
+
+    const hasCachedApps = getCachedInstalledApps() !== null;
+
+    if (!hasCachedApps) {
+      setIsLoadingApps(true);
+    }
+
+    const apps = await loadInstalledApps(force);
+    selectedAppsStore.getState().syncSelectedAppsMetadata(apps);
+    setInstalledApps(apps);
+    setIsLoadingApps(false);
   }, []);
 
   const categoryFilters = useMemo(() => buildCategoryFilters(installedApps), [installedApps]);
@@ -23,16 +38,20 @@ export const useManageApps = () => {
   const [isSearchInputActive, setIsSearchInputActive] = useState(false);
   const [activeCategory, setActiveCategory] = useState<CategoryFilterOption>(ALL_CATEGORY_FILTER);
   const [isCategoryPending, startCategoryTransition] = useTransition();
-  const selectedApps = selectedAppsStore((state) => state.apps);
-  const toggleAppInStore = selectedAppsStore((state) => state.toggleApp);
-  const isSelected = selectedAppsStore((state) => state.isSelected);
+  const { selectedApps, toggleAppSelection, isSelected } = selectedAppsStore(
+    useShallow((state) => ({
+      selectedApps: state.apps,
+      toggleAppSelection: state.toggleApp,
+      isSelected: state.isSelected,
+    })),
+  );
 
-  const toggleAppSelection = useCallback(
+  const handleToggleAppSelection = useCallback(
     (app: ManageApp) => {
       configureSectionLayoutAnimation();
-      toggleAppInStore(app);
+      toggleAppSelection(app);
     },
-    [toggleAppInStore],
+    [toggleAppSelection],
   );
 
   const handleSearchActiveChange = useCallback((isActive: boolean) => {
@@ -89,6 +108,7 @@ export const useManageApps = () => {
 
   return {
     apps: filteredApps,
+    isLoadingApps,
     refreshInstalledApps,
     isFiltering,
     isSearchActive,
@@ -99,6 +119,7 @@ export const useManageApps = () => {
     activeCategoryId: activeCategory.id,
     setActiveCategory: handleCategoryChange,
     isSelected,
-    toggleAppSelection,
+    toggleAppSelection: handleToggleAppSelection,
+    selectedCount: selectedApps.length,
   };
 };

@@ -110,6 +110,7 @@ export const testIds = {
     selectedChipRemove: (packageName: string) => `manage-apps-selected-chip-remove-${toSegment(packageName)}`,
     appsList: 'manage-apps-list',
     appsFilterLoader: 'manage-apps-filter-loader',
+    appsLoader: 'manage-apps-loader',
     appsEmpty: 'manage-apps-empty',
     appRow: (packageName: string) => `manage-apps-row-${toSegment(packageName)}`,
     appSelectionControl: (packageName: string) => `manage-apps-selection-${toSegment(packageName)}`,

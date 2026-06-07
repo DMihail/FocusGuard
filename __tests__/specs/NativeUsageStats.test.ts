@@ -19,6 +19,7 @@ const mockUsageStats = {
   getAppDisplayName: jest.fn(),
   getAppVersion: jest.fn(),
   isMonitorServiceRunning: jest.fn(),
+  invalidateNativeCatalogCaches: jest.fn(),
 };
 
 const mockGet = jest.fn();

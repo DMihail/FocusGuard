@@ -4,4 +4,5 @@ export { appLimitsStore, DEFAULT_APP_LIMITS, LIMIT_SLIDER_BOUNDS, normalizeAppLi
 export { monitoringStore } from './monitoringStore';
 export { selectedAppsStore } from './selectedAppsStore';
 export { settingsStore } from './settingsStore';
+export { trackedUsageStore } from './trackedUsageStore';
 export type { AppLimits } from './types';

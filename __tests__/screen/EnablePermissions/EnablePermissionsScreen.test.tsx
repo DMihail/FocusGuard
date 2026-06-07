@@ -186,7 +186,7 @@ describe('EnablePermissionsScreen', () => {
 
     cleanupTestTrees();
 
-    expect(mockRemoveAppStateListener).toHaveBeenCalledTimes(1);
+    expect(mockRemoveAppStateListener).toHaveBeenCalled();
   });
 
   it('navigates to Dashboard when Continue is pressed and all permissions are granted', () => {

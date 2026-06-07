@@ -1,19 +1,18 @@
 package com.focusguard.service
 
 import android.app.Notification
-import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.Service
 import android.content.Intent
 import android.content.pm.ServiceInfo
 import android.os.Build
 import android.os.IBinder
-import androidx.core.app.NotificationCompat
 import androidx.core.app.ServiceCompat
 import com.focusguard.R
 import com.focusguard.TrackingEngine
 import com.focusguard.monitor.MonitorPermissions
 import com.focusguard.navigation.DeepLinks
+import com.focusguard.notification.KeeptNotifications
 
 /**
  * Long-running foreground service that keeps the app-monitoring process alive.
@@ -82,26 +81,10 @@ class FocusGuardMonitorService : Service() {
     super.onDestroy()
   }
 
-  /**
-   * Creates or updates the [NotificationChannel] with low importance.
-   * No-op below API 26 where channels are not supported.
-   */
+  /** Creates or updates the monitor [NotificationChannel]. No-op below API 26. */
   private fun ensureNotificationChannel() {
-    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
-      return
-    }
-
-    val channel =
-        NotificationChannel(
-            CHANNEL_ID,
-            getString(R.string.monitor_notification_channel_name),
-            NotificationManager.IMPORTANCE_LOW,
-        ).apply {
-          description = getString(R.string.monitor_notification_channel_description)
-        }
-
-    val manager = getSystemService(NotificationManager::class.java)
-    manager?.createNotificationChannel(channel)
+    val manager = getSystemService(NotificationManager::class.java) ?: return
+    KeeptNotifications.ensureMonitorChannel(this, manager)
   }
 
   /** Builds the ongoing foreground notification shown while the service is active. */
@@ -109,18 +92,16 @@ class FocusGuardMonitorService : Service() {
     val contentIntent =
         DeepLinks.activityPendingIntent(this, DeepLinks.dashboardIntent(this), NOTIFICATION_ID)
 
-    return NotificationCompat.Builder(this, CHANNEL_ID)
-        .setSmallIcon(R.mipmap.ic_launcher)
+    return KeeptNotifications.monitorBuilder(this)
         .setContentTitle(getString(R.string.monitor_notification_title))
         .setContentText(getString(R.string.monitor_notification_text))
         .setOngoing(true)
-        .setCategory(NotificationCompat.CATEGORY_SERVICE)
+        .setCategory(androidx.core.app.NotificationCompat.CATEGORY_SERVICE)
         .setContentIntent(contentIntent)
         .build()
   }
 
   companion object {
-    private const val CHANNEL_ID = "keept_monitor"
     private const val NOTIFICATION_ID = 1001
 
     @Volatile var isRunning: Boolean = false

@@ -5,32 +5,41 @@ import org.json.JSONObject
 
 /**
  * Reads tracked apps and per-app limits from the same MMKV instance as the JS layer.
- *
- * - Selected apps: `selected-apps-storage` (zustand `selectedAppsStore`)
- * - Limits: `app-limits-storage` (zustand `appLimitsStore`)
  */
 class TrackingConfigRepository {
 
     private val mmkv: MMKV? =
         MMKV.mmkvWithID(MMKV_INSTANCE_ID, MMKV.MULTI_PROCESS_MODE)
 
-    /** @return package names from the selected apps store. */
+    private var cachedSelectedAppsRaw: String? = null
+    private var cachedTrackedApps: List<String>? = null
+    private var cachedLimitsRaw: String? = null
+    private var cachedLimitsJson: JSONObject? = null
+
     fun getTrackedApps(): List<String> {
         val raw = mmkv?.decodeString(SELECTED_APPS_KEY) ?: return emptyList()
 
-        return try {
-            val state = JSONObject(raw).optJSONObject("state") ?: return emptyList()
-            val apps = state.optJSONArray("apps") ?: return emptyList()
-
-            (0 until apps.length()).mapNotNull { i ->
-                apps.getJSONObject(i).optString("packageName").takeIf { it.isNotEmpty() }
-            }
-        } catch (_: Exception) {
-            emptyList()
+        if (raw == cachedSelectedAppsRaw && cachedTrackedApps != null) {
+            return cachedTrackedApps!!
         }
+
+        val trackedApps =
+            try {
+                val state = JSONObject(raw).optJSONObject("state") ?: return emptyList()
+                val apps = state.optJSONArray("apps") ?: return emptyList()
+
+                (0 until apps.length()).mapNotNull { i ->
+                    apps.getJSONObject(i).optString("packageName").takeIf { it.isNotEmpty() }
+                }
+            } catch (_: Exception) {
+                emptyList()
+            }
+
+        cachedSelectedAppsRaw = raw
+        cachedTrackedApps = trackedApps
+        return trackedApps
     }
 
-    /** @return limit config for [packageName], or defaults when not configured. */
     fun getLimitConfig(packageName: String): AppLimitConfig {
         val limitsJson = loadLimitsJson() ?: return AppLimitConfig.defaults()
         val packageLimits = limitsJson.optJSONObject(packageName) ?: return AppLimitConfig.defaults()
@@ -52,12 +61,21 @@ class TrackingConfigRepository {
     private fun loadLimitsJson(): JSONObject? {
         val raw = mmkv?.decodeString(APP_LIMITS_KEY) ?: return null
 
-        return try {
-            val state = JSONObject(raw).optJSONObject("state") ?: return null
-            state.optJSONObject("limitsByPackage")
-        } catch (_: Exception) {
-            null
+        if (raw == cachedLimitsRaw) {
+            return cachedLimitsJson
         }
+
+        val limitsJson =
+            try {
+                val state = JSONObject(raw).optJSONObject("state") ?: return null
+                state.optJSONObject("limitsByPackage")
+            } catch (_: Exception) {
+                null
+            }
+
+        cachedLimitsRaw = raw
+        cachedLimitsJson = limitsJson
+        return limitsJson
     }
 
     data class AppLimitConfig(
@@ -81,7 +99,6 @@ class TrackingConfigRepository {
 
         private const val DEFAULT_WARNING_MINUTES = 45
         private const val DEFAULT_HARD_BLOCK_MINUTES = 60
-        // Keep in sync with source/store/constants/appLimits.ts
         private const val WARNING_MIN_MINUTES = 5
         private const val WARNING_MAX_MINUTES = 180
         private const val HARD_BLOCK_MIN_MINUTES = 10
