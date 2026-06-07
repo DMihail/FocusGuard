@@ -39,9 +39,13 @@ export const EnablePermissionsScreen = () => {
   const renderItem = useMemo(() => createPermissionListRenderItem(handleGrant), [handleGrant]);
 
   return (
-    <ScreenSafeArea style={permissionsStyles.screen} testID={testIds.enablePermissions.screen}>
+    <ScreenSafeArea
+      style={permissionsStyles.screen}
+      testID={testIds.enablePermissions.screen}
+      accessibilityLabel="Enable permissions"
+    >
       <FlatList
-        testID={testIds.enablePermissions.scroll}
+        testID={testIds.enablePermissions.cards}
         data={permissions}
         renderItem={renderItem}
         keyExtractor={permissionKeyExtractor}

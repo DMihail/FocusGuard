@@ -21,8 +21,10 @@ export const SettingsToggleRow = ({
   iconBackgroundColor,
   value,
   onValueChange,
+  rowTestID = testIds.settings.notificationsRow,
+  toggleTestID = testIds.settings.notificationsToggle,
 }: SettingsToggleRowProps) => (
-  <View style={settingsStyles.row} testID={testIds.settings.notificationsRow}>
+  <View style={settingsStyles.row} testID={rowTestID}>
     <View style={settingsStyles.rowLeading}>
       <View style={[settingsStyles.iconBox, { backgroundColor: iconBackgroundColor }]}>
         <Icon />
@@ -34,7 +36,7 @@ export const SettingsToggleRow = ({
     </View>
 
     <Switch
-      testID={testIds.settings.notificationsToggle}
+      testID={toggleTestID}
       accessibilityRole="switch"
       accessibilityLabel={title}
       value={value}

@@ -26,6 +26,8 @@ export interface Spec extends TurboModule {
   getAppDisplayName(): string;
   getAppVersion(): string;
   invalidateNativeCatalogCaches(): void;
+  getE2ELaunchArg(key: string): string | null;
+  configureE2EBootstrap(skipOnboarding: boolean, permissionsGranted: boolean, resetStorage: boolean): void;
 }
 
 const usageStats = TurboModuleRegistry.get<Spec>('NativeUsageStats');
@@ -85,4 +87,14 @@ export const getAppVersion = (): string => usageStats?.getAppVersion()?.trim() ?
 
 export const invalidateNativeCatalogCaches = (): void => {
   usageStats?.invalidateNativeCatalogCaches();
+};
+
+export const getE2ELaunchArg = (key: string): string | null => usageStats?.getE2ELaunchArg(key) ?? null;
+
+export const configureE2EBootstrap = (
+  skipOnboarding: boolean,
+  permissionsGranted: boolean,
+  resetStorage: boolean,
+): void => {
+  usageStats?.configureE2EBootstrap(skipOnboarding, permissionsGranted, resetStorage);
 };

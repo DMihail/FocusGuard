@@ -23,7 +23,10 @@ export const TrackedAppsScreen = () => {
   const { appRows, refreshUsage } = useTrackedAppRows();
   const { refreshing, onRefresh } = usePullToRefresh(() => refreshUsage(true));
 
-  const renderItem = useMemo(() => createTrackedAppRenderItem(openConfigureLimits), [openConfigureLimits]);
+  const renderItem = useMemo(
+    () => createTrackedAppRenderItem(openConfigureLimits, testIds.trackedApps.appRow),
+    [openConfigureLimits],
+  );
 
   const renderListHeader = useCallback(
     () => <TrackedAppsHeader appCount={appRows.length} onBack={goBack} />,
@@ -50,7 +53,7 @@ export const TrackedAppsScreen = () => {
       accessibilityLabel="Tracked apps"
     >
       <FlatList
-        testID={testIds.trackedApps.scroll}
+        testID={testIds.trackedApps.list}
         data={appRows}
         renderItem={renderItem}
         keyExtractor={trackedAppKeyExtractor}
