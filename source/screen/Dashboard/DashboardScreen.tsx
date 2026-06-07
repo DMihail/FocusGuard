@@ -3,6 +3,7 @@
 import React, { useCallback, useMemo } from 'react';
 import { FlatList, RefreshControl } from 'react-native';
 
+import { usePrefetchNativeCatalogs } from '@/hooks/usePrefetchNativeCatalogs';
 import { SECTION_SCROLL_FLAT_LIST_PROPS } from '@/list';
 import { useRootNavigation } from '@/navigation';
 import { testIds } from '@/testing/testIds';
@@ -24,6 +25,8 @@ import { ScreenSafeArea } from '@/components';
 export const DashboardScreen = () => {
   const navigation = useRootNavigation();
   const greeting = useMemo(() => getGreeting(), []);
+
+  usePrefetchNativeCatalogs();
   const {
     appRows,
     summary,

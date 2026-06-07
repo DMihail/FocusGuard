@@ -19,6 +19,7 @@ export const ManageAppsScreen = () => {
   const openConfigureLimits = useNavigateToConfigureLimits();
   const {
     apps,
+    isLoadingApps,
     refreshInstalledApps,
     isFiltering,
     selectedApps,
@@ -30,11 +31,12 @@ export const ManageAppsScreen = () => {
     setActiveCategory,
     isSelected,
     toggleAppSelection,
+    selectedCount,
   } = useManageApps();
 
   useFocusEffect(
     useCallback(() => {
-      refreshInstalledApps();
+      refreshInstalledApps().catch(() => undefined);
     }, [refreshInstalledApps]),
   );
 
@@ -44,10 +46,11 @@ export const ManageAppsScreen = () => {
       testID={testIds.manageApps.screen}
       accessibilityLabel="Manage apps screen"
     >
-      <ManageAppsHeader onBack={goBack} />
+      <ManageAppsHeader selectedCount={selectedCount} onBack={goBack} />
       <ManageAppsSearchToolbar onQueryChange={setSearchQuery} onQueryActiveChange={setSearchInputActive} />
       <ManageAppsContent
         apps={apps}
+        isLoadingApps={isLoadingApps}
         isFiltering={isFiltering}
         selectedApps={selectedApps}
         isSelected={isSelected}

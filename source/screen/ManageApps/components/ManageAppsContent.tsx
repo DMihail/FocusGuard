@@ -1,9 +1,9 @@
-/** @format */
-
 import React, { useMemo } from 'react';
-import { ActivityIndicator, FlatList, View } from 'react-native';
+import { ActivityIndicator, View } from 'react-native';
 
-import { APP_LIST_FLAT_LIST_PROPS } from '@/list';
+import { FlashList } from '@shopify/flash-list';
+
+import { MANAGE_APPS_FLASH_LIST_PROPS } from '@/list';
 import { testIds } from '@/testing/testIds';
 import { colors } from '@/theme';
 
@@ -14,6 +14,7 @@ import { ManageAppsListHeader } from './ManageAppsListHeader';
 
 export function ManageAppsContent({
   apps,
+  isLoadingApps,
   isFiltering,
   selectedApps,
   isSelected,
@@ -55,21 +56,21 @@ export function ManageAppsContent({
   return (
     <View style={manageAppsStyles.content} testID={testIds.manageApps.appsList}>
       <View
-        style={[manageAppsStyles.listWrapper, isFiltering && manageAppsStyles.contentDimmed]}
-        accessibilityState={isFiltering ? { busy: true } : undefined}
+        style={[manageAppsStyles.listWrapper, (isFiltering || isLoadingApps) && manageAppsStyles.contentDimmed]}
+        accessibilityState={isFiltering || isLoadingApps ? { busy: true } : undefined}
       >
-        {isFiltering ? (
+        {isFiltering || isLoadingApps ? (
           <View style={manageAppsStyles.filterLoader} pointerEvents="none">
             <ActivityIndicator
               size="small"
               color={colors.accent}
-              accessibilityLabel="Filtering apps"
-              testID={testIds.manageApps.appsFilterLoader}
+              accessibilityLabel={isLoadingApps ? 'Loading apps' : 'Filtering apps'}
+              testID={isLoadingApps ? testIds.manageApps.appsLoader : testIds.manageApps.appsFilterLoader}
             />
           </View>
         ) : null}
 
-        <FlatList
+        <FlashList
           style={manageAppsStyles.flatList}
           testID={testIds.manageApps.scroll}
           data={apps}
@@ -82,7 +83,7 @@ export function ManageAppsContent({
           keyboardDismissMode="none"
           accessibilityRole="list"
           accessibilityLabel="Installed apps"
-          {...APP_LIST_FLAT_LIST_PROPS}
+          {...MANAGE_APPS_FLASH_LIST_PROPS}
         />
       </View>
     </View>

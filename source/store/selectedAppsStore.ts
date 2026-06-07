@@ -1,12 +1,11 @@
-/** @format */
-
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
+
+import { syncSelectedAppsMetadata as mergeSelectedAppsMetadata } from '@/domain/reconcileSelectedApps';
 
 import { zustandStorage } from './mmkv';
 import type { SelectedAppsStore } from './types';
 
-/** Persisted list of user-selected apps to track and limit. */
 export const selectedAppsStore = create<SelectedAppsStore>()(
   persist(
     (set, get) => ({
@@ -22,6 +21,14 @@ export const selectedAppsStore = create<SelectedAppsStore>()(
       },
 
       isSelected: (packageName) => get().apps.some((app) => app.packageName === packageName),
+
+      syncSelectedAppsMetadata: (installedApps) => {
+        const nextApps = mergeSelectedAppsMetadata(get().apps, installedApps);
+
+        if (nextApps) {
+          set({ apps: nextApps });
+        }
+      },
     }),
     {
       name: 'selected-apps-storage',

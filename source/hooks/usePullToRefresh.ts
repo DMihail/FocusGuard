@@ -2,14 +2,14 @@
 
 import { useCallback, useState } from 'react';
 
-/** Wraps a sync refresh handler for `RefreshControl` with a short `refreshing` pulse. */
-export const usePullToRefresh = (refresh: () => void) => {
+/** Wraps a refresh handler for `RefreshControl` and keeps the spinner until async work finishes. */
+export const usePullToRefresh = (refresh: () => void | Promise<void>) => {
   const [refreshing, setRefreshing] = useState(false);
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
-    refresh();
-    requestAnimationFrame(() => {
+
+    Promise.resolve(refresh()).finally(() => {
       setRefreshing(false);
     });
   }, [refresh]);

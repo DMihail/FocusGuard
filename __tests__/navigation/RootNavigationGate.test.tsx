@@ -22,8 +22,15 @@ jest.mock('../../source/navigation/resolveEntryRoute', () => ({
   resolveEntryRoute: (isConfirm: boolean) => (isConfirm ? 'Dashboard' : 'Onboarding'),
 }));
 
-jest.mock('../../source/screen/EnablePermissions/utils/permissionStatus', () => ({
+jest.mock('../../source/domain/permissionSnapshot', () => ({
   areAllPermissionsGranted: () => mockAreAllPermissionsGranted(),
+  invalidatePermissionSnapshot: jest.fn(),
+  getPermissionStatuses: jest.fn(() => ({
+    'usage-access': 'granted',
+    'display-over-apps': 'granted',
+    notifications: 'granted',
+    'battery-optimization': 'granted',
+  })),
 }));
 
 jest.mock('../../source/store/mmkv', () => ({

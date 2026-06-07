@@ -17,6 +17,7 @@ jest.mock('@/specs', () => ({
   checkForManifestMonitorPermissions: (...args: unknown[]) => mockCheckForManifestMonitorPermissions(...args),
 }));
 
+import { invalidatePermissionSnapshot } from '@/domain/permissionSnapshot';
 import { resolveEntryRoute } from '@/navigation/resolveEntryRoute';
 
 describe('resolveEntryRoute', () => {
@@ -24,6 +25,7 @@ describe('resolveEntryRoute', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    invalidatePermissionSnapshot();
     Object.defineProperty(Platform, 'OS', { configurable: true, value: 'android' });
     mockCheckForPermission.mockReturnValue(false);
     mockCheckForSystemAlertWindowPermission.mockReturnValue(false);

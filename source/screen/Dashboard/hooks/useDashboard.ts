@@ -14,7 +14,7 @@ export const useDashboard = () => {
   const isMonitoring = monitoringStore((state) => state.isMonitoring);
   const toggleMonitoring = monitoringStore((state) => state.toggle);
   const openConfigureLimits = useNavigateToConfigureLimits();
-  const { refreshing, onRefresh } = usePullToRefresh(refreshUsage);
+  const { refreshing, onRefresh } = usePullToRefresh(() => refreshUsage(true));
 
   const summary = useMemo(() => buildDashboardSummary(appRows), [appRows]);
 

@@ -1,19 +1,15 @@
-/** @format */
-
 import React from 'react';
 
-import { selectedAppsStore } from '@/store';
 import { testIds } from '@/testing/testIds';
 
 import { ScreenBackHeader } from '@/components';
 
 type ManageAppsHeaderProps = {
+  selectedCount: number;
   onBack: () => void;
 };
 
-export function ManageAppsHeader({ onBack }: ManageAppsHeaderProps) {
-  const selectedCount = selectedAppsStore((state) => state.apps.length);
-
+export function ManageAppsHeader({ selectedCount, onBack }: ManageAppsHeaderProps) {
   return (
     <ScreenBackHeader
       title="Select Apps"

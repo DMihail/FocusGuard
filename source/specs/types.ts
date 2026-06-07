@@ -1,6 +1,6 @@
 /** @format */
 
-/** Per-app foreground usage statistics for the last 24 hours. */
+/** Per-app foreground usage for the current local calendar day. */
 export type AppUsageStat = Readonly<{
   /** Unique application identifier, e.g. `com.example.app`. */
   packageName: string;

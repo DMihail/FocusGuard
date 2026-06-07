@@ -26,11 +26,8 @@ jest.mock('@/specs', () => ({
     mockRequestIgnoreBatteryOptimizationsPermission(...args),
 }));
 
-import {
-  areAllPermissionsGranted,
-  readPermissionStatuses,
-  requestPermissionById,
-} from '@/screen/EnablePermissions/utils/permissionStatus';
+import { areAllPermissionsGranted } from '@/domain/permissionSnapshot';
+import { readPermissionStatuses, requestPermissionById } from '@/screen/EnablePermissions/utils/permissionStatus';
 
 const allPending = {
   'usage-access': 'pending',

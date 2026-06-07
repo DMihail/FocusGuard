@@ -5,8 +5,8 @@ import { useCallback, useEffect, useState } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import { useShallow } from 'zustand/react/shallow';
 
+import { loadPackageUsageToday } from '@/domain/usageStatsCatalog';
 import { useAppStateOnActive } from '@/hooks/useAppStateOnActive';
-import { getPackageUsageToday } from '@/specs/NativeUsageStats';
 import {
   type AppLimits,
   appLimitsStore,
@@ -14,6 +14,7 @@ import {
   LIMIT_SLIDER_BOUNDS,
   normalizeAppLimits,
   selectedAppsStore,
+  trackedUsageStore,
 } from '@/store';
 
 import type { UseConfigureLimitsResult } from '../types';
@@ -29,8 +30,17 @@ export const useConfigureLimits = (packageName: string): UseConfigureLimitsResul
   const [usedMsToday, setUsedMsToday] = useState(0);
 
   const refreshUsage = useCallback(() => {
-    const nextUsage = getPackageUsageToday(packageName);
-    setUsedMsToday((previous) => (previous === nextUsage ? previous : nextUsage));
+    const cachedUsage = trackedUsageStore.getState().usageByPackage[packageName];
+
+    if (cachedUsage !== undefined) {
+      setUsedMsToday((previous) => (previous === cachedUsage ? previous : cachedUsage));
+    }
+
+    loadPackageUsageToday(packageName)
+      .then((nextUsage) => {
+        setUsedMsToday((previous) => (previous === nextUsage ? previous : nextUsage));
+      })
+      .catch(() => undefined);
   }, [packageName]);
 
   useFocusEffect(

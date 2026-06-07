@@ -10,6 +10,11 @@ export const APP_LIST_FLAT_LIST_PROPS = {
   keyboardShouldPersistTaps: 'handled',
 } as const satisfies Partial<FlatListProps<unknown>>;
 
+export const MANAGE_APPS_FLASH_LIST_PROPS = {
+  drawDistance: 360,
+  keyboardShouldPersistTaps: 'handled',
+} as const;
+
 export const CHIP_ROW_FLAT_LIST_PROPS = {
   initialNumToRender: 8,
   maxToRenderPerBatch: 8,
