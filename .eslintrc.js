@@ -83,6 +83,25 @@ module.exports = {
       },
     },
     {
+      files: ['e2e/**/*.js'],
+      env: { jest: true },
+      globals: {
+        device: 'readonly',
+        element: 'readonly',
+        by: 'readonly',
+        waitFor: 'readonly',
+      },
+      rules: {
+        'no-console': 'off',
+      },
+    },
+    {
+      files: ['scripts/**/*.js'],
+      rules: {
+        'no-console': 'off',
+      },
+    },
+    {
       files: ['*.config.js', '.eslintrc.js', '.prettierrc.js', 'babel.config.js', 'jest.config.js'],
       rules: {
         'simple-import-sort/imports': 'off',

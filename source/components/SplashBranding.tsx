@@ -34,7 +34,17 @@ const SplashPulseDot = memo(({ pulse }: SplashPulseDotProps) => {
 SplashPulseDot.displayName = 'SplashPulseDot';
 
 const SplashLoadingDots = () => {
-  const pulseValues = useSplashDotPulse(SPLASH_DOT_COUNT);
+  const { isReducedMotion, pulseValues } = useSplashDotPulse(SPLASH_DOT_COUNT);
+
+  if (isReducedMotion) {
+    return (
+      <View style={styles.dots} accessible={false}>
+        {Array.from({ length: SPLASH_DOT_COUNT }, (_, index) => (
+          <View key={index} style={styles.dot} />
+        ))}
+      </View>
+    );
+  }
 
   return (
     <View style={styles.dots} accessible={false}>

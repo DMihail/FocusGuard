@@ -35,14 +35,18 @@ export const ConfigureLimitsScreen = ({ route }: ConfigureLimitsScreenProps) => 
 
   if (!app) {
     return (
-      <ScreenSafeArea style={styles.screen}>
+      <ScreenSafeArea
+        style={styles.screen}
+        testID={testIds.configureLimits.unknownAppScreen}
+        accessibilityLabel="Configure limits, unknown app"
+      >
         <ConfigureLimitsHeader appName="Unknown app" onBack={goBack} />
       </ScreenSafeArea>
     );
   }
 
   return (
-    <ScreenSafeArea style={styles.screen} testID={testIds.configureLimits.screen}>
+    <ScreenSafeArea style={styles.screen} testID={testIds.configureLimits.screen} accessibilityLabel="Configure limits">
       <ScrollView
         testID={testIds.configureLimits.scroll}
         contentContainerStyle={styles.scrollContent}
@@ -62,6 +66,9 @@ export const ConfigureLimitsScreen = ({ route }: ConfigureLimitsScreenProps) => 
         <View style={styles.cards}>
           <LimitSliderCard
             testID={testIds.configureLimits.warningCard}
+            decreaseTestID={testIds.configureLimits.warningDecrease}
+            increaseTestID={testIds.configureLimits.warningIncrease}
+            trackTestID={testIds.configureLimits.warningTrack}
             title="Daily warning"
             description="Notification when today's usage reaches this time"
             valueMinutes={draft.warningMinutes}
@@ -74,6 +81,9 @@ export const ConfigureLimitsScreen = ({ route }: ConfigureLimitsScreenProps) => 
 
           <LimitSliderCard
             testID={testIds.configureLimits.hardBlockCard}
+            decreaseTestID={testIds.configureLimits.hardBlockDecrease}
+            increaseTestID={testIds.configureLimits.hardBlockIncrease}
+            trackTestID={testIds.configureLimits.hardBlockTrack}
             title="Daily limit"
             description="App is blocked immediately when you open it after today's limit is reached"
             valueMinutes={draft.hardBlockMinutes}

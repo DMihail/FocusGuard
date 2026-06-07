@@ -5,15 +5,12 @@ type CatalogLoaderState<T> = {
   loadPromise: Promise<T> | null;
 };
 
-const runDeferred = <T>(task: () => T, fallback: T, label: string): Promise<T> =>
+const runDeferred = <T>(task: () => T, fallback: T): Promise<T> =>
   new Promise((resolve) => {
     scheduleAfterInteractions(() => {
       try {
         resolve(task());
-      } catch (error) {
-        if (__DEV__) {
-          console.warn(`[${label}] Failed to load native catalog`, error);
-        }
+      } catch {
         resolve(fallback);
       }
     });
@@ -52,15 +49,11 @@ export const createNativeCatalogLoader = <T>(config: {
       return state.loadPromise;
     }
 
-    state.loadPromise = runDeferred(
-      () => {
-        const value = config.read();
-        state.cached = value;
-        return value;
-      },
-      config.fallback,
-      config.label,
-    ).finally(() => {
+    state.loadPromise = runDeferred(() => {
+      const value = config.read();
+      state.cached = value;
+      return value;
+    }, config.fallback).finally(() => {
       state.loadPromise = null;
     });
 
@@ -134,15 +127,11 @@ export const createNativeKeyedCatalogLoader = <T extends Record<string, number>>
       return state.loadPromise.then((cached) => pickKeys(cached, keys));
     }
 
-    state.loadPromise = runDeferred(
-      () => {
-        const partial = config.readKeys(keys);
-        state.cached = { ...(force ? {} : state.cached ?? {}), ...partial } as T;
-        return state.cached;
-      },
-      (force ? {} : state.cached ?? {}) as T,
-      config.label,
-    ).finally(() => {
+    state.loadPromise = runDeferred(() => {
+      const partial = config.readKeys(keys);
+      state.cached = { ...(force ? {} : state.cached ?? {}), ...partial } as T;
+      return state.cached;
+    }, (force ? {} : state.cached ?? {}) as T).finally(() => {
       state.loadPromise = null;
     });
 

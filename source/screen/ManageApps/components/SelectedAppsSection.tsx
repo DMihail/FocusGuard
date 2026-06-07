@@ -25,6 +25,7 @@ const SelectedChip = memo(({ app, onPress, onRemove }: SelectedChipProps) => (
       accessibilityLabel={`Configure limits for ${app.appName}`}
       onPress={() => onPress(app.packageName)}
       style={manageAppsStyles.selectedChipBody}
+      testID={testIds.manageApps.selectedChipPress(app.packageName)}
     >
       <Text style={manageAppsStyles.selectedChipLabel} numberOfLines={1}>
         {app.appName}
@@ -56,7 +57,9 @@ export function SelectedAppsSection({ apps, onAppPress, onAppRemove }: SelectedA
       collapsable={false}
     >
       <View style={manageAppsStyles.section}>
-        <Text style={manageAppsStyles.sectionTitle}>Selected Apps</Text>
+        <Text accessibilityRole="header" style={manageAppsStyles.sectionTitle}>
+          Selected Apps
+        </Text>
 
         <ScrollView
           horizontal

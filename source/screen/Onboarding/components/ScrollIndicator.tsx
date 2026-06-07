@@ -3,6 +3,7 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 
+import { testIds } from '@/testing/testIds';
 import { spacing } from '@/theme';
 
 import type { ScrollIndicatorProps } from '../types';
@@ -13,7 +14,12 @@ type ScrollIndicatorPropsWithVariant = ScrollIndicatorProps & {
 };
 
 export const ScrollIndicator = ({ count, scrollX, pageWidth, variant }: ScrollIndicatorPropsWithVariant) => (
-  <View style={[styles.container, variant === 'page' && styles.containerCentered]}>
+  <View
+    style={[styles.container, variant === 'page' && styles.containerCentered]}
+    testID={testIds.onboarding.stepIndicator}
+    accessibilityRole="tablist"
+    accessibilityLabel={`Onboarding step indicator, ${count} steps`}
+  >
     {Array.from({ length: count }, (_, index) => (
       <AnimatedIndicatorDot key={index} scrollX={scrollX} index={index} pageWidth={pageWidth} variant={variant} />
     ))}

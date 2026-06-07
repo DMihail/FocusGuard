@@ -115,6 +115,61 @@ npm run format:check  # Prettier
 
 Husky runs lint-staged on commit. Production builds strip `console.log` / `console.debug` / `console.info` via Babel.
 
+## Testing
+
+### Unit tests
+
+```sh
+npm test
+```
+
+### Detox (E2E)
+
+Full Detox setup with Page Object Model, launch presets, and native E2E bootstrap.
+
+```
+e2e/
+├── helpers/          launch presets, wait/tap utilities
+├── screens/          Page Objects (Onboarding, Dashboard, …)
+├── tests/            smoke, onboarding, permissions, navigation
+├── testIds.js        mirror of source/testing/testIds.ts
+└── jest.config.js
+```
+
+**Launch presets** (via `launchArgs` → native `configureE2EBootstrap`):
+
+| Preset        | Effect                                         |
+| ------------- | ---------------------------------------------- |
+| `fresh`       | Clears MMKV → Onboarding                       |
+| `permissions` | Skip onboarding → Enable Permissions           |
+| `dashboard`   | Skip onboarding + mock permissions → Dashboard |
+
+```sh
+# Android emulator (start Metro first: npm start)
+npm run e2e:android
+
+# Or step by step
+npm run e2e:build:android
+npm run e2e:test:android
+
+# Physical device
+npm run e2e:build:android:attached
+npm run e2e:test:android:attached
+
+# Release-like build with E2E bootstrap (minified, bundled JS — Metro not required)
+npm run e2e:android:e2eRelease
+
+# Plain release APK (no E2E bootstrap — onboarding/permissions presets will not work)
+npm run e2e:build:android:release
+npm run e2e:test:android:release
+```
+
+**Selectors:** always prefer `element(by.id(...))` from `e2e/testIds.js`. Detox uses `exposeGlobals: false` — import
+`{ device, element, by, waitFor, expect }` from `detox`.
+
+**Android emulator:** set `DETOX_AVD_NAME` to one of your AVDs (`emulator -list-avds`). Default in `.detoxrc.js` is
+`Medium_Phone`. Instrumentation tests live in `android/app/src/androidTest/`.
+
 ## CI
 
 GitHub Actions (`.github/workflows/ci.yml`) on push/PR:

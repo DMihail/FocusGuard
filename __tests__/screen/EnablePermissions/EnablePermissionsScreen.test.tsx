@@ -72,6 +72,10 @@ jest.mock('../../../source/screen/EnablePermissions/hooks/usePermissionCardAnima
   }),
 }));
 
+jest.mock('@/hooks/usePrefetchNativeCatalogs', () => ({
+  usePrefetchNativeCatalogs: jest.fn(),
+}));
+
 jest.spyOn(AppState, 'addEventListener').mockImplementation((_, listener) => {
   appStateListener = listener as (state: string) => void;
   return { remove: mockRemoveAppStateListener };

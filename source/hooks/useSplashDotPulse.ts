@@ -7,6 +7,7 @@ import {
   Easing,
   makeMutable,
   type SharedValue,
+  useReducedMotion,
   withDelay,
   withRepeat,
   withSequence,
@@ -24,8 +25,14 @@ const pulseTimingConfig = {
   easing: Easing.inOut(Easing.ease),
 };
 
+type SplashDotPulseResult = {
+  isReducedMotion: boolean;
+  pulseValues: SharedValue<number>[];
+};
+
 /** Drives a sequential pulse across loading dots on the UI thread. */
-export const useSplashDotPulse = (dotCount: number): SharedValue<number>[] => {
+export const useSplashDotPulse = (dotCount: number): SplashDotPulseResult => {
+  const isReducedMotion = useReducedMotion();
   const pulseValues = useRef<SharedValue<number>[] | null>(null);
 
   if (pulseValues.current === null || pulseValues.current.length !== dotCount) {
@@ -33,6 +40,10 @@ export const useSplashDotPulse = (dotCount: number): SharedValue<number>[] => {
   }
 
   useEffect(() => {
+    if (isReducedMotion) {
+      return undefined;
+    }
+
     const values = pulseValues.current ?? [];
 
     values.forEach((value, index) => {
@@ -48,7 +59,10 @@ export const useSplashDotPulse = (dotCount: number): SharedValue<number>[] => {
         value.value = DOT_PULSE_MIN;
       });
     };
-  }, [dotCount]);
+  }, [dotCount, isReducedMotion]);
 
-  return pulseValues.current;
+  return {
+    isReducedMotion,
+    pulseValues: pulseValues.current ?? [],
+  };
 };

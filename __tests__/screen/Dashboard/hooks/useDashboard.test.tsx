@@ -70,6 +70,10 @@ jest.mock('@/hooks/useAppStateOnActive', () => ({
   useAppStateOnActive: jest.fn(),
 }));
 
+jest.mock('@/hooks/usePrefetchNativeCatalogs', () => ({
+  usePrefetchNativeCatalogs: jest.fn(),
+}));
+
 import { invalidateUsageStatsCache } from '@/domain/usageStatsCatalog';
 import { resetTrackedUsageSeedForTests } from '@/hooks/useTrackedAppRows';
 import { useDashboard } from '@/screen/Dashboard/hooks/useDashboard';
@@ -87,7 +91,7 @@ const UseDashboardHarness = ({ onReady }: HarnessProps) => {
 
   useEffect(() => {
     onReadyRef.current(value);
-  });
+  }, [value]);
 
   return null;
 };
@@ -97,7 +101,9 @@ describe('useDashboard', () => {
     jest.clearAllMocks();
     invalidateUsageStatsCache();
     resetTrackedUsageSeedForTests();
-    trackedUsageStore.setState({ usageByPackage: {} });
+    act(() => {
+      trackedUsageStore.setState({ usageByPackage: {} });
+    });
     mockStoreState.apps = [...mockSelectedApps];
     mockStoreState.isMonitoring = false;
     mockGetPackageUsageToday.mockImplementation(
