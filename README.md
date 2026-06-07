@@ -155,6 +155,13 @@ npm run e2e:test:android
 # Physical device
 npm run e2e:build:android:attached
 npm run e2e:test:android:attached
+
+# Release-like build with E2E bootstrap (minified, bundled JS — Metro not required)
+npm run e2e:android:e2eRelease
+
+# Plain release APK (no E2E bootstrap — onboarding/permissions presets will not work)
+npm run e2e:build:android:release
+npm run e2e:test:android:release
 ```
 
 **Selectors:** always prefer `element(by.id(...))` from `e2e/testIds.js`. Detox uses `exposeGlobals: false` — import

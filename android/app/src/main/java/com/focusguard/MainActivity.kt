@@ -7,6 +7,7 @@ import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate
 import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint.fabricEnabled
 import com.facebook.react.defaults.DefaultReactActivityDelegate
+import com.focusguard.e2e.E2EBootstrap
 import com.focusguard.e2e.E2ELaunchArgs
 import com.focusguard.permissions.NotificationPermission
 import com.focusguard.permissions.PermissionEventEmitter
@@ -22,15 +23,17 @@ class MainActivity : ReactActivity() {
 
   override fun onCreate(savedInstanceState: Bundle?) {
     installSplashScreen()
+    E2ELaunchArgs.bindFromActivity(this)
+    E2EBootstrap.applyFromCachedLaunchArgs()
     supportFragmentManager.fragmentFactory = RNScreensFragmentFactory()
     super.onCreate(savedInstanceState)
-    E2ELaunchArgs.bindFromActivity(this)
   }
 
   override fun onNewIntent(intent: Intent) {
     super.onNewIntent(intent)
     setIntent(intent)
     E2ELaunchArgs.bindFromActivity(this)
+    E2EBootstrap.applyFromCachedLaunchArgs()
   }
 
   override fun onRequestPermissionsResult(

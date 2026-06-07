@@ -27,6 +27,7 @@ export interface Spec extends TurboModule {
   getAppVersion(): string;
   invalidateNativeCatalogCaches(): void;
   getE2ELaunchArg(key: string): string | null;
+  isE2EEnabled(): boolean;
   configureE2EBootstrap(skipOnboarding: boolean, permissionsGranted: boolean, resetStorage: boolean): void;
 }
 
@@ -90,6 +91,8 @@ export const invalidateNativeCatalogCaches = (): void => {
 };
 
 export const getE2ELaunchArg = (key: string): string | null => usageStats?.getE2ELaunchArg(key) ?? null;
+
+export const isE2EEnabled = (): boolean => usageStats?.isE2EEnabled() ?? false;
 
 export const configureE2EBootstrap = (
   skipOnboarding: boolean,

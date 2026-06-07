@@ -39,6 +39,13 @@ module.exports = {
       testBinaryPath: 'android/app/build/outputs/apk/androidTest/release/app-release-androidTest.apk',
       build: 'cd android && ./gradlew assembleRelease assembleAndroidTest -DtestBuildType=release',
     },
+    'android.e2eRelease': {
+      type: 'android.apk',
+      binaryPath: 'android/app/build/outputs/apk/e2eRelease/app-e2eRelease.apk',
+      testBinaryPath: 'android/app/build/outputs/apk/androidTest/e2eRelease/app-e2eRelease-androidTest.apk',
+      build:
+        'cd android && ./gradlew assembleE2eRelease assembleAndroidTest -DtestBuildType=e2eRelease',
+    },
   },
   devices: {
     simulator: {
@@ -77,6 +84,10 @@ module.exports = {
       device: 'attached',
       app: 'android.release',
     },
+    'android.att.e2eRelease': {
+      device: 'attached',
+      app: 'android.e2eRelease',
+    },
     'android.emu.debug': {
       device: 'emulator',
       app: 'android.debug',
@@ -84,6 +95,10 @@ module.exports = {
     'android.emu.release': {
       device: 'emulator',
       app: 'android.release',
+    },
+    'android.emu.e2eRelease': {
+      device: 'emulator',
+      app: 'android.e2eRelease',
     },
   },
   behavior: {

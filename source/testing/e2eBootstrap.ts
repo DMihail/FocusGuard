@@ -1,6 +1,6 @@
 /** @format */
 
-import { configureE2EBootstrap, getE2ELaunchArg } from '@/specs';
+import { configureE2EBootstrap, getE2ELaunchArg, isE2EEnabled } from '@/specs';
 
 const parseBool = (value: string | null): boolean => value === 'true';
 
@@ -9,13 +9,27 @@ const parseBool = (value: string | null): boolean => value === 'true';
  * Called from index.js so MMKV is seeded before Zustand hydration.
  */
 export const applyE2EBootstrapFromLaunchArgs = (): void => {
-  if (!__DEV__) {
+  if (!isE2EEnabled()) {
     return;
   }
 
-  const resetStorage = parseBool(getE2ELaunchArg('e2eResetStorage'));
-  const skipOnboarding = parseBool(getE2ELaunchArg('e2eSkipOnboarding'));
-  const permissionsGranted = parseBool(getE2ELaunchArg('e2ePermissionsGranted'));
+  const preset = getE2ELaunchArg('e2ePreset') as E2ELaunchPreset | null;
+  if (preset && preset in E2E_LAUNCH_ARGS) {
+    applyLaunchFlags(E2E_LAUNCH_ARGS[preset]);
+    return;
+  }
+
+  applyLaunchFlags({
+    e2eResetStorage: getE2ELaunchArg('e2eResetStorage'),
+    e2eSkipOnboarding: getE2ELaunchArg('e2eSkipOnboarding'),
+    e2ePermissionsGranted: getE2ELaunchArg('e2ePermissionsGranted'),
+  });
+};
+
+const applyLaunchFlags = (flags: Record<string, string | null | undefined>): void => {
+  const resetStorage = parseBool(flags.e2eResetStorage ?? null);
+  const skipOnboarding = parseBool(flags.e2eSkipOnboarding ?? null);
+  const permissionsGranted = parseBool(flags.e2ePermissionsGranted ?? null);
 
   if (!resetStorage && !skipOnboarding && !permissionsGranted) {
     return;

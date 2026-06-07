@@ -4,6 +4,8 @@ import android.app.Application
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.WritableArray
 import com.focusguard.e2e.E2EAppState
+import com.focusguard.e2e.E2EBootstrap
+import com.focusguard.e2e.E2EFeature
 import com.focusguard.e2e.E2ELaunchArgs
 import com.focusguard.e2e.E2EPermissionOverride
 import com.focusguard.apps.InstalledAppsRepository
@@ -124,12 +126,27 @@ class NativeUsageStatsModule(
 
   override fun getE2ELaunchArg(key: String): String? = E2ELaunchArgs.get(key)
 
+  override fun isE2EEnabled(): Boolean = E2EFeature.isEnabled()
+
   override fun configureE2EBootstrap(
       skipOnboarding: Boolean,
       permissionsGranted: Boolean,
       resetStorage: Boolean,
   ) {
-    if (!com.focusguard.BuildConfig.DEBUG) {
+    if (!E2EFeature.isEnabled()) {
+      return
+    }
+
+    E2ELaunchArgs.bindFromInstrumentation()
+
+    val hasLaunchArgs =
+        E2ELaunchArgs.get("e2ePreset") != null ||
+            E2ELaunchArgs.get("e2eResetStorage") != null ||
+            E2ELaunchArgs.get("e2eSkipOnboarding") != null ||
+            E2ELaunchArgs.get("e2ePermissionsGranted") != null
+
+    if (hasLaunchArgs) {
+      E2EBootstrap.applyFromCachedLaunchArgs()
       return
     }
 

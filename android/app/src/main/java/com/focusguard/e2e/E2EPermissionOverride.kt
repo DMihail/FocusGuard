@@ -1,11 +1,9 @@
 package com.focusguard.e2e
 
-import com.focusguard.BuildConfig
-
-/** In-memory permission mocks for Detox — debug builds only. */
+/** In-memory permission mocks for Detox — debug / e2eRelease builds only. */
 object E2EPermissionOverride {
     @Volatile
     var permissionsGranted: Boolean = false
 
-    fun isActive(): Boolean = BuildConfig.DEBUG && permissionsGranted
+    fun isActive(): Boolean = E2EFeature.isEnabled() && permissionsGranted
 }

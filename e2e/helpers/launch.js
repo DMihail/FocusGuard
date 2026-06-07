@@ -21,7 +21,10 @@ const LAUNCH_PRESETS = {
 };
 
 const launchApp = async (preset = 'fresh', options = {}) => {
-  const launchArgs = LAUNCH_PRESETS[preset] ?? LAUNCH_PRESETS.fresh;
+  const launchArgs = {
+    e2ePreset: preset,
+    ...(LAUNCH_PRESETS[preset] ?? LAUNCH_PRESETS.fresh),
+  };
 
   await device.launchApp({
     newInstance: true,

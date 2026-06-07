@@ -21,6 +21,7 @@ const mockUsageStats = {
   isMonitorServiceRunning: jest.fn(),
   invalidateNativeCatalogCaches: jest.fn(),
   getE2ELaunchArg: jest.fn(),
+  isE2EEnabled: jest.fn(),
   configureE2EBootstrap: jest.fn(),
 };
 
