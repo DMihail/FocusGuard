@@ -108,6 +108,12 @@ class NativeUsageStatsModule(
 
   override fun getAppVersion(): String = AppInfo.getVersionName()
 
+  override fun invalidateNativeCatalogCaches() {
+    installedAppsRepository.invalidateCache()
+    usageStatsCatalogRepository.invalidateCache()
+    dailyUsageRepository.invalidateCache()
+  }
+
   private fun emitPermissionsChanged() {
     PermissionEventEmitter.emit(appContext as Application)
   }

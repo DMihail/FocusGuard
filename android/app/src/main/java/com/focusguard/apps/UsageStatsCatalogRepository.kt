@@ -70,4 +70,9 @@ internal class UsageStatsCatalogRepository(
         cachedDayStartMs = dayStartMs
         return result
     }
+
+    fun invalidateCache() {
+        cachedUsage = null
+        cachedDayStartMs = 0L
+    }
 }

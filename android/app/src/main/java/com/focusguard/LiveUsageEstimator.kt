@@ -12,36 +12,51 @@ class LiveUsageEstimator(
     private var sessionStartedAtMs: Long = 0L
     private val baselineMsByPackage = mutableMapOf<String, Long>()
 
-    /** Call when a tracked app becomes the stable foreground app. */
     fun onTrackedAppForeground(packageName: String) {
         if (sessionPackage == packageName) {
             return
         }
 
+        flushActiveSession()
         sessionPackage = packageName
         sessionStartedAtMs = System.currentTimeMillis()
-        baselineMsByPackage[packageName] = dailyUsageRepository.getTodayForegroundMs(packageName)
+        val persistedMs = dailyUsageRepository.getTodayForegroundMs(packageName)
+        val previousEstimate = baselineMsByPackage[packageName] ?: 0L
+        baselineMsByPackage[packageName] = maxOf(previousEstimate, persistedMs)
     }
 
-    /** Call when the user leaves a tracked app or monitoring stops. */
     fun clearSession() {
+        flushActiveSession()
         sessionPackage = null
         sessionStartedAtMs = 0L
     }
 
-    /** @return estimated foreground ms for [packageName] including the active session. */
     fun getEffectiveUsageMs(packageName: String): Long {
         val persistedMs = dailyUsageRepository.getTodayForegroundMs(packageName)
 
         if (sessionPackage != packageName || sessionStartedAtMs <= 0L) {
-            return persistedMs
+            return maxOf(persistedMs, baselineMsByPackage[packageName] ?: 0L)
         }
 
         val baselineMs = baselineMsByPackage[packageName] ?: persistedMs
         val sessionMs = (System.currentTimeMillis() - sessionStartedAtMs).coerceAtLeast(0L)
         val estimatedMs = baselineMs + sessionMs
 
-        // UsageStats can lag; prefer the higher value so retroactive limits still block.
         return maxOf(estimatedMs, persistedMs)
+    }
+
+    private fun flushActiveSession() {
+        val activePackage = sessionPackage ?: return
+
+        if (sessionStartedAtMs <= 0L) {
+            return
+        }
+
+        val baselineMs = baselineMsByPackage[activePackage]
+            ?: dailyUsageRepository.getTodayForegroundMs(activePackage)
+        val sessionMs = (System.currentTimeMillis() - sessionStartedAtMs).coerceAtLeast(0L)
+        val persistedMs = dailyUsageRepository.getTodayForegroundMs(activePackage)
+        baselineMsByPackage[activePackage] = maxOf(baselineMs + sessionMs, persistedMs)
+        sessionStartedAtMs = 0L
     }
 }

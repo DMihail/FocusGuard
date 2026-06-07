@@ -118,3 +118,13 @@ jest.mock('react-native-gesture-handler', () => {
     },
   };
 });
+
+jest.mock('@shopify/flash-list', () => {
+  const { FlatList } = require('react-native');
+
+  return { FlashList: FlatList };
+});
+
+jest.mock('@/store/mmkv', () => ({
+  zustandStorage: require('./__tests__/helpers/mockZustandMmkv').mockZustandStorage,
+}));

@@ -11,8 +11,6 @@ import {
 import type { FlatList } from 'react-native';
 import { useAnimatedScrollHandler, useSharedValue } from 'react-native-reanimated';
 
-import { prefetchInstalledApps } from '@/domain/installedAppsCatalog';
-import { prefetchUsageStats } from '@/domain/usageStatsCatalog';
 import { useRootNavigation } from '@/navigation';
 import { onboardingStore } from '@/store/onboardingStore';
 
@@ -74,8 +72,6 @@ export const useOnboardingPager = () => {
 
   const onSkip = useCallback(() => {
     onboardingStore.getState().setIsConfirm(true);
-    prefetchInstalledApps();
-    prefetchUsageStats();
     navigation.navigate('EnablePermissions');
   }, [navigation]);
 

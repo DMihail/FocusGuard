@@ -4,8 +4,8 @@ import { type RefObject, useCallback, useEffect } from 'react';
 
 import type { NavigationContainerRef } from '@react-navigation/native';
 
+import { areAllPermissionsGranted, invalidatePermissionSnapshot } from '@/domain/permissionSnapshot';
 import { useAppStateOnActive } from '@/hooks/useAppStateOnActive';
-import { areAllPermissionsGranted } from '@/screen/EnablePermissions/utils/permissionStatus';
 import { onboardingStore } from '@/store/onboardingStore';
 
 import type { RootStackParamList } from '../types';
@@ -42,6 +42,7 @@ export const useAppPermissionGuard = (
 
   const handleAppBecomeActive = useCallback(() => {
     if (isEnabled) {
+      invalidatePermissionSnapshot();
       redirectIfPermissionsMissing();
     }
   }, [isEnabled, redirectIfPermissionsMissing]);

@@ -4,10 +4,12 @@ import React, { useEffect, useRef } from 'react';
 
 import ReactTestRenderer, { act } from 'react-test-renderer';
 
-import { mockAppUsageStats, mockSelectedApps, mockUsageByPackage } from '@/testing/fixtures/dashboard';
+import { mockSelectedApps, mockUsageByPackage } from '@/testing/fixtures/dashboard';
 import { mockManageApps } from '@/testing/fixtures/manageApps';
 
-const mockGetAppsUsageStats = jest.fn(() => mockAppUsageStats);
+const mockGetPackageUsageToday = jest.fn(
+  (packageName: string) => mockUsageByPackage[packageName as keyof typeof mockUsageByPackage] ?? 0,
+);
 
 const mockSyncSelectedAppsMetadata = jest.fn();
 
@@ -21,8 +23,8 @@ const mockStoreState = {
 };
 
 jest.mock('@/specs', () => ({
-  getAppsUsageStats: () => mockGetAppsUsageStats(),
-  getPackageUsageToday: jest.fn(() => 0),
+  getPackageUsageToday: (packageName: string) => mockGetPackageUsageToday(packageName),
+  invalidateNativeCatalogCaches: jest.fn(),
 }));
 
 jest.mock('@/domain/installedAppsCatalog', () => {
@@ -34,15 +36,21 @@ jest.mock('@/domain/installedAppsCatalog', () => {
   };
 });
 
-jest.mock('@/store', () => ({
-  selectedAppsStore: Object.assign(
-    (selector: (state: typeof mockStoreState) => unknown) => selector({ ...mockStoreState, apps: mockStoreState.apps }),
-    { getState: () => mockStoreState },
-  ),
-  appLimitsStore: (selector: (state: typeof mockStoreState) => unknown) => selector(mockStoreState),
-  monitoringStore: (selector: (state: { isMonitoring: boolean; toggle: jest.Mock }) => unknown) =>
-    selector({ isMonitoring: mockStoreState.isMonitoring, toggle: mockStoreState.toggle }),
-}));
+jest.mock('@/store', () => {
+  const actual = jest.requireActual('@/store');
+
+  return {
+    ...actual,
+    selectedAppsStore: Object.assign(
+      (selector: (state: typeof mockStoreState) => unknown) =>
+        selector({ ...mockStoreState, apps: mockStoreState.apps }),
+      { getState: () => mockStoreState },
+    ),
+    appLimitsStore: (selector: (state: typeof mockStoreState) => unknown) => selector(mockStoreState),
+    monitoringStore: (selector: (state: { isMonitoring: boolean; toggle: jest.Mock }) => unknown) =>
+      selector({ isMonitoring: mockStoreState.isMonitoring, toggle: mockStoreState.toggle }),
+  };
+});
 
 jest.mock('@/navigation/hooks/useNavigateToConfigureLimits', () => ({
   useNavigateToConfigureLimits: () => jest.fn(),
@@ -63,7 +71,9 @@ jest.mock('@/hooks/useAppStateOnActive', () => ({
 }));
 
 import { invalidateUsageStatsCache } from '@/domain/usageStatsCatalog';
+import { resetTrackedUsageSeedForTests } from '@/hooks/useTrackedAppRows';
 import { useDashboard } from '@/screen/Dashboard/hooks/useDashboard';
+import { trackedUsageStore } from '@/store';
 
 type HarnessProps = {
   onReady: (value: ReturnType<typeof useDashboard>) => void;
@@ -86,9 +96,13 @@ describe('useDashboard', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     invalidateUsageStatsCache();
+    resetTrackedUsageSeedForTests();
+    trackedUsageStore.setState({ usageByPackage: {} });
     mockStoreState.apps = [...mockSelectedApps];
     mockStoreState.isMonitoring = false;
-    mockGetAppsUsageStats.mockReturnValue(mockAppUsageStats);
+    mockGetPackageUsageToday.mockImplementation(
+      (packageName: string) => mockUsageByPackage[packageName as keyof typeof mockUsageByPackage] ?? 0,
+    );
   });
 
   const flushUsageLoad = async () => {
@@ -106,7 +120,7 @@ describe('useDashboard', () => {
     });
     await flushUsageLoad();
 
-    expect(mockGetAppsUsageStats).toHaveBeenCalled();
+    expect(mockGetPackageUsageToday).toHaveBeenCalled();
     expect(result.appRows).toHaveLength(mockSelectedApps.length);
 
     const socialChat = result.appRows.find((row) => row.packageName === mockManageApps[0].packageName);
@@ -128,14 +142,15 @@ describe('useDashboard', () => {
     });
     await flushUsageLoad();
 
-    const callsBefore = mockGetAppsUsageStats.mock.calls.length;
+    const callsBefore = mockGetPackageUsageToday.mock.calls.length;
 
     await act(async () => {
       latest.onRefresh();
       await Promise.resolve();
+      await Promise.resolve();
     });
 
-    expect(mockGetAppsUsageStats.mock.calls.length).toBeGreaterThan(callsBefore);
+    expect(mockGetPackageUsageToday.mock.calls.length).toBeGreaterThan(callsBefore);
     expect(latest.refreshing).toBe(false);
   });
 });

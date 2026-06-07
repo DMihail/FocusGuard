@@ -55,4 +55,8 @@ internal class InstalledAppsRepository(
 
         return result.also { cachedLaunchableApps = it }
     }
+
+    fun invalidateCache() {
+        cachedLaunchableApps = null
+    }
 }

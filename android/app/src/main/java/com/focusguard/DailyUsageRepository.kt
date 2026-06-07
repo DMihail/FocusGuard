@@ -52,4 +52,9 @@ class DailyUsageRepository(
         cachedDayStartMs = dayStartMs
         return filtered
     }
+
+    fun invalidateCache() {
+        cachedStats = null
+        cachedDayStartMs = 0L
+    }
 }

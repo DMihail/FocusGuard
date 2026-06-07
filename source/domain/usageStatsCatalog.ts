@@ -1,85 +1,39 @@
-/** @format */
+import * as NativeSpecs from '@/specs';
+import { selectedAppsStore } from '@/store/selectedAppsStore';
 
-import { getAppsUsageStats, getPackageUsageToday } from '@/specs';
-import { scheduleAfterInteractions } from '@/utils/scheduleAfterInteractions';
+import { createNativeKeyedCatalogLoader } from './createNativeCatalogLoader';
 
-type UsageByPackage = Record<string, number>;
+export type UsageByPackage = Record<string, number>;
 
-let cachedUsageByPackage: UsageByPackage | null = null;
-let loadPromise: Promise<UsageByPackage> | null = null;
+const readUsageForPackages = (packageNames: readonly string[]): UsageByPackage => {
+  const usageByPackage: UsageByPackage = {};
 
-const readAllUsage = (): UsageByPackage =>
-  Object.fromEntries(getAppsUsageStats().map((item) => [item.packageName, item.totalTimeForeground]));
-
-const pickUsageForPackages = (usageByPackage: UsageByPackage, packageNames: readonly string[]): UsageByPackage => {
-  if (packageNames.length === 0) {
-    return {};
+  for (const packageName of packageNames) {
+    usageByPackage[packageName] = NativeSpecs.getPackageUsageToday(packageName);
   }
 
-  const packages = new Set(packageNames);
-  const picked: UsageByPackage = {};
-
-  for (const packageName of packages) {
-    const usageMs = usageByPackage[packageName];
-    if (usageMs !== undefined) {
-      picked[packageName] = usageMs;
-    }
-  }
-
-  return picked;
+  return usageByPackage;
 };
 
-export const getCachedUsageByPackage = (): UsageByPackage | null => cachedUsageByPackage;
+const usageStatsCatalog = createNativeKeyedCatalogLoader<UsageByPackage>({
+  label: 'usageStatsCatalog',
+  readKeys: readUsageForPackages,
+  onInvalidate: () => NativeSpecs.invalidateNativeCatalogCaches?.(),
+});
 
-export const invalidateUsageStatsCache = (): void => {
-  cachedUsageByPackage = null;
-  loadPromise = null;
-};
+export const getCachedUsageByPackage = usageStatsCatalog.getCached;
+export const invalidateUsageStatsCache = usageStatsCatalog.invalidate;
+export const loadUsageByPackage = usageStatsCatalog.loadForKeys;
 
-export const loadUsageByPackage = (packageNames: readonly string[], force = false): Promise<UsageByPackage> => {
-  if (!force && cachedUsageByPackage) {
-    return Promise.resolve(pickUsageForPackages(cachedUsageByPackage, packageNames));
-  }
-
-  if (!force && loadPromise) {
-    return loadPromise.then((usageByPackage) => pickUsageForPackages(usageByPackage, packageNames));
-  }
-
-  loadPromise = new Promise((resolve) => {
-    scheduleAfterInteractions(() => {
-      try {
-        const usageByPackage = readAllUsage();
-        cachedUsageByPackage = usageByPackage;
-        resolve(usageByPackage);
-      } catch (error) {
-        cachedUsageByPackage = {};
-        resolve({});
-        if (__DEV__) {
-          console.warn('[usageStatsCatalog] Failed to load usage stats', error);
-        }
-      } finally {
-        loadPromise = null;
-      }
-    });
-  });
-
-  return loadPromise.then((usageByPackage) => pickUsageForPackages(usageByPackage, packageNames));
-};
-
-export const loadPackageUsageToday = (packageName: string): Promise<number> =>
-  new Promise((resolve) => {
-    scheduleAfterInteractions(() => {
-      try {
-        resolve(getPackageUsageToday(packageName));
-      } catch (error) {
-        resolve(0);
-        if (__DEV__) {
-          console.warn('[usageStatsCatalog] Failed to load package usage', error);
-        }
-      }
-    });
-  });
+export const loadPackageUsageToday = (packageName: string, force = false): Promise<number> =>
+  loadUsageByPackage([packageName], force).then((usageByPackage) => usageByPackage[packageName] ?? 0);
 
 export const prefetchUsageStats = (): void => {
-  loadUsageByPackage([], false).catch(() => undefined);
+  const packageNames = selectedAppsStore.getState().apps.map((app) => app.packageName);
+
+  if (packageNames.length === 0) {
+    return;
+  }
+
+  usageStatsCatalog.prefetch(packageNames);
 };

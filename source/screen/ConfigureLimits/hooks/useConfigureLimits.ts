@@ -14,6 +14,7 @@ import {
   LIMIT_SLIDER_BOUNDS,
   normalizeAppLimits,
   selectedAppsStore,
+  trackedUsageStore,
 } from '@/store';
 
 import type { UseConfigureLimitsResult } from '../types';
@@ -29,6 +30,12 @@ export const useConfigureLimits = (packageName: string): UseConfigureLimitsResul
   const [usedMsToday, setUsedMsToday] = useState(0);
 
   const refreshUsage = useCallback(() => {
+    const cachedUsage = trackedUsageStore.getState().usageByPackage[packageName];
+
+    if (cachedUsage !== undefined) {
+      setUsedMsToday((previous) => (previous === cachedUsage ? previous : cachedUsage));
+    }
+
     loadPackageUsageToday(packageName)
       .then((nextUsage) => {
         setUsedMsToday((previous) => (previous === nextUsage ? previous : nextUsage));

@@ -1,5 +1,3 @@
-/** @format */
-
 import type { ManageApp } from '@/screen/ManageApps/types';
 
 const hasSameMetadata = (left: ManageApp, right: ManageApp): boolean =>
@@ -8,7 +6,6 @@ const hasSameMetadata = (left: ManageApp, right: ManageApp): boolean =>
   left.category === right.category &&
   left.categoryLabel === right.categoryLabel;
 
-/** Applies fresh install-catalog metadata to persisted selections by package name. */
 export const reconcileSelectedAppsWithInstalled = (
   selectedApps: ManageApp[],
   installedApps: ManageApp[],
@@ -22,12 +19,24 @@ export const reconcileSelectedAppsWithInstalled = (
   return selectedApps.map((selected) => installedByPackage.get(selected.packageName) ?? selected);
 };
 
-export const hasSelectedAppsMetadataDrift = (selectedApps: ManageApp[], installedApps: ManageApp[]): boolean => {
-  const installedByPackage = new Map(installedApps.map((app) => [app.packageName, app]));
+export const syncSelectedAppsMetadata = (selectedApps: ManageApp[], installedApps: ManageApp[]): ManageApp[] | null => {
+  if (selectedApps.length === 0 || installedApps.length === 0) {
+    return null;
+  }
 
-  return selectedApps.some((selected) => {
+  const installedByPackage = new Map(installedApps.map((app) => [app.packageName, app]));
+  let changed = false;
+
+  const nextApps = selectedApps.map((selected) => {
     const installed = installedByPackage.get(selected.packageName);
 
-    return installed !== undefined && !hasSameMetadata(selected, installed);
+    if (!installed || hasSameMetadata(selected, installed)) {
+      return selected;
+    }
+
+    changed = true;
+    return installed;
   });
+
+  return changed ? nextApps : null;
 };

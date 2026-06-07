@@ -1,157 +1,142 @@
-<!-- @format -->
-
 # Keept
 
 Android app that helps reduce screen time by monitoring distracting apps, sending warnings, and enforcing limits you
 configure.
 
-Built with [React Native](https://reactnative.dev) 0.85 (New Architecture / Turbo Modules).
+Built with [React Native](https://reactnative.dev) 0.85 (New Architecture / Turbo Modules) and **React 19**.
 
-> **Note:** The npm package name (`FocusGuard`) and Android namespace (`com.focusguard`) are legacy identifiers. The
-> user-facing product name and Play Store application ID are **Keept** (`com.keept`).
+> The npm package name (`FocusGuard`) and Android namespace (`com.focusguard`) are legacy identifiers. The user-facing
+> product name and Play Store application ID are **Keept** (`com.keept`).
 
 ## Features
 
-- **App usage monitoring** — tracks which app is in the foreground via a background foreground service
-- **Usage warnings** — push notification when a tracked app exceeds its warning threshold
-- **Hard block overlay** — full-screen block when daily limit is reached (5-minute snooze unless strict mode)
-- **App selection** — choose apps to monitor from installed launchable applications, filterable by category
-- **Per-app limits** — warning and hard-block thresholds per app, stored in MMKV and read by the native monitor
-- **Persistent service** — keeps running after the app is closed; auto-restarts on device boot
-- **Start / Stop control** — toggle monitoring from the dashboard
+- **App usage monitoring** — foreground service tracks which app is active
+- **Usage warnings** — notification when a tracked app passes its warning threshold
+- **Hard block overlay** — full-screen block at the daily cap (5-minute snooze unless strict mode)
+- **App selection** — pick launchable apps, filter by category or search
+- **Per-app limits** — warning and hard-block sliders, synced to native via MMKV
+- **Persistent service** — survives app close; restarts on boot when monitoring is on
+- **Dashboard** — focus score, top distracting apps, pull-to-refresh
 
 ## Architecture
 
 ```
 source/
-├── constants/           App display name (from native `app_name`), support email
-├── navigation/          Route resolution, permission guard, deep links (focusguard://)
-├── screen/
-│   ├── Onboarding/      Walkthrough pager
-│   ├── EnablePermissions/  Permission cards (Usage Stats, Overlay, Battery, Notifications)
-│   ├── Dashboard/       Tracked apps, Start/Stop monitoring
-│   ├── ManageApps/      Search, category filters, app selection
-│   ├── ConfigureLimits/ Per-app warning / block sliders
-│   ├── TrackedApps/     All selected apps with usage
-│   ├── Settings/        Notification toggle, legal links
-│   └── Legal/           Data Privacy & Terms of Service
-├── store/               Zustand stores persisted via MMKV
-├── specs/               Turbo Module spec (NativeUsageStats) — Codegen bridge
+├── domain/              Native catalog loaders, permission snapshot, app metadata reconcile
+├── navigation/          Routes, permission guard, deep links (focusguard://)
+├── screen/              Onboarding, permissions, dashboard, manage apps, limits, settings
+├── store/               Zustand + MMKV, including shared trackedUsageStore
+├── specs/               Turbo Module (NativeUsageStats)
+├── hooks/               Shared screen hooks (usage rows, prefetch, app state)
 └── theme/               Colors, typography, spacing
 
-android/.../com/
-├── nativeusagestats/    Thin Turbo Module (delegates to domain layer)
-├── focusguard/
-│   ├── apps/            InstalledAppsRepository, UsageStatsCatalogRepository, AppIconCache
-│   ├── permissions/     PermissionChecker, PermissionRequester, PermissionEventEmitter
-│   ├── bridge/          ReactBridgeMappers, PermissionsLifecycleBinding
-│   ├── usage/           Shared UsageStats helpers
-│   ├── platform/        AppInfo — reads `R.string.app_name` for JS via Turbo Module
-│   ├── TrackingEngine   Foreground polling, warnings, block overlay
-│   ├── ForegroundAppDetector
-│   ├── TrackingConfigRepository  Reads tracked apps from MMKV
-│   ├── service/         FocusGuardMonitorService (foreground service)
-│   ├── monitor/         Permission checks, service start/stop
-│   ├── overlay/         Block overlay activity & snooze store
-│   └── receiver/        BootCompletedReceiver
+android/.../com/focusguard/
+├── apps/                Installed apps + usage stats catalogs
+├── permissions/         Permission checks and settings intents
+├── bridge/              RN mappers and lifecycle binding
+├── TrackingEngine       Polling, warnings, block overlay
+├── service/             FocusGuardMonitorService (FGS)
+└── overlay/             WindowManager block UI
 ```
 
-### Identity mapping
+### Identity
 
-| Layer                      | Value                                                                        |
-| -------------------------- | ---------------------------------------------------------------------------- |
-| Product name (UI)          | Keept — sourced from `android/.../res/values/strings.xml` (`app_name`)       |
-| Marketing version          | `versionName` in `android/app/build.gradle` (exposed to JS via Turbo Module) |
-| Play Store `applicationId` | `com.keept`                                                                  |
-| Android `namespace`        | `com.focusguard`                                                             |
-| Deep link scheme           | `focusguard://`                                                              |
-| RN module name             | `Keept` (`app.json`)                                                         |
-| Turbo Module               | `NativeUsageStats` (Codegen)                                                 |
+| Layer             | Value                                                          |
+| ----------------- | -------------------------------------------------------------- |
+| Product name      | Keept — `android/.../strings.xml` → `app_name`                 |
+| Play Store ID     | `com.keept`                                                    |
+| Android namespace | `com.focusguard`                                               |
+| Deep links        | `focusguard://dashboard`, `configure/:package`, `tracked-apps` |
+| RN root component | `Keept` (`app.json`)                                           |
 
 ### Data flow
 
-1. User selects apps in **ManageApps** → saved to MMKV via Zustand (`selectedAppsStore`)
-2. User configures limits in **ConfigureLimits** → `appLimitsStore` (MMKV)
-3. User taps **Start** on the dashboard → `monitoringStore.toggle()` → native `startMonitorService()`
-4. `FocusGuardMonitorService` runs as a foreground service with a persistent notification
-5. `TrackingEngine` polls `ForegroundAppDetector` every second
-6. `TrackingConfigRepository` reads tracked apps and limits from the same MMKV instance as JS
-7. After **warning** threshold → high-priority push notification
-8. After **hard block** threshold → home screen + full-screen block overlay
+1. **ManageApps** — user selects apps → `selectedAppsStore` (MMKV)
+2. **ConfigureLimits** — limits per package → `appLimitsStore` (MMKV)
+3. **Dashboard Start** — `monitoringStore` → native `startMonitorService()`
+4. **FocusGuardMonitorService** — FGS + `TrackingEngine` (1s poll)
+5. Native reads the same MMKV keys as JS (`TrackingConfigRepository`)
+6. On focus / pull-to-refresh, JS reloads installed apps and per-package usage via `getPackageUsageToday`, then
+   reconciles selected-app metadata
+7. Dashboard and Tracked Apps read the same `trackedUsageStore` state
+8. Warning → push notification; hard block → overlay via `WindowManager`
+
+### JS performance notes
+
+- Heavy native reads (`getInstalledApplications`, `getPackageUsageToday`) run through catalog loaders deferred with
+  `requestIdleCallback` (fallback: `setTimeout`)
+- Manage Apps uses `@shopify/flash-list` for large installed-app lists
+- Dashboard and Tracked Apps share `trackedUsageStore` for daily usage (same source as the native monitor)
+- Permission checks are cached in `domain/permissionSnapshot.ts` and invalidated on foreground / native events
 
 ## Required permissions
 
-| Permission                                              | Purpose                                       |
-| ------------------------------------------------------- | --------------------------------------------- |
-| `PACKAGE_USAGE_STATS`                                   | Read which app is in the foreground           |
-| `SYSTEM_ALERT_WINDOW`                                   | Display block overlay when limits are reached |
-| `POST_NOTIFICATIONS`                                    | Show warning notifications (API 33+)          |
-| `REQUEST_IGNORE_BATTERY_OPTIMIZATIONS`                  | Prevent Doze from stopping the service        |
-| `FOREGROUND_SERVICE` / `FOREGROUND_SERVICE_SPECIAL_USE` | Run the monitoring service                    |
-| `RECEIVE_BOOT_COMPLETED`                                | Restart service after reboot                  |
-| `QUERY_ALL_PACKAGES`                                    | List installed launchable apps (API 30+)      |
+| Permission                             | Purpose                         |
+| -------------------------------------- | ------------------------------- |
+| `PACKAGE_USAGE_STATS`                  | Foreground app detection        |
+| `SYSTEM_ALERT_WINDOW`                  | Block overlay                   |
+| `POST_NOTIFICATIONS`                   | Warning notifications (API 33+) |
+| `REQUEST_IGNORE_BATTERY_OPTIMIZATIONS` | Reduce Doze kills               |
+| `FOREGROUND_SERVICE` / `SPECIAL_USE`   | Monitoring service              |
+| `RECEIVE_BOOT_COMPLETED`               | Restart after reboot            |
+| `QUERY_ALL_PACKAGES`                   | List launchable apps (API 30+)  |
 
 ## Getting started
 
-> Complete the [React Native environment setup](https://reactnative.dev/docs/set-up-your-environment) first.
+[Set up the React Native environment](https://reactnative.dev/docs/set-up-your-environment), then:
 
 ```sh
 npm install
 npm start
 ```
 
-In a separate terminal:
+In another terminal:
 
 ```sh
 npm run android
 ```
 
-After changing native Android code or Turbo Module config, clean Gradle caches if builds behave oddly:
+Place `android/app/google-services.json` locally for Firebase (CI uses `google-services.ci.json`).
+
+After native or Turbo Module changes:
 
 ```sh
-cd android
-./gradlew --stop
-rm -rf app/build build .gradle/configuration-cache
-./gradlew clean
-cd ..
+cd android && ./gradlew clean && cd ..
 ```
 
 ## Code quality
 
 ```sh
-npm run lint          # ESLint (zero warnings policy)
-npm run lint:fix      # ESLint + auto-fix
-npm run format:check  # Prettier check
-npm run format        # Prettier write
+npm run lint          # ESLint (zero warnings)
 npm run typecheck     # TypeScript
-npm test              # Jest (39 suites, 137+ tests)
+npm test              # Jest
+npm run format:check  # Prettier
 ```
 
-Husky runs lint-staged on commit. Release builds strip `console.log` / `console.debug` / `console.info` via Babel when
-`NODE_ENV=production`.
+Husky runs lint-staged on commit. Production builds strip `console.log` / `console.debug` / `console.info` via Babel.
 
-## CI/CD
+## CI
 
-GitHub Actions (`.github/workflows/ci.yml`) on every push and PR:
+GitHub Actions (`.github/workflows/ci.yml`) on push/PR:
 
-| Job         | When                                          | What                                  |
-| ----------- | --------------------------------------------- | ------------------------------------- |
-| **checks**  | Always                                        | ESLint, Prettier, TypeScript, Jest    |
-| **android** | `main`, `dev`, `release/*`, or PRs into those | `assembleDebug`, uploads APK artifact |
+| Job         | What                               |
+| ----------- | ---------------------------------- |
+| **checks**  | ESLint, Prettier, TypeScript, Jest |
+| **android** | `assembleDebug`, APK artifact      |
 
-Release AAB/APK signing is done **locally** with your upload keystore (`bundleRelease` / `assembleRelease`).
+Release signing is local (`bundleRelease` / `assembleRelease`).
 
 ## Tech stack
 
-- **React Native** 0.85 — New Architecture, Turbo Modules, Hermes
-- **React** 19
-- **TypeScript**
-- **Zustand** 5 + **react-native-mmkv** 4 — cross-process persistence (JS ↔ native service)
-- **@react-navigation/native-stack** 7
-- **Kotlin** + **Coroutines** — Android domain layer and foreground service
+- React Native 0.85 — New Architecture, Hermes, Turbo Modules
+- React 19
+- TypeScript
+- Zustand 5 + react-native-mmkv 4
+- @shopify/flash-list 2
+- @react-navigation/native-stack 7
+- Kotlin + Coroutines (Android domain layer)
 
-## iOS status
+## iOS
 
-The iOS target builds and loads the JS bundle (`withModuleName: "Keept"`), but **core monitoring features are
-Android-only** (Usage Stats, overlay blocking, foreground service). iOS is not production-ready for the main value
-proposition.
+The iOS target loads the JS bundle but **monitoring is Android-only** (Usage Stats, overlay, FGS). Not production-ready
+for the core feature set.

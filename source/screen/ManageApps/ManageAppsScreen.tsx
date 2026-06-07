@@ -31,6 +31,7 @@ export const ManageAppsScreen = () => {
     setActiveCategory,
     isSelected,
     toggleAppSelection,
+    selectedCount,
   } = useManageApps();
 
   useFocusEffect(
@@ -45,7 +46,7 @@ export const ManageAppsScreen = () => {
       testID={testIds.manageApps.screen}
       accessibilityLabel="Manage apps screen"
     >
-      <ManageAppsHeader onBack={goBack} />
+      <ManageAppsHeader selectedCount={selectedCount} onBack={goBack} />
       <ManageAppsSearchToolbar onQueryChange={setSearchQuery} onQueryActiveChange={setSearchInputActive} />
       <ManageAppsContent
         apps={apps}

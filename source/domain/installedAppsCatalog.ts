@@ -1,52 +1,17 @@
-/** @format */
-
 import type { ManageApp } from '@/screen/ManageApps/types';
 import { mapInstalledApps } from '@/screen/ManageApps/utils/mapInstalledApps';
-import { getInstalledApplications } from '@/specs';
-import { scheduleAfterInteractions } from '@/utils/scheduleAfterInteractions';
+import * as NativeSpecs from '@/specs';
 
-let cachedApps: ManageApp[] | null = null;
-let loadPromise: Promise<ManageApp[]> | null = null;
+import { createNativeCatalogLoader } from './createNativeCatalogLoader';
 
-const readInstalledApps = (): ManageApp[] => mapInstalledApps(getInstalledApplications());
+const installedAppsCatalog = createNativeCatalogLoader<ManageApp[]>({
+  label: 'installedAppsCatalog',
+  fallback: [],
+  read: () => mapInstalledApps(NativeSpecs.getInstalledApplications()),
+  onInvalidate: () => NativeSpecs.invalidateNativeCatalogCaches?.(),
+});
 
-export const getCachedInstalledApps = (): ManageApp[] | null => cachedApps;
-
-export const invalidateInstalledAppsCache = (): void => {
-  cachedApps = null;
-  loadPromise = null;
-};
-
-export const loadInstalledApps = (force = false): Promise<ManageApp[]> => {
-  if (!force && cachedApps) {
-    return Promise.resolve(cachedApps);
-  }
-
-  if (!force && loadPromise) {
-    return loadPromise;
-  }
-
-  loadPromise = new Promise((resolve) => {
-    scheduleAfterInteractions(() => {
-      try {
-        const apps = readInstalledApps();
-        cachedApps = apps;
-        resolve(apps);
-      } catch (error) {
-        cachedApps = [];
-        resolve([]);
-        if (__DEV__) {
-          console.warn('[installedAppsCatalog] Failed to load installed apps', error);
-        }
-      } finally {
-        loadPromise = null;
-      }
-    });
-  });
-
-  return loadPromise;
-};
-
-export const prefetchInstalledApps = (): void => {
-  loadInstalledApps().catch(() => undefined);
-};
+export const getCachedInstalledApps = installedAppsCatalog.getCached;
+export const invalidateInstalledAppsCache = installedAppsCatalog.invalidate;
+export const loadInstalledApps = installedAppsCatalog.load;
+export const prefetchInstalledApps = installedAppsCatalog.prefetch;

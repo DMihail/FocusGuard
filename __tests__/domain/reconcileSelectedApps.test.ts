@@ -1,6 +1,4 @@
-/** @format */
-
-import { hasSelectedAppsMetadataDrift, reconcileSelectedAppsWithInstalled } from '@/domain/reconcileSelectedApps';
+import { reconcileSelectedAppsWithInstalled, syncSelectedAppsMetadata } from '@/domain/reconcileSelectedApps';
 import { createManageApp, mockManageApps } from '@/testing/fixtures/manageApps';
 
 describe('reconcileSelectedAppsWithInstalled', () => {
@@ -23,7 +21,7 @@ describe('reconcileSelectedAppsWithInstalled', () => {
     const installed = [mockManageApps[0]];
 
     expect(reconcileSelectedAppsWithInstalled(selected, installed)).toEqual(installed);
-    expect(hasSelectedAppsMetadataDrift(selected, installed)).toBe(true);
+    expect(syncSelectedAppsMetadata(selected, installed)).toEqual(installed);
   });
 
   it('leaves uninstalled selections untouched', () => {
@@ -31,6 +29,6 @@ describe('reconcileSelectedAppsWithInstalled', () => {
     const installed = [mockManageApps[1]];
 
     expect(reconcileSelectedAppsWithInstalled(selected, installed)).toEqual(selected);
-    expect(hasSelectedAppsMetadataDrift(selected, installed)).toBe(false);
+    expect(syncSelectedAppsMetadata(selected, installed)).toBeNull();
   });
 });

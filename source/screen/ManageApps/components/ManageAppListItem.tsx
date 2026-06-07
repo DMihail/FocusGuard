@@ -60,6 +60,7 @@ function areManageAppListItemPropsEqual(previous: ManageAppListItemProps, next: 
     previous.isSelected === next.isSelected &&
     previous.app.packageName === next.app.packageName &&
     previous.app.appName === next.app.appName &&
+    previous.app.appImage === next.app.appImage &&
     previous.app.categoryLabel === next.app.categoryLabel &&
     previous.onToggle === next.onToggle
   );
