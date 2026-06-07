@@ -1,15 +1,27 @@
 /** @format */
 
-import { InteractionManager } from 'react-native';
-
 const isTestEnvironment = typeof jest !== 'undefined';
 
-/** Defers work until navigation transitions and interactions finish. */
+type GlobalWithIdleCallback = typeof globalThis & {
+  requestIdleCallback: (callback: () => void, options?: { timeout?: number }) => number;
+};
+
+/** Ensures idle work still runs if the main thread stays busy (e.g. during navigation). */
+const IDLE_TIMEOUT_MS = 2_000;
+
+const scheduleIdle = (globalThis as GlobalWithIdleCallback).requestIdleCallback;
+
+/** Defers work until the JS thread is idle so navigation and animations stay smooth. */
 export const scheduleAfterInteractions = (callback: () => void): void => {
   if (isTestEnvironment) {
     callback();
     return;
   }
 
-  InteractionManager.runAfterInteractions(callback);
+  scheduleIdle(
+    () => {
+      callback();
+    },
+    { timeout: IDLE_TIMEOUT_MS },
+  );
 };
