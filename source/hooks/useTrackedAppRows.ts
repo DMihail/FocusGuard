@@ -5,6 +5,7 @@ import { useCallback, useMemo, useState, useTransition } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import { useShallow } from 'zustand/react/shallow';
 
+import { invalidateInstalledAppsCache, loadInstalledApps } from '@/domain/installedAppsCatalog';
 import { invalidateUsageStatsCache, loadUsageByPackage } from '@/domain/usageStatsCatalog';
 import { useAppStateOnActive } from '@/hooks/useAppStateOnActive';
 import { appLimitsStore, selectedAppsStore } from '@/store';
@@ -46,9 +47,15 @@ export const useTrackedAppRows = (): {
 
       if (force) {
         invalidateUsageStatsCache();
+        invalidateInstalledAppsCache();
       }
 
-      const nextUsage = await loadUsageByPackage(selectedPackages, force);
+      const [installedApps, nextUsage] = await Promise.all([
+        loadInstalledApps(force),
+        loadUsageByPackage(selectedPackages, force),
+      ]);
+
+      selectedAppsStore.getState().syncSelectedAppsMetadata(installedApps);
 
       startUsageTransition(() => {
         setUsageByPackage((previous) => (hasUsageChanged(previous, nextUsage) ? nextUsage : previous));

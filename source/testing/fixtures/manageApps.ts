@@ -40,3 +40,5 @@ export const mockManageApps: ManageApp[] = mockInstallApps.map((app) => ({
   category: app.category,
   categoryLabel: app.category,
 }));
+
+export type ManageAppFixture = (typeof mockManageApps)[number];

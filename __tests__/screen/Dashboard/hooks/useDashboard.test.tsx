@@ -4,40 +4,41 @@ import React, { useEffect, useRef } from 'react';
 
 import ReactTestRenderer, { act } from 'react-test-renderer';
 
-const mockGetAppsUsageStats = jest.fn(() => [
-  {
-    packageName: 'com.test.app',
-    appName: 'Test',
-    appImage: '',
-    category: 'Social',
-    totalTimeForeground: 15 * 60_000,
-    lastTimeUsed: 0,
-  },
-]);
+import { mockAppUsageStats, mockSelectedApps, mockUsageByPackage } from '@/testing/fixtures/dashboard';
+import { mockManageApps } from '@/testing/fixtures/manageApps';
+
+const mockGetAppsUsageStats = jest.fn(() => mockAppUsageStats);
+
+const mockSyncSelectedAppsMetadata = jest.fn();
 
 const mockStoreState = {
-  apps: [
-    {
-      packageName: 'com.test.app',
-      appName: 'Test',
-      appImage: '',
-      category: 'Social',
-      categoryLabel: 'Social',
-    },
-  ],
+  apps: [...mockSelectedApps],
   limitsByPackage: {} as Record<string, unknown>,
   getLimits: jest.fn(() => ({ warningMinutes: 45, hardBlockMinutes: 60, strictMode: false })),
   isMonitoring: false,
   toggle: jest.fn(),
+  syncSelectedAppsMetadata: mockSyncSelectedAppsMetadata,
 };
 
-jest.mock('@/specs/NativeUsageStats', () => ({
+jest.mock('@/specs', () => ({
   getAppsUsageStats: () => mockGetAppsUsageStats(),
+  getPackageUsageToday: jest.fn(() => 0),
 }));
 
+jest.mock('@/domain/installedAppsCatalog', () => {
+  const actual = jest.requireActual('@/domain/installedAppsCatalog');
+
+  return {
+    ...actual,
+    loadInstalledApps: jest.fn(() => Promise.resolve([])),
+  };
+});
+
 jest.mock('@/store', () => ({
-  selectedAppsStore: (selector: (state: typeof mockStoreState) => unknown) =>
-    selector({ ...mockStoreState, apps: mockStoreState.apps }),
+  selectedAppsStore: Object.assign(
+    (selector: (state: typeof mockStoreState) => unknown) => selector({ ...mockStoreState, apps: mockStoreState.apps }),
+    { getState: () => mockStoreState },
+  ),
   appLimitsStore: (selector: (state: typeof mockStoreState) => unknown) => selector(mockStoreState),
   monitoringStore: (selector: (state: { isMonitoring: boolean; toggle: jest.Mock }) => unknown) =>
     selector({ isMonitoring: mockStoreState.isMonitoring, toggle: mockStoreState.toggle }),
@@ -85,7 +86,9 @@ describe('useDashboard', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     invalidateUsageStatsCache();
+    mockStoreState.apps = [...mockSelectedApps];
     mockStoreState.isMonitoring = false;
+    mockGetAppsUsageStats.mockReturnValue(mockAppUsageStats);
   });
 
   const flushUsageLoad = async () => {
@@ -95,7 +98,7 @@ describe('useDashboard', () => {
     });
   };
 
-  it('loads usage stats and builds app rows', async () => {
+  it('loads usage stats and builds app rows from selected ManageApps fixtures', async () => {
     let result!: ReturnType<typeof useDashboard>;
 
     act(() => {
@@ -104,9 +107,17 @@ describe('useDashboard', () => {
     await flushUsageLoad();
 
     expect(mockGetAppsUsageStats).toHaveBeenCalled();
-    expect(result.appRows).toHaveLength(1);
-    expect(result.appRows[0]?.usedMs).toBe(15 * 60_000);
-    expect(result.summary.focusScore).toBeGreaterThan(0);
+    expect(result.appRows).toHaveLength(mockSelectedApps.length);
+
+    const socialChat = result.appRows.find((row) => row.packageName === mockManageApps[0].packageName);
+    const puzzleGame = result.appRows.find((row) => row.packageName === mockManageApps[1].packageName);
+
+    expect(socialChat?.appName).toBe('Social Chat');
+    expect(socialChat?.usedMs).toBe(mockUsageByPackage['com.social.chat']);
+    expect(puzzleGame?.appName).toBe('Puzzle Game');
+    expect(puzzleGame?.usedMs).toBe(mockUsageByPackage['com.game.puzzle']);
+    expect(result.appRows[0]?.packageName).toBe('com.game.puzzle');
+    expect(result.summary.focusScore).toBe(50);
   });
 
   it('refreshes usage on pull-to-refresh', async () => {

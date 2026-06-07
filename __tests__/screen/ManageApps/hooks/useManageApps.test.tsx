@@ -13,6 +13,7 @@ const mockStoreState: {
   apps: ManageApp[];
   toggleApp: jest.Mock;
   isSelected: (packageName: string) => boolean;
+  syncSelectedAppsMetadata: jest.Mock;
 } = {
   apps: [],
   toggleApp: jest.fn((app: ManageApp) => {
@@ -23,6 +24,7 @@ const mockStoreState: {
       : [...mockStoreState.apps, app];
   }),
   isSelected: (packageName) => mockStoreState.apps.some((app) => app.packageName === packageName),
+  syncSelectedAppsMetadata: jest.fn(),
 };
 
 jest.mock('../../../../source/specs', () => ({
@@ -30,7 +32,9 @@ jest.mock('../../../../source/specs', () => ({
 }));
 
 jest.mock('../../../../source/store', () => ({
-  selectedAppsStore: (selector: (state: typeof mockStoreState) => unknown) => selector(mockStoreState),
+  selectedAppsStore: Object.assign((selector: (state: typeof mockStoreState) => unknown) => selector(mockStoreState), {
+    getState: () => mockStoreState,
+  }),
 }));
 
 jest.mock('../../../../source/domain/installedAppsCatalog', () => {

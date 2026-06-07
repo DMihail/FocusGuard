@@ -3,6 +3,8 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
+import { hasSelectedAppsMetadataDrift, reconcileSelectedAppsWithInstalled } from '@/domain/reconcileSelectedApps';
+
 import { zustandStorage } from './mmkv';
 import type { SelectedAppsStore } from './types';
 
@@ -22,6 +24,16 @@ export const selectedAppsStore = create<SelectedAppsStore>()(
       },
 
       isSelected: (packageName) => get().apps.some((app) => app.packageName === packageName),
+
+      syncSelectedAppsMetadata: (installedApps) => {
+        const { apps } = get();
+
+        if (!hasSelectedAppsMetadataDrift(apps, installedApps)) {
+          return;
+        }
+
+        set({ apps: reconcileSelectedAppsWithInstalled(apps, installedApps) });
+      },
     }),
     {
       name: 'selected-apps-storage',

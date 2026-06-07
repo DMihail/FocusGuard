@@ -1,6 +1,8 @@
 /** @format */
 
-import type { DashboardAppRow } from '@/utils/usage/dashboardStats';
+import { createDashboardAppRow, mockDashboardAppRows } from '@/testing/fixtures/dashboard';
+import { mockManageApps } from '@/testing/fixtures/manageApps';
+import { testIds } from '@/testing/testIds';
 
 import { cleanupTestTrees, renderTestTree, runTestAct } from '../../../helpers/testRenderer';
 
@@ -9,19 +11,7 @@ import { DistractingAppsSection } from '@/screen/Dashboard/components/Distractin
 const mockConfigureLimits = jest.fn();
 const mockViewAll = jest.fn();
 
-const buildRow = (packageName: string, appName: string): DashboardAppRow => ({
-  packageName,
-  appName,
-  appImage: '',
-  category: 'Social',
-  categoryLabel: 'Social',
-  usedMs: 15 * 60_000,
-  limitMs: 60 * 60_000,
-  percentUsed: 25,
-  isOverLimit: false,
-});
-
-const renderSection = (appRows: DashboardAppRow[]) =>
+const renderSection = (appRows: typeof mockDashboardAppRows) =>
   renderTestTree(
     <DistractingAppsSection appRows={appRows} onConfigureLimits={mockConfigureLimits} onViewAllPress={mockViewAll} />,
   );
@@ -37,32 +27,52 @@ describe('DistractingAppsSection', () => {
 
   it('shows empty text when no apps are selected', () => {
     const tree = renderSection([]);
-    const emptyText = tree.root.findByProps({ testID: 'dashboard-apps-empty' });
+    const emptyText = tree.root.findByProps({ testID: testIds.dashboard.appsEmpty });
 
     expect(emptyText.props.children).toBe('No apps selected yet');
   });
 
-  it('renders app rows with usage data', () => {
-    const tree = renderSection([buildRow('com.test.app', 'Test App')]);
-    const appRow = tree.root.findByProps({ testID: 'dashboard-app-row-com-test-app' });
+  it('renders app rows with usage data from shared fixtures', () => {
+    const socialChatRow = createDashboardAppRow(mockManageApps[0], 15 * 60_000);
+    const tree = renderSection([socialChatRow]);
+    const appRow = tree.root.findByProps({ testID: testIds.dashboard.appRow('com.social.chat') });
 
     expect(appRow).toBeDefined();
+    expect(tree.root.findByProps({ children: 'Social Chat' })).toBeDefined();
   });
 
   it('renders at most four app rows on the dashboard', () => {
-    const appRows = Array.from({ length: 6 }, (_, index) => buildRow(`com.test.app${index}`, `Test App ${index}`));
+    const appRows = Array.from({ length: 6 }, (_, index) =>
+      createDashboardAppRow(
+        {
+          ...mockManageApps[0],
+          packageName: `com.social.chat${index}`,
+          appName: `Social Chat ${index}`,
+        },
+        15 * 60_000,
+      ),
+    );
     const tree = renderSection(appRows);
 
-    expect(tree.root.findByProps({ testID: 'dashboard-app-row-com-test-app0' })).toBeDefined();
-    expect(tree.root.findByProps({ testID: 'dashboard-app-row-com-test-app3' })).toBeDefined();
-    expect(tree.root.findAllByProps({ testID: 'dashboard-app-row-com-test-app4' })).toHaveLength(0);
-    expect(tree.root.findAllByProps({ testID: 'dashboard-app-row-com-test-app5' })).toHaveLength(0);
+    expect(tree.root.findByProps({ testID: testIds.dashboard.appRow('com.social.chat0') })).toBeDefined();
+    expect(tree.root.findByProps({ testID: testIds.dashboard.appRow('com.social.chat3') })).toBeDefined();
+    expect(tree.root.findAllByProps({ testID: testIds.dashboard.appRow('com.social.chat4') })).toHaveLength(0);
+    expect(tree.root.findAllByProps({ testID: testIds.dashboard.appRow('com.social.chat5') })).toHaveLength(0);
   });
 
   it('opens tracked apps when View All is pressed', () => {
-    const appRows = Array.from({ length: 5 }, (_, index) => buildRow(`com.test.app${index}`, `Test App ${index}`));
+    const appRows = Array.from({ length: 5 }, (_, index) =>
+      createDashboardAppRow(
+        {
+          ...mockManageApps[0],
+          packageName: `com.social.chat${index}`,
+          appName: `Social Chat ${index}`,
+        },
+        15 * 60_000,
+      ),
+    );
     const tree = renderSection(appRows);
-    const viewAllButton = tree.root.findByProps({ testID: 'dashboard-view-all-apps-button' });
+    const viewAllButton = tree.root.findByProps({ testID: testIds.dashboard.viewAllAppsButton });
 
     runTestAct(() => {
       viewAllButton.props.onPress();
@@ -72,19 +82,19 @@ describe('DistractingAppsSection', () => {
   });
 
   it('hides View All when four or fewer apps are tracked', () => {
-    const tree = renderSection([buildRow('com.test.app', 'Test App')]);
+    const tree = renderSection([mockDashboardAppRows[0]]);
 
-    expect(tree.root.findAllByProps({ testID: 'dashboard-view-all-apps-button' })).toHaveLength(0);
+    expect(tree.root.findAllByProps({ testID: testIds.dashboard.viewAllAppsButton })).toHaveLength(0);
   });
 
   it('navigates to ConfigureLimits when an app row is pressed', () => {
-    const tree = renderSection([buildRow('com.test.app', 'Test App')]);
-    const row = tree.root.findByProps({ testID: 'dashboard-app-row-com-test-app' });
+    const tree = renderSection([mockDashboardAppRows[0]]);
+    const row = tree.root.findByProps({ testID: testIds.dashboard.appRow('com.social.chat') });
 
     runTestAct(() => {
       row.props.onPress();
     });
 
-    expect(mockConfigureLimits).toHaveBeenCalledWith('com.test.app');
+    expect(mockConfigureLimits).toHaveBeenCalledWith('com.social.chat');
   });
 });

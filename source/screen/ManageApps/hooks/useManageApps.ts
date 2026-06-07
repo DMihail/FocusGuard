@@ -26,6 +26,7 @@ export const useManageApps = () => {
     }
 
     const apps = await loadInstalledApps(force);
+    selectedAppsStore.getState().syncSelectedAppsMetadata(apps);
     setInstalledApps(apps);
     setIsLoadingApps(false);
   }, []);
