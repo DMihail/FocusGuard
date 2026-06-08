@@ -9,6 +9,7 @@ Thumbs.db
 .env.*
 !.env.example
 keystore.properties
+android/keystore.properties
 **/google-services.json
 !android/app/google-services.ci.json
 **/GoogleService-Info.plist

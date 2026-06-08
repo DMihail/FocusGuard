@@ -25,9 +25,6 @@ export const getCachedUsageByPackage = usageStatsCatalog.getCached;
 export const invalidateUsageStatsCache = usageStatsCatalog.invalidate;
 export const loadUsageByPackage = usageStatsCatalog.loadForKeys;
 
-export const loadPackageUsageToday = (packageName: string, force = false): Promise<number> =>
-  loadUsageByPackage([packageName], force).then((usageByPackage) => usageByPackage[packageName] ?? 0);
-
 export const prefetchUsageStats = (): void => {
   const packageNames = selectedAppsStore.getState().apps.map((app) => app.packageName);
 

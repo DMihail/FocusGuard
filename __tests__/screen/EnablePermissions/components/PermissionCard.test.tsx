@@ -61,7 +61,7 @@ describe('PermissionCard', () => {
       tree!.root.findByProps({ accessibilityLabel: 'Grant Usage Access' }).props.onPress();
     });
 
-    expect(onGrant).toHaveBeenCalledTimes(1);
+    expect(onGrant).toHaveBeenCalledWith('usage-access');
   });
 
   it('hides grant button for granted permissions', () => {

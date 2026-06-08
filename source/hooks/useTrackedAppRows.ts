@@ -7,8 +7,6 @@ import { useAppStateOnActive } from '@/hooks/useAppStateOnActive';
 import { appLimitsStore, selectedAppsStore, trackedUsageStore } from '@/store';
 import { buildDashboardAppRows, type DashboardAppRow } from '@/utils/usage/dashboardStats';
 
-export { resetTrackedUsageSeedForTests } from '@/store/trackedUsageStore';
-
 export const useTrackedAppRows = (): {
   appRows: DashboardAppRow[];
   refreshUsage: (force?: boolean) => Promise<void>;

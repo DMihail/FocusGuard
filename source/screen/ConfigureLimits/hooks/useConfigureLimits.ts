@@ -22,7 +22,7 @@ import type { UseConfigureLimitsResult } from '../types';
 export const useConfigureLimits = (packageName: string): UseConfigureLimitsResult => {
   const isFocused = useIsFocused();
 
-  const app = selectedAppsStore(useShallow((state) => state.apps.find((item) => item.packageName === packageName)));
+  const app = selectedAppsStore((state) => state.apps.find((item) => item.packageName === packageName));
   const { storedLimits, setStoredLimits } = appLimitsStore(
     useShallow((state) => ({
       storedLimits: state.limitsByPackage[packageName] ?? DEFAULT_APP_LIMITS,

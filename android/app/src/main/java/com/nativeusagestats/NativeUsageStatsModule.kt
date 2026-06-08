@@ -9,7 +9,6 @@ import com.focusguard.e2e.E2EFeature
 import com.focusguard.e2e.E2ELaunchArgs
 import com.focusguard.e2e.E2EPermissionOverride
 import com.focusguard.apps.InstalledAppsRepository
-import com.focusguard.apps.UsageStatsCatalogRepository
 import com.focusguard.bridge.PermissionsLifecycleBinding
 import com.focusguard.bridge.ReactBridgeMappers
 import com.focusguard.DailyUsageRepository
@@ -34,7 +33,6 @@ class NativeUsageStatsModule(
   private val permissionRequester =
       PermissionRequester(appContext) { reactApplicationContext.currentActivity }
   private val installedAppsRepository = InstalledAppsRepository(appContext)
-  private val usageStatsCatalogRepository = UsageStatsCatalogRepository(appContext)
   private val dailyUsageRepository = DailyUsageRepository(appContext)
 
   private val permissionsLifecycleBinding =
@@ -98,18 +96,8 @@ class NativeUsageStatsModule(
     permissionRequester.requestBatteryOptimizationExemption()
   }
 
-  override fun getInstalledApplications(): WritableArray {
-    if (!PermissionChecker.hasQueryAllPackages(appContext)) {
-      return ReactBridgeMappers.toInstalledAppsArray(
-          emptyList<InstalledAppsRepository.InstalledApp>(),
-      )
-    }
-
-    return ReactBridgeMappers.toInstalledAppsArray(installedAppsRepository.getLaunchableApps())
-  }
-
-  override fun getAppsUsageStats(): WritableArray =
-      ReactBridgeMappers.toUsageStatsArray(usageStatsCatalogRepository.getTodayUsage())
+  override fun getInstalledApplications(): WritableArray =
+      ReactBridgeMappers.toInstalledAppsArray(installedAppsRepository.getLaunchableApps())
 
   override fun getPackageUsageToday(packageName: String): Double =
       dailyUsageRepository.getTodayForegroundMs(packageName).toDouble()
@@ -120,7 +108,6 @@ class NativeUsageStatsModule(
 
   override fun invalidateNativeCatalogCaches() {
     installedAppsRepository.invalidateCache()
-    usageStatsCatalogRepository.invalidateCache()
     dailyUsageRepository.invalidateCache()
   }
 

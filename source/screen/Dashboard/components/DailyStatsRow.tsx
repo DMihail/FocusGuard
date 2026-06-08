@@ -14,6 +14,12 @@ type DailyStatsRowProps = {
   summary: DashboardSummary;
 };
 
+const areDailyStatsRowPropsEqual = (previous: DailyStatsRowProps, next: DailyStatsRowProps): boolean =>
+  previous.summary.focusScore === next.summary.focusScore &&
+  previous.summary.totalUsedMs === next.summary.totalUsedMs &&
+  previous.summary.totalAllowedMs === next.summary.totalAllowedMs &&
+  previous.summary.remainingMs === next.summary.remainingMs;
+
 export const DailyStatsRow = memo(({ summary }: DailyStatsRowProps) => {
   const usedLabel = `Used today, ${formatUsageMinutes(summary.totalUsedMs)} total`;
   const remainingLabel = `Remaining budget, ${formatUsageMinutes(summary.remainingMs)}`;
@@ -47,4 +53,4 @@ export const DailyStatsRow = memo(({ summary }: DailyStatsRowProps) => {
       </View>
     </View>
   );
-});
+}, areDailyStatsRowPropsEqual);

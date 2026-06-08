@@ -1,6 +1,6 @@
 /** @format */
 
-import React, { memo } from 'react';
+import React, { memo, useCallback } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import Animated from 'react-native-reanimated';
@@ -11,11 +11,19 @@ import { colors } from '@/theme';
 
 import { usePermissionCardAnimation } from '../hooks/usePermissionCardAnimation';
 import { permissionsStyles } from '../styles';
-import type { PermissionItem } from '../types';
+import type { PermissionId, PermissionItem } from '../types';
 
 type PermissionCardProps = PermissionItem & {
-  onGrant?: () => void;
+  onGrant?: (id: PermissionId) => void;
 };
+
+const arePermissionCardPropsEqual = (previous: PermissionCardProps, next: PermissionCardProps): boolean =>
+  previous.id === next.id &&
+  previous.title === next.title &&
+  previous.description === next.description &&
+  previous.status === next.status &&
+  previous.Icon === next.Icon &&
+  previous.onGrant === next.onGrant;
 
 export const PermissionCard = memo(({ id, title, description, status, Icon, onGrant }: PermissionCardProps) => {
   const {
@@ -27,6 +35,10 @@ export const PermissionCard = memo(({ id, title, description, status, Icon, onGr
     collapsed,
     isGranted,
   } = usePermissionCardAnimation(status);
+
+  const handleGrant = useCallback(() => {
+    onGrant?.(id);
+  }, [id, onGrant]);
 
   return (
     <View testID={testIds.enablePermissions.permissionCard(id)} style={styles.cardWrapper}>
@@ -71,7 +83,7 @@ export const PermissionCard = memo(({ id, title, description, status, Icon, onGr
                   accessibilityLabel={`Grant ${title}`}
                   disabled={isGranted}
                   style={permissionsStyles.grantButton}
-                  onPress={onGrant}
+                  onPress={handleGrant}
                 >
                   <Text style={permissionsStyles.grantButtonText}>Grant Permission</Text>
                 </Pressable>
@@ -82,7 +94,7 @@ export const PermissionCard = memo(({ id, title, description, status, Icon, onGr
       </View>
     </View>
   );
-});
+}, arePermissionCardPropsEqual);
 
 PermissionCard.displayName = 'PermissionCard';
 

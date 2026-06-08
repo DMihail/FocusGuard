@@ -80,7 +80,7 @@ e2e/
 | `REQUEST_IGNORE_BATTERY_OPTIMIZATIONS` | Reduce Doze kills               |
 | `FOREGROUND_SERVICE` / `SPECIAL_USE`   | Monitoring service              |
 | `RECEIVE_BOOT_COMPLETED`               | Restart after reboot            |
-| `QUERY_ALL_PACKAGES`                   | List launchable apps (API 30+)  |
+| `<queries>` (launcher intent)          | List launchable apps (API 30+)  |
 
 ## Getting started
 
@@ -107,28 +107,30 @@ cd android && ./gradlew clean && cd ..
 
 ### Local files (not in git)
 
-| File                               | Purpose                                               |
-| ---------------------------------- | ----------------------------------------------------- |
-| `android/app/google-services.json` | Firebase config (CI copies `google-services.ci.json`) |
-| `keystore.properties`              | Release signing credentials                           |
-| `android/keystores/*.jks`          | Release keystore                                      |
-| `.env`                             | Optional local overrides                              |
+| File                               | Purpose                                                   |
+| ---------------------------------- | --------------------------------------------------------- |
+| `android/app/google-services.json` | Firebase config (CI copies `google-services.ci.json`)     |
+| `android/keystore.properties`      | Release signing (copy from `keystore.properties.example`) |
+| `android/keystores/*.jks`          | Upload keystore (see [RELEASE.md](./RELEASE.md))          |
+| `.env`                             | Optional local overrides                                  |
 
 IDE folders (`.idea/`, `.vscode/`, `.cursor/`) and build outputs are gitignored — see `.gitignore`.
 
 ## npm scripts
 
-| Script                            | Description                                               |
-| --------------------------------- | --------------------------------------------------------- |
-| `npm start`                       | Metro bundler                                             |
-| `npm run android` / `ios`         | Run on device / simulator                                 |
-| `npm run lint`                    | ESLint (zero warnings)                                    |
-| `npm run lint:fix`                | ESLint with autofix                                       |
-| `npm run typecheck`               | `tsc --noEmit`                                            |
-| `npm test`                        | Jest unit tests                                           |
-| `npm run format` / `format:check` | Prettier                                                  |
-| `npm run check`                   | lint + format + types + tests (same as CI **checks** job) |
-| `npm run e2e:sync-testids`        | Validate `e2e/testIds.js` vs `source/testing/testIds.ts`  |
+| Script                             | Description                                               |
+| ---------------------------------- | --------------------------------------------------------- |
+| `npm start`                        | Metro bundler                                             |
+| `npm run android` / `ios`          | Run on device / simulator                                 |
+| `npm run lint`                     | ESLint (zero warnings)                                    |
+| `npm run lint:fix`                 | ESLint with autofix                                       |
+| `npm run typecheck`                | `tsc --noEmit`                                            |
+| `npm test`                         | Jest unit tests                                           |
+| `npm run format` / `format:check`  | Prettier                                                  |
+| `npm run check`                    | lint + format + types + tests (same as CI **checks** job) |
+| `npm run e2e:sync-testids`         | Validate `e2e/testIds.js` vs `source/testing/testIds.ts`  |
+| `npm run android:bundle:release`   | Play Store AAB (`app-release.aab`)                        |
+| `npm run android:assemble:release` | Release APK (local smoke test)                            |
 
 Husky runs lint-staged on commit. Release builds strip `console.log` / `console.debug` / `console.info` via Babel.
 
@@ -187,7 +189,7 @@ Run the same checks locally:
 npm run check
 ```
 
-Release signing is local (`bundleRelease` / `assembleRelease`).
+Release builds: see **[RELEASE.md](./RELEASE.md)** (`npm run android:bundle:release`).
 
 ## Tech stack
 

@@ -16,7 +16,6 @@ const mockSyncSelectedAppsMetadata = jest.fn();
 const mockStoreState = {
   apps: [...mockSelectedApps],
   limitsByPackage: {} as Record<string, unknown>,
-  getLimits: jest.fn(() => ({ warningMinutes: 45, hardBlockMinutes: 60, strictMode: false })),
   isMonitoring: false,
   toggle: jest.fn(),
   syncSelectedAppsMetadata: mockSyncSelectedAppsMetadata,

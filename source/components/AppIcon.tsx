@@ -1,6 +1,6 @@
 /** @format */
 
-import React, { memo } from 'react';
+import React, { memo, useMemo } from 'react';
 import { Image, type ImageStyle, Text, type TextStyle, View, type ViewStyle } from 'react-native';
 
 import { iconBoxPresets, textPresets } from '@/theme';
@@ -24,12 +24,24 @@ const imageSizeByPreset: Record<AppIconSize, ImageStyle> = {
 
 const getAppNameInitial = (appName: string): string => appName.charAt(0).toUpperCase();
 
-export const AppIcon = memo(({ appName, appImage, size = 'md', boxStyle, imageStyle, fallbackStyle }: AppIconProps) => (
-  <View style={[iconBoxPresets[size], boxStyle]}>
-    {appImage ? (
-      <Image source={{ uri: appImage }} style={[imageSizeByPreset[size], imageStyle]} resizeMode="cover" />
-    ) : (
-      <Text style={[textPresets.iconFallbackLg, fallbackStyle]}>{getAppNameInitial(appName)}</Text>
-    )}
-  </View>
-));
+const areAppIconPropsEqual = (previous: AppIconProps, next: AppIconProps): boolean =>
+  previous.appName === next.appName &&
+  previous.appImage === next.appImage &&
+  previous.size === next.size &&
+  previous.boxStyle === next.boxStyle &&
+  previous.imageStyle === next.imageStyle &&
+  previous.fallbackStyle === next.fallbackStyle;
+
+export const AppIcon = memo(({ appName, appImage, size = 'md', boxStyle, imageStyle, fallbackStyle }: AppIconProps) => {
+  const imageSource = useMemo(() => (appImage ? { uri: appImage } : null), [appImage]);
+
+  return (
+    <View style={[iconBoxPresets[size], boxStyle]}>
+      {imageSource ? (
+        <Image source={imageSource} style={[imageSizeByPreset[size], imageStyle]} resizeMode="cover" />
+      ) : (
+        <Text style={[textPresets.iconFallbackLg, fallbackStyle]}>{getAppNameInitial(appName)}</Text>
+      )}
+    </View>
+  );
+}, areAppIconPropsEqual);

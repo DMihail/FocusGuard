@@ -113,3 +113,55 @@ jobs:
           path: android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
           retention-days: 14
+
+  android-release:
+    name: Android release bundle (R8)
+    needs: checks
+    if: >-
+      github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && (
+        startsWith(github.ref, 'refs/heads/release/')
+      ))
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+          cache: gradle
+          cache-dependency-path: |
+            android/**/*.gradle*
+            android/gradle/wrapper/gradle-wrapper.properties
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android SDK packages
+        run: |
+          yes | sdkmanager --licenses >/dev/null
+          sdkmanager \
+            "platforms;android-36" \
+            "build-tools;36.0.0" \
+            "ndk;27.1.12297006"
+
+      - name: Prepare Firebase config for CI
+        run: cp android/app/google-services.ci.json android/app/google-services.json
+
+      - name: Build release bundle (R8 validation)
+        working-directory: android
+        run: >
+          ./gradlew bundleRelease --no-daemon --no-configuration-cache -PreactNativeArchitectures=x86_64

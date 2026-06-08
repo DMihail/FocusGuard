@@ -18,6 +18,16 @@ type QuickActionsSectionProps = {
   onOpenManageApps: () => void;
 };
 
+const areQuickActionsSectionPropsEqual = (
+  previous: QuickActionsSectionProps,
+  next: QuickActionsSectionProps,
+): boolean =>
+  previous.isMonitoring === next.isMonitoring &&
+  previous.canStartFocusMode === next.canStartFocusMode &&
+  previous.monitoringSubtitle === next.monitoringSubtitle &&
+  previous.onToggleMonitoring === next.onToggleMonitoring &&
+  previous.onOpenManageApps === next.onOpenManageApps;
+
 export const QuickActionsSection = memo(
   ({
     isMonitoring,
@@ -75,4 +85,5 @@ export const QuickActionsSection = memo(
       </View>
     );
   },
+  areQuickActionsSectionPropsEqual,
 );

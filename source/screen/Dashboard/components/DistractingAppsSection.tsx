@@ -19,6 +19,38 @@ type DistractingAppsSectionProps = {
   onViewAllPress: () => void;
 };
 
+const areVisibleAppRowsEqual = (previous: DashboardAppRow[], next: DashboardAppRow[]): boolean => {
+  const visibleCount = Math.min(MAX_VISIBLE_APPS, previous.length, next.length);
+
+  for (let index = 0; index < visibleCount; index += 1) {
+    const left = previous[index];
+    const right = next[index];
+
+    if (
+      !left ||
+      !right ||
+      left.packageName !== right.packageName ||
+      left.usedMs !== right.usedMs ||
+      left.limitMs !== right.limitMs ||
+      left.percentUsed !== right.percentUsed ||
+      left.isOverLimit !== right.isOverLimit
+    ) {
+      return false;
+    }
+  }
+
+  return true;
+};
+
+const areDistractingAppsSectionPropsEqual = (
+  previous: DistractingAppsSectionProps,
+  next: DistractingAppsSectionProps,
+): boolean =>
+  previous.appRows.length === next.appRows.length &&
+  areVisibleAppRowsEqual(previous.appRows, next.appRows) &&
+  previous.onConfigureLimits === next.onConfigureLimits &&
+  previous.onViewAllPress === next.onViewAllPress;
+
 export const DistractingAppsSection = memo(
   ({ appRows, onConfigureLimits, onViewAllPress }: DistractingAppsSectionProps) => {
     const visibleApps = useMemo(() => appRows.slice(0, MAX_VISIBLE_APPS), [appRows]);
@@ -64,4 +96,5 @@ export const DistractingAppsSection = memo(
       </View>
     );
   },
+  areDistractingAppsSectionPropsEqual,
 );

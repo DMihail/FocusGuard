@@ -24,6 +24,21 @@ type ProgressBarProps = {
   accessibilityValue?: AccessibilityValue;
 } & Pick<ViewProps, 'accessible' | 'importantForAccessibility'>;
 
+const areProgressBarPropsEqual = (previous: ProgressBarProps, next: ProgressBarProps): boolean =>
+  previous.progress === next.progress &&
+  previous.fillColor === next.fillColor &&
+  previous.trackColor === next.trackColor &&
+  previous.style === next.style &&
+  previous.height === next.height &&
+  previous.accessibilityRole === next.accessibilityRole &&
+  previous.accessibilityLabel === next.accessibilityLabel &&
+  previous.accessible === next.accessible &&
+  previous.importantForAccessibility === next.importantForAccessibility &&
+  previous.accessibilityValue?.min === next.accessibilityValue?.min &&
+  previous.accessibilityValue?.max === next.accessibilityValue?.max &&
+  previous.accessibilityValue?.now === next.accessibilityValue?.now &&
+  previous.accessibilityValue?.text === next.accessibilityValue?.text;
+
 export const ProgressBar = memo(
   ({
     progress,
@@ -66,6 +81,7 @@ export const ProgressBar = memo(
       </View>
     );
   },
+  areProgressBarPropsEqual,
 );
 
 const styles = StyleSheet.create({

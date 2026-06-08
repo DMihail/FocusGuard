@@ -1,10 +1,8 @@
 /** @format */
 
-import type { ManageApp } from '@/domain/types';
+import type { AppCategory, ManageApp } from '@/domain/types';
 
 export type { ManageApp } from '@/domain/types';
-
-export type AppCategory = string;
 
 export type CategoryFilterOption = {
   id: string;
