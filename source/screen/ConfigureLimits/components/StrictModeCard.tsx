@@ -14,22 +14,20 @@ export type StrictModeCardProps = {
   toggleTestID?: string;
 };
 
-export function StrictModeCard({ value, onValueChange, testID, toggleTestID }: StrictModeCardProps) {
-  return (
-    <View style={styles.strictCard} testID={testID}>
-      <View style={styles.strictText}>
-        <Text style={styles.strictTitle}>Strict Mode</Text>
-        <Text style={styles.strictDescription}>Disable the 5-minute snooze when blocked</Text>
-      </View>
-      <Switch
-        testID={toggleTestID}
-        accessibilityRole="switch"
-        accessibilityLabel="Strict mode"
-        value={value}
-        onValueChange={onValueChange}
-        trackColor={switchTrackColors}
-        thumbColor={colors.textPrimary}
-      />
+export const StrictModeCard = ({ value, onValueChange, testID, toggleTestID }: StrictModeCardProps) => (
+  <View style={styles.strictCard} testID={testID}>
+    <View style={styles.strictText}>
+      <Text style={styles.strictTitle}>Strict Mode</Text>
+      <Text style={styles.strictDescription}>Disable the 5-minute snooze when blocked</Text>
     </View>
-  );
-}
+    <Switch
+      testID={toggleTestID}
+      accessibilityRole="switch"
+      accessibilityLabel="Strict mode"
+      value={value}
+      onValueChange={onValueChange}
+      trackColor={switchTrackColors}
+      thumbColor={colors.textPrimary}
+    />
+  </View>
+);

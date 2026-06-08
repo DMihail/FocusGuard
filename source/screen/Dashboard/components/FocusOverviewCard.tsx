@@ -1,6 +1,6 @@
 /** @format */
 
-import React from 'react';
+import React, { memo } from 'react';
 import { Text, View } from 'react-native';
 
 import { FocusScoreSvg } from '@/assets/svg/Dashboard';
@@ -16,7 +16,7 @@ type FocusOverviewCardProps = {
   summary: DashboardSummary;
 };
 
-export function FocusOverviewCard({ summary }: FocusOverviewCardProps) {
+export const FocusOverviewCard = memo(({ summary }: FocusOverviewCardProps) => {
   const usedPercent =
     summary.totalAllowedMs > 0 ? Math.min(100, Math.round((summary.totalUsedMs / summary.totalAllowedMs) * 100)) : 0;
 
@@ -51,4 +51,4 @@ export function FocusOverviewCard({ summary }: FocusOverviewCardProps) {
       />
     </View>
   );
-}
+});

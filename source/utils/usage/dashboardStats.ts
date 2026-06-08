@@ -1,7 +1,7 @@
 /** @format */
 
 import type { ManageApp } from '@/screen/ManageApps/types';
-import type { AppLimits } from '@/store';
+import { type AppLimits, DEFAULT_APP_LIMITS } from '@/store';
 
 const MS_PER_MINUTE = 60_000;
 
@@ -24,11 +24,10 @@ export const buildDashboardAppRows = (
   apps: ManageApp[],
   limitsByPackage: Record<string, AppLimits>,
   usageByPackage: Record<string, number>,
-  getLimits: (packageName: string) => AppLimits,
 ): DashboardAppRow[] =>
   apps
     .map((app) => {
-      const limits = limitsByPackage[app.packageName] ?? getLimits(app.packageName);
+      const limits = limitsByPackage[app.packageName] ?? DEFAULT_APP_LIMITS;
       const usedMs = usageByPackage[app.packageName] ?? 0;
       const limitMs = limits.hardBlockMinutes * MS_PER_MINUTE;
       const rawPercent = limitMs > 0 ? Math.round((usedMs / limitMs) * 100) : 0;

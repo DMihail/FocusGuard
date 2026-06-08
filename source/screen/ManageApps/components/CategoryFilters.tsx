@@ -16,7 +16,7 @@ type CategoryFiltersProps = {
   onCategoryChange: (categoryId: string) => void;
 };
 
-const CategoryFiltersView = ({ filters, activeCategoryId, onCategoryChange }: CategoryFiltersProps) => {
+export const CategoryFilters = memo(({ filters, activeCategoryId, onCategoryChange }: CategoryFiltersProps) => {
   const renderItem = useMemo(
     () => createCategoryFilterRenderItem(activeCategoryId, onCategoryChange),
     [activeCategoryId, onCategoryChange],
@@ -38,6 +38,4 @@ const CategoryFiltersView = ({ filters, activeCategoryId, onCategoryChange }: Ca
       {...CHIP_ROW_FLAT_LIST_PROPS}
     />
   );
-};
-
-export const CategoryFilters = memo(CategoryFiltersView);
+});

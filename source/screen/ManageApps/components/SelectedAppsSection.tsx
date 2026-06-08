@@ -45,7 +45,7 @@ const SelectedChip = memo(({ app, onPress, onRemove }: SelectedChipProps) => (
   </View>
 ));
 
-export function SelectedAppsSection({ apps, onAppPress, onAppRemove }: SelectedAppsSectionProps) {
+export const SelectedAppsSection = ({ apps, onAppPress, onAppRemove }: SelectedAppsSectionProps) => {
   const isExpanded = apps.length > 0;
   const containerStyle = useSelectedAppsAccordion(isExpanded, selectedAppsSectionExpandedHeight);
 
@@ -77,4 +77,4 @@ export function SelectedAppsSection({ apps, onAppPress, onAppRemove }: SelectedA
       </View>
     </Animated.View>
   );
-}
+};

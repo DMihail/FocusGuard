@@ -11,7 +11,7 @@ type TrackedAppsHeaderProps = {
   onBack: () => void;
 };
 
-const TrackedAppsHeaderView = ({ appCount, onBack }: TrackedAppsHeaderProps) => (
+export const TrackedAppsHeader = memo(({ appCount, onBack }: TrackedAppsHeaderProps) => (
   <ScreenBackHeader
     title="Tracked Apps"
     subtitle={`${appCount} ${appCount === 1 ? 'app' : 'apps'} monitored`}
@@ -20,6 +20,4 @@ const TrackedAppsHeaderView = ({ appCount, onBack }: TrackedAppsHeaderProps) => 
     backButtonTestID={testIds.trackedApps.backButton}
     subtitleTestID={testIds.trackedApps.appCount}
   />
-);
-
-export const TrackedAppsHeader = memo(TrackedAppsHeaderView);
+));

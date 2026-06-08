@@ -1,6 +1,8 @@
 /** @format */
 
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
+
+import { useShallow } from 'zustand/react/shallow';
 
 import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { useTrackedAppRows } from '@/hooks/useTrackedAppRows';
@@ -11,10 +13,15 @@ import { buildDashboardSummary } from '@/utils/usage/dashboardStats';
 /** Dashboard screen state: tracked rows, summary stats, monitoring toggle, pull-to-refresh. */
 export const useDashboard = () => {
   const { appRows, refreshUsage } = useTrackedAppRows();
-  const isMonitoring = monitoringStore((state) => state.isMonitoring);
-  const toggleMonitoring = monitoringStore((state) => state.toggle);
+  const { isMonitoring, toggleMonitoring } = monitoringStore(
+    useShallow((state) => ({
+      isMonitoring: state.isMonitoring,
+      toggleMonitoring: state.toggle,
+    })),
+  );
   const openConfigureLimits = useNavigateToConfigureLimits();
-  const { refreshing, onRefresh } = usePullToRefresh(() => refreshUsage(true));
+  const handleRefresh = useCallback(() => refreshUsage(true), [refreshUsage]);
+  const { refreshing, onRefresh } = usePullToRefresh(handleRefresh);
 
   const summary = useMemo(() => buildDashboardSummary(appRows), [appRows]);
 

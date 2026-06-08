@@ -17,7 +17,7 @@ type DailyUsageCardProps = {
   limitMs: number;
 };
 
-export function DailyUsageCard({ packageName, usedMs, limitMs }: DailyUsageCardProps) {
+export const DailyUsageCard = ({ packageName, usedMs, limitMs }: DailyUsageCardProps) => {
   const isOverLimit = limitMs > 0 && usedMs >= limitMs;
   const barProgress = limitMs > 0 ? Math.min(100, (usedMs / limitMs) * 100) : 0;
   const percent = Math.round(barProgress);
@@ -53,4 +53,4 @@ export function DailyUsageCard({ packageName, usedMs, limitMs }: DailyUsageCardP
       <Text style={[styles.dailyUsagePercent, isOverLimit && styles.dailyUsagePercentOver]}>{percent}% of limit</Text>
     </View>
   );
-}
+};

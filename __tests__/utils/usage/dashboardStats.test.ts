@@ -1,6 +1,5 @@
 /** @format */
 
-import { DEFAULT_APP_LIMITS } from '@/store/constants/appLimits';
 import { buildDashboardAppRows, buildDashboardSummary } from '@/utils/usage/dashboardStats';
 
 const app = {
@@ -13,7 +12,7 @@ const app = {
 
 describe('dashboardStats', () => {
   it('computes focus score from remaining daily budget', () => {
-    const rows = buildDashboardAppRows([app], {}, { [app.packageName]: 30 * 60_000 }, () => DEFAULT_APP_LIMITS);
+    const rows = buildDashboardAppRows([app], {}, { [app.packageName]: 30 * 60_000 });
     const summary = buildDashboardSummary(rows);
 
     expect(summary.focusScore).toBe(50);
@@ -21,7 +20,7 @@ describe('dashboardStats', () => {
   });
 
   it('marks app as over limit when usage exceeds daily cap', () => {
-    const rows = buildDashboardAppRows([app], {}, { [app.packageName]: 90 * 60_000 }, () => DEFAULT_APP_LIMITS);
+    const rows = buildDashboardAppRows([app], {}, { [app.packageName]: 90 * 60_000 });
 
     expect(rows[0]?.isOverLimit).toBe(true);
     expect(rows[0]?.percentUsed).toBe(100);
@@ -36,7 +35,6 @@ describe('dashboardStats', () => {
         [app.packageName]: 50 * 60_000,
         [secondApp.packageName]: 10 * 60_000,
       },
-      () => DEFAULT_APP_LIMITS,
     );
     const summary = buildDashboardSummary(rows);
 

@@ -116,9 +116,11 @@ android {
             // see https://reactnative.dev/docs/signed-apk-android.
             signingConfig signingConfigs.debug
             minifyEnabled enableProguardInReleaseBuilds
-            proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro",
+            )
             signingConfig signingConfigs.release
-            proguardFile "${rootProject.projectDir}/../node_modules/detox/android/detox/proguard-rules-app.pro"
             manifestPlaceholders = [usesCleartextTraffic: "false"]
         }
         e2eRelease {
@@ -127,6 +129,12 @@ android {
             buildConfigField "boolean", "E2E_ENABLED", "true"
             matchingFallbacks = ["release", "debug"]
             manifestPlaceholders = [usesCleartextTraffic: "false"]
+            // Detox idling/sync keeps — not needed in store release APKs.
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro",
+                "${rootProject.projectDir}/../node_modules/detox/android/detox/proguard-rules-app.pro",
+            )
         }
     }
 }

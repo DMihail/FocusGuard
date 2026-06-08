@@ -10,7 +10,7 @@ import { manageAppsStyles } from '../styles';
 import type { ManageAppsContentProps } from '../types';
 import { ManageAppsListHeader } from './ManageAppsListHeader';
 
-export function ManageAppsContent({
+export const ManageAppsContent = ({
   apps,
   isLoadingApps,
   isFiltering,
@@ -23,7 +23,7 @@ export function ManageAppsContent({
   categoryFilters,
   activeCategoryId,
   onCategoryChange,
-}: ManageAppsContentProps) {
+}: ManageAppsContentProps) => {
   const renderItem = useMemo(() => createManageAppListRenderItem(isSelected, onToggle), [isSelected, onToggle]);
 
   const listHeader = useMemo(
@@ -86,4 +86,4 @@ export function ManageAppsContent({
       </View>
     </View>
   );
-}
+};

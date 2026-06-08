@@ -14,7 +14,7 @@ type ManageAppsSearchToolbarProps = {
   onQueryActiveChange: (isActive: boolean) => void;
 };
 
-export function ManageAppsSearchToolbar({ onQueryChange, onQueryActiveChange }: ManageAppsSearchToolbarProps) {
+export const ManageAppsSearchToolbar = ({ onQueryChange, onQueryActiveChange }: ManageAppsSearchToolbarProps) => {
   const [query, setQuery] = useState('');
 
   useEffect(() => {
@@ -34,4 +34,4 @@ export function ManageAppsSearchToolbar({ onQueryChange, onQueryActiveChange }: 
       <AppSearchField value={query} onChangeText={setQuery} />
     </View>
   );
-}
+};

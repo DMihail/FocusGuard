@@ -16,6 +16,17 @@ export type AppUsageRowProps = DashboardAppRow & {
   rowTestID?: string;
 };
 
+const areAppUsageRowPropsEqual = (previous: AppUsageRowProps, next: AppUsageRowProps): boolean =>
+  previous.packageName === next.packageName &&
+  previous.appName === next.appName &&
+  previous.appImage === next.appImage &&
+  previous.usedMs === next.usedMs &&
+  previous.limitMs === next.limitMs &&
+  previous.percentUsed === next.percentUsed &&
+  previous.isOverLimit === next.isOverLimit &&
+  previous.onPress === next.onPress &&
+  previous.rowTestID === next.rowTestID;
+
 export const AppUsageRow = memo(
   ({
     packageName,
@@ -73,20 +84,6 @@ export const AppUsageRow = memo(
   },
   areAppUsageRowPropsEqual,
 );
-
-function areAppUsageRowPropsEqual(previous: AppUsageRowProps, next: AppUsageRowProps): boolean {
-  return (
-    previous.packageName === next.packageName &&
-    previous.appName === next.appName &&
-    previous.appImage === next.appImage &&
-    previous.usedMs === next.usedMs &&
-    previous.limitMs === next.limitMs &&
-    previous.percentUsed === next.percentUsed &&
-    previous.isOverLimit === next.isOverLimit &&
-    previous.onPress === next.onPress &&
-    previous.rowTestID === next.rowTestID
-  );
-}
 
 const styles = StyleSheet.create({
   item: {

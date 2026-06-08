@@ -24,7 +24,7 @@ type ProgressBarProps = {
   accessibilityValue?: AccessibilityValue;
 } & Pick<ViewProps, 'accessible' | 'importantForAccessibility'>;
 
-export function ProgressBar({
+export const ProgressBar = ({
   progress,
   fillColor = colors.accent,
   trackColor = colors.progressTrack,
@@ -35,7 +35,7 @@ export function ProgressBar({
   accessibilityValue,
   accessible,
   importantForAccessibility,
-}: ProgressBarProps) {
+}: ProgressBarProps) => {
   const clamped = Math.max(0, Math.min(100, progress));
   const fillFlex = clamped > 0 ? clamped : 0;
   const emptyFlex = 100 - fillFlex;
@@ -64,7 +64,7 @@ export function ProgressBar({
       </View>
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   track: {

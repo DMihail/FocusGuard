@@ -75,9 +75,8 @@ jest.mock('@/hooks/usePrefetchNativeCatalogs', () => ({
 }));
 
 import { invalidateUsageStatsCache } from '@/domain/usageStatsCatalog';
-import { resetTrackedUsageSeedForTests } from '@/hooks/useTrackedAppRows';
 import { useDashboard } from '@/screen/Dashboard/hooks/useDashboard';
-import { trackedUsageStore } from '@/store';
+import { resetTrackedUsageSeedForTests, trackedUsageStore } from '@/store/trackedUsageStore';
 
 type HarnessProps = {
   onReady: (value: ReturnType<typeof useDashboard>) => void;
