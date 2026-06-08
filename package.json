@@ -1,6 +1,6 @@
 {
   "name": "FocusGuard",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "android": "react-native run-android",
@@ -10,24 +10,11 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "typecheck": "tsc --noEmit",
+    "check": "npm run lint && npm run format:check && npm run typecheck && npm test -- --ci --watchman=false",
+    "android:bundle:release": "cd android && ./gradlew bundleRelease",
+    "android:assemble:release": "cd android && ./gradlew assembleRelease",
     "start": "react-native start",
     "test": "jest",
-    "e2e:build:android": "detox build --configuration android.emu.debug",
-    "e2e:test:android": "detox test --configuration android.emu.debug",
-    "e2e:android": "npm run e2e:build:android && npm run e2e:test:android",
-    "e2e:build:android:attached": "detox build --configuration android.att.debug",
-    "e2e:test:android:attached": "detox test --configuration android.att.debug",
-    "e2e:build:android:release": "detox build --configuration android.emu.release",
-    "e2e:test:android:release": "detox test --configuration android.emu.release",
-    "e2e:build:android:e2eRelease": "detox build --configuration android.emu.e2eRelease",
-    "e2e:test:android:e2eRelease": "detox test --configuration android.emu.e2eRelease",
-    "e2e:android:e2eRelease": "npm run e2e:build:android:e2eRelease && npm run e2e:test:android:e2eRelease",
-    "e2e:build:android:e2eRelease:attached": "detox build --configuration android.att.e2eRelease",
-    "e2e:test:android:e2eRelease:attached": "detox test --configuration android.att.e2eRelease",
-    "e2e:build:ios": "detox build --configuration ios.sim.debug",
-    "e2e:test:ios": "detox test --configuration ios.sim.debug",
-    "e2e:ios": "npm run e2e:build:ios && npm run e2e:test:ios",
-    "e2e:sync-testids": "node scripts/sync-e2e-testids.js",
     "prepare": "husky"
   },
   "codegenConfig": {
@@ -39,10 +26,9 @@
     }
   },
   "dependencies": {
-    "@react-navigation/elements": "^2.9.19",
-    "@react-navigation/native": "^7.2.5",
-    "@react-navigation/native-stack": "^7.16.0",
-    "@shopify/flash-list": "^2.3.1",
+    "@react-navigation/elements": "^2.9.20",
+    "@react-navigation/native": "^7.2.6",
+    "@react-navigation/native-stack": "^7.17.0",
     "react": "19.2.3",
     "react-native": "0.85.3",
     "react-native-gesture-handler": "^3.0.0",
@@ -74,7 +60,6 @@
     "@typescript-eslint/parser": "^8.60.1",
     "babel-plugin-module-resolver": "^5.0.3",
     "babel-plugin-transform-remove-console": "^6.9.4",
-    "detox": "^20.51.3",
     "eslint": "^8.19.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^4.2.5",
@@ -106,6 +91,5 @@
     "{.eslintrc,.prettierrc,babel.config,jest.config}.js": [
       "prettier --write"
     ]
-  },
-  "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
+  }
 }

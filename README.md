@@ -18,25 +18,28 @@ Built with [React Native](https://reactnative.dev) 0.85 (New Architecture / Turb
 - **Persistent service** — survives app close; restarts on boot when monitoring is on
 - **Dashboard** — focus score, top distracting apps, pull-to-refresh
 
-## Architecture
+## Project layout
 
 ```
 source/
-├── domain/              Native catalog loaders, permission snapshot, app metadata reconcile
-├── navigation/          Routes, permission guard, deep links (focusguard://)
-├── screen/              Onboarding, permissions, dashboard, manage apps, limits, settings
-├── store/               Zustand + MMKV, including shared trackedUsageStore
-├── specs/               Turbo Module (NativeUsageStats)
-├── hooks/               Shared screen hooks (usage rows, prefetch, app state)
+├── components/          Shared UI (AppUsageRow, ProgressBar, ScreenSafeArea, …)
+├── domain/              Native catalog loaders, permission snapshot, metadata reconcile
+├── hooks/               Shared hooks (usage rows, prefetch, app state, pull-to-refresh)
+├── navigation/          Stack, deep links (`focusguard://`), permission guard
+├── screen/              Feature screens (Onboarding → Dashboard → Settings)
+├── specs/               Turbo Module contract (`NativeUsageStats`)
+├── store/               Zustand + MMKV persistence
+├── testing/             `testIds` registry for unit tests
 └── theme/               Colors, typography, spacing
 
 android/.../com/focusguard/
-├── apps/                Installed apps + usage stats catalogs
-├── permissions/         Permission checks and settings intents
+├── apps/                Installed apps catalog
 ├── bridge/              RN mappers and lifecycle binding
-├── TrackingEngine       Polling, warnings, block overlay
+├── monitor/             Permission helpers used by the tracking service
+├── overlay/             WindowManager block UI
+├── permissions/         Runtime permission requests and events
 ├── service/             FocusGuardMonitorService (FGS)
-└── overlay/             WindowManager block UI
+└── TrackingEngine.kt    Polling, warnings, block overlay
 ```
 
 ### Identity
@@ -49,26 +52,6 @@ android/.../com/focusguard/
 | Deep links        | `focusguard://dashboard`, `configure/:package`, `tracked-apps` |
 | RN root component | `Keept` (`app.json`)                                           |
 
-### Data flow
-
-1. **ManageApps** — user selects apps → `selectedAppsStore` (MMKV)
-2. **ConfigureLimits** — limits per package → `appLimitsStore` (MMKV)
-3. **Dashboard Start** — `monitoringStore` → native `startMonitorService()`
-4. **FocusGuardMonitorService** — FGS + `TrackingEngine` (1s poll)
-5. Native reads the same MMKV keys as JS (`TrackingConfigRepository`)
-6. On focus / pull-to-refresh, JS reloads installed apps and per-package usage via `getPackageUsageToday`, then
-   reconciles selected-app metadata
-7. Dashboard and Tracked Apps read the same `trackedUsageStore` state
-8. Warning → push notification; hard block → overlay via `WindowManager`
-
-### JS performance notes
-
-- Heavy native reads (`getInstalledApplications`, `getPackageUsageToday`) run through catalog loaders deferred with
-  `requestIdleCallback` (fallback: `setTimeout`)
-- Manage Apps uses `@shopify/flash-list` for large installed-app lists
-- Dashboard and Tracked Apps share `trackedUsageStore` for daily usage (same source as the native monitor)
-- Permission checks are cached in `domain/permissionSnapshot.ts` and invalidated on foreground / native events
-
 ## Required permissions
 
 | Permission                             | Purpose                         |
@@ -79,14 +62,37 @@ android/.../com/focusguard/
 | `REQUEST_IGNORE_BATTERY_OPTIMIZATIONS` | Reduce Doze kills               |
 | `FOREGROUND_SERVICE` / `SPECIAL_USE`   | Monitoring service              |
 | `RECEIVE_BOOT_COMPLETED`               | Restart after reboot            |
-| `QUERY_ALL_PACKAGES`                   | List launchable apps (API 30+)  |
+| `<queries>` (launcher intent)          | List launchable apps (API 30+)  |
 
-## Getting started
+## Android Studio
 
-[Set up the React Native environment](https://reactnative.dev/docs/set-up-your-environment), then:
+1. Open the **`android/`** folder (not the repo root).
+2. **JDK 17**, **Android SDK API 36**, NDK **27.1.12297006** (see SDK Manager).
+3. Copy Firebase config: `android/app/google-services.json` (or `google-services.ci.json` for local smoke).
+4. Start Metro from the repo root: `npm start`.
+5. Build variants: **`debug`** (dev + Metro) or **`release`** (Play Store / R8).
+
+| Task in AS                                     | Result                                |
+| ---------------------------------------------- | ------------------------------------- |
+| Run ▶ `app` debug                              | Dev install with Metro                |
+| Build → Generate Signed Bundle / APK → release | `app-release.aab` after signing setup |
+
+CLI equivalent:
 
 ```sh
-npm install
+npm run android:bundle:release   # AAB for Play Store
+npm run android:assemble:release # APK smoke test
+```
+
+After native or Turbo Module changes: **Build → Clean Project**, then rebuild (or `./gradlew clean`).
+
+## Getting started (CLI)
+
+**Requirements:** Node.js ≥ 22.11, JDK 17, Android SDK (API 36).
+
+```sh
+npm ci
+cp android/app/google-services.ci.json android/app/google-services.json
 npm start
 ```
 
@@ -96,102 +102,41 @@ In another terminal:
 npm run android
 ```
 
-Place `android/app/google-services.json` locally for Firebase (CI uses `google-services.ci.json`).
+### Local files (not in git)
 
-After native or Turbo Module changes:
+| File                               | Purpose                                                   |
+| ---------------------------------- | --------------------------------------------------------- |
+| `android/app/google-services.json` | Firebase config                                           |
+| `android/keystore.properties`      | Release signing (copy from `keystore.properties.example`) |
 
-```sh
-cd android && ./gradlew clean && cd ..
-```
+## npm scripts
 
-## Code quality
-
-```sh
-npm run lint          # ESLint (zero warnings)
-npm run typecheck     # TypeScript
-npm test              # Jest
-npm run format:check  # Prettier
-```
-
-Husky runs lint-staged on commit. Production builds strip `console.log` / `console.debug` / `console.info` via Babel.
+| Script                             | Description                   |
+| ---------------------------------- | ----------------------------- |
+| `npm start`                        | Metro bundler                 |
+| `npm run android`                  | Run on device / emulator      |
+| `npm run check`                    | lint + format + types + tests |
+| `npm run android:bundle:release`   | Play Store AAB                |
+| `npm run android:assemble:release` | Release APK                   |
 
 ## Testing
-
-### Unit tests
 
 ```sh
 npm test
 ```
 
-### Detox (E2E)
-
-Full Detox setup with Page Object Model, launch presets, and native E2E bootstrap.
-
-```
-e2e/
-├── helpers/          launch presets, wait/tap utilities
-├── screens/          Page Objects (Onboarding, Dashboard, …)
-├── tests/            smoke, onboarding, permissions, navigation
-├── testIds.js        mirror of source/testing/testIds.ts
-└── jest.config.js
-```
-
-**Launch presets** (via `launchArgs` → native `configureE2EBootstrap`):
-
-| Preset        | Effect                                         |
-| ------------- | ---------------------------------------------- |
-| `fresh`       | Clears MMKV → Onboarding                       |
-| `permissions` | Skip onboarding → Enable Permissions           |
-| `dashboard`   | Skip onboarding + mock permissions → Dashboard |
-
-```sh
-# Android emulator (start Metro first: npm start)
-npm run e2e:android
-
-# Or step by step
-npm run e2e:build:android
-npm run e2e:test:android
-
-# Physical device
-npm run e2e:build:android:attached
-npm run e2e:test:android:attached
-
-# Release-like build with E2E bootstrap (minified, bundled JS — Metro not required)
-npm run e2e:android:e2eRelease
-
-# Plain release APK (no E2E bootstrap — onboarding/permissions presets will not work)
-npm run e2e:build:android:release
-npm run e2e:test:android:release
-```
-
-**Selectors:** always prefer `element(by.id(...))` from `e2e/testIds.js`. Detox uses `exposeGlobals: false` — import
-`{ device, element, by, waitFor, expect }` from `detox`.
-
-**Android emulator:** set `DETOX_AVD_NAME` to one of your AVDs (`emulator -list-avds`). Default in `.detoxrc.js` is
-`Medium_Phone`. Instrumentation tests live in `android/app/src/androidTest/`.
-
 ## CI
 
-GitHub Actions (`.github/workflows/ci.yml`) on push/PR:
+GitHub Actions (`.github/workflows/ci.yml`): on every push / PR runs `npm run check` (lint, Prettier, types, Jest).
 
-| Job         | What                               |
-| ----------- | ---------------------------------- |
-| **checks**  | ESLint, Prettier, TypeScript, Jest |
-| **android** | `assembleDebug`, APK artifact      |
-
-Release signing is local (`bundleRelease` / `assembleRelease`).
+Native builds (`debug` / `release`) — locally via Android Studio or `npm run android:bundle:release`.
 
 ## Tech stack
 
 - React Native 0.85 — New Architecture, Hermes, Turbo Modules
-- React 19
-- TypeScript
-- Zustand 5 + react-native-mmkv 4
-- @shopify/flash-list 2
-- @react-navigation/native-stack 7
-- Kotlin + Coroutines (Android domain layer)
+- React 19, TypeScript, Zustand 5 + MMKV 4
+- Kotlin + Coroutines (Android)
 
 ## iOS
 
-The iOS target loads the JS bundle but **monitoring is Android-only** (Usage Stats, overlay, FGS). Not production-ready
-for the core feature set.
+The iOS target loads the JS bundle but **monitoring is Android-only**. Not production-ready for the core feature set.

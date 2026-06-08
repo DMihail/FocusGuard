@@ -16,7 +16,7 @@ type LegalDocumentListHeaderProps = {
   backButtonTestId: string;
 };
 
-export function LegalDocumentListHeader({ document, headerTestId, backButtonTestId }: LegalDocumentListHeaderProps) {
+export const LegalDocumentListHeader = ({ document, headerTestId, backButtonTestId }: LegalDocumentListHeaderProps) => {
   const goBack = useGoBack();
 
   return (
@@ -32,4 +32,4 @@ export function LegalDocumentListHeader({ document, headerTestId, backButtonTest
       <Text style={legalStyles.meta}>{`Last updated: ${document.lastUpdated}`}</Text>
     </>
   );
-}
+};

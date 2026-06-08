@@ -1,6 +1,6 @@
 /** @format */
 
-const MS_PER_MINUTE = 60_000;
+import { MS_PER_MINUTE } from './constants';
 
 /** Formats minutes as a compact label (e.g. `45m`, `1h`, `1h 30m`). */
 export const formatDurationMinutes = (minutes: number): string => {

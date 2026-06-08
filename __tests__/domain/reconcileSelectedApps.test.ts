@@ -1,11 +1,11 @@
-import { reconcileSelectedAppsWithInstalled, syncSelectedAppsMetadata } from '@/domain/reconcileSelectedApps';
+import { syncSelectedAppsMetadata } from '@/domain/reconcileSelectedApps';
 import { createManageApp, mockManageApps } from '@/testing/fixtures/manageApps';
 
-describe('reconcileSelectedAppsWithInstalled', () => {
-  it('keeps persisted apps when the install catalog is empty', () => {
+describe('syncSelectedAppsMetadata', () => {
+  it('returns null when the install catalog is empty', () => {
     const selected = [mockManageApps[0]];
 
-    expect(reconcileSelectedAppsWithInstalled(selected, [])).toEqual(selected);
+    expect(syncSelectedAppsMetadata(selected, [])).toBeNull();
   });
 
   it('replaces stale metadata with the install catalog entry for the same package', () => {
@@ -20,7 +20,6 @@ describe('reconcileSelectedAppsWithInstalled', () => {
     ];
     const installed = [mockManageApps[0]];
 
-    expect(reconcileSelectedAppsWithInstalled(selected, installed)).toEqual(installed);
     expect(syncSelectedAppsMetadata(selected, installed)).toEqual(installed);
   });
 
@@ -28,7 +27,6 @@ describe('reconcileSelectedAppsWithInstalled', () => {
     const selected = [mockManageApps[0]];
     const installed = [mockManageApps[1]];
 
-    expect(reconcileSelectedAppsWithInstalled(selected, installed)).toEqual(selected);
     expect(syncSelectedAppsMetadata(selected, installed)).toBeNull();
   });
 });

@@ -1,10 +1,11 @@
 /** @format */
 
-import React from 'react';
+import React, { memo } from 'react';
 import { Text, View } from 'react-native';
 
 import { testIds } from '@/testing/testIds';
 import { colors } from '@/theme';
+import { computeUsageMetrics } from '@/utils/usage/computeUsageMetrics';
 import { formatUsagePair } from '@/utils/usage/formatUsage';
 
 import { configureLimitsStyles as styles } from '../styles';
@@ -17,9 +18,8 @@ type DailyUsageCardProps = {
   limitMs: number;
 };
 
-export function DailyUsageCard({ packageName, usedMs, limitMs }: DailyUsageCardProps) {
-  const isOverLimit = limitMs > 0 && usedMs >= limitMs;
-  const barProgress = limitMs > 0 ? Math.min(100, (usedMs / limitMs) * 100) : 0;
+export const DailyUsageCard = memo(({ packageName, usedMs, limitMs }: DailyUsageCardProps) => {
+  const { barProgress, isOverLimit } = computeUsageMetrics(usedMs, limitMs);
   const percent = Math.round(barProgress);
 
   return (
@@ -53,4 +53,4 @@ export function DailyUsageCard({ packageName, usedMs, limitMs }: DailyUsageCardP
       <Text style={[styles.dailyUsagePercent, isOverLimit && styles.dailyUsagePercentOver]}>{percent}% of limit</Text>
     </View>
   );
-}
+});

@@ -16,7 +16,6 @@ const mockSyncSelectedAppsMetadata = jest.fn();
 const mockStoreState = {
   apps: [...mockSelectedApps],
   limitsByPackage: {} as Record<string, unknown>,
-  getLimits: jest.fn(() => ({ warningMinutes: 45, hardBlockMinutes: 60, strictMode: false })),
   isMonitoring: false,
   toggle: jest.fn(),
   syncSelectedAppsMetadata: mockSyncSelectedAppsMetadata,
@@ -63,6 +62,7 @@ jest.mock('@react-navigation/native', () => {
     useFocusEffect: (callback: () => void) => {
       mockUseEffect(callback, [callback]);
     },
+    useIsFocused: () => true,
   };
 });
 
@@ -75,9 +75,8 @@ jest.mock('@/hooks/usePrefetchNativeCatalogs', () => ({
 }));
 
 import { invalidateUsageStatsCache } from '@/domain/usageStatsCatalog';
-import { resetTrackedUsageSeedForTests } from '@/hooks/useTrackedAppRows';
 import { useDashboard } from '@/screen/Dashboard/hooks/useDashboard';
-import { trackedUsageStore } from '@/store';
+import { resetTrackedUsageSeedForTests, trackedUsageStore } from '@/store/trackedUsageStore';
 
 type HarnessProps = {
   onReady: (value: ReturnType<typeof useDashboard>) => void;
@@ -151,12 +150,12 @@ describe('useDashboard', () => {
     const callsBefore = mockGetPackageUsageToday.mock.calls.length;
 
     await act(async () => {
-      latest.onRefresh();
+      latest.refreshControl?.props.onRefresh();
       await Promise.resolve();
       await Promise.resolve();
     });
 
     expect(mockGetPackageUsageToday.mock.calls.length).toBeGreaterThan(callsBefore);
-    expect(latest.refreshing).toBe(false);
+    expect(latest.refreshControl?.props.refreshing).toBe(false);
   });
 });

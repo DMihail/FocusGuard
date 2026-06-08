@@ -1,6 +1,6 @@
 /** @format */
 
-import React from 'react';
+import React, { memo } from 'react';
 
 import { testIds } from '@/testing/testIds';
 
@@ -8,7 +8,7 @@ import type { ConfigureLimitsHeaderProps } from '../types';
 
 import { ScreenBackHeader } from '@/components';
 
-export const ConfigureLimitsHeader = ({ appName, onBack }: ConfigureLimitsHeaderProps) => (
+export const ConfigureLimitsHeader = memo(({ appName, onBack }: ConfigureLimitsHeaderProps) => (
   <ScreenBackHeader
     title="Configure Limits"
     subtitle={appName}
@@ -16,4 +16,4 @@ export const ConfigureLimitsHeader = ({ appName, onBack }: ConfigureLimitsHeader
     testID={testIds.configureLimits.header}
     backButtonTestID={testIds.configureLimits.backButton}
   />
-);
+));

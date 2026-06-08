@@ -16,7 +16,28 @@ type CategoryFiltersProps = {
   onCategoryChange: (categoryId: string) => void;
 };
 
-const CategoryFiltersView = ({ filters, activeCategoryId, onCategoryChange }: CategoryFiltersProps) => {
+const areCategoryFiltersPropsEqual = (previous: CategoryFiltersProps, next: CategoryFiltersProps): boolean => {
+  if (previous.activeCategoryId !== next.activeCategoryId || previous.onCategoryChange !== next.onCategoryChange) {
+    return false;
+  }
+
+  if (previous.filters.length !== next.filters.length) {
+    return false;
+  }
+
+  for (let index = 0; index < previous.filters.length; index += 1) {
+    const left = previous.filters[index];
+    const right = next.filters[index];
+
+    if (!left || !right || left.id !== right.id || left.label !== right.label) {
+      return false;
+    }
+  }
+
+  return true;
+};
+
+export const CategoryFilters = memo(({ filters, activeCategoryId, onCategoryChange }: CategoryFiltersProps) => {
   const renderItem = useMemo(
     () => createCategoryFilterRenderItem(activeCategoryId, onCategoryChange),
     [activeCategoryId, onCategoryChange],
@@ -38,6 +59,4 @@ const CategoryFiltersView = ({ filters, activeCategoryId, onCategoryChange }: Ca
       {...CHIP_ROW_FLAT_LIST_PROPS}
     />
   );
-};
-
-export const CategoryFilters = memo(CategoryFiltersView);
+}, areCategoryFiltersPropsEqual);

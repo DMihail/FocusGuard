@@ -3,7 +3,7 @@
 import type React from 'react';
 import { act } from 'react-test-renderer';
 
-import type { ManageApp } from '@/screen/ManageApps/types';
+import type { ManageApp } from '@/domain/types';
 import { mockInstallApps, mockManageApps } from '@/testing/fixtures/manageApps';
 import { testIds } from '@/testing/testIds';
 

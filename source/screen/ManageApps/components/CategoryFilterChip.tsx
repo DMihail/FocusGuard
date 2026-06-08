@@ -14,6 +14,12 @@ export type CategoryFilterChipProps = {
   onCategoryChange: (categoryId: string) => void;
 };
 
+const areCategoryFilterChipPropsEqual = (previous: CategoryFilterChipProps, next: CategoryFilterChipProps): boolean =>
+  previous.category.id === next.category.id &&
+  previous.category.label === next.category.label &&
+  previous.isActive === next.isActive &&
+  previous.onCategoryChange === next.onCategoryChange;
+
 export const CategoryFilterChip = memo(({ category, isActive, onCategoryChange }: CategoryFilterChipProps) => {
   return (
     <Pressable
@@ -29,4 +35,4 @@ export const CategoryFilterChip = memo(({ category, isActive, onCategoryChange }
       </Text>
     </Pressable>
   );
-});
+}, areCategoryFilterChipPropsEqual);

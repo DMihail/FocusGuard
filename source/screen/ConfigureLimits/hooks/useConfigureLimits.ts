@@ -2,10 +2,9 @@
 
 import { useCallback, useEffect, useState } from 'react';
 
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useIsFocused } from '@react-navigation/native';
 import { useShallow } from 'zustand/react/shallow';
 
-import { loadPackageUsageToday } from '@/domain/usageStatsCatalog';
 import { useAppStateOnActive } from '@/hooks/useAppStateOnActive';
 import {
   type AppLimits,
@@ -16,32 +15,38 @@ import {
   selectedAppsStore,
   trackedUsageStore,
 } from '@/store';
+import { MS_PER_MINUTE } from '@/utils/usage/constants';
 
 import type { UseConfigureLimitsResult } from '../types';
 
-const MS_PER_MINUTE = 60_000;
-
 export const useConfigureLimits = (packageName: string): UseConfigureLimitsResult => {
-  const app = selectedAppsStore(useShallow((state) => state.apps.find((item) => item.packageName === packageName)));
-  const storedLimits = appLimitsStore((state) => state.limitsByPackage[packageName] ?? DEFAULT_APP_LIMITS);
-  const setStoredLimits = appLimitsStore((state) => state.setLimits);
+  const isFocused = useIsFocused();
+
+  const app = selectedAppsStore((state) => state.apps.find((item) => item.packageName === packageName));
+  const { storedLimits, setStoredLimits } = appLimitsStore(
+    useShallow((state) => ({
+      storedLimits: state.limitsByPackage[packageName] ?? DEFAULT_APP_LIMITS,
+      setStoredLimits: state.setLimits,
+    })),
+  );
+  const usedMsToday = trackedUsageStore((state) => state.usageByPackage[packageName] ?? 0);
 
   const [draft, setDraft] = useState<AppLimits>(storedLimits);
-  const [usedMsToday, setUsedMsToday] = useState(0);
 
   const refreshUsage = useCallback(() => {
-    const cachedUsage = trackedUsageStore.getState().usageByPackage[packageName];
-
-    if (cachedUsage !== undefined) {
-      setUsedMsToday((previous) => (previous === cachedUsage ? previous : cachedUsage));
-    }
-
-    loadPackageUsageToday(packageName)
-      .then((nextUsage) => {
-        setUsedMsToday((previous) => (previous === nextUsage ? previous : nextUsage));
-      })
+    trackedUsageStore
+      .getState()
+      .refreshUsage([packageName])
       .catch(() => undefined);
   }, [packageName]);
+
+  const refreshWhenActive = useCallback(() => {
+    if (!isFocused) {
+      return;
+    }
+
+    refreshUsage();
+  }, [isFocused, refreshUsage]);
 
   useFocusEffect(
     useCallback(() => {
@@ -49,7 +54,7 @@ export const useConfigureLimits = (packageName: string): UseConfigureLimitsResul
     }, [refreshUsage]),
   );
 
-  useAppStateOnActive(refreshUsage);
+  useAppStateOnActive(refreshWhenActive);
 
   useEffect(() => {
     setDraft(storedLimits);

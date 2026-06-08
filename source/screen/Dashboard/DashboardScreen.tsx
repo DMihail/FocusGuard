@@ -1,13 +1,11 @@
 /** @format */
 
 import React, { useCallback, useMemo } from 'react';
-import { FlatList, RefreshControl } from 'react-native';
+import { FlatList } from 'react-native';
 
-import { usePrefetchNativeCatalogs } from '@/hooks/usePrefetchNativeCatalogs';
 import { SECTION_SCROLL_FLAT_LIST_PROPS } from '@/list';
 import { useRootNavigation } from '@/navigation';
 import { testIds } from '@/testing/testIds';
-import { colors } from '@/theme';
 
 import { useDashboard } from './hooks';
 import {
@@ -26,7 +24,6 @@ export const DashboardScreen = () => {
   const navigation = useRootNavigation();
   const greeting = useMemo(() => getGreeting(), []);
 
-  usePrefetchNativeCatalogs();
   const {
     appRows,
     summary,
@@ -35,8 +32,7 @@ export const DashboardScreen = () => {
     toggleMonitoring,
     openConfigureLimits,
     monitoringSubtitle,
-    refreshing,
-    onRefresh,
+    refreshControl,
   } = useDashboard();
 
   const openSettings = useCallback(() => {
@@ -81,19 +77,6 @@ export const DashboardScreen = () => {
   const listHeader = useMemo(
     () => <DashboardHeader greeting={greeting} onSettingsPress={openSettings} />,
     [greeting, openSettings],
-  );
-
-  const refreshControl = useMemo(
-    () => (
-      <RefreshControl
-        refreshing={refreshing}
-        onRefresh={onRefresh}
-        tintColor={colors.accent}
-        colors={[colors.accent]}
-        progressBackgroundColor={colors.surfaceDark}
-      />
-    ),
-    [onRefresh, refreshing],
   );
 
   return (

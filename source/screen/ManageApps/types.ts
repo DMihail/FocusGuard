@@ -1,19 +1,13 @@
 /** @format */
 
-export type AppCategory = string;
+import type { AppCategory, ManageApp } from '@/domain/types';
+
+export type { ManageApp } from '@/domain/types';
 
 export type CategoryFilterOption = {
   id: string;
   label: string;
   category: AppCategory | 'all';
-};
-
-export type ManageApp = {
-  packageName: string;
-  appName: string;
-  appImage: string;
-  category: AppCategory;
-  categoryLabel: string;
 };
 
 export type SelectedAppsSectionProps = {

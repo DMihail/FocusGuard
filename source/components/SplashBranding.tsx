@@ -55,7 +55,7 @@ const SplashLoadingDots = () => {
   );
 };
 
-const SplashBrandingView = () => {
+export const SplashBranding = memo(() => {
   const appDisplayName = getAppDisplayName();
 
   return (
@@ -81,9 +81,7 @@ const SplashBrandingView = () => {
       </View>
     </View>
   );
-};
-
-export const SplashBranding = memo(SplashBrandingView);
+});
 
 const styles = StyleSheet.create({
   container: {
