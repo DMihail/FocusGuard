@@ -108,7 +108,6 @@ npm run android
 | ---------------------------------- | --------------------------------------------------------- |
 | `android/app/google-services.json` | Firebase config                                           |
 | `android/keystore.properties`      | Release signing (copy from `keystore.properties.example`) |
-| `android/keystores/*.jks`          | Upload keystore (see [RELEASE.md](./RELEASE.md))          |
 
 ## npm scripts
 
@@ -128,7 +127,9 @@ npm test
 
 ## CI
 
-GitHub Actions: ESLint, Prettier, TypeScript, Jest, `assembleDebug` on main/dev/release branches.
+GitHub Actions (`.github/workflows/ci.yml`): on every push / PR runs `npm run check` (lint, Prettier, types, Jest).
+
+Native builds (`debug` / `release`) — locally via Android Studio or `npm run android:bundle:release`.
 
 ## Tech stack
 
