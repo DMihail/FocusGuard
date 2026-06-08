@@ -5,6 +5,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { testIds } from '@/testing/testIds';
 import { colors, fontSize, iconBoxPresets, layoutPresets, spacing, textPresets, typography } from '@/theme';
+import { computeUsageMetrics } from '@/utils/usage/computeUsageMetrics';
 import type { DashboardAppRow } from '@/utils/usage/dashboardStats';
 import { formatUsagePair } from '@/utils/usage/formatUsage';
 
@@ -15,6 +16,17 @@ export type AppUsageRowProps = DashboardAppRow & {
   onPress: (packageName: string) => void;
   rowTestID?: string;
 };
+
+const areAppUsageRowPropsEqual = (previous: AppUsageRowProps, next: AppUsageRowProps): boolean =>
+  previous.packageName === next.packageName &&
+  previous.appName === next.appName &&
+  previous.appImage === next.appImage &&
+  previous.usedMs === next.usedMs &&
+  previous.limitMs === next.limitMs &&
+  previous.percentUsed === next.percentUsed &&
+  previous.isOverLimit === next.isOverLimit &&
+  previous.onPress === next.onPress &&
+  previous.rowTestID === next.rowTestID;
 
 export const AppUsageRow = memo(
   ({
@@ -28,7 +40,7 @@ export const AppUsageRow = memo(
     onPress,
     rowTestID,
   }: AppUsageRowProps) => {
-    const barProgress = limitMs > 0 ? Math.min(100, (usedMs / limitMs) * 100) : 0;
+    const { barProgress } = computeUsageMetrics(usedMs, limitMs);
     const fillColor = isOverLimit ? colors.overLimit : colors.accent;
 
     return (
@@ -73,20 +85,6 @@ export const AppUsageRow = memo(
   },
   areAppUsageRowPropsEqual,
 );
-
-function areAppUsageRowPropsEqual(previous: AppUsageRowProps, next: AppUsageRowProps): boolean {
-  return (
-    previous.packageName === next.packageName &&
-    previous.appName === next.appName &&
-    previous.appImage === next.appImage &&
-    previous.usedMs === next.usedMs &&
-    previous.limitMs === next.limitMs &&
-    previous.percentUsed === next.percentUsed &&
-    previous.isOverLimit === next.isOverLimit &&
-    previous.onPress === next.onPress &&
-    previous.rowTestID === next.rowTestID
-  );
-}
 
 const styles = StyleSheet.create({
   item: {

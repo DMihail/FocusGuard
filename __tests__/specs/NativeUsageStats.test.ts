@@ -13,16 +13,12 @@ const mockUsageStats = {
   requestNotificationsPermission: jest.fn(),
   openNotificationsSettings: jest.fn(),
   requestIgnoreBatteryOptimizationsPermission: jest.fn(),
-  getAppsUsageStats: jest.fn(),
   getPackageUsageToday: jest.fn(),
   getInstalledApplications: jest.fn(),
   getAppDisplayName: jest.fn(),
   getAppVersion: jest.fn(),
   isMonitorServiceRunning: jest.fn(),
   invalidateNativeCatalogCaches: jest.fn(),
-  getE2ELaunchArg: jest.fn(),
-  isE2EEnabled: jest.fn(),
-  configureE2EBootstrap: jest.fn(),
 };
 
 const mockGet = jest.fn();
@@ -45,7 +41,6 @@ describe('NativeUsageStats', () => {
     jest.clearAllMocks();
     mockGet.mockReturnValue(mockUsageStats);
     mockUsageStats.checkForPermission.mockReturnValue(false);
-    mockUsageStats.getAppsUsageStats.mockReturnValue([]);
     mockUsageStats.getPackageUsageToday.mockReturnValue(0);
     mockUsageStats.getInstalledApplications.mockReturnValue([]);
     mockUsageStats.isMonitorServiceRunning.mockReturnValue(false);
@@ -76,7 +71,6 @@ describe('NativeUsageStats', () => {
     expect(specs.checkForIgnoreBatteryOptimizationsPermission()).toBe(false);
     expect(specs.checkForManifestMonitorPermissions()).toBe(false);
     expect(specs.checkForNotificationsPermission()).toBe(false);
-    expect(specs.getAppsUsageStats()).toEqual([]);
     expect(specs.getPackageUsageToday('com.example.app')).toBe(0);
     expect(specs.getInstalledApplications()).toEqual([]);
     expect(specs.isMonitorServiceRunning()).toBe(false);

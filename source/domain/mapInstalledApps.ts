@@ -1,8 +1,7 @@
 /** @format */
 
+import type { ManageApp } from '@/domain/types';
 import type { InstallApp } from '@/specs';
-
-import type { ManageApp } from '../types';
 
 export const mapInstalledApps = (apps: InstallApp[]): ManageApp[] =>
   apps.map((app) => ({

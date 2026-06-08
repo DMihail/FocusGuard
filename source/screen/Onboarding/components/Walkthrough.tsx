@@ -11,16 +11,14 @@ type WalkthroughProps = {
   children: React.ReactNode;
 };
 
-export function Walkthrough({ title, text, children }: WalkthroughProps) {
-  return (
-    <View style={styles.content}>
-      <View style={styles.iconContainer}>{children}</View>
+export const Walkthrough = ({ title, text, children }: WalkthroughProps) => (
+  <View style={styles.content}>
+    <View style={styles.iconContainer}>{children}</View>
 
-      <Text style={styles.title}>{title}</Text>
-      <Text style={styles.description}>{text}</Text>
-    </View>
-  );
-}
+    <Text style={styles.title}>{title}</Text>
+    <Text style={styles.description}>{text}</Text>
+  </View>
+);
 
 const styles = StyleSheet.create({
   content: {

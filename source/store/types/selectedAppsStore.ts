@@ -1,6 +1,6 @@
 /** @format */
 
-import type { ManageApp } from '@/screen/ManageApps/types';
+import type { ManageApp } from '@/domain/types';
 
 export type SelectedAppsStore = {
   apps: ManageApp[];

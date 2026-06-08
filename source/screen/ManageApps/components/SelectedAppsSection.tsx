@@ -18,34 +18,43 @@ type SelectedChipProps = {
   onRemove: (app: ManageApp) => void;
 };
 
-const SelectedChip = memo(({ app, onPress, onRemove }: SelectedChipProps) => (
-  <View style={manageAppsStyles.selectedChip} testID={testIds.manageApps.selectedChip(app.packageName)}>
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel={`Configure limits for ${app.appName}`}
-      onPress={() => onPress(app.packageName)}
-      style={manageAppsStyles.selectedChipBody}
-      testID={testIds.manageApps.selectedChipPress(app.packageName)}
-    >
-      <Text style={manageAppsStyles.selectedChipLabel} numberOfLines={1}>
-        {app.appName}
-      </Text>
-    </Pressable>
+const areSelectedChipPropsEqual = (previous: SelectedChipProps, next: SelectedChipProps): boolean =>
+  previous.app.packageName === next.app.packageName &&
+  previous.app.appName === next.app.appName &&
+  previous.onPress === next.onPress &&
+  previous.onRemove === next.onRemove;
 
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel={`Remove ${app.appName} from selected apps`}
-      onPress={() => onRemove(app)}
-      style={manageAppsStyles.selectedChipRemove}
-      hitSlop={8}
-      testID={testIds.manageApps.selectedChipRemove(app.packageName)}
-    >
-      <CloseIcon />
-    </Pressable>
-  </View>
-));
+const SelectedChip = memo(
+  ({ app, onPress, onRemove }: SelectedChipProps) => (
+    <View style={manageAppsStyles.selectedChip} testID={testIds.manageApps.selectedChip(app.packageName)}>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={`Configure limits for ${app.appName}`}
+        onPress={() => onPress(app.packageName)}
+        style={manageAppsStyles.selectedChipBody}
+        testID={testIds.manageApps.selectedChipPress(app.packageName)}
+      >
+        <Text style={manageAppsStyles.selectedChipLabel} numberOfLines={1}>
+          {app.appName}
+        </Text>
+      </Pressable>
 
-export function SelectedAppsSection({ apps, onAppPress, onAppRemove }: SelectedAppsSectionProps) {
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={`Remove ${app.appName} from selected apps`}
+        onPress={() => onRemove(app)}
+        style={manageAppsStyles.selectedChipRemove}
+        hitSlop={8}
+        testID={testIds.manageApps.selectedChipRemove(app.packageName)}
+      >
+        <CloseIcon />
+      </Pressable>
+    </View>
+  ),
+  areSelectedChipPropsEqual,
+);
+
+export const SelectedAppsSection = ({ apps, onAppPress, onAppRemove }: SelectedAppsSectionProps) => {
   const isExpanded = apps.length > 0;
   const containerStyle = useSelectedAppsAccordion(isExpanded, selectedAppsSectionExpandedHeight);
 
@@ -77,4 +86,4 @@ export function SelectedAppsSection({ apps, onAppPress, onAppRemove }: SelectedA
       </View>
     </Animated.View>
   );
-}
+};

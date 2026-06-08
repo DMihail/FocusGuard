@@ -1,9 +1,10 @@
 /** @format */
 
-import type { ManageApp } from '@/screen/ManageApps/types';
-import type { AppLimits } from '@/store';
+import type { ManageApp } from '@/domain/types';
+import { type AppLimits, DEFAULT_APP_LIMITS } from '@/store';
 
-const MS_PER_MINUTE = 60_000;
+import { computeUsageMetrics } from './computeUsageMetrics';
+import { MS_PER_MINUTE } from './constants';
 
 export type DashboardAppRow = ManageApp & {
   usedMs: number;
@@ -14,8 +15,8 @@ export type DashboardAppRow = ManageApp & {
 
 export type DashboardSummary = {
   focusScore: number;
-  totalAllowedMs: number;
   totalUsedMs: number;
+  totalAllowedMs: number;
   remainingMs: number;
 };
 
@@ -24,16 +25,13 @@ export const buildDashboardAppRows = (
   apps: ManageApp[],
   limitsByPackage: Record<string, AppLimits>,
   usageByPackage: Record<string, number>,
-  getLimits: (packageName: string) => AppLimits,
 ): DashboardAppRow[] =>
   apps
     .map((app) => {
-      const limits = limitsByPackage[app.packageName] ?? getLimits(app.packageName);
+      const limits = limitsByPackage[app.packageName] ?? DEFAULT_APP_LIMITS;
       const usedMs = usageByPackage[app.packageName] ?? 0;
       const limitMs = limits.hardBlockMinutes * MS_PER_MINUTE;
-      const rawPercent = limitMs > 0 ? Math.round((usedMs / limitMs) * 100) : 0;
-      const percentUsed = Math.min(100, rawPercent);
-      const isOverLimit = limitMs > 0 && usedMs >= limitMs;
+      const { percentUsed, isOverLimit } = computeUsageMetrics(usedMs, limitMs);
 
       return {
         ...app,

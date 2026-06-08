@@ -1,9 +1,7 @@
 import React, { useMemo } from 'react';
-import { ActivityIndicator, View } from 'react-native';
+import { ActivityIndicator, FlatList, View } from 'react-native';
 
-import { FlashList } from '@shopify/flash-list';
-
-import { MANAGE_APPS_FLASH_LIST_PROPS } from '@/list';
+import { APP_LIST_FLAT_LIST_PROPS } from '@/list';
 import { testIds } from '@/testing/testIds';
 import { colors } from '@/theme';
 
@@ -12,7 +10,7 @@ import { manageAppsStyles } from '../styles';
 import type { ManageAppsContentProps } from '../types';
 import { ManageAppsListHeader } from './ManageAppsListHeader';
 
-export function ManageAppsContent({
+export const ManageAppsContent = ({
   apps,
   isLoadingApps,
   isFiltering,
@@ -25,7 +23,7 @@ export function ManageAppsContent({
   categoryFilters,
   activeCategoryId,
   onCategoryChange,
-}: ManageAppsContentProps) {
+}: ManageAppsContentProps) => {
   const renderItem = useMemo(() => createManageAppListRenderItem(isSelected, onToggle), [isSelected, onToggle]);
 
   const listHeader = useMemo(
@@ -70,10 +68,11 @@ export function ManageAppsContent({
           </View>
         ) : null}
 
-        <FlashList
+        <FlatList
           style={manageAppsStyles.flatList}
           testID={testIds.manageApps.scroll}
           data={apps}
+          extraData={selectedApps}
           renderItem={renderItem}
           keyExtractor={manageAppKeyExtractor}
           ListHeaderComponent={listHeader}
@@ -83,9 +82,9 @@ export function ManageAppsContent({
           keyboardDismissMode="none"
           accessibilityRole="list"
           accessibilityLabel="Installed apps"
-          {...MANAGE_APPS_FLASH_LIST_PROPS}
+          {...APP_LIST_FLAT_LIST_PROPS}
         />
       </View>
     </View>
   );
-}
+};

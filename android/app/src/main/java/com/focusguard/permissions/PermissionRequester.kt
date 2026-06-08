@@ -24,8 +24,6 @@ internal object PermissionChecker {
 
     fun hasBatteryOptimizationExemption(context: Context): Boolean =
         BatteryOptimizationAccess.isExempt(context)
-
-    fun hasQueryAllPackages(context: Context): Boolean = QueryAllPackagesAccess.isGranted(context)
 }
 
 /** Opens system screens and runtime dialogs for granting permissions. */

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 
 import { testIds } from '@/testing/testIds';
 
@@ -9,15 +9,13 @@ type ManageAppsHeaderProps = {
   onBack: () => void;
 };
 
-export function ManageAppsHeader({ selectedCount, onBack }: ManageAppsHeaderProps) {
-  return (
-    <ScreenBackHeader
-      title="Select Apps"
-      subtitle={`${selectedCount} selected`}
-      onBack={onBack}
-      testID={testIds.manageApps.header}
-      backButtonTestID={testIds.manageApps.backButton}
-      subtitleTestID={testIds.manageApps.selectedCount}
-    />
-  );
-}
+export const ManageAppsHeader = memo(({ selectedCount, onBack }: ManageAppsHeaderProps) => (
+  <ScreenBackHeader
+    title="Select Apps"
+    subtitle={`${selectedCount} selected`}
+    onBack={onBack}
+    testID={testIds.manageApps.header}
+    backButtonTestID={testIds.manageApps.backButton}
+    subtitleTestID={testIds.manageApps.selectedCount}
+  />
+));

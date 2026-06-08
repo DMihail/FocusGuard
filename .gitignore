@@ -9,7 +9,9 @@ Thumbs.db
 .env.*
 !.env.example
 keystore.properties
+android/keystore.properties
 **/google-services.json
+!android/app/google-services.ci.json
 **/GoogleService-Info.plist
 
 # --- Node / JS ---
@@ -22,31 +24,48 @@ pnpm-debug.log*
 .eslintcache
 *.tsbuildinfo
 
-# Metro
+# Metro / RN tooling
 .metro-health-check*
 
-# Yarn Berry (keep shared release/plugin config)
+# Yarn Berry (keep shared release/plugin config when present)
 .yarn/*
 !.yarn/patches
 !.yarn/plugins
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
+.pnp.*
+.yarn-integrity
 
 # --- Testing ---
 coverage/
-
-# --- IDE ---
+junit.xml
+test-results/
+# --- IDE (never commit machine-local IDE state) ---
 .idea/
-android/.idea/
-.vscode/
+**/.idea/
+!.idea/runConfigurations/
+# Optional: share run configs — uncomment if your team commits them:
+# !.idea/runConfigurations/*.xml
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json.example
 *.iml
+*.ipr
+*.iws
+
+# --- Cursor / local AI tooling ---
+.cursor/*
+!.cursor/rules/
+!.cursor/skills/
 
 # --- Android ---
 .gradle/
+**/.gradle/
 local.properties
-android/local.properties
+**/local.properties
 .cxx/
+**/.cxx/
 .externalNativeBuild/
 .kotlin/
 captures/
@@ -64,6 +83,7 @@ android/keystores/*
 
 # Build outputs
 build/
+**/build/
 android/app/release/
 *.apk
 *.aab
@@ -81,6 +101,7 @@ xcuserdata/
 *.xccheckout
 *.moved-aside
 DerivedData/
+ios/build/
 *.hmap
 *.ipa
 *.xcuserstate
@@ -96,3 +117,9 @@ DerivedData/
 **/fastlane/Preview.html
 **/fastlane/screenshots/
 **/fastlane/test_output/
+
+# --- Logs & caches ---
+*.log
+.cache/
+.turbo/
+.watchmanconfig.local

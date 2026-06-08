@@ -47,36 +47,34 @@ export const screenBackHeaderStyles = StyleSheet.create({
   },
 });
 
-export function ScreenBackHeader({
+export const ScreenBackHeader = ({
   title,
   subtitle,
   onBack,
   testID,
   backButtonTestID,
   subtitleTestID,
-}: ScreenBackHeaderProps) {
-  return (
-    <View style={screenBackHeaderStyles.header} testID={testID}>
-      <Pressable
-        testID={backButtonTestID}
-        accessibilityRole="button"
-        accessibilityLabel="Go back"
-        style={screenBackHeaderStyles.backButton}
-        onPress={onBack}
-      >
-        <BackIcon />
-      </Pressable>
+}: ScreenBackHeaderProps) => (
+  <View style={screenBackHeaderStyles.header} testID={testID}>
+    <Pressable
+      testID={backButtonTestID}
+      accessibilityRole="button"
+      accessibilityLabel="Go back"
+      style={screenBackHeaderStyles.backButton}
+      onPress={onBack}
+    >
+      <BackIcon />
+    </Pressable>
 
-      <View style={screenBackHeaderStyles.headerText}>
-        <Text accessibilityRole="header" style={screenBackHeaderStyles.title}>
-          {title}
+    <View style={screenBackHeaderStyles.headerText}>
+      <Text accessibilityRole="header" style={screenBackHeaderStyles.title}>
+        {title}
+      </Text>
+      {subtitle ? (
+        <Text style={screenBackHeaderStyles.subtitle} testID={subtitleTestID} numberOfLines={1}>
+          {subtitle}
         </Text>
-        {subtitle ? (
-          <Text style={screenBackHeaderStyles.subtitle} testID={subtitleTestID} numberOfLines={1}>
-            {subtitle}
-          </Text>
-        ) : null}
-      </View>
+      ) : null}
     </View>
-  );
-}
+  </View>
+);

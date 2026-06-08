@@ -1,6 +1,6 @@
 /** @format */
 
-import type { ManageApp } from '@/screen/ManageApps/types';
+import type { ManageApp } from '@/domain/types';
 import type { InstallApp } from '@/specs';
 
 export const createManageApp = (overrides: Partial<ManageApp> = {}): ManageApp => ({

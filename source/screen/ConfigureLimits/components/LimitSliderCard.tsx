@@ -17,6 +17,21 @@ const SLIDER_ACCESSIBILITY_ACTIONS = [
   { name: 'decrement' as const, label: 'Decrease' },
 ];
 
+const areLimitSliderCardPropsEqual = (previous: LimitSliderCardProps, next: LimitSliderCardProps): boolean =>
+  previous.title === next.title &&
+  previous.description === next.description &&
+  previous.valueMinutes === next.valueMinutes &&
+  previous.minMinutes === next.minMinutes &&
+  previous.progressMinMinutes === next.progressMinMinutes &&
+  previous.maxMinutes === next.maxMinutes &&
+  previous.stepMinutes === next.stepMinutes &&
+  previous.accentColor === next.accentColor &&
+  previous.onChange === next.onChange &&
+  previous.testID === next.testID &&
+  previous.decreaseTestID === next.decreaseTestID &&
+  previous.increaseTestID === next.increaseTestID &&
+  previous.trackTestID === next.trackTestID;
+
 export const LimitSliderCard = memo(
   ({
     title,
@@ -146,21 +161,3 @@ export const LimitSliderCard = memo(
   },
   areLimitSliderCardPropsEqual,
 );
-
-function areLimitSliderCardPropsEqual(previous: LimitSliderCardProps, next: LimitSliderCardProps): boolean {
-  return (
-    previous.title === next.title &&
-    previous.description === next.description &&
-    previous.valueMinutes === next.valueMinutes &&
-    previous.minMinutes === next.minMinutes &&
-    previous.progressMinMinutes === next.progressMinMinutes &&
-    previous.maxMinutes === next.maxMinutes &&
-    previous.stepMinutes === next.stepMinutes &&
-    previous.accentColor === next.accentColor &&
-    previous.onChange === next.onChange &&
-    previous.testID === next.testID &&
-    previous.decreaseTestID === next.decreaseTestID &&
-    previous.increaseTestID === next.increaseTestID &&
-    previous.trackTestID === next.trackTestID
-  );
-}

@@ -7,10 +7,8 @@ import { testIds } from '@/testing/testIds';
 
 import { dashboardStyles } from '../styles';
 
-export function DistractingAppsListEmpty() {
-  return (
-    <Text style={dashboardStyles.emptyText} testID={testIds.dashboard.appsEmpty}>
-      No apps selected yet
-    </Text>
-  );
-}
+export const DistractingAppsListEmpty = () => (
+  <Text style={dashboardStyles.emptyText} testID={testIds.dashboard.appsEmpty}>
+    No apps selected yet
+  </Text>
+);

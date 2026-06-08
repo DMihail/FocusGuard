@@ -8,7 +8,7 @@ import type { ManageAppsListHeaderProps } from '../types';
 import { CategoryFilters } from './CategoryFilters';
 import { SelectedAppsSection } from './SelectedAppsSection';
 
-export function ManageAppsListHeader({
+export const ManageAppsListHeader = ({
   selectedApps,
   onSelectedAppPress,
   onSelectedAppRemove,
@@ -16,18 +16,16 @@ export function ManageAppsListHeader({
   categoryFilters,
   activeCategoryId,
   onCategoryChange,
-}: ManageAppsListHeaderProps) {
-  return (
-    <View style={manageAppsStyles.listHeader}>
-      <SelectedAppsSection apps={selectedApps} onAppPress={onSelectedAppPress} onAppRemove={onSelectedAppRemove} />
+}: ManageAppsListHeaderProps) => (
+  <View style={manageAppsStyles.listHeader}>
+    <SelectedAppsSection apps={selectedApps} onAppPress={onSelectedAppPress} onAppRemove={onSelectedAppRemove} />
 
-      {!isSearchActive ? (
-        <CategoryFilters
-          filters={categoryFilters}
-          activeCategoryId={activeCategoryId}
-          onCategoryChange={onCategoryChange}
-        />
-      ) : null}
-    </View>
-  );
-}
+    {!isSearchActive ? (
+      <CategoryFilters
+        filters={categoryFilters}
+        activeCategoryId={activeCategoryId}
+        onCategoryChange={onCategoryChange}
+      />
+    ) : null}
+  </View>
+);

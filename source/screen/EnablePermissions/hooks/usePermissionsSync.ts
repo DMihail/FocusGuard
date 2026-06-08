@@ -43,7 +43,11 @@ export const usePermissionsSync = () => {
     scheduleAfterInteractions(() => syncStatuses(true));
   }, [syncStatuses]);
 
-  useAppStateOnActive(() => syncStatuses(true));
+  const syncOnActive = useCallback(() => {
+    syncStatuses(true);
+  }, [syncStatuses]);
+
+  useAppStateOnActive(syncOnActive);
 
   useEffect(() => {
     const subscription = DeviceEventEmitter.addListener(PERMISSIONS_CHANGED_EVENT, () => syncStatuses(true));
