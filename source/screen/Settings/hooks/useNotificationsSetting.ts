@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { DeviceEventEmitter, Platform } from 'react-native';
 
 import { useFocusEffect } from '@react-navigation/native';
+import { useShallow } from 'zustand/react/shallow';
 
 import { useAppStateOnActive } from '@/hooks/useAppStateOnActive';
 import { checkForNotificationsPermission, openNotificationsSettings } from '@/specs';
@@ -15,8 +16,12 @@ const readSystemNotificationsGranted = (): boolean =>
   Platform.OS !== 'android' ? true : checkForNotificationsPermission();
 
 export const useNotificationsSetting = () => {
-  const notificationsEnabled = settingsStore((state) => state.notificationsEnabled);
-  const setNotificationsEnabled = settingsStore((state) => state.setNotificationsEnabled);
+  const { notificationsEnabled, setNotificationsEnabled } = settingsStore(
+    useShallow((state) => ({
+      notificationsEnabled: state.notificationsEnabled,
+      setNotificationsEnabled: state.setNotificationsEnabled,
+    })),
+  );
   const [systemGranted, setSystemGranted] = useState(readSystemNotificationsGranted);
   const permissionRequestInFlightRef = useRef(false);
 

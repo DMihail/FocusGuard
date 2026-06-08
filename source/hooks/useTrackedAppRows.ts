@@ -1,6 +1,6 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useIsFocused } from '@react-navigation/native';
 import { useShallow } from 'zustand/react/shallow';
 
 import { useAppStateOnActive } from '@/hooks/useAppStateOnActive';
@@ -13,7 +13,11 @@ export const useTrackedAppRows = (): {
   appRows: DashboardAppRow[];
   refreshUsage: (force?: boolean) => Promise<void>;
 } => {
-  trackedUsageStore.getState().seedUsageFromCache();
+  const isFocused = useIsFocused();
+
+  useEffect(() => {
+    trackedUsageStore.getState().seedUsageFromCache();
+  }, []);
 
   const selectedApps = selectedAppsStore((state) => state.apps);
   const selectedPackages = useMemo(() => selectedApps.map((app) => app.packageName), [selectedApps]);
@@ -38,8 +42,16 @@ export const useTrackedAppRows = (): {
     refreshUsage().catch(() => undefined);
   }, [refreshUsage]);
 
+  const refreshWhenActive = useCallback(() => {
+    if (!isFocused) {
+      return;
+    }
+
+    refreshOnFocus();
+  }, [isFocused, refreshOnFocus]);
+
   useFocusEffect(refreshOnFocus);
-  useAppStateOnActive(refreshOnFocus);
+  useAppStateOnActive(refreshWhenActive);
 
   const appRows = useMemo(
     () => buildDashboardAppRows(selectedApps, limitsByPackage, usageByPackage),

@@ -63,6 +63,7 @@ jest.mock('@react-navigation/native', () => {
     useFocusEffect: (callback: () => void) => {
       mockUseEffect(callback, [callback]);
     },
+    useIsFocused: () => true,
   };
 });
 
@@ -150,12 +151,12 @@ describe('useDashboard', () => {
     const callsBefore = mockGetPackageUsageToday.mock.calls.length;
 
     await act(async () => {
-      latest.onRefresh();
+      latest.refreshControl?.props.onRefresh();
       await Promise.resolve();
       await Promise.resolve();
     });
 
     expect(mockGetPackageUsageToday.mock.calls.length).toBeGreaterThan(callsBefore);
-    expect(latest.refreshing).toBe(false);
+    expect(latest.refreshControl?.props.refreshing).toBe(false);
   });
 });

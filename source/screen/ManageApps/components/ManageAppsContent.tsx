@@ -72,6 +72,7 @@ export const ManageAppsContent = ({
           style={manageAppsStyles.flatList}
           testID={testIds.manageApps.scroll}
           data={apps}
+          extraData={selectedApps}
           renderItem={renderItem}
           keyExtractor={manageAppKeyExtractor}
           ListHeaderComponent={listHeader}

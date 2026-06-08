@@ -5,6 +5,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { testIds } from '@/testing/testIds';
 import { colors, fontSize, iconBoxPresets, layoutPresets, spacing, textPresets, typography } from '@/theme';
+import { computeUsageMetrics } from '@/utils/usage/computeUsageMetrics';
 import type { DashboardAppRow } from '@/utils/usage/dashboardStats';
 import { formatUsagePair } from '@/utils/usage/formatUsage';
 
@@ -39,7 +40,7 @@ export const AppUsageRow = memo(
     onPress,
     rowTestID,
   }: AppUsageRowProps) => {
-    const barProgress = limitMs > 0 ? Math.min(100, (usedMs / limitMs) * 100) : 0;
+    const { barProgress } = computeUsageMetrics(usedMs, limitMs);
     const fillColor = isOverLimit ? colors.overLimit : colors.accent;
 
     return (
