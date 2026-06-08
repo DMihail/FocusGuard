@@ -45,9 +45,6 @@ jobs:
       - name: Test
         run: npm test -- --ci --watchman=false
 
-      - name: E2E testIds sync
-        run: npm run e2e:sync-testids
-
   android:
     name: Android debug build
     needs: checks

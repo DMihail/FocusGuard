@@ -41,9 +41,6 @@ pnpm-debug.log*
 coverage/
 junit.xml
 test-results/
-e2e/artifacts/
-.detox/
-
 # --- IDE (never commit machine-local IDE state) ---
 .idea/
 **/.idea/

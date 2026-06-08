@@ -49,14 +49,6 @@
 }
 
 # ---------------------------------------------------------------------------
-# Detox E2E (e2eRelease APK only — class absent from production release)
-# ---------------------------------------------------------------------------
--keep class androidx.test.platform.app.InstrumentationRegistry {
-    public static android.os.Bundle getArguments();
-}
--dontwarn androidx.test.**
-
-# ---------------------------------------------------------------------------
 # Benign missing classes (transitive / optional SDK surfaces)
 # ---------------------------------------------------------------------------
 -dontwarn com.facebook.**
