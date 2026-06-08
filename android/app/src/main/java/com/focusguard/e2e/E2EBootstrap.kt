@@ -11,7 +11,6 @@ object E2EBootstrap {
     private val presets =
         mapOf(
             "fresh" to PresetFlags(resetStorage = true, skipOnboarding = false, permissionsGranted = false),
-            "onboarding" to PresetFlags(resetStorage = true, skipOnboarding = false, permissionsGranted = false),
             "permissions" to PresetFlags(resetStorage = true, skipOnboarding = true, permissionsGranted = false),
             "dashboard" to PresetFlags(resetStorage = true, skipOnboarding = true, permissionsGranted = true),
         )

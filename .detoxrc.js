@@ -43,8 +43,7 @@ module.exports = {
       type: 'android.apk',
       binaryPath: 'android/app/build/outputs/apk/e2eRelease/app-e2eRelease.apk',
       testBinaryPath: 'android/app/build/outputs/apk/androidTest/e2eRelease/app-e2eRelease-androidTest.apk',
-      build:
-        'cd android && ./gradlew assembleE2eRelease assembleAndroidTest -DtestBuildType=e2eRelease',
+      build: 'cd android && ./gradlew assembleE2eRelease assembleAndroidTest -DtestBuildType=e2eRelease',
     },
   },
   devices: {

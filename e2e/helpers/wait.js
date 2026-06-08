@@ -31,10 +31,8 @@ const scrollToId = async (listTestID, targetTestID, direction = 'down') => {
 };
 
 module.exports = {
-  DEFAULT_TIMEOUT,
   byId,
   waitForVisible,
-  waitForHidden,
   waitForAppReady,
   tapById,
   scrollToId,

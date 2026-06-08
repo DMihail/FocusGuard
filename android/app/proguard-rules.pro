@@ -19,6 +19,9 @@
 -keep class com.nativeusagestats.** { *; }
 -keep class com.focusguard.** { *; }
 
+# Detox E2E instrumentation args (e2eRelease / debug only)
+-keep class androidx.test.platform.app.InstrumentationRegistry { *; }
+
 # Kotlin coroutines (service scope)
 -keepnames class kotlinx.coroutines.internal.MainDispatcherFactory {}
 -keepnames class kotlinx.coroutines.CoroutineExceptionHandler {}

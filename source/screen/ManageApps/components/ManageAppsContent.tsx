@@ -1,9 +1,7 @@
 import React, { useMemo } from 'react';
-import { ActivityIndicator, View } from 'react-native';
+import { ActivityIndicator, FlatList, View } from 'react-native';
 
-import { FlashList } from '@shopify/flash-list';
-
-import { MANAGE_APPS_FLASH_LIST_PROPS } from '@/list';
+import { APP_LIST_FLAT_LIST_PROPS } from '@/list';
 import { testIds } from '@/testing/testIds';
 import { colors } from '@/theme';
 
@@ -70,7 +68,7 @@ export function ManageAppsContent({
           </View>
         ) : null}
 
-        <FlashList
+        <FlatList
           style={manageAppsStyles.flatList}
           testID={testIds.manageApps.scroll}
           data={apps}
@@ -83,7 +81,7 @@ export function ManageAppsContent({
           keyboardDismissMode="none"
           accessibilityRole="list"
           accessibilityLabel="Installed apps"
-          {...MANAGE_APPS_FLASH_LIST_PROPS}
+          {...APP_LIST_FLAT_LIST_PROPS}
         />
       </View>
     </View>

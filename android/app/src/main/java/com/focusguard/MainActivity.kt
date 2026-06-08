@@ -2,7 +2,9 @@ package com.focusguard
 
 import android.content.Intent
 import android.os.Bundle
+import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.core.view.WindowCompat
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate
 import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint.fabricEnabled
@@ -27,6 +29,17 @@ class MainActivity : ReactActivity() {
     E2EBootstrap.applyFromCachedLaunchArgs()
     supportFragmentManager.fragmentFactory = RNScreensFragmentFactory()
     super.onCreate(savedInstanceState)
+    applySystemChromeColors()
+  }
+
+  private fun applySystemChromeColors() {
+    val backgroundColor = ContextCompat.getColor(this, R.color.background)
+    window.statusBarColor = backgroundColor
+    window.navigationBarColor = backgroundColor
+    WindowCompat.getInsetsController(window, window.decorView).apply {
+      isAppearanceLightStatusBars = false
+      isAppearanceLightNavigationBars = false
+    }
   }
 
   override fun onNewIntent(intent: Intent) {

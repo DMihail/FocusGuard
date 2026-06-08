@@ -1,44 +1,15 @@
-/** Detox launch presets — mirror source/testing/e2eBootstrap.ts E2E_LAUNCH_ARGS */
+/** Detox launch presets — `e2ePreset` is read by native E2EBootstrap (see source/testing/e2eBootstrap.ts). */
 
 const { device } = require('detox');
 
-const LAUNCH_PRESETS = {
-  fresh: {
-    e2eResetStorage: 'true',
-  },
-  onboarding: {
-    e2eResetStorage: 'true',
-  },
-  permissions: {
-    e2eResetStorage: 'true',
-    e2eSkipOnboarding: 'true',
-  },
-  dashboard: {
-    e2eResetStorage: 'true',
-    e2eSkipOnboarding: 'true',
-    e2ePermissionsGranted: 'true',
-  },
-};
+/** @typedef {'fresh' | 'permissions' | 'dashboard'} E2ELaunchPreset */
 
 const launchApp = async (preset = 'fresh', options = {}) => {
-  const launchArgs = {
-    e2ePreset: preset,
-    ...(LAUNCH_PRESETS[preset] ?? LAUNCH_PRESETS.fresh),
-  };
-
   await device.launchApp({
     newInstance: true,
-    launchArgs,
+    launchArgs: { e2ePreset: preset },
     ...options,
   });
 };
 
-const reloadApp = async (preset = 'fresh') => {
-  await launchApp(preset, { delete: false });
-};
-
-module.exports = {
-  LAUNCH_PRESETS,
-  launchApp,
-  reloadApp,
-};
+module.exports = { launchApp };

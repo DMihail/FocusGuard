@@ -7,6 +7,7 @@ import android.os.Build
 import android.os.Bundle
 import android.util.Base64
 import androidx.core.os.BundleCompat
+import androidx.test.platform.app.InstrumentationRegistry
 
 /** Reads Detox launchArgs from instrumentation and activity intent. */
 object E2ELaunchArgs {
@@ -36,10 +37,6 @@ object E2ELaunchArgs {
     }
 
     fun get(key: String): String? = cached?.get(key)
-
-    fun clear() {
-        cached = null
-    }
 
     private fun readIntentLaunchArgs(intent: Intent?): Map<String, String> {
         val extras: Bundle = intent?.extras ?: return emptyMap()
@@ -72,10 +69,12 @@ object E2ELaunchArgs {
     }
 
     private fun readInstrumentationArgsBundle(): Bundle? {
+        if (!E2EFeature.isEnabled()) {
+            return null
+        }
+
         return try {
-            val registryClass = Class.forName("androidx.test.platform.app.InstrumentationRegistry")
-            val getArguments = registryClass.getMethod("getArguments")
-            getArguments.invoke(null) as? Bundle
+            InstrumentationRegistry.getArguments()
         } catch (_: Throwable) {
             null
         }
@@ -116,14 +115,7 @@ object E2ELaunchArgs {
                 continue
             }
 
-            when (val value = bundle.get(key)) {
-                is String -> result[key] = value
-                is Boolean -> result[key] = value.toString()
-                is Int -> result[key] = value.toString()
-                is Long -> result[key] = value.toString()
-                is Double -> result[key] = value.toString()
-                is Float -> result[key] = value.toString()
-            }
+            bundle.getString(key)?.let { result[key] = it }
         }
 
         return result

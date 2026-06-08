@@ -2,6 +2,29 @@
 
 import { configureE2EBootstrap, getE2ELaunchArg, isE2EEnabled } from '@/specs';
 
+type E2ELaunchPreset = 'fresh' | 'permissions' | 'dashboard';
+
+type LaunchFlags = {
+  e2eResetStorage: string;
+  e2eSkipOnboarding?: string;
+  e2ePermissionsGranted?: string;
+};
+
+const E2E_LAUNCH_ARGS: Record<E2ELaunchPreset, LaunchFlags> = {
+  fresh: {
+    e2eResetStorage: 'true',
+  },
+  permissions: {
+    e2eResetStorage: 'true',
+    e2eSkipOnboarding: 'true',
+  },
+  dashboard: {
+    e2eResetStorage: 'true',
+    e2eSkipOnboarding: 'true',
+    e2ePermissionsGranted: 'true',
+  },
+};
+
 const parseBool = (value: string | null): boolean => value === 'true';
 
 /**
@@ -20,13 +43,13 @@ export const applyE2EBootstrapFromLaunchArgs = (): void => {
   }
 
   applyLaunchFlags({
-    e2eResetStorage: getE2ELaunchArg('e2eResetStorage'),
-    e2eSkipOnboarding: getE2ELaunchArg('e2eSkipOnboarding'),
-    e2ePermissionsGranted: getE2ELaunchArg('e2ePermissionsGranted'),
+    e2eResetStorage: getE2ELaunchArg('e2eResetStorage') ?? '',
+    e2eSkipOnboarding: getE2ELaunchArg('e2eSkipOnboarding') ?? undefined,
+    e2ePermissionsGranted: getE2ELaunchArg('e2ePermissionsGranted') ?? undefined,
   });
 };
 
-const applyLaunchFlags = (flags: Record<string, string | null | undefined>): void => {
+const applyLaunchFlags = (flags: Partial<LaunchFlags>): void => {
   const resetStorage = parseBool(flags.e2eResetStorage ?? null);
   const skipOnboarding = parseBool(flags.e2eSkipOnboarding ?? null);
   const permissionsGranted = parseBool(flags.e2ePermissionsGranted ?? null);
@@ -36,24 +59,4 @@ const applyLaunchFlags = (flags: Record<string, string | null | undefined>): voi
   }
 
   configureE2EBootstrap(skipOnboarding, permissionsGranted, resetStorage);
-};
-
-export type E2ELaunchPreset = 'fresh' | 'onboarding' | 'permissions' | 'dashboard';
-
-export const E2E_LAUNCH_ARGS: Record<E2ELaunchPreset, Record<string, string>> = {
-  fresh: {
-    e2eResetStorage: 'true',
-  },
-  onboarding: {
-    e2eResetStorage: 'true',
-  },
-  permissions: {
-    e2eResetStorage: 'true',
-    e2eSkipOnboarding: 'true',
-  },
-  dashboard: {
-    e2eResetStorage: 'true',
-    e2eSkipOnboarding: 'true',
-    e2ePermissionsGranted: 'true',
-  },
 };

@@ -1,13 +1,7 @@
-const { expect } = require('detox');
-
 const { dashboard } = require('../testIds');
-const { byId, tapById, waitForVisible } = require('../helpers/wait');
+const { tapById, waitForVisible } = require('../helpers/wait');
 
 class DashboardScreen {
-  get root() {
-    return byId(dashboard.screen);
-  }
-
   async waitForScreen() {
     await waitForVisible(dashboard.screen);
   }
@@ -27,10 +21,6 @@ class DashboardScreen {
   async expectQuickActionsVisible() {
     await waitForVisible(dashboard.focusModeButton);
     await waitForVisible(dashboard.manageAppsButton);
-  }
-
-  async expectVisible() {
-    await expect(this.root).toBeVisible();
   }
 }
 

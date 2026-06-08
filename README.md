@@ -65,7 +65,6 @@ android/.../com/focusguard/
 
 - Heavy native reads (`getInstalledApplications`, `getPackageUsageToday`) run through catalog loaders deferred with
   `requestIdleCallback` (fallback: `setTimeout`)
-- Manage Apps uses `@shopify/flash-list` for large installed-app lists
 - Dashboard and Tracked Apps share `trackedUsageStore` for daily usage (same source as the native monitor)
 - Permission checks are cached in `domain/permissionSnapshot.ts` and invalidated on foreground / native events
 
@@ -187,7 +186,6 @@ Release signing is local (`bundleRelease` / `assembleRelease`).
 - React 19
 - TypeScript
 - Zustand 5 + react-native-mmkv 4
-- @shopify/flash-list 2
 - @react-navigation/native-stack 7
 - Kotlin + Coroutines (Android domain layer)
 

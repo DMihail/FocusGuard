@@ -20,13 +20,6 @@ class OnboardingScreen {
     await tapById(onboarding.skipButton);
   }
 
-  async completeWalkthrough() {
-    await this.waitForScreen();
-    await this.tapContinue();
-    await this.tapContinue();
-    await this.tapContinue();
-  }
-
   async expectVisible() {
     await expect(this.root).toBeVisible();
   }

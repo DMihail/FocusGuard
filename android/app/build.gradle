@@ -145,6 +145,11 @@ dependencies {
         implementation jscFlavor
     }
 
+    // Detox E2E reads instrumentation args in debug / e2eRelease (see E2ELaunchArgs.kt).
+    compileOnly 'androidx.test:monitor:1.7.2'
+    debugImplementation 'androidx.test:monitor:1.7.2'
+    e2eReleaseImplementation 'androidx.test:monitor:1.7.2'
+
     androidTestImplementation(project(':detox'))
     androidTestImplementation 'androidx.test:runner:1.6.2'
     androidTestImplementation 'androidx.test:rules:1.6.1'

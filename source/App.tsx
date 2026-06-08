@@ -1,19 +1,21 @@
 /** @format */
 
-import { StatusBar, StyleSheet, useColorScheme } from 'react-native';
+import { StyleSheet } from 'react-native';
 
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
+import { colors } from '@/theme';
+
 import { Navigation } from './navigation';
 
-function App() {
-  const isDarkMode = useColorScheme() === 'dark';
+import { SystemChrome } from '@/components';
 
+function App() {
   return (
     <GestureHandlerRootView style={styles.root}>
       <SafeAreaProvider>
-        <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
+        <SystemChrome />
         <Navigation />
       </SafeAreaProvider>
     </GestureHandlerRootView>
@@ -25,5 +27,6 @@ export default App;
 const styles = StyleSheet.create({
   root: {
     flex: 1,
+    backgroundColor: colors.background,
   },
 });
