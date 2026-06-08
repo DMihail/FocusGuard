@@ -1,6 +1,6 @@
 /** @format */
 
-import React from 'react';
+import React, { memo } from 'react';
 import { Switch, Text, View } from 'react-native';
 
 import { colors, switchTrackColors } from '@/theme';
@@ -14,7 +14,7 @@ export type StrictModeCardProps = {
   toggleTestID?: string;
 };
 
-export const StrictModeCard = ({ value, onValueChange, testID, toggleTestID }: StrictModeCardProps) => (
+export const StrictModeCard = memo(({ value, onValueChange, testID, toggleTestID }: StrictModeCardProps) => (
   <View style={styles.strictCard} testID={testID}>
     <View style={styles.strictText}>
       <Text style={styles.strictTitle}>Strict Mode</Text>
@@ -30,4 +30,4 @@ export const StrictModeCard = ({ value, onValueChange, testID, toggleTestID }: S
       thumbColor={colors.textPrimary}
     />
   </View>
-);
+));

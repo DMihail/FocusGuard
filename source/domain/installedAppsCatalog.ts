@@ -1,5 +1,5 @@
-import type { ManageApp } from '@/screen/ManageApps/types';
-import { mapInstalledApps } from '@/screen/ManageApps/utils/mapInstalledApps';
+import { mapInstalledApps } from '@/domain/mapInstalledApps';
+import type { ManageApp } from '@/domain/types';
 import * as NativeSpecs from '@/specs';
 
 import { createNativeCatalogLoader } from './createNativeCatalogLoader';

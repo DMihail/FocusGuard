@@ -1,4 +1,4 @@
-import type { ManageApp } from '@/screen/ManageApps/types';
+import type { ManageApp } from '@/domain/types';
 
 const hasSameMetadata = (left: ManageApp, right: ManageApp): boolean =>
   left.appName === right.appName &&

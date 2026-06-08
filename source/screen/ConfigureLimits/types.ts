@@ -2,8 +2,8 @@
 
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 
+import type { ManageApp } from '@/domain/types';
 import type { RootStackParamList } from '@/navigation/types';
-import type { ManageApp } from '@/screen/ManageApps/types';
 import type { AppLimits } from '@/store';
 
 export type ConfigureLimitsScreenProps = NativeStackScreenProps<RootStackParamList, 'ConfigureLimits'>;

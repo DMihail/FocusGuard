@@ -1,6 +1,6 @@
 /** @format */
 
-import type { ManageApp } from '@/screen/ManageApps/types';
+import type { ManageApp } from '@/domain/types';
 import { type AppLimits, DEFAULT_APP_LIMITS } from '@/store';
 
 import { computeUsageMetrics } from './computeUsageMetrics';
@@ -15,8 +15,8 @@ export type DashboardAppRow = ManageApp & {
 
 export type DashboardSummary = {
   focusScore: number;
-  totalAllowedMs: number;
   totalUsedMs: number;
+  totalAllowedMs: number;
   remainingMs: number;
 };
 
