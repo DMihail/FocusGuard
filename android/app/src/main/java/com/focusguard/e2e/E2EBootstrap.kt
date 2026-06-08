@@ -6,13 +6,20 @@ object E2EBootstrap {
         val resetStorage: Boolean,
         val skipOnboarding: Boolean,
         val permissionsGranted: Boolean,
+        val seedDashboard: Boolean = false,
     )
 
     private val presets =
         mapOf(
             "fresh" to PresetFlags(resetStorage = true, skipOnboarding = false, permissionsGranted = false),
             "permissions" to PresetFlags(resetStorage = true, skipOnboarding = true, permissionsGranted = false),
-            "dashboard" to PresetFlags(resetStorage = true, skipOnboarding = true, permissionsGranted = true),
+            "dashboard" to
+                PresetFlags(
+                    resetStorage = true,
+                    skipOnboarding = true,
+                    permissionsGranted = true,
+                    seedDashboard = true,
+                ),
         )
 
     fun applyFromCachedLaunchArgs() {
@@ -50,6 +57,10 @@ object E2EBootstrap {
 
         if (flags.skipOnboarding) {
             E2EAppState.setOnboardingComplete()
+        }
+
+        if (flags.seedDashboard) {
+            E2EAppState.seedDashboardFixture()
         }
 
         E2EPermissionOverride.permissionsGranted = flags.permissionsGranted

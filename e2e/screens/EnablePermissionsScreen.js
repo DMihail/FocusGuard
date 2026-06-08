@@ -10,6 +10,8 @@ class EnablePermissionsScreen {
 
   async expectContinueDisabled() {
     await expect(byId(enablePermissions.continueButton)).toBeVisible();
+    await byId(enablePermissions.continueButton).tap();
+    await expect(byId(enablePermissions.screen)).toBeVisible();
   }
 
   async expectCardsVisible() {

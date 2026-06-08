@@ -137,11 +137,11 @@ e2e/
 
 **Launch presets** (via `launchArgs` → native `configureE2EBootstrap`):
 
-| Preset        | Effect                                         |
-| ------------- | ---------------------------------------------- |
-| `fresh`       | Clears MMKV → Onboarding                       |
-| `permissions` | Skip onboarding → Enable Permissions           |
-| `dashboard`   | Skip onboarding + mock permissions → Dashboard |
+| Preset        | Effect                                                             |
+| ------------- | ------------------------------------------------------------------ |
+| `fresh`       | Clears MMKV → Onboarding                                           |
+| `permissions` | Skip onboarding → Enable Permissions                               |
+| `dashboard`   | Skip onboarding + mock permissions + seed tracked apps → Dashboard |
 
 ```sh
 # Android emulator (start Metro first: npm start)
@@ -167,7 +167,9 @@ npm run e2e:test:android:release
 `{ device, element, by, waitFor, expect }` from `detox`.
 
 **Android emulator:** set `DETOX_AVD_NAME` to one of your AVDs (`emulator -list-avds`). Default in `.detoxrc.js` is
-`Medium_Phone`. Instrumentation tests live in `android/app/src/androidTest/`.
+`Medium_Phone`. If an emulator is already running, use `npm run e2e:test:android:attached` instead of `e2e:test:android`
+(Detox cannot start a second AVD instance). Debug builds require Metro (`npm start`); `e2eRelease` bundles JS and does
+not. Instrumentation tests live in `android/app/src/androidTest/`.
 
 ## CI
 

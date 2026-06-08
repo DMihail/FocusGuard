@@ -1,4 +1,5 @@
 const { dashboard } = require('../testIds');
+const { openDeepLink } = require('../helpers/deepLink');
 const { tapById, waitForVisible } = require('../helpers/wait');
 
 class DashboardScreen {
@@ -15,7 +16,8 @@ class DashboardScreen {
   }
 
   async openTrackedApps() {
-    await tapById(dashboard.viewAllAppsButton);
+    // "View All" is only rendered when more than four apps are tracked — deep link is stable.
+    await openDeepLink('tracked-apps');
   }
 
   async expectQuickActionsVisible() {

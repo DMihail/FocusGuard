@@ -25,6 +25,20 @@ object E2EAppState {
         mmkv.encode("onboarding-storage", """{"state":{"isConfirm":true},"version":0}""")
     }
 
+    /** Seeds tracked apps so dashboard E2E flows see usage rows without manual selection. */
+    fun seedDashboardFixture() {
+        val mmkv = mmkv() ?: return
+        mmkv.encode(
+            "selected-apps-storage",
+            """
+            {"state":{"apps":[
+              {"packageName":"com.social.chat","appName":"Social Chat","appImage":"","category":"Social","categoryLabel":"Social"},
+              {"packageName":"com.game.puzzle","appName":"Puzzle Game","appImage":"","category":"Game","categoryLabel":"Game"}
+            ]},"version":0}
+            """.trimIndent().replace("\n", ""),
+        )
+    }
+
     private fun mmkv(): MMKV? =
         MMKV.mmkvWithID(MMKV_INSTANCE_ID, MMKV.MULTI_PROCESS_MODE)
 }
