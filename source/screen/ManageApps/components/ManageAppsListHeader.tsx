@@ -1,6 +1,6 @@
 /** @format */
 
-import React from 'react';
+import React, { Activity } from 'react';
 import { View } from 'react-native';
 
 import { manageAppsStyles } from '../styles';
@@ -20,12 +20,12 @@ export const ManageAppsListHeader = ({
   <View style={manageAppsStyles.listHeader}>
     <SelectedAppsSection apps={selectedApps} onAppPress={onSelectedAppPress} onAppRemove={onSelectedAppRemove} />
 
-    {!isSearchActive ? (
+    <Activity mode={isSearchActive ? 'hidden' : 'visible'}>
       <CategoryFilters
         filters={categoryFilters}
         activeCategoryId={activeCategoryId}
         onCategoryChange={onCategoryChange}
       />
-    ) : null}
+    </Activity>
   </View>
 );

@@ -64,13 +64,14 @@ describe('PermissionCard', () => {
     expect(onGrant).toHaveBeenCalledWith('usage-access');
   });
 
-  it('hides grant button for granted permissions', () => {
+  it('disables grant button for granted permissions', () => {
     let tree: ReactTestRenderer.ReactTestRenderer;
 
     ReactTestRenderer.act(() => {
       tree = ReactTestRenderer.create(<PermissionCard {...baseProps} status="granted" onGrant={jest.fn()} />);
     });
 
-    expect(() => tree!.root.findByProps({ accessibilityLabel: 'Grant Usage Access' })).toThrow();
+    const grantButton = tree!.root.findByProps({ accessibilityLabel: 'Grant Usage Access' });
+    expect(grantButton.props.disabled).toBe(true);
   });
 });

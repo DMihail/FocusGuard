@@ -1,6 +1,6 @@
 /** @format */
 
-import React, { memo } from 'react';
+import React, { Activity, memo } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 
 import Animated from 'react-native-reanimated';
@@ -65,25 +65,27 @@ export const SelectedAppsSection = ({ apps, onAppPress, onAppRemove }: SelectedA
       pointerEvents={isExpanded ? 'auto' : 'none'}
       collapsable={false}
     >
-      <View style={manageAppsStyles.section}>
-        <Text accessibilityRole="header" style={manageAppsStyles.sectionTitle}>
-          Selected Apps
-        </Text>
+      <Activity mode={isExpanded ? 'visible' : 'hidden'}>
+        <View style={manageAppsStyles.section}>
+          <Text accessibilityRole="header" style={manageAppsStyles.sectionTitle}>
+            Selected Apps
+          </Text>
 
-        <ScrollView
-          horizontal
-          nestedScrollEnabled
-          showsHorizontalScrollIndicator={false}
-          style={manageAppsStyles.selectedAppsScroll}
-          testID={testIds.manageApps.selectedAppsScroll}
-        >
-          <View style={manageAppsStyles.selectedAppsRows}>
-            {apps.map((app) => (
-              <SelectedChip key={app.packageName} app={app} onPress={onAppPress} onRemove={onAppRemove} />
-            ))}
-          </View>
-        </ScrollView>
-      </View>
+          <ScrollView
+            horizontal
+            nestedScrollEnabled
+            showsHorizontalScrollIndicator={false}
+            style={manageAppsStyles.selectedAppsScroll}
+            testID={testIds.manageApps.selectedAppsScroll}
+          >
+            <View style={manageAppsStyles.selectedAppsRows}>
+              {apps.map((app) => (
+                <SelectedChip key={app.packageName} app={app} onPress={onAppPress} onRemove={onAppRemove} />
+              ))}
+            </View>
+          </ScrollView>
+        </View>
+      </Activity>
     </Animated.View>
   );
 };

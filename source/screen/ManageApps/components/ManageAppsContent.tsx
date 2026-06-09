@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { Activity, useMemo } from 'react';
 import { ActivityIndicator, FlatList, View } from 'react-native';
 
 import { APP_LIST_FLAT_LIST_PROPS } from '@/list';
@@ -57,7 +57,7 @@ export const ManageAppsContent = ({
         style={[manageAppsStyles.listWrapper, (isFiltering || isLoadingApps) && manageAppsStyles.contentDimmed]}
         accessibilityState={isFiltering || isLoadingApps ? { busy: true } : undefined}
       >
-        {isFiltering || isLoadingApps ? (
+        <Activity mode={isFiltering || isLoadingApps ? 'visible' : 'hidden'}>
           <View style={manageAppsStyles.filterLoader} pointerEvents="none">
             <ActivityIndicator
               size="small"
@@ -66,7 +66,7 @@ export const ManageAppsContent = ({
               testID={isLoadingApps ? testIds.manageApps.appsLoader : testIds.manageApps.appsFilterLoader}
             />
           </View>
-        ) : null}
+        </Activity>
 
         <FlatList
           style={manageAppsStyles.flatList}
