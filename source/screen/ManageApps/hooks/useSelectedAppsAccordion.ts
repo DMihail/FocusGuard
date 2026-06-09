@@ -1,6 +1,6 @@
 /** @format */
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 import { interpolate, runOnJS, useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 
@@ -9,16 +9,18 @@ import { SELECTED_APPS_ACCORDION_SPRING } from '../constants';
 /** Smooth height + opacity accordion for the selected-apps strip. */
 export const useSelectedAppsAccordion = (isExpanded: boolean, expandedHeight: number, onCollapseEnd?: () => void) => {
   const progress = useSharedValue(isExpanded ? 1 : 0);
+  const onCollapseEndRef = useRef(onCollapseEnd);
+  onCollapseEndRef.current = onCollapseEnd;
 
   useEffect(() => {
     progress.value = withSpring(isExpanded ? 1 : 0, SELECTED_APPS_ACCORDION_SPRING, (finished) => {
       'worklet';
 
-      if (finished && !isExpanded && onCollapseEnd) {
-        runOnJS(onCollapseEnd)();
+      if (finished && !isExpanded && onCollapseEndRef.current) {
+        runOnJS(onCollapseEndRef.current)();
       }
     });
-  }, [expandedHeight, isExpanded, onCollapseEnd, progress]);
+  }, [isExpanded, progress]);
 
   return useAnimatedStyle(() => ({
     height: interpolate(progress.value, [0, 1], [0, expandedHeight]),

@@ -17,7 +17,6 @@ jest.mock('../../../../source/screen/EnablePermissions/utils/permissionStatus', 
     (['usage-access', 'display-over-apps', 'battery-optimization'] as PermissionId[]).every(
       (id) => statuses[id] === 'granted',
     ),
-  areAllPermissionsGranted: jest.fn(() => false),
 }));
 
 import { usePermissionsSync } from '@/screen/EnablePermissions/hooks/usePermissionsSync';

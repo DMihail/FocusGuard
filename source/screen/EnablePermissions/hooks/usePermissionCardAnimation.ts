@@ -15,15 +15,11 @@ import { PERMISSION_CARD_ANIMATION_MS } from '@/utils/layoutAnimation';
 
 import type { PermissionId, PermissionStatus } from '../types';
 
-const grantTiming = {
-  duration: PERMISSION_CARD_ANIMATION_MS,
-  easing: Easing.out(Easing.cubic),
-} as const;
-
-const revokeTiming = {
-  duration: PERMISSION_CARD_ANIMATION_MS,
-  easing: Easing.in(Easing.cubic),
-} as const;
+const cardTiming = (easing: (value: number) => number) =>
+  ({
+    duration: PERMISSION_CARD_ANIMATION_MS,
+    easing,
+  } as const);
 
 /** Drives granted/pending transition styles on the permission card (UI thread). */
 export const usePermissionCardAnimation = (permissionId: PermissionId, status: PermissionStatus) => {
@@ -39,7 +35,10 @@ export const usePermissionCardAnimation = (permissionId: PermissionId, status: P
       return;
     }
 
-    progress.value = withTiming(target, isGranted ? grantTiming : revokeTiming);
+    progress.value = withTiming(
+      target,
+      isGranted ? cardTiming(Easing.out(Easing.cubic)) : cardTiming(Easing.in(Easing.cubic)),
+    );
   }, [isGranted, permissionId, progress]);
 
   const grantedOverlayStyle = useAnimatedStyle(() => ({

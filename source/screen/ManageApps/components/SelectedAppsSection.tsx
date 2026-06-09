@@ -55,7 +55,31 @@ const SelectedChip = memo(
   areSelectedChipPropsEqual,
 );
 
-export const SelectedAppsSection = ({ apps, onAppPress, onAppRemove }: SelectedAppsSectionProps) => {
+const areSelectedAppsSectionPropsEqual = (
+  previous: SelectedAppsSectionProps,
+  next: SelectedAppsSectionProps,
+): boolean => {
+  if (previous.onAppPress !== next.onAppPress || previous.onAppRemove !== next.onAppRemove) {
+    return false;
+  }
+
+  if (previous.apps.length !== next.apps.length) {
+    return false;
+  }
+
+  for (let index = 0; index < previous.apps.length; index += 1) {
+    const left = previous.apps[index];
+    const right = next.apps[index];
+
+    if (!left || !right || left.packageName !== right.packageName || left.appName !== right.appName) {
+      return false;
+    }
+  }
+
+  return true;
+};
+
+export const SelectedAppsSection = memo(({ apps, onAppPress, onAppRemove }: SelectedAppsSectionProps) => {
   const isExpanded = apps.length > 0;
   const [displayApps, setDisplayApps] = useState(apps);
 
@@ -112,4 +136,4 @@ export const SelectedAppsSection = ({ apps, onAppPress, onAppRemove }: SelectedA
       ) : null}
     </Animated.View>
   );
-};
+}, areSelectedAppsSectionPropsEqual);
