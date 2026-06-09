@@ -1,6 +1,6 @@
 /** @format */
 
-import React, { memo } from 'react';
+import React, { Activity, memo } from 'react';
 import { Text, View } from 'react-native';
 
 import { testIds } from '@/testing/testIds';
@@ -37,11 +37,11 @@ export const DailyUsageCard = memo(({ packageName, usedMs, limitMs }: DailyUsage
         {formatUsagePair(usedMs, limitMs)}
       </Text>
       <Text style={styles.dailyUsageHint}>Daily limit applies until midnight</Text>
-      {isOverLimit ? (
+      <Activity mode={isOverLimit ? 'visible' : 'hidden'}>
         <Text style={styles.dailyUsageOverHint}>
           Already over today&apos;s limit — the app will be blocked on next open while monitoring is on.
         </Text>
-      ) : null}
+      </Activity>
       <ProgressBar
         progress={barProgress}
         fillColor={isOverLimit ? colors.overLimit : colors.accent}

@@ -1,6 +1,6 @@
 /** @format */
 
-import React from 'react';
+import React, { Activity } from 'react';
 import { View } from 'react-native';
 
 import { testIds } from '@/testing/testIds';
@@ -19,7 +19,7 @@ export const OnboardingScreen = () => {
       <OnboardingHeader indicatorProps={pager.indicatorProps} onSkip={pager.onSkip} />
 
       <View style={onboardingStyles.pagerContainer} onLayout={pager.handlePagerContainerLayout}>
-        {pager.isPagerReady ? (
+        <Activity mode={pager.isPagerReady ? 'visible' : 'hidden'}>
           <WalkthroughPager
             listRef={pager.listRef}
             steps={pager.steps}
@@ -29,7 +29,7 @@ export const OnboardingScreen = () => {
             getItemLayout={pager.getItemLayout}
             onScrollToIndexFailed={pager.handleScrollToIndexFailed}
           />
-        ) : null}
+        </Activity>
       </View>
 
       <OnboardingFooter

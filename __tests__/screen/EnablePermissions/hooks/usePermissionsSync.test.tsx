@@ -17,7 +17,6 @@ jest.mock('../../../../source/screen/EnablePermissions/utils/permissionStatus', 
     (['usage-access', 'display-over-apps', 'battery-optimization'] as PermissionId[]).every(
       (id) => statuses[id] === 'granted',
     ),
-  areAllPermissionsGranted: jest.fn(() => false),
 }));
 
 import { usePermissionsSync } from '@/screen/EnablePermissions/hooks/usePermissionsSync';
@@ -138,7 +137,7 @@ describe('usePermissionsSync', () => {
     expect(mockRequestPermissionById).toHaveBeenCalledWith('notifications');
   });
 
-  it('triggers layout animation when statuses change on sync', () => {
+  it('does not trigger layout animation when statuses change on sync', () => {
     ReactTestRenderer.act(() => {
       ReactTestRenderer.create(<PermissionsProbe onReady={() => undefined} />);
     });
@@ -150,7 +149,7 @@ describe('usePermissionsSync', () => {
       appStateListener?.('active');
     });
 
-    expect(configureNextSpy).toHaveBeenCalled();
+    expect(configureNextSpy).not.toHaveBeenCalled();
   });
 
   it('does not trigger layout animation when statuses stay the same', () => {

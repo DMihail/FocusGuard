@@ -1,6 +1,6 @@
 /** @format */
 
-import React, { memo } from 'react';
+import React, { Activity, memo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import Animated, { interpolate, type SharedValue, useAnimatedStyle } from 'react-native-reanimated';
@@ -36,21 +36,22 @@ SplashPulseDot.displayName = 'SplashPulseDot';
 const SplashLoadingDots = () => {
   const { isReducedMotion, pulseValues } = useSplashDotPulse(SPLASH_DOT_COUNT);
 
-  if (isReducedMotion) {
-    return (
-      <View style={styles.dots} accessible={false}>
-        {Array.from({ length: SPLASH_DOT_COUNT }, (_, index) => (
-          <View key={index} style={styles.dot} />
-        ))}
-      </View>
-    );
-  }
-
   return (
     <View style={styles.dots} accessible={false}>
-      {pulseValues.map((pulse, index) => (
-        <SplashPulseDot key={index} pulse={pulse} />
-      ))}
+      <Activity mode={isReducedMotion ? 'hidden' : 'visible'}>
+        <View style={styles.dotsRow}>
+          {pulseValues.map((pulse, index) => (
+            <SplashPulseDot key={index} pulse={pulse} />
+          ))}
+        </View>
+      </Activity>
+      <Activity mode={isReducedMotion ? 'visible' : 'hidden'}>
+        <View style={styles.dotsRow}>
+          {Array.from({ length: SPLASH_DOT_COUNT }, (_, index) => (
+            <View key={index} style={styles.dot} />
+          ))}
+        </View>
+      </Activity>
     </View>
   );
 };
@@ -124,10 +125,12 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   dots: {
+    marginTop: spacing.md,
+  },
+  dotsRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.sm,
-    marginTop: spacing.md,
   },
   dot: {
     width: 8,

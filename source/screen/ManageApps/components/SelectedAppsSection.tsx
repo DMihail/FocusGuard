@@ -1,6 +1,6 @@
 /** @format */
 
-import React, { memo } from 'react';
+import React, { memo, useCallback, useEffect, useState } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 
 import Animated from 'react-native-reanimated';
@@ -8,6 +8,7 @@ import Animated from 'react-native-reanimated';
 import { CloseIcon } from '@/assets/svg/ManageApps';
 import { testIds } from '@/testing/testIds';
 
+import { SELECTED_APPS_ACCORDION_SETTLE_MS } from '../constants';
 import { useSelectedAppsAccordion } from '../hooks/useSelectedAppsAccordion';
 import { manageAppsStyles, selectedAppsSectionExpandedHeight } from '../styles';
 import type { ManageApp, SelectedAppsSectionProps } from '../types';
@@ -54,9 +55,56 @@ const SelectedChip = memo(
   areSelectedChipPropsEqual,
 );
 
-export const SelectedAppsSection = ({ apps, onAppPress, onAppRemove }: SelectedAppsSectionProps) => {
+const areSelectedAppsSectionPropsEqual = (
+  previous: SelectedAppsSectionProps,
+  next: SelectedAppsSectionProps,
+): boolean => {
+  if (previous.onAppPress !== next.onAppPress || previous.onAppRemove !== next.onAppRemove) {
+    return false;
+  }
+
+  if (previous.apps.length !== next.apps.length) {
+    return false;
+  }
+
+  for (let index = 0; index < previous.apps.length; index += 1) {
+    const left = previous.apps[index];
+    const right = next.apps[index];
+
+    if (!left || !right || left.packageName !== right.packageName || left.appName !== right.appName) {
+      return false;
+    }
+  }
+
+  return true;
+};
+
+export const SelectedAppsSection = memo(({ apps, onAppPress, onAppRemove }: SelectedAppsSectionProps) => {
   const isExpanded = apps.length > 0;
-  const containerStyle = useSelectedAppsAccordion(isExpanded, selectedAppsSectionExpandedHeight);
+  const [displayApps, setDisplayApps] = useState(apps);
+
+  const handleCollapseEnd = useCallback(() => {
+    setDisplayApps([]);
+  }, []);
+
+  const containerStyle = useSelectedAppsAccordion(isExpanded, selectedAppsSectionExpandedHeight, handleCollapseEnd);
+  const showContent = isExpanded || displayApps.length > 0;
+
+  useEffect(() => {
+    if (isExpanded) {
+      setDisplayApps(apps);
+    }
+  }, [apps, isExpanded]);
+
+  useEffect(() => {
+    if (isExpanded || displayApps.length === 0) {
+      return undefined;
+    }
+
+    const timer = setTimeout(handleCollapseEnd, SELECTED_APPS_ACCORDION_SETTLE_MS);
+
+    return () => clearTimeout(timer);
+  }, [displayApps.length, handleCollapseEnd, isExpanded]);
 
   return (
     <Animated.View
@@ -65,25 +113,27 @@ export const SelectedAppsSection = ({ apps, onAppPress, onAppRemove }: SelectedA
       pointerEvents={isExpanded ? 'auto' : 'none'}
       collapsable={false}
     >
-      <View style={manageAppsStyles.section}>
-        <Text accessibilityRole="header" style={manageAppsStyles.sectionTitle}>
-          Selected Apps
-        </Text>
+      {showContent ? (
+        <View style={manageAppsStyles.section}>
+          <Text accessibilityRole="header" style={manageAppsStyles.sectionTitle}>
+            Selected Apps
+          </Text>
 
-        <ScrollView
-          horizontal
-          nestedScrollEnabled
-          showsHorizontalScrollIndicator={false}
-          style={manageAppsStyles.selectedAppsScroll}
-          testID={testIds.manageApps.selectedAppsScroll}
-        >
-          <View style={manageAppsStyles.selectedAppsRows}>
-            {apps.map((app) => (
-              <SelectedChip key={app.packageName} app={app} onPress={onAppPress} onRemove={onAppRemove} />
-            ))}
-          </View>
-        </ScrollView>
-      </View>
+          <ScrollView
+            horizontal
+            nestedScrollEnabled
+            showsHorizontalScrollIndicator={false}
+            style={manageAppsStyles.selectedAppsScroll}
+            testID={testIds.manageApps.selectedAppsScroll}
+          >
+            <View style={manageAppsStyles.selectedAppsRows}>
+              {displayApps.map((app) => (
+                <SelectedChip key={app.packageName} app={app} onPress={onAppPress} onRemove={onAppRemove} />
+              ))}
+            </View>
+          </ScrollView>
+        </View>
+      ) : null}
     </Animated.View>
   );
-};
+}, areSelectedAppsSectionPropsEqual);

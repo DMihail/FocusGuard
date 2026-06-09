@@ -1,6 +1,6 @@
 /** @format */
 
-import React, { memo, useCallback } from 'react';
+import React, { Activity, memo, useCallback } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import Animated from 'react-native-reanimated';
@@ -26,15 +26,8 @@ const arePermissionCardPropsEqual = (previous: PermissionCardProps, next: Permis
   previous.onGrant === next.onGrant;
 
 export const PermissionCard = memo(({ id, title, description, status, Icon, onGrant }: PermissionCardProps) => {
-  const {
-    grantedOverlayStyle,
-    pendingIconStyle,
-    grantedIconStyle,
-    badgeStyle,
-    grantButtonStyle,
-    collapsed,
-    isGranted,
-  } = usePermissionCardAnimation(status);
+  const { grantedOverlayStyle, pendingIconStyle, grantedIconStyle, badgeStyle, grantButtonStyle, isGranted } =
+    usePermissionCardAnimation(id, status);
 
   const handleGrant = useCallback(() => {
     onGrant?.(id);
@@ -72,22 +65,24 @@ export const PermissionCard = memo(({ id, title, description, status, Icon, onGr
 
             <Text style={permissionsStyles.cardDescription}>{description}</Text>
 
-            {onGrant && !collapsed ? (
-              <Animated.View
-                style={[permissionsStyles.grantButtonContainer, grantButtonStyle]}
-                pointerEvents={isGranted ? 'none' : 'auto'}
-              >
-                <Pressable
-                  testID={testIds.enablePermissions.grantButton(id)}
-                  accessibilityRole="button"
-                  accessibilityLabel={`Grant ${title}`}
-                  disabled={isGranted}
-                  style={permissionsStyles.grantButton}
-                  onPress={handleGrant}
+            {onGrant ? (
+              <Activity mode={isGranted ? 'hidden' : 'visible'}>
+                <Animated.View
+                  style={[permissionsStyles.grantButtonContainer, grantButtonStyle]}
+                  pointerEvents={isGranted ? 'none' : 'auto'}
                 >
-                  <Text style={permissionsStyles.grantButtonText}>Grant Permission</Text>
-                </Pressable>
-              </Animated.View>
+                  <Pressable
+                    testID={testIds.enablePermissions.grantButton(id)}
+                    accessibilityRole="button"
+                    accessibilityLabel={`Grant ${title}`}
+                    disabled={isGranted}
+                    style={permissionsStyles.grantButton}
+                    onPress={handleGrant}
+                  >
+                    <Text style={permissionsStyles.grantButtonText}>Grant Permission</Text>
+                  </Pressable>
+                </Animated.View>
+              </Activity>
             ) : null}
           </View>
         </View>
