@@ -1,8 +1,10 @@
 /** @format */
 
 import React from 'react';
-import ReactTestRenderer from 'react-test-renderer';
 import { Text } from 'react-native';
+
+import ReactTestRenderer from 'react-test-renderer';
+
 import { Walkthrough } from '@/screen/Onboarding/components/Walkthrough';
 
 describe('Walkthrough', () => {
@@ -11,7 +13,9 @@ describe('Walkthrough', () => {
 
     ReactTestRenderer.act(() => {
       tree = ReactTestRenderer.create(
-        <Walkthrough title="Track Your Focus" text="Monitor your app usage." icon={<Text>ICON</Text>} />,
+        <Walkthrough title="Track Your Focus" text="Monitor your app usage.">
+          <Text>ICON</Text>
+        </Walkthrough>,
       );
     });
 
