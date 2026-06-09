@@ -76,6 +76,7 @@ jest.mock('react-native-safe-area-context', () => {
 });
 
 import { invalidateInstalledAppsCache } from '@/domain/installedAppsCatalog';
+import { SELECTED_APPS_ACCORDION_SETTLE_MS } from '@/screen/ManageApps/constants';
 import { ManageAppsScreen } from '@/screen/ManageApps/ManageAppsScreen';
 
 describe('ManageAppsScreen', () => {
@@ -159,6 +160,14 @@ describe('ManageAppsScreen', () => {
     });
 
     updateTestTree(tree, <ManageAppsScreen />);
+
+    expect(tree.root.findByProps({ testID: testIds.manageApps.selectedCount }).props.children).toBe('0 selected');
+
+    runTestAct(() => {
+      jest.advanceTimersByTime(SELECTED_APPS_ACCORDION_SETTLE_MS);
+    });
+
+    updateTestTree(tree, <ManageAppsScreen />);
     flushVirtualizedListTimers();
 
     expect(
@@ -166,7 +175,6 @@ describe('ManageAppsScreen', () => {
         (node) => typeof node.props.testID === 'string' && node.props.testID.startsWith('manage-apps-selected-chip-'),
       ),
     ).toHaveLength(0);
-    expect(tree.root.findByProps({ testID: testIds.manageApps.selectedCount }).props.children).toBe('0 selected');
   });
 
   it('filters apps when search query changes', async () => {

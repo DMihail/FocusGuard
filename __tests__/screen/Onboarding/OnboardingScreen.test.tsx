@@ -83,7 +83,7 @@ describe('OnboardingScreen', () => {
     expect(tree!.root.findByProps({ children: 'Continue' })).toBeDefined();
   });
 
-  it('does not render pager before layout when pager is not ready', () => {
+  it('keeps pager mounted but hidden before layout when pager is not ready', () => {
     mockPager.isPagerReady = false;
     mockPager.indicatorProps = null;
 
@@ -92,7 +92,7 @@ describe('OnboardingScreen', () => {
       tree = ReactTestRenderer.create(<OnboardingScreen />);
     });
 
-    expect(tree!.root.findAllByProps({ testID: 'walkthrough-pager' })).toHaveLength(0);
+    expect(tree!.root.findByProps({ testID: 'walkthrough-pager' })).toBeDefined();
   });
 
   it('passes onSkip to the header', () => {

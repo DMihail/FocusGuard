@@ -3,7 +3,7 @@
 Android app that helps reduce screen time by monitoring distracting apps, sending warnings, and enforcing limits you
 configure.
 
-Built with [React Native](https://reactnative.dev) 0.85 (New Architecture / Turbo Modules) and **React 19**.
+Built with [React Native](https://reactnative.dev) **0.86** (New Architecture / Turbo Modules) and **React 19**.
 
 > The npm package name (`FocusGuard`) and Android namespace (`com.focusguard`) are legacy identifiers. The user-facing
 > product name and Play Store application ID are **Keept** (`com.keept`).
@@ -116,25 +116,39 @@ npm run android
 | `npm start`                        | Metro bundler                 |
 | `npm run android`                  | Run on device / emulator      |
 | `npm run check`                    | lint + format + types + tests |
+| `npm run test`                     | Jest unit tests               |
+| `npm run test:ci`                  | Jest with CI flags            |
 | `npm run android:bundle:release`   | Play Store AAB                |
 | `npm run android:assemble:release` | Release APK                   |
 
 ## Testing
 
+Jest uses `@react-native/jest-preset` (required since RN 0.86 — preset is no longer bundled inside `react-native`).
+
 ```sh
-npm test
+npm test              # local
+npm run test:ci       # same as CI (watchman off, forceExit)
+npm run check         # full gate
 ```
+
+**157** unit tests across navigation, screens, stores, and native Turbo Module contracts.
 
 ## CI
 
-GitHub Actions (`.github/workflows/ci.yml`): on every push / PR runs `npm run check` (lint, Prettier, types, Jest).
+GitHub Actions (`.github/workflows/ci.yml`): on every push / PR runs `npm run check`:
 
-Native builds (`debug` / `release`) — locally via Android Studio or `npm run android:bundle:release`.
+1. ESLint (`--max-warnings 0`)
+2. Prettier
+3. TypeScript (`tsc --noEmit`)
+4. Jest (`test:ci` — limited workers, `forceExit` to avoid open-handle hangs)
+
+Native Android builds are **not** run in CI — use Android Studio or `npm run android:bundle:release` locally.
 
 ## Tech stack
 
-- React Native 0.85 — New Architecture, Hermes, Turbo Modules
-- React 19, TypeScript, Zustand 5 + MMKV 4
+- React Native 0.86 — New Architecture, Hermes, Turbo Modules
+- React 19.2, TypeScript, Zustand 5 + MMKV 4
+- Reanimated 4, React Navigation 7
 - Kotlin + Coroutines (Android)
 
 ## iOS

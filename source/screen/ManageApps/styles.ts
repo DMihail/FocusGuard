@@ -6,8 +6,8 @@ import { borderRadius, colors, iconBoxPresets, layoutPresets, lineHeight, spacin
 
 export const SELECTED_APPS_SCROLL_HEIGHT = 96;
 
-/** Title line + section gap + chip scroll area + bottom spacing. */
-export const selectedAppsSectionExpandedHeight = lineHeight.md + spacing.md + SELECTED_APPS_SCROLL_HEIGHT + spacing.md;
+/** Title line + section gap + chip scroll area. */
+export const selectedAppsSectionExpandedHeight = lineHeight.md + spacing.md + SELECTED_APPS_SCROLL_HEIGHT;
 
 export const manageAppsStyles = StyleSheet.create({
   screen: layoutPresets.screen,
