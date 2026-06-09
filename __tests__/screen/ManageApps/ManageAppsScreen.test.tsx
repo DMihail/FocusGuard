@@ -159,8 +159,12 @@ describe('ManageAppsScreen', () => {
       tree.root.findByProps({ testID: testIds.manageApps.selectedChipRemove('com.game.puzzle') }).props.onPress();
     });
 
+    updateTestTree(tree, <ManageAppsScreen />);
+
+    expect(tree.root.findByProps({ testID: testIds.manageApps.selectedCount }).props.children).toBe('0 selected');
+
     runTestAct(() => {
-      jest.advanceTimersByTime(SELECTED_APPS_ACCORDION_SETTLE_MS + 100);
+      jest.advanceTimersByTime(SELECTED_APPS_ACCORDION_SETTLE_MS);
     });
 
     updateTestTree(tree, <ManageAppsScreen />);
@@ -171,7 +175,6 @@ describe('ManageAppsScreen', () => {
         (node) => typeof node.props.testID === 'string' && node.props.testID.startsWith('manage-apps-selected-chip-'),
       ),
     ).toHaveLength(0);
-    expect(tree.root.findByProps({ testID: testIds.manageApps.selectedCount }).props.children).toBe('0 selected');
   });
 
   it('filters apps when search query changes', async () => {

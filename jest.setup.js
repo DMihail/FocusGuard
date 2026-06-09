@@ -26,7 +26,23 @@ jest.mock('react-native-reanimated', () => {
     withSequence: (...animations) => animations[animations.length - 1],
     cancelAnimation: noop,
     makeMutable: (initial) => ({ value: initial }),
-    interpolate: (_value, _input, output) => output[0],
+    interpolate: (value, input, output) => {
+      if (input.length < 2 || output.length < 2) {
+        return output[0] ?? 0;
+      }
+
+      const [inMin, inMax] = input;
+      const [outMin, outMax] = output;
+      const range = inMax - inMin;
+
+      if (range === 0) {
+        return outMax;
+      }
+
+      const progress = Math.min(1, Math.max(0, (value - inMin) / range));
+
+      return outMin + (outMax - outMin) * progress;
+    },
     Extrapolation: { CLAMP: 'clamp' },
     Easing: {
       linear: identity,
