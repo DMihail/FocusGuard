@@ -9,13 +9,12 @@ import { UsageAccess } from '@/assets/svg/EnablePermissions';
 import { PermissionCard } from '@/screen/EnablePermissions/components/PermissionCard';
 
 jest.mock('../../../../source/screen/EnablePermissions/hooks/usePermissionCardAnimation', () => ({
-  usePermissionCardAnimation: (status: 'granted' | 'pending') => ({
+  usePermissionCardAnimation: (_id: string, status: 'granted' | 'pending') => ({
     grantedOverlayStyle: {},
     pendingIconStyle: {},
     grantedIconStyle: {},
     badgeStyle: {},
     grantButtonStyle: {},
-    collapsed: status === 'granted',
     isGranted: status === 'granted',
   }),
 }));

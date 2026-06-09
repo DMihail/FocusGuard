@@ -1,30 +1,46 @@
 /** @format */
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 
-import { Easing, interpolate, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import {
+  cancelAnimation,
+  Easing,
+  interpolate,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
 
-import { configurePermissionCardLayoutAnimation, PERMISSION_CARD_ANIMATION_MS } from '@/utils/layoutAnimation';
+import { PERMISSION_CARD_ANIMATION_MS } from '@/utils/layoutAnimation';
 
-import type { PermissionStatus } from '../types';
+import type { PermissionId, PermissionStatus } from '../types';
+
+const grantTiming = {
+  duration: PERMISSION_CARD_ANIMATION_MS,
+  easing: Easing.out(Easing.cubic),
+} as const;
+
+const revokeTiming = {
+  duration: PERMISSION_CARD_ANIMATION_MS,
+  easing: Easing.in(Easing.cubic),
+} as const;
 
 /** Drives granted/pending transition styles on the permission card (UI thread). */
-export const usePermissionCardAnimation = (status: PermissionStatus) => {
+export const usePermissionCardAnimation = (permissionId: PermissionId, status: PermissionStatus) => {
   const isGranted = status === 'granted';
   const progress = useSharedValue(isGranted ? 1 : 0);
-  const [collapsed, setCollapsed] = useState(isGranted);
 
   useEffect(() => {
     const target = isGranted ? 1 : 0;
 
-    configurePermissionCardLayoutAnimation();
-    setCollapsed(isGranted);
+    cancelAnimation(progress);
 
-    progress.value = withTiming(target, {
-      duration: PERMISSION_CARD_ANIMATION_MS,
-      easing: Easing.out(Easing.cubic),
-    });
-  }, [isGranted, progress]);
+    if (progress.value === target) {
+      return;
+    }
+
+    progress.value = withTiming(target, isGranted ? grantTiming : revokeTiming);
+  }, [isGranted, permissionId, progress]);
 
   const grantedOverlayStyle = useAnimatedStyle(() => ({
     opacity: progress.value,
@@ -57,7 +73,6 @@ export const usePermissionCardAnimation = (status: PermissionStatus) => {
     grantedIconStyle,
     badgeStyle,
     grantButtonStyle,
-    collapsed,
     isGranted,
   };
 };

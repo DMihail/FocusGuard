@@ -76,6 +76,7 @@ jest.mock('react-native-safe-area-context', () => {
 });
 
 import { invalidateInstalledAppsCache } from '@/domain/installedAppsCatalog';
+import { SELECTED_APPS_ACCORDION_SETTLE_MS } from '@/screen/ManageApps/constants';
 import { ManageAppsScreen } from '@/screen/ManageApps/ManageAppsScreen';
 
 describe('ManageAppsScreen', () => {
@@ -156,6 +157,10 @@ describe('ManageAppsScreen', () => {
 
     runTestAct(() => {
       tree.root.findByProps({ testID: testIds.manageApps.selectedChipRemove('com.game.puzzle') }).props.onPress();
+    });
+
+    runTestAct(() => {
+      jest.advanceTimersByTime(SELECTED_APPS_ACCORDION_SETTLE_MS + 100);
     });
 
     updateTestTree(tree, <ManageAppsScreen />);

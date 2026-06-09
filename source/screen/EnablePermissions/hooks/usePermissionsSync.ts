@@ -4,7 +4,6 @@ import { DeviceEventEmitter } from 'react-native';
 import { getAppDisplayName } from '@/constants/appDisplayName';
 import { getPermissionStatuses, invalidatePermissionSnapshot } from '@/domain/permissionSnapshot';
 import { useAppStateOnActive } from '@/hooks/useAppStateOnActive';
-import { configurePermissionStatusSyncAnimation } from '@/utils/layoutAnimation';
 import { PERMISSIONS_CHANGED_EVENT } from '@/utils/permissions/notificationPermissionEvents';
 import { scheduleAfterInteractions } from '@/utils/scheduleAfterInteractions';
 
@@ -34,7 +33,6 @@ export const usePermissionsSync = () => {
         return previous;
       }
 
-      configurePermissionStatusSyncAnimation();
       return next;
     });
   }, []);

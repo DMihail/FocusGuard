@@ -27,7 +27,7 @@ const arePermissionCardPropsEqual = (previous: PermissionCardProps, next: Permis
 
 export const PermissionCard = memo(({ id, title, description, status, Icon, onGrant }: PermissionCardProps) => {
   const { grantedOverlayStyle, pendingIconStyle, grantedIconStyle, badgeStyle, grantButtonStyle, isGranted } =
-    usePermissionCardAnimation(status);
+    usePermissionCardAnimation(id, status);
 
   const handleGrant = useCallback(() => {
     onGrant?.(id);

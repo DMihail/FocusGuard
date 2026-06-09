@@ -138,7 +138,7 @@ describe('usePermissionsSync', () => {
     expect(mockRequestPermissionById).toHaveBeenCalledWith('notifications');
   });
 
-  it('triggers layout animation when statuses change on sync', () => {
+  it('does not trigger layout animation when statuses change on sync', () => {
     ReactTestRenderer.act(() => {
       ReactTestRenderer.create(<PermissionsProbe onReady={() => undefined} />);
     });
@@ -150,7 +150,7 @@ describe('usePermissionsSync', () => {
       appStateListener?.('active');
     });
 
-    expect(configureNextSpy).toHaveBeenCalled();
+    expect(configureNextSpy).not.toHaveBeenCalled();
   });
 
   it('does not trigger layout animation when statuses stay the same', () => {

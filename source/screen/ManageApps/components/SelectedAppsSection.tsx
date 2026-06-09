@@ -1,6 +1,6 @@
 /** @format */
 
-import React, { Activity, memo } from 'react';
+import React, { memo, useCallback, useEffect, useState } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 
 import Animated from 'react-native-reanimated';
@@ -8,6 +8,7 @@ import Animated from 'react-native-reanimated';
 import { CloseIcon } from '@/assets/svg/ManageApps';
 import { testIds } from '@/testing/testIds';
 
+import { SELECTED_APPS_ACCORDION_SETTLE_MS } from '../constants';
 import { useSelectedAppsAccordion } from '../hooks/useSelectedAppsAccordion';
 import { manageAppsStyles, selectedAppsSectionExpandedHeight } from '../styles';
 import type { ManageApp, SelectedAppsSectionProps } from '../types';
@@ -56,7 +57,30 @@ const SelectedChip = memo(
 
 export const SelectedAppsSection = ({ apps, onAppPress, onAppRemove }: SelectedAppsSectionProps) => {
   const isExpanded = apps.length > 0;
-  const containerStyle = useSelectedAppsAccordion(isExpanded, selectedAppsSectionExpandedHeight);
+  const [displayApps, setDisplayApps] = useState(apps);
+
+  const handleCollapseEnd = useCallback(() => {
+    setDisplayApps([]);
+  }, []);
+
+  const containerStyle = useSelectedAppsAccordion(isExpanded, selectedAppsSectionExpandedHeight, handleCollapseEnd);
+  const showContent = isExpanded || displayApps.length > 0;
+
+  useEffect(() => {
+    if (isExpanded) {
+      setDisplayApps(apps);
+    }
+  }, [apps, isExpanded]);
+
+  useEffect(() => {
+    if (isExpanded || displayApps.length === 0) {
+      return undefined;
+    }
+
+    const timer = setTimeout(handleCollapseEnd, SELECTED_APPS_ACCORDION_SETTLE_MS);
+
+    return () => clearTimeout(timer);
+  }, [displayApps.length, handleCollapseEnd, isExpanded]);
 
   return (
     <Animated.View
@@ -65,7 +89,7 @@ export const SelectedAppsSection = ({ apps, onAppPress, onAppRemove }: SelectedA
       pointerEvents={isExpanded ? 'auto' : 'none'}
       collapsable={false}
     >
-      <Activity mode={isExpanded ? 'visible' : 'hidden'}>
+      {showContent ? (
         <View style={manageAppsStyles.section}>
           <Text accessibilityRole="header" style={manageAppsStyles.sectionTitle}>
             Selected Apps
@@ -79,13 +103,13 @@ export const SelectedAppsSection = ({ apps, onAppPress, onAppRemove }: SelectedA
             testID={testIds.manageApps.selectedAppsScroll}
           >
             <View style={manageAppsStyles.selectedAppsRows}>
-              {apps.map((app) => (
+              {displayApps.map((app) => (
                 <SelectedChip key={app.packageName} app={app} onPress={onAppPress} onRemove={onAppRemove} />
               ))}
             </View>
           </ScrollView>
         </View>
-      </Activity>
+      ) : null}
     </Animated.View>
   );
 };

@@ -20,6 +20,7 @@ jest.mock('react-native-reanimated', () => {
     useDerivedValue: (factory) => ({ value: factory() }),
     useAnimatedScrollHandler: (handlers) => handlers.onScroll ?? noop,
     withTiming: (toValue) => toValue,
+    withSpring: (toValue) => toValue,
     withDelay: (_delay, animation) => animation,
     withRepeat: (animation) => animation,
     withSequence: (...animations) => animations[animations.length - 1],

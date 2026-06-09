@@ -11,7 +11,7 @@ type PermissionListRowProps = {
 };
 
 export const PermissionListRow = memo(({ item, onGrant }: PermissionListRowProps) => {
-  return <PermissionCard {...item} onGrant={onGrant} />;
+  return <PermissionCard key={item.id} {...item} onGrant={onGrant} />;
 }, arePermissionListRowPropsEqual);
 
 function arePermissionListRowPropsEqual(previous: PermissionListRowProps, next: PermissionListRowProps): boolean {
