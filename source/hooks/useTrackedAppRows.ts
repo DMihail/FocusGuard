@@ -9,6 +9,7 @@ import { buildDashboardAppRows, type DashboardAppRow } from '@/utils/usage/dashb
 
 export const useTrackedAppRows = (): {
   appRows: DashboardAppRow[];
+  isRefreshingUsage: boolean;
   refreshUsage: (force?: boolean) => Promise<void>;
 } => {
   const isFocused = useIsFocused();
@@ -19,9 +20,10 @@ export const useTrackedAppRows = (): {
 
   const selectedApps = selectedAppsStore((state) => state.apps);
   const selectedPackages = useMemo(() => selectedApps.map((app) => app.packageName), [selectedApps]);
-  const { usageByPackage, refreshTrackedUsage } = trackedUsageStore(
+  const { usageByPackage, isRefreshingUsage, refreshTrackedUsage } = trackedUsageStore(
     useShallow((state) => ({
       usageByPackage: state.usageByPackage,
+      isRefreshingUsage: state.isRefreshingUsage,
       refreshTrackedUsage: state.refreshUsage,
     })),
   );
@@ -56,5 +58,5 @@ export const useTrackedAppRows = (): {
     [limitsByPackage, selectedApps, usageByPackage],
   );
 
-  return { appRows, refreshUsage };
+  return { appRows, isRefreshingUsage, refreshUsage };
 };

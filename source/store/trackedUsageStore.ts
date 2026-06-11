@@ -55,12 +55,14 @@ const hasUsageChanged = (previous: UsageByPackage, next: UsageByPackage): boolea
 
 type TrackedUsageStore = {
   usageByPackage: UsageByPackage;
+  isRefreshingUsage: boolean;
   seedUsageFromCache: () => void;
   refreshUsage: (packageNames: readonly string[], force?: boolean) => Promise<void>;
 };
 
 export const trackedUsageStore = create<TrackedUsageStore>((set, get) => ({
   usageByPackage: {},
+  isRefreshingUsage: false,
 
   seedUsageFromCache,
 
@@ -76,18 +78,24 @@ export const trackedUsageStore = create<TrackedUsageStore>((set, get) => ({
       return;
     }
 
-    if (force) {
-      invalidateUsageStatsCache();
-      invalidateInstalledAppsCache();
+    set({ isRefreshingUsage: true });
+
+    try {
+      if (force) {
+        invalidateUsageStatsCache();
+        invalidateInstalledAppsCache();
+      }
+
+      const nextUsage = await loadUsageByPackage(packageNames, force);
+
+      if (force) {
+        const installedApps = await loadInstalledApps(true);
+        selectedAppsStore.getState().syncSelectedAppsMetadata(installedApps);
+      }
+
+      set((state) => (hasUsageChanged(state.usageByPackage, nextUsage) ? { usageByPackage: nextUsage } : state));
+    } finally {
+      set({ isRefreshingUsage: false });
     }
-
-    const nextUsage = await loadUsageByPackage(packageNames, force);
-
-    if (force) {
-      const installedApps = await loadInstalledApps(true);
-      selectedAppsStore.getState().syncSelectedAppsMetadata(installedApps);
-    }
-
-    set((state) => (hasUsageChanged(state.usageByPackage, nextUsage) ? { usageByPackage: nextUsage } : state));
   },
 }));

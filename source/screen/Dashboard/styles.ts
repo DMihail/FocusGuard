@@ -6,6 +6,11 @@ import { borderRadius, colors, fontSize, layoutPresets, spacing, textPresets, ty
 
 export const dashboardStyles = StyleSheet.create({
   screen: layoutPresets.screen,
+  content: {
+    flex: 1,
+    minHeight: 0,
+    position: 'relative',
+  },
   scrollContent: {
     ...layoutPresets.scrollContent(spacing.lg),
     paddingBottom: spacing.xxl,

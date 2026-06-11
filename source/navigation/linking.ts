@@ -1,6 +1,6 @@
 /** @format */
 
-import type { LinkingOptions } from '@react-navigation/native';
+import type { LinkingOptions, NavigationState, PartialState } from '@react-navigation/native';
 
 import type { RootStackParamList } from './types';
 
@@ -10,6 +10,8 @@ export type DeepLinkTarget =
   | { screen: 'Dashboard' }
   | { screen: 'TrackedApps' }
   | { screen: 'ConfigureLimits'; params: RootStackParamList['ConfigureLimits'] };
+
+type RootNavigationState = PartialState<NavigationState<RootStackParamList>>;
 
 /** Parses the path segment of a `focusguard://` URL (without scheme). */
 export const matchDeepLinkPath = (path: string | null | undefined): DeepLinkTarget | null => {
@@ -48,21 +50,52 @@ export const parseDeepLinkUrl = (url: string | null | undefined): DeepLinkTarget
   return matchDeepLinkPath(url.slice(DEEP_LINK_PREFIX.length));
 };
 
-export const rootLinking: LinkingOptions<RootStackParamList> = {
-  prefixes: [DEEP_LINK_PREFIX],
-  config: {
-    screens: {
-      Dashboard: 'dashboard',
-      TrackedApps: 'tracked-apps',
-      ConfigureLimits: {
-        path: 'configure/:packageName',
-        parse: {
-          packageName: (value: string) => decodeURIComponent(value),
-        },
-        stringify: {
-          packageName: (value: string) => encodeURIComponent(value),
-        },
+const rootLinkingConfig: LinkingOptions<RootStackParamList>['config'] = {
+  screens: {
+    Dashboard: 'dashboard',
+    TrackedApps: 'tracked-apps',
+    ConfigureLimits: {
+      path: 'configure/:packageName',
+      parse: {
+        packageName: (value: string) => decodeURIComponent(value),
+      },
+      stringify: {
+        packageName: (value: string) => encodeURIComponent(value),
       },
     },
   },
+};
+
+/** Ensures cold-start deep links can pop back to Dashboard. */
+export const buildRootNavigationStateFromPath = (path: string): RootNavigationState | undefined => {
+  const target = matchDeepLinkPath(path);
+
+  if (!target) {
+    return undefined;
+  }
+
+  if (target.screen === 'Dashboard') {
+    return {
+      routes: [{ name: 'Dashboard' }],
+      index: 0,
+    };
+  }
+
+  if (target.screen === 'ConfigureLimits') {
+    return {
+      routes: [{ name: 'Dashboard' }, { name: 'ConfigureLimits', params: target.params }],
+      index: 1,
+    };
+  }
+
+  return {
+    routes: [{ name: 'Dashboard' }, { name: target.screen }],
+    index: 1,
+  };
+};
+
+export const rootLinking: LinkingOptions<RootStackParamList> = {
+  prefixes: [DEEP_LINK_PREFIX],
+  config: rootLinkingConfig,
+  getStateFromPath: buildRootNavigationStateFromPath,
 };

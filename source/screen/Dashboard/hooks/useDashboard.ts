@@ -12,7 +12,7 @@ import { buildDashboardSummary } from '@/utils/usage/dashboardStats';
 
 /** Dashboard screen state: tracked rows, summary stats, monitoring toggle, pull-to-refresh. */
 export const useDashboard = () => {
-  const { appRows, refreshUsage } = useTrackedAppRows();
+  const { appRows, isRefreshingUsage, refreshUsage } = useTrackedAppRows();
   const { isMonitoring, toggleMonitoring } = monitoringStore(
     useShallow((state) => ({
       isMonitoring: state.isMonitoring,
@@ -20,7 +20,7 @@ export const useDashboard = () => {
     })),
   );
   const openConfigureLimits = useNavigateToConfigureLimits();
-  const { refreshControl } = useTrackedAppsRefresh(refreshUsage);
+  const { refreshControl, refreshing: isPullRefreshing } = useTrackedAppsRefresh(refreshUsage);
 
   const summary = useMemo(() => buildDashboardSummary(appRows), [appRows]);
 
@@ -43,5 +43,7 @@ export const useDashboard = () => {
     openConfigureLimits,
     monitoringSubtitle,
     refreshControl,
+    isRefreshingUsage,
+    isPullRefreshing,
   };
 };
