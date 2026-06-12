@@ -2,7 +2,7 @@
 
 import { Platform } from 'react-native';
 
-import { getAppVersion as getNativeAppVersion } from '@/specs/NativeUsageStats';
+import { getAppVersion as getNativeAppVersion } from '@/specs/nativeUsageStatsApi';
 
 import { version } from '../../package.json';
 

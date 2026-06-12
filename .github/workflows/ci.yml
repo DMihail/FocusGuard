@@ -17,6 +17,7 @@ env:
   NODE_VERSION: '22'
   CI: 'true'
   NODE_OPTIONS: --max-old-space-size=4096
+  RCT_NEW_ARCH_ENABLED: '1'
 
 jobs:
   checks:

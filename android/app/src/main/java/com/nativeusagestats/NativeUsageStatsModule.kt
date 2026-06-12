@@ -1,6 +1,5 @@
 package com.nativeusagestats
 
-import android.app.Application
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
@@ -8,15 +7,15 @@ import com.facebook.react.bridge.ReadableArray
 import com.facebook.react.bridge.WritableMap
 import com.focusguard.DailyUsageRepository
 import com.focusguard.apps.InstalledAppsRepository
-import com.focusguard.bridge.PermissionsLifecycleBinding
-import com.focusguard.bridge.ReactBridgeMappers
 import com.focusguard.monitor.MonitorPermissions
 import com.focusguard.monitor.MonitorServiceHelper
-import com.focusguard.monitor.MonitorServiceStartResult
 import com.focusguard.permissions.PermissionChecker
-import com.facebook.react.ReactApplication
 import com.focusguard.permissions.PermissionRequester
 import com.focusguard.platform.AppInfo
+import com.focusguard.react.PermissionsChangedDispatcher
+import com.focusguard.react.PermissionsLifecycleBinding
+import com.focusguard.react.ReactNativeMappers
+import com.focusguard.storage.TrackingSnapshotWriter
 import java.util.concurrent.Executors
 
 /** Codegen Turbo Module — thin bridge over the FocusGuard Android domain layer. */
@@ -31,18 +30,17 @@ class NativeUsageStatsModule(
   private val dailyUsageRepository = DailyUsageRepository(appContext)
   private val ioExecutor = Executors.newSingleThreadExecutor()
 
+  private val emitPermissionsChangedCallback = { emitPermissionsChanged() }
   private val permissionsLifecycleBinding =
-      PermissionsLifecycleBinding(::emitPermissionsChanged)
+      PermissionsLifecycleBinding(emitPermissionsChangedCallback)
 
   init {
-    activeInstance = this
+    PermissionsChangedDispatcher.register(emitPermissionsChangedCallback)
     reactApplicationContext.addLifecycleEventListener(permissionsLifecycleBinding)
   }
 
   override fun invalidate() {
-    if (activeInstance === this) {
-      activeInstance = null
-    }
+    PermissionsChangedDispatcher.unregister(emitPermissionsChangedCallback)
     reactApplicationContext.removeLifecycleEventListener(permissionsLifecycleBinding)
     ioExecutor.shutdown()
     super.invalidate()
@@ -95,7 +93,7 @@ class NativeUsageStatsModule(
     ioExecutor.execute {
       try {
         val apps = installedAppsRepository.getLaunchableApps()
-        promise.resolve(ReactBridgeMappers.toInstalledAppsArray(apps))
+        promise.resolve(ReactNativeMappers.toInstalledAppsArray(apps))
       } catch (error: Exception) {
         promise.reject("installed_apps_failed", error.message, error)
       }
@@ -110,7 +108,7 @@ class NativeUsageStatsModule(
                 .mapNotNull { index -> packageNames.getString(index)?.takeIf { it.isNotEmpty() } }
 
         promise.resolve(
-            ReactBridgeMappers.toPackageUsageArray(
+            ReactNativeMappers.toPackageUsageArray(
                 dailyUsageRepository.getTodayForegroundMsForPackages(requestedPackages),
             ),
         )
@@ -129,6 +127,10 @@ class NativeUsageStatsModule(
     dailyUsageRepository.invalidateCache()
   }
 
+  override fun syncTrackingConfig(snapshotJson: String) {
+    TrackingSnapshotWriter.write(snapshotJson)
+  }
+
   private fun emitPermissionsChanged() {
     reactApplicationContext.runOnUiQueueThread {
       if (reactApplicationContext.hasActiveReactInstance()) {
@@ -143,26 +145,5 @@ class NativeUsageStatsModule(
 
   companion object {
     const val NAME = NativeUsageStatsSpec.NAME
-
-    @Volatile private var activeInstance: NativeUsageStatsModule? = null
-
-    fun emitPermissionsChanged(application: Application) {
-      val instance = activeInstance
-      if (instance != null) {
-        instance.emitPermissionsChanged()
-        return
-      }
-
-      val reactContext =
-          (application as? ReactApplication)?.reactHost?.currentReactContext ?: return
-
-      if (!reactContext.hasActiveReactInstance()) {
-        return
-      }
-
-      reactContext.runOnUiQueueThread {
-        activeInstance?.emitPermissionsChanged()
-      }
-    }
   }
 }

@@ -2,7 +2,7 @@
 
 import { Platform } from 'react-native';
 
-import { getAppDisplayName as getNativeAppDisplayName } from '@/specs/NativeUsageStats';
+import { getAppDisplayName as getNativeAppDisplayName } from '@/specs/nativeUsageStatsApi';
 
 import { displayName, name } from '../../app.json';
 

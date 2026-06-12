@@ -3,6 +3,9 @@ package com.focusguard.storage
 /**
  * MMKV / Zustand persist contract shared with JS (`source/store/persistSchema.ts`).
  * Keep storage keys and version numbers in sync when persisted store shapes change.
+ *
+ * JS writes the flat tracking snapshot via Turbo Module [syncTrackingConfig]; native monitor
+ * code reads [NATIVE_TRACKING_SNAPSHOT_KEY] first, then falls back to Zustand persist blobs.
  */
 object PersistSchema {
     const val MMKV_INSTANCE_ID = "focus-guard-storage"

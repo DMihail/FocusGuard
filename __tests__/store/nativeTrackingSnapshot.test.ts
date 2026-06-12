@@ -1,6 +1,7 @@
 /** @format */
 
 const mockSet = jest.fn();
+const mockSyncTrackingConfig = jest.fn();
 
 jest.mock('@/store/mmkv', () => ({
   storage: {
@@ -9,19 +10,27 @@ jest.mock('@/store/mmkv', () => ({
   zustandStorage: require('../helpers/mockZustandMmkv').mockZustandStorage,
 }));
 
+jest.mock('@/specs/nativeUsageStatsClient', () => ({
+  getNativeUsageStats: jest.fn(),
+}));
+
+import { getNativeUsageStats } from '@/specs/nativeUsageStatsClient';
 import { appLimitsStore } from '@/store/appLimitsStore';
 import { buildNativeTrackingSnapshot, syncNativeTrackingSnapshot } from '@/store/nativeTrackingSnapshot';
 import { NATIVE_TRACKING_SNAPSHOT_KEY } from '@/store/persistSchema';
 import { selectedAppsStore } from '@/store/selectedAppsStore';
+
+const mockGetNativeUsageStats = getNativeUsageStats as jest.MockedFunction<typeof getNativeUsageStats>;
 
 describe('nativeTrackingSnapshot', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     selectedAppsStore.setState({ apps: [] });
     appLimitsStore.setState({ limitsByPackage: {} });
+    mockGetNativeUsageStats.mockReturnValue({ syncTrackingConfig: mockSyncTrackingConfig } as never);
   });
 
-  it('writes a flat snapshot with tracked apps and limits', () => {
+  it('writes a flat snapshot through syncTrackingConfig when the turbo module is available', () => {
     selectedAppsStore.setState({
       apps: [
         {
@@ -41,6 +50,17 @@ describe('nativeTrackingSnapshot', () => {
 
     syncNativeTrackingSnapshot();
 
+    const snapshotJson = JSON.stringify(buildNativeTrackingSnapshot());
+    expect(mockSyncTrackingConfig).toHaveBeenCalledWith(snapshotJson);
+    expect(mockSet).not.toHaveBeenCalled();
+  });
+
+  it('falls back to MMKV when the turbo module is unavailable', () => {
+    mockGetNativeUsageStats.mockReturnValue(null);
+
+    syncNativeTrackingSnapshot();
+
     expect(mockSet).toHaveBeenCalledWith(NATIVE_TRACKING_SNAPSHOT_KEY, JSON.stringify(buildNativeTrackingSnapshot()));
+    expect(mockSyncTrackingConfig).not.toHaveBeenCalled();
   });
 });

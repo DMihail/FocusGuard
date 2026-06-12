@@ -1,5 +1,7 @@
 /** @format */
 
+import { getNativeUsageStats } from '@/specs/nativeUsageStatsClient';
+
 import { appLimitsStore } from './appLimitsStore';
 import { storage } from './mmkv';
 import { NATIVE_TRACKING_SNAPSHOT_KEY, NATIVE_TRACKING_SNAPSHOT_VERSION } from './persistSchema';
@@ -18,9 +20,17 @@ export const buildNativeTrackingSnapshot = (): NativeTrackingSnapshot => ({
   limitsByPackage: appLimitsStore.getState().limitsByPackage,
 });
 
-/** Writes a flat JSON snapshot native monitoring can read without parsing Zustand persist. */
+/** Writes the flat snapshot for native monitoring via Turbo Module, with MMKV fallback in tests. */
 export const syncNativeTrackingSnapshot = (): void => {
-  storage.set(NATIVE_TRACKING_SNAPSHOT_KEY, JSON.stringify(buildNativeTrackingSnapshot()));
+  const snapshotJson = JSON.stringify(buildNativeTrackingSnapshot());
+  const nativeModule = getNativeUsageStats();
+
+  if (nativeModule) {
+    nativeModule.syncTrackingConfig(snapshotJson);
+    return;
+  }
+
+  storage.set(NATIVE_TRACKING_SNAPSHOT_KEY, snapshotJson);
 };
 
 let unsubscribeSelectedApps: (() => void) | null = null;

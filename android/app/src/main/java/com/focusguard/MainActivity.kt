@@ -10,7 +10,7 @@ import com.facebook.react.ReactActivityDelegate
 import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint.fabricEnabled
 import com.facebook.react.defaults.DefaultReactActivityDelegate
 import com.focusguard.permissions.NotificationPermission
-import com.nativeusagestats.NativeUsageStatsModule
+import com.focusguard.react.PermissionsChangedDispatcher
 import com.swmansion.rnscreens.fragment.restoration.RNScreensFragmentFactory
 
 class MainActivity : ReactActivity() {
@@ -48,7 +48,7 @@ class MainActivity : ReactActivity() {
     super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 
     if (requestCode == NotificationPermission.REQUEST_CODE_POST_NOTIFICATIONS) {
-      NativeUsageStatsModule.emitPermissionsChanged(application)
+      PermissionsChangedDispatcher.emit(application)
     }
   }
 

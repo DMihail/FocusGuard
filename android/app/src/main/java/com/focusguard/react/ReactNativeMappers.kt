@@ -1,11 +1,11 @@
-package com.focusguard.bridge
+package com.focusguard.react
 
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.WritableArray
 import com.focusguard.apps.InstalledAppsRepository
 
-/** Maps domain models to React Native bridge payloads. */
-internal object ReactBridgeMappers {
+/** Maps domain models to React Native Turbo Module payloads. */
+internal object ReactNativeMappers {
 
     fun toInstalledAppsArray(apps: List<InstalledAppsRepository.InstalledApp>): WritableArray =
         Arguments.createArray().apply {

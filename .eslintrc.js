@@ -46,6 +46,23 @@ module.exports = {
   },
   overrides: [
     {
+      files: ['source/**/*.{ts,tsx}'],
+      rules: {
+        'no-restricted-imports': [
+          'error',
+          {
+            paths: [
+              {
+                name: 'react-native',
+                importNames: ['NativeModules', 'DeviceEventEmitter', 'NativeEventEmitter'],
+                message: 'Use Turbo Modules from @/specs instead of legacy bridge APIs.',
+              },
+            ],
+          },
+        ],
+      },
+    },
+    {
       files: ['*.ts', '*.tsx'],
       parser: '@typescript-eslint/parser',
       parserOptions: {

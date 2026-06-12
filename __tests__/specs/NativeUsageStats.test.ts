@@ -1,10 +1,10 @@
 /** @format */
 
 const mockPermissionsChangedSubscription = { remove: jest.fn() };
-let capturedPermissionsChangedListener: (() => void) | undefined;
+let capturedPermissionsChangedListener: ((event: { changedAtMs: number }) => void) | undefined;
 
 const mockUsageStats = {
-  onPermissionsChanged: jest.fn((listener: () => void) => {
+  onPermissionsChanged: jest.fn((listener: (event: { changedAtMs: number }) => void) => {
     capturedPermissionsChangedListener = listener;
     return mockPermissionsChangedSubscription;
   }),
@@ -26,28 +26,30 @@ const mockUsageStats = {
   getAppVersion: jest.fn(),
   isMonitorServiceRunning: jest.fn(),
   invalidateNativeCatalogCaches: jest.fn(),
+  syncTrackingConfig: jest.fn(),
 };
 
-const mockGet = jest.fn();
+jest.unmock('@/specs/nativeUsageStatsClient');
 
-jest.mock('react-native', () => ({
-  TurboModuleRegistry: {
-    get: (...args: unknown[]) => mockGet(...args),
-  },
+jest.mock('@/specs/nativeUsageStatsClient', () => ({
+  getNativeUsageStats: jest.fn(() => mockUsageStats),
 }));
 
-type NativeUsageStatsModule = typeof import('../../source/specs/NativeUsageStats');
+type NativeUsageStatsApi = typeof import('../../source/specs/nativeUsageStatsApi');
 
-const loadSpecs = (): NativeUsageStatsModule => {
+const loadSpecs = (): NativeUsageStatsApi => {
   jest.resetModules();
-  return require('../../source/specs/NativeUsageStats');
+  jest.unmock('@/specs/nativeUsageStatsClient');
+  jest.mock('@/specs/nativeUsageStatsClient', () => ({
+    getNativeUsageStats: jest.fn(() => mockUsageStats),
+  }));
+  return require('../../source/specs/nativeUsageStatsApi');
 };
 
 describe('NativeUsageStats', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     capturedPermissionsChangedListener = undefined;
-    mockGet.mockReturnValue(mockUsageStats);
     mockUsageStats.checkForPermission.mockReturnValue(false);
     mockUsageStats.getPackagesUsageToday.mockResolvedValue([]);
     mockUsageStats.getInstalledApplications.mockResolvedValue([]);
@@ -73,8 +75,12 @@ describe('NativeUsageStats', () => {
   });
 
   it('returns safe defaults when native module is unavailable', async () => {
-    mockGet.mockReturnValue(null);
-    const specs = loadSpecs();
+    jest.resetModules();
+    jest.unmock('@/specs/nativeUsageStatsClient');
+    jest.mock('@/specs/nativeUsageStatsClient', () => ({
+      getNativeUsageStats: jest.fn(() => null),
+    }));
+    const specs = require('../../source/specs/nativeUsageStatsApi') as NativeUsageStatsApi;
 
     expect(specs.checkForPermission()).toBe(false);
     expect(specs.checkForSystemAlertWindowPermission()).toBe(false);
@@ -94,7 +100,7 @@ describe('NativeUsageStats', () => {
     expect(() => specs.stopMonitorService()).not.toThrow();
   });
 
-  it('subscribes to codegen onPermissionsChanged events', () => {
+  it('subscribes to codegen onPermissionsChanged events with payload', () => {
     const listener = jest.fn();
     const specs = loadSpecs();
 
@@ -102,8 +108,8 @@ describe('NativeUsageStats', () => {
 
     expect(mockUsageStats.onPermissionsChanged).toHaveBeenCalledTimes(1);
 
-    capturedPermissionsChangedListener?.();
-    expect(listener).toHaveBeenCalledTimes(1);
+    capturedPermissionsChangedListener?.({ changedAtMs: 42 });
+    expect(listener).toHaveBeenCalledWith({ changedAtMs: 42 });
 
     subscription.remove();
     expect(mockPermissionsChangedSubscription.remove).toHaveBeenCalledTimes(1);

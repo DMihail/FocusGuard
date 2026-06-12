@@ -3,7 +3,7 @@ package com.focusguard.storage
 import com.tencent.mmkv.MMKV
 import org.json.JSONObject
 
-/** Flat tracking snapshot written by JS [syncNativeTrackingSnapshot]. */
+/** Flat tracking snapshot written via Turbo Module [syncTrackingConfig] or JS MMKV fallback. */
 internal object NativeTrackingSnapshot {
 
     data class Snapshot(
@@ -49,5 +49,10 @@ internal object NativeTrackingSnapshot {
         cachedRaw = raw
         cachedSnapshot = snapshot
         return snapshot
+    }
+
+    fun invalidateCache() {
+        cachedRaw = null
+        cachedSnapshot = null
     }
 }

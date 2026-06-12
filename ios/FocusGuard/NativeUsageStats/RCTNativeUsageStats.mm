@@ -1,12 +1,9 @@
 #import "RCTNativeUsageStats.h"
 
-#import <React/RCTBridgeModule.h>
 #import <ReactCommon/RCTTurboModule.h>
 #import <ReactCodegen/NativeUsageStatsSpecJSI.h>
 
 @implementation RCTNativeUsageStats
-
-RCT_EXPORT_MODULE(NativeUsageStats)
 
 - (NSNumber *)checkForPermission
 {
@@ -90,6 +87,10 @@ RCT_EXPORT_MODULE(NativeUsageStats)
 }
 
 - (void)invalidateNativeCatalogCaches
+{
+}
+
+- (void)syncTrackingConfig:(NSString *)snapshotJson
 {
 }
 

@@ -3,6 +3,17 @@
 /**
  * MMKV / Zustand persist contract shared with Android (`PersistSchema.kt`).
  * Keep storage keys and version numbers in sync when persisted store shapes change.
+ *
+ * ## JS ↔ native data flow
+ *
+ * - **Turbo Module (`NativeUsageStats`)** — permissions, usage catalogs, monitor control,
+ *   and `syncTrackingConfig` for the flat tracking snapshot.
+ * - **Shared MMKV (`focus-guard-storage`)** — Zustand persist blobs plus the flat
+ *   `native-tracking-snapshot-v1` key. Native monitor code reads the snapshot first,
+ *   then falls back to parsing Zustand persist when the snapshot is absent.
+ *
+ * Prefer `syncNativeTrackingSnapshot()` (calls `syncTrackingConfig`) over writing the
+ * snapshot key directly so native cache invalidation stays in sync.
  */
 export const MMKV_INSTANCE_ID = 'focus-guard-storage';
 
