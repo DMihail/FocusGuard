@@ -39,4 +39,21 @@ describe('createNativeKeyedCatalogLoader', () => {
       'com.game.puzzle': 45,
     });
   });
+
+  it('loads all keys when concurrent requests use different key sets', async () => {
+    const readKeys = jest.fn(
+      (keys: readonly string[]) => Object.fromEntries(keys.map((key) => [key, key.length])) as Record<string, number>,
+    );
+    const loader = createNativeKeyedCatalogLoader<Record<string, number>>({
+      label: 'usageCatalog',
+      readKeys,
+    });
+
+    const [first, second] = await Promise.all([loader.loadForKeys(['com.a']), loader.loadForKeys(['com.a', 'com.bb'])]);
+
+    expect(first).toEqual({ 'com.a': 5 });
+    expect(second).toEqual({ 'com.a': 5, 'com.bb': 6 });
+    expect(readKeys).toHaveBeenCalledTimes(1);
+    expect(readKeys).toHaveBeenCalledWith(['com.a', 'com.bb']);
+  });
 });

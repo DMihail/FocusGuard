@@ -7,3 +7,4 @@ export { ScreenBackHeader } from './ScreenBackHeader';
 export { ScreenSafeArea } from './ScreenSafeArea';
 export { SplashBranding } from './SplashBranding';
 export { SystemChrome } from './SystemChrome';
+export { UsageRefreshIndicator } from './UsageRefreshIndicator';

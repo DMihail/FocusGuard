@@ -1,3 +1,4 @@
 /** @format */
 
-export * from './NativeUsageStats';
+export type { PermissionsChangedEvent, Spec } from './NativeUsageStats';
+export * from './nativeUsageStatsApi';

@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.core.content.ContextCompat
+import com.focusguard.permissions.BatteryOptimizationAccess
 
 /**
  * Centralized checks for all manifest-declared permissions required by [FocusGuardMonitorService].
@@ -33,7 +34,8 @@ internal object MonitorPermissions {
   fun canRunMonitorService(context: Context): Boolean {
     return hasManifestMonitorPermissions(context) &&
         UsageAccess.hasAccess(context) &&
-        OverlayAccess.hasAccess(context)
+        OverlayAccess.hasAccess(context) &&
+        BatteryOptimizationAccess.isExempt(context)
   }
 
   /** @return `true` if `RECEIVE_BOOT_COMPLETED` is granted. */

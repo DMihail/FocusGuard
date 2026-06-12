@@ -34,7 +34,7 @@ source/
 
 android/.../com/focusguard/
 ├── apps/                Installed apps catalog
-├── bridge/              RN mappers and lifecycle binding
+├── react/               Turbo Module mappers, lifecycle binding, permission events
 ├── monitor/             Permission helpers used by the tracking service
 ├── overlay/             WindowManager block UI
 ├── permissions/         Runtime permission requests and events
@@ -143,6 +143,16 @@ GitHub Actions (`.github/workflows/ci.yml`): on every push / PR runs `npm run ch
 4. Jest (`test:ci` — limited workers, `forceExit` to avoid open-handle hangs)
 
 Native Android builds are **not** run in CI — use Android Studio or `npm run android:bundle:release` locally.
+
+## Native bridge architecture
+
+| Channel                                 | Purpose                                                                                              |
+| --------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| **Turbo Module (`NativeUsageStats`)**   | Permissions, usage catalogs, monitor start/stop, `onPermissionsChanged` events, `syncTrackingConfig` |
+| **Shared MMKV (`focus-guard-storage`)** | Zustand persist + flat `native-tracking-snapshot-v1` read by the monitor service                     |
+
+JS writes the tracking snapshot through `syncTrackingConfig` (Turbo Module) so native cache invalidation stays in sync.
+Storage keys and schema versions live in `source/store/persistSchema.ts` ↔ `PersistSchema.kt`.
 
 ## Tech stack
 

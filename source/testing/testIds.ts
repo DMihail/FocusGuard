@@ -7,6 +7,7 @@ const toSegment = (value: string) => value.replace(/[^a-zA-Z0-9-_]/g, '-');
 export const testIds = {
   app: {
     loader: 'app-loader',
+    usageLoader: 'app-usage-loader',
   },
   onboarding: {
     screen: 'onboarding-screen',
@@ -41,6 +42,7 @@ export const testIds = {
     viewAllAppsButton: 'dashboard-view-all-apps-button',
     appsList: 'dashboard-apps-list',
     appsEmpty: 'dashboard-apps-empty',
+    usageLoader: 'dashboard-usage-loader',
     appRow: (packageName: string) => `dashboard-app-row-${toSegment(packageName)}`,
   },
   trackedApps: {
@@ -50,6 +52,7 @@ export const testIds = {
     backButton: 'tracked-apps-back-button',
     appCount: 'tracked-apps-count',
     empty: 'tracked-apps-empty',
+    usageLoader: 'tracked-apps-usage-loader',
     appRow: (packageName: string) => `tracked-apps-row-${toSegment(packageName)}`,
   },
   legal: {

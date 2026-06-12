@@ -13,59 +13,44 @@ import {
   TrackedAppsScreen,
 } from '@/screen';
 
+import { rootScreenTransitionOptions } from './screenTransitionOptions';
 import type { RootStackParamList } from './types';
 
 const rootScreens = {
   Onboarding: {
     screen: OnboardingScreen,
-    options: {
-      headerShown: false,
-    },
+    options: rootScreenTransitionOptions.onboarding,
   },
   EnablePermissions: {
     screen: EnablePermissionsScreen,
-    options: {
-      headerShown: false,
-    },
+    options: rootScreenTransitionOptions.enablePermissions,
   },
   Dashboard: {
     screen: DashboardScreen,
     linking: 'dashboard',
-    options: {
-      headerShown: false,
-    },
+    options: rootScreenTransitionOptions.dashboard,
   },
   ManageApps: {
     screen: ManageAppsScreen,
-    options: {
-      headerShown: false,
-    },
+    options: rootScreenTransitionOptions.manageApps,
   },
   TrackedApps: {
     screen: TrackedAppsScreen,
     linking: 'tracked-apps',
-    options: {
-      headerShown: false,
-    },
+    options: rootScreenTransitionOptions.trackedApps,
   },
   ConfigureLimits: {
     screen: ConfigureLimitsScreen,
     linking: 'configure/:packageName',
-    options: {
-      headerShown: false,
-    },
+    options: rootScreenTransitionOptions.configureLimits,
   },
   Settings: {
     screen: SettingsScreen,
-    options: {
-      headerShown: false,
-    },
+    options: rootScreenTransitionOptions.settings,
   },
   LegalDocument: {
     screen: LegalDocumentScreen,
-    options: {
-      headerShown: false,
-    },
+    options: rootScreenTransitionOptions.legalDocument,
   },
 } as const;
 

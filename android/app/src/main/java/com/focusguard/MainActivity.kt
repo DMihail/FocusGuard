@@ -10,7 +10,7 @@ import com.facebook.react.ReactActivityDelegate
 import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint.fabricEnabled
 import com.facebook.react.defaults.DefaultReactActivityDelegate
 import com.focusguard.permissions.NotificationPermission
-import com.focusguard.permissions.PermissionEventEmitter
+import com.focusguard.react.PermissionsChangedDispatcher
 import com.swmansion.rnscreens.fragment.restoration.RNScreensFragmentFactory
 
 class MainActivity : ReactActivity() {
@@ -20,7 +20,8 @@ class MainActivity : ReactActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     installSplashScreen()
     supportFragmentManager.fragmentFactory = RNScreensFragmentFactory()
-    super.onCreate(savedInstanceState)
+    // Screen fragments must not be restored from saved state (react-native-screens).
+    super.onCreate(null)
     applySystemChromeColors()
   }
 
@@ -47,7 +48,7 @@ class MainActivity : ReactActivity() {
     super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 
     if (requestCode == NotificationPermission.REQUEST_CODE_POST_NOTIFICATIONS) {
-      PermissionEventEmitter.emit(application)
+      PermissionsChangedDispatcher.emit(application)
     }
   }
 

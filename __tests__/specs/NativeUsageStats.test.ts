@@ -1,6 +1,13 @@
 /** @format */
 
+const mockPermissionsChangedSubscription = { remove: jest.fn() };
+let capturedPermissionsChangedListener: ((event: { changedAtMs: number }) => void) | undefined;
+
 const mockUsageStats = {
+  onPermissionsChanged: jest.fn((listener: (event: { changedAtMs: number }) => void) => {
+    capturedPermissionsChangedListener = listener;
+    return mockPermissionsChangedSubscription;
+  }),
   checkForPermission: jest.fn(),
   checkForSystemAlertWindowPermission: jest.fn(),
   checkForNotificationsPermission: jest.fn(),
@@ -13,42 +20,46 @@ const mockUsageStats = {
   requestNotificationsPermission: jest.fn(),
   openNotificationsSettings: jest.fn(),
   requestIgnoreBatteryOptimizationsPermission: jest.fn(),
-  getPackageUsageToday: jest.fn(),
+  getPackagesUsageToday: jest.fn(),
   getInstalledApplications: jest.fn(),
   getAppDisplayName: jest.fn(),
   getAppVersion: jest.fn(),
   isMonitorServiceRunning: jest.fn(),
   invalidateNativeCatalogCaches: jest.fn(),
+  syncTrackingConfig: jest.fn(),
 };
 
-const mockGet = jest.fn();
+jest.unmock('@/specs/nativeUsageStatsClient');
 
-jest.mock('react-native', () => ({
-  TurboModuleRegistry: {
-    get: (...args: unknown[]) => mockGet(...args),
-  },
+jest.mock('@/specs/nativeUsageStatsClient', () => ({
+  getNativeUsageStats: jest.fn(() => mockUsageStats),
 }));
 
-type NativeUsageStatsModule = typeof import('../../source/specs/NativeUsageStats');
+type NativeUsageStatsApi = typeof import('../../source/specs/nativeUsageStatsApi');
 
-const loadSpecs = (): NativeUsageStatsModule => {
+const loadSpecs = (): NativeUsageStatsApi => {
   jest.resetModules();
-  return require('../../source/specs/NativeUsageStats');
+  jest.unmock('@/specs/nativeUsageStatsClient');
+  jest.mock('@/specs/nativeUsageStatsClient', () => ({
+    getNativeUsageStats: jest.fn(() => mockUsageStats),
+  }));
+  return require('../../source/specs/nativeUsageStatsApi');
 };
 
 describe('NativeUsageStats', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    mockGet.mockReturnValue(mockUsageStats);
+    capturedPermissionsChangedListener = undefined;
     mockUsageStats.checkForPermission.mockReturnValue(false);
-    mockUsageStats.getPackageUsageToday.mockReturnValue(0);
-    mockUsageStats.getInstalledApplications.mockReturnValue([]);
+    mockUsageStats.getPackagesUsageToday.mockResolvedValue([]);
+    mockUsageStats.getInstalledApplications.mockResolvedValue([]);
     mockUsageStats.isMonitorServiceRunning.mockReturnValue(false);
     mockUsageStats.getAppDisplayName.mockReturnValue('Keept');
     mockUsageStats.getAppVersion.mockReturnValue('1.0.0');
+    mockUsageStats.startMonitorService.mockReturnValue({ started: true });
   });
 
-  it('delegates native module calls when the turbo module is available', () => {
+  it('delegates native module calls when the turbo module is available', async () => {
     mockUsageStats.checkForPermission.mockReturnValue(true);
     mockUsageStats.isMonitorServiceRunning.mockReturnValue(true);
 
@@ -56,28 +67,51 @@ describe('NativeUsageStats', () => {
 
     expect(specs.checkForPermission()).toBe(true);
     expect(specs.isMonitorServiceRunning()).toBe(true);
-    specs.startMonitorService();
+    expect(specs.startMonitorService()).toEqual({ started: true });
     specs.stopMonitorService();
+    await expect(specs.getInstalledApplications()).resolves.toEqual([]);
     expect(mockUsageStats.startMonitorService).toHaveBeenCalledTimes(1);
     expect(mockUsageStats.stopMonitorService).toHaveBeenCalledTimes(1);
   });
 
-  it('returns safe defaults when native module is unavailable', () => {
-    mockGet.mockReturnValue(null);
-    const specs = loadSpecs();
+  it('returns safe defaults when native module is unavailable', async () => {
+    jest.resetModules();
+    jest.unmock('@/specs/nativeUsageStatsClient');
+    jest.mock('@/specs/nativeUsageStatsClient', () => ({
+      getNativeUsageStats: jest.fn(() => null),
+    }));
+    const specs = require('../../source/specs/nativeUsageStatsApi') as NativeUsageStatsApi;
 
     expect(specs.checkForPermission()).toBe(false);
     expect(specs.checkForSystemAlertWindowPermission()).toBe(false);
     expect(specs.checkForIgnoreBatteryOptimizationsPermission()).toBe(false);
     expect(specs.checkForManifestMonitorPermissions()).toBe(false);
     expect(specs.checkForNotificationsPermission()).toBe(false);
-    expect(specs.getPackageUsageToday('com.example.app')).toBe(0);
-    expect(specs.getInstalledApplications()).toEqual([]);
+    await expect(specs.getPackagesUsageToday(['com.example.app'])).resolves.toEqual([]);
+    await expect(specs.getInstalledApplications()).resolves.toEqual([]);
     expect(specs.isMonitorServiceRunning()).toBe(false);
+    expect(specs.startMonitorService()).toEqual({
+      started: false,
+      reason: 'manifest_permissions_missing',
+    });
     expect(specs.getAppDisplayName()).toBe('');
     expect(specs.getAppVersion()).toBe('');
     expect(() => specs.requestUsageStatsPermission()).not.toThrow();
-    expect(() => specs.startMonitorService()).not.toThrow();
     expect(() => specs.stopMonitorService()).not.toThrow();
+  });
+
+  it('subscribes to codegen onPermissionsChanged events with payload', () => {
+    const listener = jest.fn();
+    const specs = loadSpecs();
+
+    const subscription = specs.subscribePermissionsChanged(listener);
+
+    expect(mockUsageStats.onPermissionsChanged).toHaveBeenCalledTimes(1);
+
+    capturedPermissionsChangedListener?.({ changedAtMs: 42 });
+    expect(listener).toHaveBeenCalledWith({ changedAtMs: 42 });
+
+    subscription.remove();
+    expect(mockPermissionsChangedSubscription.remove).toHaveBeenCalledTimes(1);
   });
 });

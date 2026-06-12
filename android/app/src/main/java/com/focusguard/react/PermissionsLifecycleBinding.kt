@@ -1,4 +1,4 @@
-package com.focusguard.bridge
+package com.focusguard.react
 
 import com.facebook.react.bridge.LifecycleEventListener
 

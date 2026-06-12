@@ -1,10 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { DeviceEventEmitter } from 'react-native';
 
 import { getAppDisplayName } from '@/constants/appDisplayName';
 import { getPermissionStatuses, invalidatePermissionSnapshot } from '@/domain/permissionSnapshot';
 import { useAppStateOnActive } from '@/hooks/useAppStateOnActive';
-import { PERMISSIONS_CHANGED_EVENT } from '@/utils/permissions/notificationPermissionEvents';
+import { subscribePermissionsChanged } from '@/utils/permissions/notificationPermissionEvents';
 import { scheduleAfterInteractions } from '@/utils/scheduleAfterInteractions';
 
 import { createPermissions, PERMISSION_IDS } from '../data/permissions';
@@ -48,7 +47,7 @@ export const usePermissionsSync = () => {
   useAppStateOnActive(syncOnActive);
 
   useEffect(() => {
-    const subscription = DeviceEventEmitter.addListener(PERMISSIONS_CHANGED_EVENT, () => syncStatuses(true));
+    const subscription = subscribePermissionsChanged(() => syncStatuses(true));
 
     return () => subscription.remove();
   }, [syncStatuses]);

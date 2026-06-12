@@ -1,18 +1,22 @@
 package com.nativeusagestats
 
-import android.app.Application
+import com.facebook.react.bridge.Arguments
+import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
-import com.facebook.react.bridge.WritableArray
+import com.facebook.react.bridge.ReadableArray
+import com.facebook.react.bridge.WritableMap
 import com.focusguard.DailyUsageRepository
 import com.focusguard.apps.InstalledAppsRepository
-import com.focusguard.bridge.PermissionsLifecycleBinding
-import com.focusguard.bridge.ReactBridgeMappers
 import com.focusguard.monitor.MonitorPermissions
 import com.focusguard.monitor.MonitorServiceHelper
 import com.focusguard.permissions.PermissionChecker
-import com.focusguard.permissions.PermissionEventEmitter
 import com.focusguard.permissions.PermissionRequester
 import com.focusguard.platform.AppInfo
+import com.focusguard.react.PermissionsChangedDispatcher
+import com.focusguard.react.PermissionsLifecycleBinding
+import com.focusguard.react.ReactNativeMappers
+import com.focusguard.storage.TrackingSnapshotWriter
+import java.util.concurrent.Executors
 
 /** Codegen Turbo Module — thin bridge over the FocusGuard Android domain layer. */
 class NativeUsageStatsModule(
@@ -24,16 +28,21 @@ class NativeUsageStatsModule(
       PermissionRequester(appContext) { reactApplicationContext.currentActivity }
   private val installedAppsRepository = InstalledAppsRepository(appContext)
   private val dailyUsageRepository = DailyUsageRepository(appContext)
+  private val ioExecutor = Executors.newSingleThreadExecutor()
 
+  private val emitPermissionsChangedCallback = { emitPermissionsChanged() }
   private val permissionsLifecycleBinding =
-      PermissionsLifecycleBinding(::emitPermissionsChanged)
+      PermissionsLifecycleBinding(emitPermissionsChangedCallback)
 
   init {
+    PermissionsChangedDispatcher.register(emitPermissionsChangedCallback)
     reactApplicationContext.addLifecycleEventListener(permissionsLifecycleBinding)
   }
 
   override fun invalidate() {
+    PermissionsChangedDispatcher.unregister(emitPermissionsChangedCallback)
     reactApplicationContext.removeLifecycleEventListener(permissionsLifecycleBinding)
+    ioExecutor.shutdown()
     super.invalidate()
   }
 
@@ -51,9 +60,8 @@ class NativeUsageStatsModule(
   override fun checkForManifestMonitorPermissions(): Boolean =
       MonitorPermissions.hasManifestMonitorPermissions(appContext)
 
-  override fun startMonitorService() {
-    MonitorServiceHelper.start(appContext)
-  }
+  override fun startMonitorService(): WritableMap =
+      MonitorServiceHelper.start(appContext).toWritableMap()
 
   override fun stopMonitorService() {
     MonitorServiceHelper.stop(appContext)
@@ -81,11 +89,34 @@ class NativeUsageStatsModule(
     permissionRequester.requestBatteryOptimizationExemption()
   }
 
-  override fun getInstalledApplications(): WritableArray =
-      ReactBridgeMappers.toInstalledAppsArray(installedAppsRepository.getLaunchableApps())
+  override fun getInstalledApplications(promise: Promise) {
+    ioExecutor.execute {
+      try {
+        val apps = installedAppsRepository.getLaunchableApps()
+        promise.resolve(ReactNativeMappers.toInstalledAppsArray(apps))
+      } catch (error: Exception) {
+        promise.reject("installed_apps_failed", error.message, error)
+      }
+    }
+  }
 
-  override fun getPackageUsageToday(packageName: String): Double =
-      dailyUsageRepository.getTodayForegroundMs(packageName).toDouble()
+  override fun getPackagesUsageToday(packageNames: ReadableArray, promise: Promise) {
+    ioExecutor.execute {
+      try {
+        val requestedPackages =
+            (0 until packageNames.size())
+                .mapNotNull { index -> packageNames.getString(index)?.takeIf { it.isNotEmpty() } }
+
+        promise.resolve(
+            ReactNativeMappers.toPackageUsageArray(
+                dailyUsageRepository.getTodayForegroundMsForPackages(requestedPackages),
+            ),
+        )
+      } catch (error: Exception) {
+        promise.reject("usage_stats_failed", error.message, error)
+      }
+    }
+  }
 
   override fun getAppDisplayName(): String = AppInfo.getDisplayName(appContext)
 
@@ -96,8 +127,20 @@ class NativeUsageStatsModule(
     dailyUsageRepository.invalidateCache()
   }
 
+  override fun syncTrackingConfig(snapshotJson: String) {
+    TrackingSnapshotWriter.write(snapshotJson)
+  }
+
   private fun emitPermissionsChanged() {
-    PermissionEventEmitter.emit(appContext as Application)
+    reactApplicationContext.runOnUiQueueThread {
+      if (reactApplicationContext.hasActiveReactInstance()) {
+        emitOnPermissionsChanged(
+            Arguments.createMap().apply {
+              putDouble("changedAtMs", System.currentTimeMillis().toDouble())
+            },
+        )
+      }
+    }
   }
 
   companion object {

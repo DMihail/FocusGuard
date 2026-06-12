@@ -5,14 +5,10 @@ import { createNativeKeyedCatalogLoader } from './createNativeCatalogLoader';
 
 export type UsageByPackage = Record<string, number>;
 
-const readUsageForPackages = (packageNames: readonly string[]): UsageByPackage => {
-  const usageByPackage: UsageByPackage = {};
+const readUsageForPackages = async (packageNames: readonly string[]): Promise<UsageByPackage> => {
+  const entries = await NativeSpecs.getPackagesUsageToday(packageNames);
 
-  for (const packageName of packageNames) {
-    usageByPackage[packageName] = NativeSpecs.getPackageUsageToday(packageName);
-  }
-
-  return usageByPackage;
+  return Object.fromEntries(entries.map((entry) => [entry.packageName, entry.usageMs]));
 };
 
 const usageStatsCatalog = createNativeKeyedCatalogLoader<UsageByPackage>({
