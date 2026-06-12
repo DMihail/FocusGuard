@@ -3,24 +3,29 @@
 import { useCallback, useEffect } from 'react';
 
 import { useAppStateOnActive } from '@/hooks/useAppStateOnActive';
-import { isMonitorServiceRunning } from '@/specs';
-import { monitoringStore } from '@/store';
+import { monitoringStore, restoreMonitoringSession } from '@/store/monitoringStore';
+import { scheduleAfterInteractions } from '@/utils/scheduleAfterInteractions';
 
-/** Keeps `isMonitoring` in sync when the foreground service was stopped outside the app. */
+/** Restores or reconciles the persisted focus session after hydration and app resume. */
 export const useMonitoringServiceSync = (isEnabled: boolean): void => {
   const sync = useCallback(() => {
+    if (!isEnabled || !monitoringStore.persist.hasHydrated()) {
+      return;
+    }
+
+    restoreMonitoringSession();
+  }, [isEnabled]);
+
+  useEffect(() => {
     if (!isEnabled) {
       return;
     }
 
-    if (!isMonitorServiceRunning() && monitoringStore.getState().isMonitoring) {
-      monitoringStore.setState({ isMonitoring: false });
-    }
-  }, [isEnabled]);
+    const unsubscribeHydration = monitoringStore.persist.onFinishHydration(sync);
+    scheduleAfterInteractions(sync);
 
-  useEffect(() => {
-    sync();
-  }, [sync]);
+    return unsubscribeHydration;
+  }, [isEnabled, sync]);
 
   useAppStateOnActive(sync);
 };

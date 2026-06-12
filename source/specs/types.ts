@@ -1,5 +1,11 @@
 /** @format */
 
+/** Daily foreground usage for a single tracked package. */
+export type PackageUsage = Readonly<{
+  packageName: string;
+  usageMs: number;
+}>;
+
 /** Basic info about an installed launchable application. */
 export type InstallApp = Readonly<{
   /** Unique application identifier, e.g. `com.example.app`. */

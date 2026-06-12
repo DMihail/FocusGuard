@@ -2,9 +2,9 @@ import { TurboModuleRegistry } from 'react-native';
 
 import type { TurboModule } from 'react-native';
 
-import type { InstallApp } from './types';
+import type { InstallApp, PackageUsage } from './types';
 
-export type { InstallApp } from './types';
+export type { InstallApp, PackageUsage } from './types';
 
 export interface Spec extends TurboModule {
   checkForPermission(): boolean;
@@ -21,6 +21,7 @@ export interface Spec extends TurboModule {
   openNotificationsSettings(): void;
   requestIgnoreBatteryOptimizationsPermission(): void;
   getPackageUsageToday(packageName: string): number;
+  getPackagesUsageToday(packageNames: string[]): PackageUsage[];
   getInstalledApplications(): InstallApp[];
   getAppDisplayName(): string;
   getAppVersion(): string;
@@ -73,6 +74,9 @@ export const requestIgnoreBatteryOptimizationsPermission = (): void => {
 };
 
 export const getPackageUsageToday = (packageName: string): number => usageStats?.getPackageUsageToday(packageName) ?? 0;
+
+export const getPackagesUsageToday = (packageNames: readonly string[]): PackageUsage[] =>
+  usageStats?.getPackagesUsageToday([...packageNames]) ?? [];
 
 export const getInstalledApplications = (): InstallApp[] => usageStats?.getInstalledApplications() ?? [];
 

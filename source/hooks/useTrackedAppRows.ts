@@ -10,6 +10,7 @@ import { buildDashboardAppRows, type DashboardAppRow } from '@/utils/usage/dashb
 export const useTrackedAppRows = (): {
   appRows: DashboardAppRow[];
   isRefreshingUsage: boolean;
+  showUsageRefreshIndicator: boolean;
   refreshUsage: (force?: boolean) => Promise<void>;
 } => {
   const isFocused = useIsFocused();
@@ -58,5 +59,10 @@ export const useTrackedAppRows = (): {
     [limitsByPackage, selectedApps, usageByPackage],
   );
 
-  return { appRows, isRefreshingUsage, refreshUsage };
+  return {
+    appRows,
+    isRefreshingUsage,
+    showUsageRefreshIndicator: isFocused && isRefreshingUsage,
+    refreshUsage,
+  };
 };

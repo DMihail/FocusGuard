@@ -2,7 +2,7 @@
 
 import { StyleSheet } from 'react-native';
 
-import { borderRadius, colors, fontSize, layoutPresets, spacing, textPresets, typography } from '@/theme';
+import { borderRadius, colors, fontSize, layoutPresets, lineHeight, spacing, textPresets, typography } from '@/theme';
 
 export const dashboardStyles = StyleSheet.create({
   screen: layoutPresets.screen,
@@ -174,19 +174,17 @@ export const dashboardStyles = StyleSheet.create({
   },
   quickActions: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
+    alignItems: 'stretch',
     gap: spacing.md,
   },
   quickActionCard: {
-    flexGrow: 1,
-    flexBasis: '46%',
-    minWidth: 140,
+    flex: 1,
+    minWidth: 0,
     ...layoutPresets.card,
     padding: spacing.lg,
     gap: spacing.xs,
   },
   quickActionCardActive: {
-    borderWidth: 1,
     borderColor: colors.accent,
   },
   quickActionCardDisabled: {
@@ -207,10 +205,12 @@ export const dashboardStyles = StyleSheet.create({
   quickActionTitle: {
     ...typography.sectionTitle,
     color: colors.onSurface,
+    minHeight: lineHeight.md * 2,
   },
   quickActionTitleMuted: {
     ...typography.sectionTitle,
     color: colors.textPrimary,
+    minHeight: lineHeight.md * 2,
   },
   quickActionSubtitle: {
     ...typography.caption,

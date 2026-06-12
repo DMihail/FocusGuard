@@ -65,7 +65,9 @@ export const QuickActionsSection = memo(
           <View style={dashboardStyles.quickActionIconBadge}>
             <FocusModeSvg />
           </View>
-          <Text style={dashboardStyles.quickActionTitle}>{isMonitoring ? 'Stop Focus Mode' : 'Focus Mode'}</Text>
+          <Text style={dashboardStyles.quickActionTitle} numberOfLines={2}>
+            {isMonitoring ? 'Stop Focus Mode' : 'Focus Mode'}
+          </Text>
           <Text style={dashboardStyles.quickActionSubtitle}>{monitoringSubtitle}</Text>
         </Pressable>
 
@@ -79,7 +81,9 @@ export const QuickActionsSection = memo(
           <View style={[dashboardStyles.quickActionIconBadge, dashboardStyles.quickActionIconMuted]}>
             <ManageAppsSvg />
           </View>
-          <Text style={dashboardStyles.quickActionTitleMuted}>Manage Apps</Text>
+          <Text style={dashboardStyles.quickActionTitleMuted} numberOfLines={2}>
+            Manage Apps
+          </Text>
           <Text style={dashboardStyles.quickActionSubtitleMuted}>Set limits</Text>
         </Pressable>
       </View>

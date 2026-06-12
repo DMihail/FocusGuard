@@ -33,7 +33,7 @@ export const DashboardScreen = () => {
     openConfigureLimits,
     monitoringSubtitle,
     refreshControl,
-    isRefreshingUsage,
+    showUsageRefreshIndicator,
     isPullRefreshing,
   } = useDashboard();
 
@@ -97,7 +97,7 @@ export const DashboardScreen = () => {
           {...SECTION_SCROLL_FLAT_LIST_PROPS}
         />
         <UsageRefreshIndicator
-          visible={isRefreshingUsage && !isPullRefreshing}
+          visible={showUsageRefreshIndicator && !isPullRefreshing}
           testID={testIds.dashboard.usageLoader}
         />
       </View>

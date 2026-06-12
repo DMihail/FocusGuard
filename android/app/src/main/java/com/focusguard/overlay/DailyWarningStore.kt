@@ -1,16 +1,15 @@
 package com.focusguard.overlay
 
+import com.focusguard.storage.PersistSchema
 import com.tencent.mmkv.MMKV
 import java.util.Calendar
 
 /** Persists one warning notification per app per local calendar day. */
 internal object DailyWarningStore {
-
-    private const val MMKV_INSTANCE_ID = "focus-guard-storage"
     private const val KEY_PREFIX = "daily-warning-"
 
     private val mmkv: MMKV? =
-        MMKV.mmkvWithID(MMKV_INSTANCE_ID, MMKV.MULTI_PROCESS_MODE)
+        MMKV.mmkvWithID(PersistSchema.MMKV_INSTANCE_ID, MMKV.MULTI_PROCESS_MODE)
 
     fun wasWarningShownToday(packageName: String): Boolean {
         val key = keyForToday(packageName)

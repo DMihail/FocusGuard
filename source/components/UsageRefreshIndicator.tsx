@@ -15,7 +15,7 @@ export const UsageRefreshIndicator = memo(({ visible, testID }: UsageRefreshIndi
   <Activity mode={visible ? 'visible' : 'hidden'}>
     <View style={styles.overlay} pointerEvents="none">
       <ActivityIndicator
-        size="small"
+        size="large"
         color={colors.accent}
         accessibilityLabel="Updating usage data"
         testID={testID ?? testIds.app.usageLoader}
@@ -31,7 +31,7 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFill,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(28, 27, 31, 0.45)',
+    backgroundColor: colors.background,
     zIndex: 1,
   },
 });

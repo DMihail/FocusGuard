@@ -3,11 +3,15 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
-import { startMonitorService, stopMonitorService } from '@/specs';
+import { isMonitorServiceRunning, startMonitorService, stopMonitorService } from '@/specs';
 import { canStartMonitoring } from '@/utils/monitoring/canStartMonitoring';
+import { scheduleAfterInteractions } from '@/utils/scheduleAfterInteractions';
 
 import { zustandStorage } from './mmkv';
+import { MONITORING_PERSIST_VERSION, PERSIST_STORAGE_KEYS } from './persistSchema';
 import type { MonitoringStore } from './types';
+
+type MonitoringPersistedState = Pick<MonitoringStore, 'isMonitoring'>;
 
 /** Persisted focus-mode toggle; starts/stops the native monitor foreground service. */
 export const monitoringStore = create<MonitoringStore>()(
@@ -22,30 +26,50 @@ export const monitoringStore = create<MonitoringStore>()(
           if (!canStartMonitoring()) {
             return;
           }
+
           startMonitorService();
-        } else {
-          stopMonitorService();
+          set({ isMonitoring: true });
+          scheduleAfterInteractions(() => {
+            if (!get().isMonitoring || isMonitorServiceRunning()) {
+              return;
+            }
+
+            set({ isMonitoring: false });
+          });
+          return;
         }
 
-        set({ isMonitoring: next });
+        stopMonitorService();
+        set({ isMonitoring: false });
       },
     }),
     {
-      name: 'monitoring-storage',
+      name: PERSIST_STORAGE_KEYS.monitoring,
+      version: MONITORING_PERSIST_VERSION,
       storage: createJSONStorage(() => zustandStorage),
       partialize: (state) => ({ isMonitoring: state.isMonitoring }),
-      onRehydrateStorage: () => (state) => {
-        if (!state?.isMonitoring) {
-          return;
-        }
-
-        if (canStartMonitoring()) {
-          startMonitorService();
-          return;
-        }
-
-        monitoringStore.setState({ isMonitoring: false });
+      migrate: (persistedState) => persistedState as MonitoringPersistedState,
+      onRehydrateStorage: () => () => {
+        scheduleAfterInteractions(restoreMonitoringSession);
       },
     },
   ),
 );
+
+/** Restarts the monitor service for a persisted session or clears stale monitoring state. */
+export const restoreMonitoringSession = (): void => {
+  if (!monitoringStore.getState().isMonitoring) {
+    return;
+  }
+
+  if (isMonitorServiceRunning()) {
+    return;
+  }
+
+  if (!canStartMonitoring()) {
+    monitoringStore.setState({ isMonitoring: false });
+    return;
+  }
+
+  startMonitorService();
+};

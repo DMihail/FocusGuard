@@ -5,6 +5,12 @@ type CatalogLoaderState<T> = {
   loadPromise: Promise<T> | null;
 };
 
+type KeyedCatalogLoaderState<T extends Record<string, number>> = {
+  cached: T | null;
+  pendingKeys: Set<string>;
+  loadChain: Promise<void>;
+};
+
 const runDeferred = <T>(task: () => T, fallback: T): Promise<T> =>
   new Promise((resolve) => {
     scheduleAfterInteractions(() => {
@@ -82,9 +88,10 @@ export const createNativeKeyedCatalogLoader = <T extends Record<string, number>>
   label: string;
   onInvalidate?: () => void;
 }): NativeKeyedCatalogLoader<T> => {
-  const state: CatalogLoaderState<T> = {
+  const state: KeyedCatalogLoaderState<T> = {
     cached: null,
-    loadPromise: null,
+    pendingKeys: new Set(),
+    loadChain: Promise.resolve(),
   };
 
   const pickKeys = (source: T, keys: readonly string[]): T => {
@@ -110,8 +117,26 @@ export const createNativeKeyedCatalogLoader = <T extends Record<string, number>>
 
   const invalidate = (): void => {
     state.cached = null;
-    state.loadPromise = null;
+    state.pendingKeys.clear();
+    state.loadChain = Promise.resolve();
     config.onInvalidate?.();
+  };
+
+  const enqueueLoad = (): Promise<void> => {
+    state.loadChain = state.loadChain.then(async () => {
+      let missing = [...state.pendingKeys].filter((key) => state.cached?.[key] === undefined);
+      state.pendingKeys.clear();
+
+      while (missing.length > 0) {
+        const partial = await runDeferred(() => config.readKeys(missing), {} as T);
+        state.cached = { ...(state.cached ?? {}), ...partial } as T;
+
+        missing = [...state.pendingKeys].filter((key) => state.cached?.[key] === undefined);
+        state.pendingKeys.clear();
+      }
+    });
+
+    return state.loadChain;
   };
 
   const loadForKeys = (keys: readonly string[], force = false): Promise<T> => {
@@ -119,23 +144,19 @@ export const createNativeKeyedCatalogLoader = <T extends Record<string, number>>
       return Promise.resolve({} as T);
     }
 
+    if (force) {
+      state.cached = null;
+    }
+
     if (!force && state.cached && hasAllKeys(state.cached, keys)) {
       return Promise.resolve(pickKeys(state.cached, keys));
     }
 
-    if (!force && state.loadPromise) {
-      return state.loadPromise.then((cached) => pickKeys(cached, keys));
+    for (const key of keys) {
+      state.pendingKeys.add(key);
     }
 
-    state.loadPromise = runDeferred(() => {
-      const partial = config.readKeys(keys);
-      state.cached = { ...(force ? {} : state.cached ?? {}), ...partial } as T;
-      return state.cached;
-    }, (force ? {} : state.cached ?? {}) as T).finally(() => {
-      state.loadPromise = null;
-    });
-
-    return state.loadPromise.then((cached) => pickKeys(cached, keys));
+    return enqueueLoad().then(() => pickKeys(state.cached ?? ({} as T), keys));
   };
 
   return {

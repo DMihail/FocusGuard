@@ -19,7 +19,7 @@ import { ScreenSafeArea, UsageRefreshIndicator } from '@/components';
 export const TrackedAppsScreen = () => {
   const goBack = useGoBack();
   const openConfigureLimits = useNavigateToConfigureLimits();
-  const { appRows, isRefreshingUsage, refreshUsage } = useTrackedAppRows();
+  const { appRows, showUsageRefreshIndicator, refreshUsage } = useTrackedAppRows();
   const { refreshControl, refreshing: isPullRefreshing } = useTrackedAppsRefresh(refreshUsage);
 
   const renderItem = useMemo(
@@ -55,7 +55,7 @@ export const TrackedAppsScreen = () => {
           {...APP_LIST_FLAT_LIST_PROPS}
         />
         <UsageRefreshIndicator
-          visible={isRefreshingUsage && !isPullRefreshing}
+          visible={showUsageRefreshIndicator && !isPullRefreshing}
           testID={testIds.trackedApps.usageLoader}
         />
       </View>

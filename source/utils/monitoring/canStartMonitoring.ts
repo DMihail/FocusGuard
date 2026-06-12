@@ -1,7 +1,6 @@
 /** @format */
 
-import { checkForManifestMonitorPermissions, checkForPermission, checkForSystemAlertWindowPermission } from '@/specs';
+import { areAllPermissionsGranted } from '@/domain/permissionSnapshot';
 
 /** All permissions required before Focus Mode can run the monitor service. */
-export const canStartMonitoring = (): boolean =>
-  checkForPermission() && checkForSystemAlertWindowPermission() && checkForManifestMonitorPermissions();
+export const canStartMonitoring = (): boolean => areAllPermissionsGranted();

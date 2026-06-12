@@ -23,6 +23,11 @@ const mockStoreState = {
 
 jest.mock('@/specs', () => ({
   getPackageUsageToday: (packageName: string) => mockGetPackageUsageToday(packageName),
+  getPackagesUsageToday: (packageNames: readonly string[]) =>
+    packageNames.map((packageName) => ({
+      packageName,
+      usageMs: mockGetPackageUsageToday(packageName),
+    })),
   invalidateNativeCatalogCaches: jest.fn(),
 }));
 

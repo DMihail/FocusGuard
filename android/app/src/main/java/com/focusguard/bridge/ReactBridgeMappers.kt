@@ -20,4 +20,16 @@ internal object ReactBridgeMappers {
                 )
             }
         }
+
+    fun toPackageUsageArray(usageByPackage: Map<String, Long>): WritableArray =
+        Arguments.createArray().apply {
+            for ((packageName, usageMs) in usageByPackage) {
+                pushMap(
+                    Arguments.createMap().apply {
+                        putString("packageName", packageName)
+                        putDouble("usageMs", usageMs.toDouble())
+                    },
+                )
+            }
+        }
 }

@@ -93,7 +93,11 @@ export const trackedUsageStore = create<TrackedUsageStore>((set, get) => ({
         selectedAppsStore.getState().syncSelectedAppsMetadata(installedApps);
       }
 
-      set((state) => (hasUsageChanged(state.usageByPackage, nextUsage) ? { usageByPackage: nextUsage } : state));
+      set((state) => {
+        const mergedUsage = { ...state.usageByPackage, ...nextUsage };
+
+        return hasUsageChanged(state.usageByPackage, mergedUsage) ? { usageByPackage: mergedUsage } : state;
+      });
     } finally {
       set({ isRefreshingUsage: false });
     }

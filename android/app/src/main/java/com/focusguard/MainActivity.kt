@@ -20,7 +20,8 @@ class MainActivity : ReactActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     installSplashScreen()
     supportFragmentManager.fragmentFactory = RNScreensFragmentFactory()
-    super.onCreate(savedInstanceState)
+    // Screen fragments must not be restored from saved state (react-native-screens).
+    super.onCreate(null)
     applySystemChromeColors()
   }
 

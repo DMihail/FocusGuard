@@ -2,6 +2,7 @@ package com.nativeusagestats
 
 import android.app.Application
 import com.facebook.react.bridge.ReactApplicationContext
+import com.facebook.react.bridge.ReadableArray
 import com.facebook.react.bridge.WritableArray
 import com.focusguard.DailyUsageRepository
 import com.focusguard.apps.InstalledAppsRepository
@@ -86,6 +87,16 @@ class NativeUsageStatsModule(
 
   override fun getPackageUsageToday(packageName: String): Double =
       dailyUsageRepository.getTodayForegroundMs(packageName).toDouble()
+
+  override fun getPackagesUsageToday(packageNames: ReadableArray): WritableArray {
+    val requestedPackages =
+        (0 until packageNames.size())
+            .mapNotNull { index -> packageNames.getString(index)?.takeIf { it.isNotEmpty() } }
+
+    return ReactBridgeMappers.toPackageUsageArray(
+        dailyUsageRepository.getTodayForegroundMsForPackages(requestedPackages),
+    )
+  }
 
   override fun getAppDisplayName(): String = AppInfo.getDisplayName(appContext)
 

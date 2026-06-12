@@ -1,6 +1,6 @@
 /** @format */
 
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 
 import { interpolate, runOnJS, useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 
@@ -10,17 +10,24 @@ import { SELECTED_APPS_ACCORDION_SPRING } from '../constants';
 export const useSelectedAppsAccordion = (isExpanded: boolean, expandedHeight: number, onCollapseEnd?: () => void) => {
   const progress = useSharedValue(isExpanded ? 1 : 0);
   const onCollapseEndRef = useRef(onCollapseEnd);
-  onCollapseEndRef.current = onCollapseEnd;
+
+  useEffect(() => {
+    onCollapseEndRef.current = onCollapseEnd;
+  }, [onCollapseEnd]);
+
+  const notifyCollapseEnd = useCallback(() => {
+    onCollapseEndRef.current?.();
+  }, []);
 
   useEffect(() => {
     progress.value = withSpring(isExpanded ? 1 : 0, SELECTED_APPS_ACCORDION_SPRING, (finished) => {
       'worklet';
 
-      if (finished && !isExpanded && onCollapseEndRef.current) {
-        runOnJS(onCollapseEndRef.current)();
+      if (finished && !isExpanded) {
+        runOnJS(notifyCollapseEnd)();
       }
     });
-  }, [isExpanded, progress]);
+  }, [isExpanded, notifyCollapseEnd, progress]);
 
   return useAnimatedStyle(() => ({
     height: interpolate(progress.value, [0, 1], [0, expandedHeight]),

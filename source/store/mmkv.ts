@@ -2,9 +2,11 @@
 import { createMMKV } from 'react-native-mmkv';
 import type { StateStorage } from 'zustand/middleware';
 
+import { MMKV_INSTANCE_ID } from './persistSchema';
+
 /** Shared MMKV instance for Zustand persistence and native monitor config reads. */
 export const storage = createMMKV({
-  id: `focus-guard-storage`,
+  id: MMKV_INSTANCE_ID,
   mode: 'multi-process',
   readOnly: false,
   compareBeforeSet: false,

@@ -4,6 +4,7 @@ import { act } from 'react-test-renderer';
 
 const mockStartMonitorService = jest.fn();
 const mockStopMonitorService = jest.fn();
+const mockIsMonitorServiceRunning = jest.fn(() => false);
 const mockCanStartMonitoring = jest.fn(() => true);
 
 jest.mock('@/utils/monitoring/canStartMonitoring', () => ({
@@ -13,6 +14,7 @@ jest.mock('@/utils/monitoring/canStartMonitoring', () => ({
 jest.mock('@/specs', () => ({
   startMonitorService: (...args: unknown[]) => mockStartMonitorService(...args),
   stopMonitorService: (...args: unknown[]) => mockStopMonitorService(...args),
+  isMonitorServiceRunning: () => mockIsMonitorServiceRunning(),
 }));
 
 const mockGetItem = jest.fn((_name: string): string | null => null);
@@ -31,6 +33,7 @@ describe('monitoringStore', () => {
   beforeEach(async () => {
     jest.clearAllMocks();
     mockCanStartMonitoring.mockReturnValue(true);
+    mockIsMonitorServiceRunning.mockReturnValue(true);
     mockGetItem.mockReturnValue(null);
     await monitoringStore.persist.clearStorage();
     monitoringStore.setState({ isMonitoring: false });
@@ -46,6 +49,15 @@ describe('monitoringStore', () => {
     expect(mockStartMonitorService).toHaveBeenCalledTimes(1);
     expect(mockStopMonitorService).not.toHaveBeenCalled();
     expect(monitoringStore.getState().isMonitoring).toBe(true);
+  });
+
+  it('rolls back monitoring when the service fails to start', () => {
+    mockIsMonitorServiceRunning.mockReturnValue(false);
+
+    monitoringStore.getState().toggle();
+
+    expect(mockStartMonitorService).toHaveBeenCalledTimes(1);
+    expect(monitoringStore.getState().isMonitoring).toBe(false);
   });
 
   it('calls stopMonitorService and sets isMonitoring to false on second toggle', () => {
@@ -80,6 +92,7 @@ describe('monitoringStore', () => {
   });
 
   it('restarts monitor service after rehydrate when monitoring was enabled', async () => {
+    mockIsMonitorServiceRunning.mockReturnValue(false);
     mockGetItem.mockReturnValue(JSON.stringify({ state: { isMonitoring: true }, version: 0 }));
 
     await act(async () => {
@@ -91,6 +104,7 @@ describe('monitoringStore', () => {
   });
 
   it('disables monitoring after rehydrate when permissions are missing', async () => {
+    mockIsMonitorServiceRunning.mockReturnValue(false);
     mockCanStartMonitoring.mockReturnValue(false);
     mockGetItem.mockReturnValue(JSON.stringify({ state: { isMonitoring: true }, version: 0 }));
 

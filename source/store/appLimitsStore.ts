@@ -5,7 +5,10 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 
 import { DEFAULT_APP_LIMITS } from './constants/appLimits';
 import { zustandStorage } from './mmkv';
+import { APP_LIMITS_PERSIST_VERSION, PERSIST_STORAGE_KEYS } from './persistSchema';
 import type { AppLimitsStore } from './types';
+
+type AppLimitsPersistedState = Pick<AppLimitsStore, 'limitsByPackage'>;
 import { normalizeAppLimits } from './utils/normalizeAppLimits';
 
 export { DEFAULT_APP_LIMITS, LIMIT_SLIDER_BOUNDS } from './constants/appLimits';
@@ -31,9 +34,11 @@ export const appLimitsStore = create<AppLimitsStore>()(
       },
     }),
     {
-      name: 'app-limits-storage',
+      name: PERSIST_STORAGE_KEYS.appLimits,
+      version: APP_LIMITS_PERSIST_VERSION,
       storage: createJSONStorage(() => zustandStorage),
       partialize: (state) => ({ limitsByPackage: state.limitsByPackage }),
+      migrate: (persistedState) => persistedState as AppLimitsPersistedState,
     },
   ),
 );

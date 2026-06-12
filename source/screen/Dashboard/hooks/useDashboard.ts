@@ -12,7 +12,7 @@ import { buildDashboardSummary } from '@/utils/usage/dashboardStats';
 
 /** Dashboard screen state: tracked rows, summary stats, monitoring toggle, pull-to-refresh. */
 export const useDashboard = () => {
-  const { appRows, isRefreshingUsage, refreshUsage } = useTrackedAppRows();
+  const { appRows, showUsageRefreshIndicator, refreshUsage } = useTrackedAppRows();
   const { isMonitoring, toggleMonitoring } = monitoringStore(
     useShallow((state) => ({
       isMonitoring: state.isMonitoring,
@@ -43,7 +43,7 @@ export const useDashboard = () => {
     openConfigureLimits,
     monitoringSubtitle,
     refreshControl,
-    isRefreshingUsage,
+    showUsageRefreshIndicator,
     isPullRefreshing,
   };
 };
