@@ -1,18 +1,28 @@
 import { TurboModuleRegistry } from 'react-native';
+import { DeviceEventEmitter } from 'react-native';
 
 import type { TurboModule } from 'react-native';
 
-import type { InstallApp, PackageUsage } from './types';
+import type { InstallApp, MonitorServiceStartResult, PackageUsage } from './types';
 
-export type { InstallApp, PackageUsage } from './types';
+export type { InstallApp, MonitorServiceFailureReason, MonitorServiceStartResult, PackageUsage } from './types';
+
+type MonitorServiceStartResultCodegen = {
+  started: boolean;
+  reason?: string;
+};
+
+export const PERMISSIONS_CHANGED_EVENT = 'focusguard:permissionsChanged' as const;
 
 export interface Spec extends TurboModule {
+  addListener(eventName: string): void;
+  removeListeners(count: number): void;
   checkForPermission(): boolean;
   checkForSystemAlertWindowPermission(): boolean;
   checkForNotificationsPermission(): boolean;
   checkForIgnoreBatteryOptimizationsPermission(): boolean;
   checkForManifestMonitorPermissions(): boolean;
-  startMonitorService(): void;
+  startMonitorService(): MonitorServiceStartResultCodegen;
   stopMonitorService(): void;
   isMonitorServiceRunning(): boolean;
   requestUsageStatsPermission(): void;
@@ -20,15 +30,19 @@ export interface Spec extends TurboModule {
   requestNotificationsPermission(): void;
   openNotificationsSettings(): void;
   requestIgnoreBatteryOptimizationsPermission(): void;
-  getPackageUsageToday(packageName: string): number;
-  getPackagesUsageToday(packageNames: string[]): PackageUsage[];
-  getInstalledApplications(): InstallApp[];
+  getPackagesUsageToday(packageNames: string[]): Promise<PackageUsage[]>;
+  getInstalledApplications(): Promise<InstallApp[]>;
   getAppDisplayName(): string;
   getAppVersion(): string;
   invalidateNativeCatalogCaches(): void;
 }
 
 const usageStats = TurboModuleRegistry.get<Spec>('NativeUsageStats');
+
+const MONITOR_SERVICE_NOT_STARTED: MonitorServiceStartResult = {
+  started: false,
+  reason: 'manifest_permissions_missing',
+};
 
 export const checkForPermission = (): boolean => usageStats?.checkForPermission() ?? false;
 
@@ -43,8 +57,14 @@ export const checkForIgnoreBatteryOptimizationsPermission = (): boolean =>
 export const checkForManifestMonitorPermissions = (): boolean =>
   usageStats?.checkForManifestMonitorPermissions() ?? false;
 
-export const startMonitorService = (): void => {
-  usageStats?.startMonitorService();
+export const startMonitorService = (): MonitorServiceStartResult => {
+  const result = usageStats?.startMonitorService();
+
+  if (!result) {
+    return MONITOR_SERVICE_NOT_STARTED;
+  }
+
+  return result as MonitorServiceStartResult;
 };
 
 export const stopMonitorService = (): void => {
@@ -73,12 +93,11 @@ export const requestIgnoreBatteryOptimizationsPermission = (): void => {
   usageStats?.requestIgnoreBatteryOptimizationsPermission();
 };
 
-export const getPackageUsageToday = (packageName: string): number => usageStats?.getPackageUsageToday(packageName) ?? 0;
+export const getPackagesUsageToday = async (packageNames: readonly string[]): Promise<PackageUsage[]> =>
+  (await usageStats?.getPackagesUsageToday([...packageNames])) ?? [];
 
-export const getPackagesUsageToday = (packageNames: readonly string[]): PackageUsage[] =>
-  usageStats?.getPackagesUsageToday([...packageNames]) ?? [];
-
-export const getInstalledApplications = (): InstallApp[] => usageStats?.getInstalledApplications() ?? [];
+export const getInstalledApplications = async (): Promise<InstallApp[]> =>
+  (await usageStats?.getInstalledApplications()) ?? [];
 
 export const getAppDisplayName = (): string => usageStats?.getAppDisplayName()?.trim() ?? '';
 
@@ -86,4 +105,17 @@ export const getAppVersion = (): string => usageStats?.getAppVersion()?.trim() ?
 
 export const invalidateNativeCatalogCaches = (): void => {
   usageStats?.invalidateNativeCatalogCaches();
+};
+
+export const subscribePermissionsChanged = (listener: () => void): { remove: () => void } => {
+  usageStats?.addListener(PERMISSIONS_CHANGED_EVENT);
+
+  const subscription = DeviceEventEmitter.addListener(PERMISSIONS_CHANGED_EVENT, listener);
+
+  return {
+    remove: () => {
+      subscription.remove();
+      usageStats?.removeListeners(1);
+    },
+  };
 };

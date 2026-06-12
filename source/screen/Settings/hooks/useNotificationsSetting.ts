@@ -1,7 +1,7 @@
 /** @format */
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { DeviceEventEmitter, Platform } from 'react-native';
+import { Platform } from 'react-native';
 
 import { useFocusEffect } from '@react-navigation/native';
 import { useShallow } from 'zustand/react/shallow';
@@ -9,7 +9,7 @@ import { useShallow } from 'zustand/react/shallow';
 import { useAppStateOnActive } from '@/hooks/useAppStateOnActive';
 import { checkForNotificationsPermission, openNotificationsSettings } from '@/specs';
 import { settingsStore } from '@/store';
-import { PERMISSIONS_CHANGED_EVENT } from '@/utils/permissions/notificationPermissionEvents';
+import { subscribePermissionsChanged } from '@/utils/permissions/notificationPermissionEvents';
 import { requestPostNotificationsPermission } from '@/utils/permissions/requestNotificationPermission';
 
 const readSystemNotificationsGranted = (): boolean =>
@@ -47,7 +47,7 @@ export const useNotificationsSetting = () => {
   }, [refreshSystemGrant]);
 
   useEffect(() => {
-    const subscription = DeviceEventEmitter.addListener(PERMISSIONS_CHANGED_EVENT, reconcileRevokedPermission);
+    const subscription = subscribePermissionsChanged(reconcileRevokedPermission);
 
     return () => subscription.remove();
   }, [reconcileRevokedPermission]);

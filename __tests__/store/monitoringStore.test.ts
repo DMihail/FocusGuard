@@ -2,7 +2,10 @@
 
 import { act } from 'react-test-renderer';
 
-const mockStartMonitorService = jest.fn();
+const mockStartMonitorService = jest.fn(() => ({ started: true })) as jest.Mock<
+  { started: boolean; reason?: string },
+  []
+>;
 const mockStopMonitorService = jest.fn();
 const mockIsMonitorServiceRunning = jest.fn(() => false);
 const mockCanStartMonitoring = jest.fn(() => true);
@@ -12,7 +15,7 @@ jest.mock('@/utils/monitoring/canStartMonitoring', () => ({
 }));
 
 jest.mock('@/specs', () => ({
-  startMonitorService: (...args: unknown[]) => mockStartMonitorService(...args),
+  startMonitorService: () => mockStartMonitorService(),
   stopMonitorService: (...args: unknown[]) => mockStopMonitorService(...args),
   isMonitorServiceRunning: () => mockIsMonitorServiceRunning(),
 }));
@@ -33,6 +36,7 @@ describe('monitoringStore', () => {
   beforeEach(async () => {
     jest.clearAllMocks();
     mockCanStartMonitoring.mockReturnValue(true);
+    mockStartMonitorService.mockReturnValue({ started: true });
     mockIsMonitorServiceRunning.mockReturnValue(true);
     mockGetItem.mockReturnValue(null);
     await monitoringStore.persist.clearStorage();
@@ -49,6 +53,15 @@ describe('monitoringStore', () => {
     expect(mockStartMonitorService).toHaveBeenCalledTimes(1);
     expect(mockStopMonitorService).not.toHaveBeenCalled();
     expect(monitoringStore.getState().isMonitoring).toBe(true);
+  });
+
+  it('does not enable monitoring when startMonitorService reports failure', () => {
+    mockStartMonitorService.mockReturnValue({ started: false, reason: 'usage_access_missing' });
+
+    monitoringStore.getState().toggle();
+
+    expect(mockStartMonitorService).toHaveBeenCalledTimes(1);
+    expect(monitoringStore.getState().isMonitoring).toBe(false);
   });
 
   it('rolls back monitoring when the service fails to start', () => {

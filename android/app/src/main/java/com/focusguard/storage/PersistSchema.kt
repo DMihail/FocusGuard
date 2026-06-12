@@ -16,4 +16,7 @@ object PersistSchema {
     const val APP_LIMITS_PERSIST_VERSION = 1
     const val MONITORING_PERSIST_VERSION = 1
     const val SETTINGS_PERSIST_VERSION = 1
+
+    const val NATIVE_TRACKING_SNAPSHOT_KEY = "native-tracking-snapshot-v1"
+    const val NATIVE_TRACKING_SNAPSHOT_VERSION = 1
 }

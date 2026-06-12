@@ -1,5 +1,6 @@
 package com.focusguard
 
+import com.focusguard.storage.NativeTrackingSnapshot
 import com.focusguard.storage.PersistSchema
 import com.focusguard.storage.ZustandPersistReader
 import com.tencent.mmkv.MMKV
@@ -19,6 +20,8 @@ class TrackingConfigRepository {
     private var cachedLimitsJson: JSONObject? = null
 
     fun getTrackedApps(): List<String> {
+        NativeTrackingSnapshot.read()?.trackedApps?.let { return it }
+
         val raw = mmkv?.decodeString(PersistSchema.SELECTED_APPS_STORAGE_KEY) ?: return emptyList()
 
         if (raw == cachedSelectedAppsRaw && cachedTrackedApps != null) {
@@ -66,6 +69,8 @@ class TrackingConfigRepository {
     }
 
     private fun loadLimitsJson(): JSONObject? {
+        NativeTrackingSnapshot.read()?.limitsJson?.let { return it }
+
         val raw = mmkv?.decodeString(PersistSchema.APP_LIMITS_STORAGE_KEY) ?: return null
 
         if (raw == cachedLimitsRaw) {

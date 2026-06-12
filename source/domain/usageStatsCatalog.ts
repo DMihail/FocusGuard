@@ -5,8 +5,8 @@ import { createNativeKeyedCatalogLoader } from './createNativeCatalogLoader';
 
 export type UsageByPackage = Record<string, number>;
 
-const readUsageForPackages = (packageNames: readonly string[]): UsageByPackage => {
-  const entries = NativeSpecs.getPackagesUsageToday(packageNames);
+const readUsageForPackages = async (packageNames: readonly string[]): Promise<UsageByPackage> => {
+  const entries = await NativeSpecs.getPackagesUsageToday(packageNames);
 
   return Object.fromEntries(entries.map((entry) => [entry.packageName, entry.usageMs]));
 };

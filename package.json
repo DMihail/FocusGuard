@@ -24,6 +24,11 @@
     "jsSrcsDir": "./source/specs",
     "android": {
       "javaPackageName": "com.nativeusagestats"
+    },
+    "ios": {
+      "modulesProvider": {
+        "NativeUsageStats": "RCTNativeUsageStats"
+      }
     }
   },
   "dependencies": {

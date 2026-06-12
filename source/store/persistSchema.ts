@@ -25,3 +25,9 @@ export const MONITORING_PERSIST_VERSION = 1;
 
 /** Bump when `settingsStore` persisted shape changes. */
 export const SETTINGS_PERSIST_VERSION = 1;
+
+/** Flat tracking snapshot written for native monitor reads (`NativeTrackingSnapshot.kt`). */
+export const NATIVE_TRACKING_SNAPSHOT_KEY = 'native-tracking-snapshot-v1';
+
+/** Bump when the flat native snapshot JSON shape changes. */
+export const NATIVE_TRACKING_SNAPSHOT_VERSION = 1;

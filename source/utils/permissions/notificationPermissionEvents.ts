@@ -1,3 +1,3 @@
 /** @format */
 
-export const PERMISSIONS_CHANGED_EVENT = 'focusguard:permissionsChanged';
+export { PERMISSIONS_CHANGED_EVENT, subscribePermissionsChanged } from '@/specs/NativeUsageStats';

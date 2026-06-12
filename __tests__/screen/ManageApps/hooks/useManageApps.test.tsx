@@ -28,7 +28,7 @@ const mockStoreState: {
 };
 
 jest.mock('../../../../source/specs', () => ({
-  getInstalledApplications: () => mockGetInstalledApplications(),
+  getInstalledApplications: async () => mockGetInstalledApplications(),
 }));
 
 jest.mock('../../../../source/store', () => ({

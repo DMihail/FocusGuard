@@ -7,8 +7,11 @@ import ReactTestRenderer, { act } from 'react-test-renderer';
 import { mockSelectedApps, mockUsageByPackage } from '@/testing/fixtures/dashboard';
 import { mockManageApps } from '@/testing/fixtures/manageApps';
 
-const mockGetPackageUsageToday = jest.fn(
-  (packageName: string) => mockUsageByPackage[packageName as keyof typeof mockUsageByPackage] ?? 0,
+const mockGetPackagesUsageToday = jest.fn(async (packageNames: readonly string[]) =>
+  packageNames.map((packageName) => ({
+    packageName,
+    usageMs: mockUsageByPackage[packageName as keyof typeof mockUsageByPackage] ?? 0,
+  })),
 );
 
 const mockSyncSelectedAppsMetadata = jest.fn();
@@ -22,12 +25,7 @@ const mockStoreState = {
 };
 
 jest.mock('@/specs', () => ({
-  getPackageUsageToday: (packageName: string) => mockGetPackageUsageToday(packageName),
-  getPackagesUsageToday: (packageNames: readonly string[]) =>
-    packageNames.map((packageName) => ({
-      packageName,
-      usageMs: mockGetPackageUsageToday(packageName),
-    })),
+  getPackagesUsageToday: (packageNames: readonly string[]) => mockGetPackagesUsageToday(packageNames),
   invalidateNativeCatalogCaches: jest.fn(),
 }));
 
@@ -110,8 +108,11 @@ describe('useDashboard', () => {
     });
     mockStoreState.apps = [...mockSelectedApps];
     mockStoreState.isMonitoring = false;
-    mockGetPackageUsageToday.mockImplementation(
-      (packageName: string) => mockUsageByPackage[packageName as keyof typeof mockUsageByPackage] ?? 0,
+    mockGetPackagesUsageToday.mockImplementation(async (packageNames: readonly string[]) =>
+      packageNames.map((packageName) => ({
+        packageName,
+        usageMs: mockUsageByPackage[packageName as keyof typeof mockUsageByPackage] ?? 0,
+      })),
     );
   });
 
@@ -130,7 +131,7 @@ describe('useDashboard', () => {
     });
     await flushUsageLoad();
 
-    expect(mockGetPackageUsageToday).toHaveBeenCalled();
+    expect(mockGetPackagesUsageToday).toHaveBeenCalled();
     expect(result.appRows).toHaveLength(mockSelectedApps.length);
 
     const socialChat = result.appRows.find((row) => row.packageName === mockManageApps[0].packageName);
@@ -152,7 +153,7 @@ describe('useDashboard', () => {
     });
     await flushUsageLoad();
 
-    const callsBefore = mockGetPackageUsageToday.mock.calls.length;
+    const callsBefore = mockGetPackagesUsageToday.mock.calls.length;
 
     await act(async () => {
       latest.refreshControl?.props.onRefresh();
@@ -160,7 +161,7 @@ describe('useDashboard', () => {
       await Promise.resolve();
     });
 
-    expect(mockGetPackageUsageToday.mock.calls.length).toBeGreaterThan(callsBefore);
+    expect(mockGetPackagesUsageToday.mock.calls.length).toBeGreaterThan(callsBefore);
     expect(latest.refreshControl?.props.refreshing).toBe(false);
   });
 });

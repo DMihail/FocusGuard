@@ -1,19 +1,23 @@
 package com.nativeusagestats
 
 import android.app.Application
+import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReadableArray
 import com.facebook.react.bridge.WritableArray
+import com.facebook.react.bridge.WritableMap
 import com.focusguard.DailyUsageRepository
 import com.focusguard.apps.InstalledAppsRepository
 import com.focusguard.bridge.PermissionsLifecycleBinding
 import com.focusguard.bridge.ReactBridgeMappers
 import com.focusguard.monitor.MonitorPermissions
 import com.focusguard.monitor.MonitorServiceHelper
+import com.focusguard.monitor.MonitorServiceStartResult
 import com.focusguard.permissions.PermissionChecker
 import com.focusguard.permissions.PermissionEventEmitter
 import com.focusguard.permissions.PermissionRequester
 import com.focusguard.platform.AppInfo
+import java.util.concurrent.Executors
 
 /** Codegen Turbo Module — thin bridge over the FocusGuard Android domain layer. */
 class NativeUsageStatsModule(
@@ -25,6 +29,7 @@ class NativeUsageStatsModule(
       PermissionRequester(appContext) { reactApplicationContext.currentActivity }
   private val installedAppsRepository = InstalledAppsRepository(appContext)
   private val dailyUsageRepository = DailyUsageRepository(appContext)
+  private val ioExecutor = Executors.newSingleThreadExecutor()
 
   private val permissionsLifecycleBinding =
       PermissionsLifecycleBinding(::emitPermissionsChanged)
@@ -35,7 +40,16 @@ class NativeUsageStatsModule(
 
   override fun invalidate() {
     reactApplicationContext.removeLifecycleEventListener(permissionsLifecycleBinding)
+    ioExecutor.shutdown()
     super.invalidate()
+  }
+
+  override fun addListener(eventName: String) {
+    // Required for RN event subscription bookkeeping.
+  }
+
+  override fun removeListeners(count: Double) {
+    // Required for RN event subscription bookkeeping.
   }
 
   override fun checkForPermission(): Boolean = PermissionChecker.hasUsageAccess(appContext)
@@ -52,9 +66,8 @@ class NativeUsageStatsModule(
   override fun checkForManifestMonitorPermissions(): Boolean =
       MonitorPermissions.hasManifestMonitorPermissions(appContext)
 
-  override fun startMonitorService() {
-    MonitorServiceHelper.start(appContext)
-  }
+  override fun startMonitorService(): WritableMap =
+      MonitorServiceHelper.start(appContext).toWritableMap()
 
   override fun stopMonitorService() {
     MonitorServiceHelper.stop(appContext)
@@ -82,20 +95,33 @@ class NativeUsageStatsModule(
     permissionRequester.requestBatteryOptimizationExemption()
   }
 
-  override fun getInstalledApplications(): WritableArray =
-      ReactBridgeMappers.toInstalledAppsArray(installedAppsRepository.getLaunchableApps())
+  override fun getInstalledApplications(promise: Promise) {
+    ioExecutor.execute {
+      try {
+        val apps = installedAppsRepository.getLaunchableApps()
+        promise.resolve(ReactBridgeMappers.toInstalledAppsArray(apps))
+      } catch (error: Exception) {
+        promise.reject("installed_apps_failed", error.message, error)
+      }
+    }
+  }
 
-  override fun getPackageUsageToday(packageName: String): Double =
-      dailyUsageRepository.getTodayForegroundMs(packageName).toDouble()
+  override fun getPackagesUsageToday(packageNames: ReadableArray, promise: Promise) {
+    ioExecutor.execute {
+      try {
+        val requestedPackages =
+            (0 until packageNames.size())
+                .mapNotNull { index -> packageNames.getString(index)?.takeIf { it.isNotEmpty() } }
 
-  override fun getPackagesUsageToday(packageNames: ReadableArray): WritableArray {
-    val requestedPackages =
-        (0 until packageNames.size())
-            .mapNotNull { index -> packageNames.getString(index)?.takeIf { it.isNotEmpty() } }
-
-    return ReactBridgeMappers.toPackageUsageArray(
-        dailyUsageRepository.getTodayForegroundMsForPackages(requestedPackages),
-    )
+        promise.resolve(
+            ReactBridgeMappers.toPackageUsageArray(
+                dailyUsageRepository.getTodayForegroundMsForPackages(requestedPackages),
+            ),
+        )
+      } catch (error: Exception) {
+        promise.reject("usage_stats_failed", error.message, error)
+      }
+    }
   }
 
   override fun getAppDisplayName(): String = AppInfo.getDisplayName(appContext)

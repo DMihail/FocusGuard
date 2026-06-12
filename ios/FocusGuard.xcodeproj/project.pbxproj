@@ -16,6 +16,7 @@
 		C89960D5814A437FA4D5E865 /* Inter-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4FF812CD12A24C7C9F6AC828 /* Inter-Regular.ttf */; };
 		D170490DEF45D6F0125B19E7 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */; };
 		E7CDC4C2890D475FA557F479 /* Inter-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 48B53B5AA62C4F62ADACAE00 /* Inter-Medium.ttf */; };
+		F1A2B3C42CA45674006654EE /* RCTNativeUsageStats.mm in Sources */ = {isa = PBXBuildFile; fileRef = F1A2B3C32CA45674006654EE /* RCTNativeUsageStats.mm */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -33,6 +34,8 @@
 		A33565A2A5E04F02B2D8C759 /* Inter-Bold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Inter-Bold.ttf"; path = "../source/assets/fonts/Inter-Bold.ttf"; sourceTree = "<group>"; };
 		CB17F5AB88324B4D9C0E2215 /* Inter-SemiBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Inter-SemiBold.ttf"; path = "../source/assets/fonts/Inter-SemiBold.ttf"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
+		F1A2B3C22CA45674006654EE /* RCTNativeUsageStats.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = RCTNativeUsageStats.h; path = FocusGuard/NativeUsageStats/RCTNativeUsageStats.h; sourceTree = "<group>"; };
+		F1A2B3C32CA45674006654EE /* RCTNativeUsageStats.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = RCTNativeUsageStats.mm; path = FocusGuard/NativeUsageStats/RCTNativeUsageStats.mm; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -52,6 +55,8 @@
 			children = (
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				761780EC2CA45674006654EE /* AppDelegate.swift */,
+				F1A2B3C22CA45674006654EE /* RCTNativeUsageStats.h */,
+				F1A2B3C32CA45674006654EE /* RCTNativeUsageStats.mm */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */,
 				13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */,
@@ -271,6 +276,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				761780ED2CA45674006654EE /* AppDelegate.swift in Sources */,
+				F1A2B3C42CA45674006654EE /* RCTNativeUsageStats.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

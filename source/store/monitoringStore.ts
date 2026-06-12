@@ -27,7 +27,12 @@ export const monitoringStore = create<MonitoringStore>()(
             return;
           }
 
-          startMonitorService();
+          const startResult = startMonitorService();
+
+          if (!startResult.started) {
+            return;
+          }
+
           set({ isMonitoring: true });
           scheduleAfterInteractions(() => {
             if (!get().isMonitoring || isMonitorServiceRunning()) {
@@ -71,5 +76,9 @@ export const restoreMonitoringSession = (): void => {
     return;
   }
 
-  startMonitorService();
+  const startResult = startMonitorService();
+
+  if (!startResult.started) {
+    monitoringStore.setState({ isMonitoring: false });
+  }
 };

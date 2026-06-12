@@ -11,14 +11,13 @@ type KeyedCatalogLoaderState<T extends Record<string, number>> = {
   loadChain: Promise<void>;
 };
 
-const runDeferred = <T>(task: () => T, fallback: T): Promise<T> =>
+const runDeferred = <T>(task: () => T | Promise<T>, fallback: T): Promise<T> =>
   new Promise((resolve) => {
     scheduleAfterInteractions(() => {
-      try {
-        resolve(task());
-      } catch {
-        resolve(fallback);
-      }
+      Promise.resolve()
+        .then(task)
+        .then(resolve)
+        .catch(() => resolve(fallback));
     });
   });
 
@@ -30,7 +29,7 @@ export type NativeCatalogLoader<T> = {
 };
 
 export const createNativeCatalogLoader = <T>(config: {
-  read: () => T;
+  read: () => T | Promise<T>;
   fallback: T;
   label: string;
   onInvalidate?: () => void;
@@ -55,8 +54,8 @@ export const createNativeCatalogLoader = <T>(config: {
       return state.loadPromise;
     }
 
-    state.loadPromise = runDeferred(() => {
-      const value = config.read();
+    state.loadPromise = runDeferred(async () => {
+      const value = await config.read();
       state.cached = value;
       return value;
     }, config.fallback).finally(() => {
@@ -84,7 +83,7 @@ export type NativeKeyedCatalogLoader<T extends Record<string, number>> = {
 };
 
 export const createNativeKeyedCatalogLoader = <T extends Record<string, number>>(config: {
-  readKeys: (keys: readonly string[]) => T;
+  readKeys: (keys: readonly string[]) => T | Promise<T>;
   label: string;
   onInvalidate?: () => void;
 }): NativeKeyedCatalogLoader<T> => {

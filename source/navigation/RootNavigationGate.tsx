@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useState } from 'react';
 
 import type { NavigationContainerRef } from '@react-navigation/native';
 
+import { useNativeTrackingSnapshotSync } from '@/hooks/useNativeTrackingSnapshotSync';
 import { usePrefetchNativeCatalogs } from '@/hooks/usePrefetchNativeCatalogs';
 import { onboardingStore } from '@/store';
 
@@ -31,6 +32,7 @@ export const RootNavigationGate = () => {
   const isNavigationReady = hasHydrated && initialRoute !== null;
 
   usePrefetchNativeCatalogs();
+  useNativeTrackingSnapshotSync(isNavigationReady);
   useAppPermissionGuard(navigationRef, isNavigationReady);
   useMonitoringServiceSync(isNavigationReady);
 
