@@ -1,22 +1,23 @@
 import { TurboModuleRegistry } from 'react-native';
-import { DeviceEventEmitter } from 'react-native';
 
 import type { TurboModule } from 'react-native';
+import type { EventEmitter } from 'react-native/Libraries/Types/CodegenTypes';
 
 import type { InstallApp, MonitorServiceStartResult, PackageUsage } from './types';
 
 export type { InstallApp, MonitorServiceFailureReason, MonitorServiceStartResult, PackageUsage } from './types';
+
+export type PermissionsChangedEvent = {
+  changedAtMs: number;
+};
 
 type MonitorServiceStartResultCodegen = {
   started: boolean;
   reason?: string;
 };
 
-export const PERMISSIONS_CHANGED_EVENT = 'focusguard:permissionsChanged' as const;
-
 export interface Spec extends TurboModule {
-  addListener(eventName: string): void;
-  removeListeners(count: number): void;
+  readonly onPermissionsChanged: EventEmitter<PermissionsChangedEvent>;
   checkForPermission(): boolean;
   checkForSystemAlertWindowPermission(): boolean;
   checkForNotificationsPermission(): boolean;
@@ -108,14 +109,13 @@ export const invalidateNativeCatalogCaches = (): void => {
 };
 
 export const subscribePermissionsChanged = (listener: () => void): { remove: () => void } => {
-  usageStats?.addListener(PERMISSIONS_CHANGED_EVENT);
-
-  const subscription = DeviceEventEmitter.addListener(PERMISSIONS_CHANGED_EVENT, listener);
+  const subscription = usageStats?.onPermissionsChanged(() => {
+    listener();
+  });
 
   return {
     remove: () => {
-      subscription.remove();
-      usageStats?.removeListeners(1);
+      subscription?.remove();
     },
   };
 };

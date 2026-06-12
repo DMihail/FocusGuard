@@ -1,3 +1,4 @@
 /** @format */
 
-export { PERMISSIONS_CHANGED_EVENT, subscribePermissionsChanged } from '@/specs/NativeUsageStats';
+export type { PermissionsChangedEvent } from '@/specs/NativeUsageStats';
+export { subscribePermissionsChanged } from '@/specs/NativeUsageStats';

@@ -1,10 +1,10 @@
 package com.nativeusagestats
 
 import android.app.Application
+import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReadableArray
-import com.facebook.react.bridge.WritableArray
 import com.facebook.react.bridge.WritableMap
 import com.focusguard.DailyUsageRepository
 import com.focusguard.apps.InstalledAppsRepository
@@ -14,7 +14,7 @@ import com.focusguard.monitor.MonitorPermissions
 import com.focusguard.monitor.MonitorServiceHelper
 import com.focusguard.monitor.MonitorServiceStartResult
 import com.focusguard.permissions.PermissionChecker
-import com.focusguard.permissions.PermissionEventEmitter
+import com.facebook.react.ReactApplication
 import com.focusguard.permissions.PermissionRequester
 import com.focusguard.platform.AppInfo
 import java.util.concurrent.Executors
@@ -35,21 +35,17 @@ class NativeUsageStatsModule(
       PermissionsLifecycleBinding(::emitPermissionsChanged)
 
   init {
+    activeInstance = this
     reactApplicationContext.addLifecycleEventListener(permissionsLifecycleBinding)
   }
 
   override fun invalidate() {
+    if (activeInstance === this) {
+      activeInstance = null
+    }
     reactApplicationContext.removeLifecycleEventListener(permissionsLifecycleBinding)
     ioExecutor.shutdown()
     super.invalidate()
-  }
-
-  override fun addListener(eventName: String) {
-    // Required for RN event subscription bookkeeping.
-  }
-
-  override fun removeListeners(count: Double) {
-    // Required for RN event subscription bookkeeping.
   }
 
   override fun checkForPermission(): Boolean = PermissionChecker.hasUsageAccess(appContext)
@@ -134,10 +130,39 @@ class NativeUsageStatsModule(
   }
 
   private fun emitPermissionsChanged() {
-    PermissionEventEmitter.emit(appContext as Application)
+    reactApplicationContext.runOnUiQueueThread {
+      if (reactApplicationContext.hasActiveReactInstance()) {
+        emitOnPermissionsChanged(
+            Arguments.createMap().apply {
+              putDouble("changedAtMs", System.currentTimeMillis().toDouble())
+            },
+        )
+      }
+    }
   }
 
   companion object {
     const val NAME = NativeUsageStatsSpec.NAME
+
+    @Volatile private var activeInstance: NativeUsageStatsModule? = null
+
+    fun emitPermissionsChanged(application: Application) {
+      val instance = activeInstance
+      if (instance != null) {
+        instance.emitPermissionsChanged()
+        return
+      }
+
+      val reactContext =
+          (application as? ReactApplication)?.reactHost?.currentReactContext ?: return
+
+      if (!reactContext.hasActiveReactInstance()) {
+        return
+      }
+
+      reactContext.runOnUiQueueThread {
+        activeInstance?.emitPermissionsChanged()
+      }
+    }
   }
 }

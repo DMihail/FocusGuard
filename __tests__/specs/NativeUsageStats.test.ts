@@ -1,8 +1,13 @@
 /** @format */
 
+const mockPermissionsChangedSubscription = { remove: jest.fn() };
+let capturedPermissionsChangedListener: (() => void) | undefined;
+
 const mockUsageStats = {
-  addListener: jest.fn(),
-  removeListeners: jest.fn(),
+  onPermissionsChanged: jest.fn((listener: () => void) => {
+    capturedPermissionsChangedListener = listener;
+    return mockPermissionsChangedSubscription;
+  }),
   checkForPermission: jest.fn(),
   checkForSystemAlertWindowPermission: jest.fn(),
   checkForNotificationsPermission: jest.fn(),
@@ -26,9 +31,6 @@ const mockUsageStats = {
 const mockGet = jest.fn();
 
 jest.mock('react-native', () => ({
-  DeviceEventEmitter: {
-    addListener: jest.fn(() => ({ remove: jest.fn() })),
-  },
   TurboModuleRegistry: {
     get: (...args: unknown[]) => mockGet(...args),
   },
@@ -44,6 +46,7 @@ const loadSpecs = (): NativeUsageStatsModule => {
 describe('NativeUsageStats', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    capturedPermissionsChangedListener = undefined;
     mockGet.mockReturnValue(mockUsageStats);
     mockUsageStats.checkForPermission.mockReturnValue(false);
     mockUsageStats.getPackagesUsageToday.mockResolvedValue([]);
@@ -89,5 +92,20 @@ describe('NativeUsageStats', () => {
     expect(specs.getAppVersion()).toBe('');
     expect(() => specs.requestUsageStatsPermission()).not.toThrow();
     expect(() => specs.stopMonitorService()).not.toThrow();
+  });
+
+  it('subscribes to codegen onPermissionsChanged events', () => {
+    const listener = jest.fn();
+    const specs = loadSpecs();
+
+    const subscription = specs.subscribePermissionsChanged(listener);
+
+    expect(mockUsageStats.onPermissionsChanged).toHaveBeenCalledTimes(1);
+
+    capturedPermissionsChangedListener?.();
+    expect(listener).toHaveBeenCalledTimes(1);
+
+    subscription.remove();
+    expect(mockPermissionsChangedSubscription.remove).toHaveBeenCalledTimes(1);
   });
 });

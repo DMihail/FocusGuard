@@ -8,14 +8,6 @@
 
 RCT_EXPORT_MODULE(NativeUsageStats)
 
-- (void)addListener:(NSString *)eventName
-{
-}
-
-- (void)removeListeners:(double)count
-{
-}
-
 - (NSNumber *)checkForPermission
 {
   return @YES;

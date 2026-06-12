@@ -1,7 +1,7 @@
 /** @format */
 
 import React from 'react';
-import { AppState, DeviceEventEmitter, LayoutAnimation } from 'react-native';
+import { AppState, LayoutAnimation } from 'react-native';
 
 import ReactTestRenderer from 'react-test-renderer';
 
@@ -19,8 +19,16 @@ jest.mock('../../../../source/screen/EnablePermissions/utils/permissionStatus', 
     ),
 }));
 
+let triggerPermissionsChanged: (() => void) | undefined;
+
+jest.mock('@/utils/permissions/notificationPermissionEvents', () => ({
+  subscribePermissionsChanged: (listener: () => void) => {
+    triggerPermissionsChanged = listener;
+    return { remove: jest.fn() };
+  },
+}));
+
 import { usePermissionsSync } from '@/screen/EnablePermissions/hooks/usePermissionsSync';
-import { PERMISSIONS_CHANGED_EVENT } from '@/utils/permissions/notificationPermissionEvents';
 
 const pendingStatuses: Record<PermissionId, PermissionStatus> = {
   'usage-access': 'pending',
@@ -50,6 +58,7 @@ describe('usePermissionsSync', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    triggerPermissionsChanged = undefined;
     appStateListener = undefined;
     mockReadPermissionStatuses.mockReturnValue(pendingStatuses);
 
@@ -182,7 +191,7 @@ describe('usePermissionsSync', () => {
     mockReadPermissionStatuses.mockReturnValue(grantedStatuses);
 
     ReactTestRenderer.act(() => {
-      DeviceEventEmitter.emit(PERMISSIONS_CHANGED_EVENT);
+      triggerPermissionsChanged?.();
     });
 
     expect(hook!.permissions.every((item) => item.status === 'granted')).toBe(true);
