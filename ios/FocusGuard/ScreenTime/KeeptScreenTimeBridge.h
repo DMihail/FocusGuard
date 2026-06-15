@@ -21,6 +21,10 @@ NS_ASSUME_NONNULL_BEGIN
 + (NSDictionary *)startMonitorService;
 + (void)stopMonitorService;
 + (BOOL)isMonitorServiceRunning;
++ (void)getPackagesUsageToday:(NSArray<NSString *> *)packageNames
+                      resolve:(RCTPromiseResolveBlock)resolve
+                       reject:(RCTPromiseRejectBlock)reject;
++ (void)invalidateNativeCatalogCaches;
 
 @end
 

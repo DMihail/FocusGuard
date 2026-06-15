@@ -33,4 +33,13 @@ enum IosTokenCatalog {
 
     return tokens[index]
   }
+
+  static func tokenId(for token: ApplicationToken, in selection: FamilyActivitySelection) -> String? {
+    let tokens = sortedTokens(from: selection)
+    guard let index = tokens.firstIndex(of: token) else {
+      return nil
+    }
+
+    return tokenId(forSortedIndex: index)
+  }
 }

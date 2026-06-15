@@ -5,9 +5,14 @@ import UserNotifications
 enum KeeptMonitorActions {
   static func handleIntervalStart() {
     IosShieldStore.clearAll()
+    IosDailyUsageStore.resetForNewDayIfNeeded()
   }
 
   static func handleWarning(tokenId: String) {
+    if let warningMinutes = IosTrackingSnapshotStore.read()?.limitsByTokenId[tokenId]?.warningMinutes {
+      IosDailyUsageStore.recordAtLeastUsageMinutes(tokenId: tokenId, minutes: warningMinutes)
+    }
+
     guard !IosDailyWarningStore.wasWarningShownToday(tokenId: tokenId) else {
       return
     }
@@ -30,11 +35,13 @@ enum KeeptMonitorActions {
   static func handleBlock(tokenId: String) {
     guard
       let snapshot = IosTrackingSnapshotStore.read(),
-      snapshot.limitsByTokenId[tokenId] != nil,
+      let limits = snapshot.limitsByTokenId[tokenId],
       let token = IosTokenCatalog.token(for: tokenId, in: IosFamilyActivitySelectionStore.load())
     else {
       return
     }
+
+    IosDailyUsageStore.recordAtLeastUsageMinutes(tokenId: tokenId, minutes: limits.hardBlockMinutes)
 
     if IosTrackingSnoozeStore.isSnoozed(tokenId: tokenId) {
       return

@@ -86,9 +86,9 @@
                       resolve:(RCTPromiseResolveBlock)resolve
                        reject:(RCTPromiseRejectBlock)reject
 {
-  (void)packageNames;
-  (void)reject;
-  resolve(@[]);
+  [KeeptScreenTimeBridge getPackagesUsageToday:packageNames
+                                       resolve:resolve
+                                        reject:reject];
 }
 
 - (void)getInstalledApplications:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject
@@ -114,6 +114,7 @@
 
 - (void)invalidateNativeCatalogCaches
 {
+  [KeeptScreenTimeBridge invalidateNativeCatalogCaches];
 }
 
 - (void)syncTrackingConfig:(NSString *)snapshotJson

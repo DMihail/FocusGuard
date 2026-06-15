@@ -20,6 +20,7 @@
  * - App Group: `group.com.keept.shared` (`IOS_APP_GROUP_ID`)
  * - Flat snapshot: `ios-tracking-snapshot-v2` with opaque `trackedAppTokenIds`
  * - Selection blob: `ios-family-activity-selection-v1` (phase 1 picker)
+ * - Daily usage totals: `ios-daily-usage-v1` (phase 3 report + monitor floors)
  * - Auth mode: `individual` (self-control only)
  */
 export const MMKV_INSTANCE_ID = 'focus-guard-storage';
@@ -61,3 +62,6 @@ export const IOS_TRACKING_SNAPSHOT_VERSION = 2;
 
 /** Base64-encoded `FamilyActivitySelection` blob written by native picker (phase 1). */
 export const IOS_FAMILY_ACTIVITY_SELECTION_KEY = 'ios-family-activity-selection-v1';
+
+/** Per-token daily usage milliseconds written by KeeptReport + KeeptMonitor (`IosDailyUsageStore.swift`). */
+export const IOS_DAILY_USAGE_KEY = 'ios-daily-usage-v1';

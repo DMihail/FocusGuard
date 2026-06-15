@@ -95,4 +95,19 @@ final class KeeptScreenTimeBridge: NSObject {
   @objc static func isMonitorServiceRunning() -> Bool {
     KeeptMonitoringScheduler.isRunning
   }
+
+  @objc static func getPackagesUsageToday(
+    _ packageNames: [String],
+    resolve: @escaping RCTPromiseResolveBlock,
+    reject: @escaping RCTPromiseRejectBlock
+  ) {
+    Task { @MainActor in
+      await KeeptUsageReportCollector.refresh()
+      resolve(KeeptUsageReader.buildPayload(packageNames: packageNames))
+    }
+  }
+
+  @objc static func invalidateNativeCatalogCaches() {
+    // Usage totals are refreshed on the next getPackagesUsageToday call.
+  }
 }
