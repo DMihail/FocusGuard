@@ -7,7 +7,7 @@ import ReactTestRenderer from 'react-test-renderer';
 const mockPresentFamilyActivityPicker = jest.fn();
 const mockReplaceApps = jest.fn();
 
-jest.mock('@/specs', () => ({
+jest.mock('@/specs/nativeUsageStatsApi.ios', () => ({
   presentFamilyActivityPicker: (...args: unknown[]) => mockPresentFamilyActivityPicker(...args),
 }));
 

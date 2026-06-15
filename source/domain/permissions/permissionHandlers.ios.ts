@@ -5,7 +5,7 @@ import {
   checkForPermission,
   requestNotificationsPermission,
   requestUsageStatsPermission,
-} from '@/specs';
+} from '@/specs/nativeUsageStatsApi.ios';
 
 import type { PermissionId } from './types';
 

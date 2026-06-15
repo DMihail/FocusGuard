@@ -4,7 +4,7 @@ import { PermissionsAndroid, Platform } from 'react-native';
 
 const mockCheckForNotificationsPermission = jest.fn();
 
-jest.mock('@/specs', () => ({
+jest.mock('@/specs/nativeUsageStatsApi.android', () => ({
   checkForNotificationsPermission: () => mockCheckForNotificationsPermission(),
 }));
 

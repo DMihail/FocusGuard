@@ -24,7 +24,7 @@ const mockStoreState = {
   }),
 };
 
-jest.mock('@/specs', () => ({
+jest.mock('@/specs/nativeUsageStatsApi.android', () => ({
   checkForNotificationsPermission: () => mockCheckForNotificationsPermission(),
   openNotificationsSettings: () => mockOpenNotificationsSettings(),
   subscribePermissionsChanged: () => ({ remove: jest.fn() }),

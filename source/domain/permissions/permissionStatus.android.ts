@@ -1,6 +1,6 @@
 /** @format */
 
-import { checkForManifestMonitorPermissions } from '@/specs';
+import { checkForManifestMonitorPermissions } from '@/specs/nativeUsageStatsApi.android';
 
 import { permissionChecks, permissionRequests } from './permissionHandlers.android';
 import { getPermissionIds } from './permissionIds.android';

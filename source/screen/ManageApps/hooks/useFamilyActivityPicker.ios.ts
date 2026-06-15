@@ -4,7 +4,7 @@ import { useCallback, useState } from 'react';
 
 import { invalidateInstalledAppsCache } from '@/domain/installedAppsCatalog';
 import { mapInstalledApps } from '@/domain/mapInstalledApps';
-import { presentFamilyActivityPicker } from '@/specs';
+import { presentFamilyActivityPicker } from '@/specs/nativeUsageStatsApi.ios';
 import { selectedAppsStore } from '@/store';
 
 /** Presents the iOS FamilyActivityPicker and replaces the tracked app selection. */

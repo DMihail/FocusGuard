@@ -47,7 +47,7 @@ jest.mock('../../../source/navigation', () => ({
   }),
 }));
 
-jest.mock('@/specs', () => ({
+jest.mock('@/specs/nativeUsageStatsApi.android', () => ({
   checkForPermission: (...args: unknown[]) => mockCheckForPermission(...args),
   checkForSystemAlertWindowPermission: (...args: unknown[]) => mockCheckForSystemAlertWindowPermission(...args),
   checkForNotificationsPermission: (...args: unknown[]) => mockCheckForNotificationsPermission(...args),

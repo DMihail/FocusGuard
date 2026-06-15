@@ -29,24 +29,24 @@ const mockUsageStats = {
   syncTrackingConfig: jest.fn(),
 };
 
-jest.unmock('@/specs/nativeUsageStatsClient');
+jest.unmock('@/specs/nativeUsageStatsClient.android');
 
-jest.mock('@/specs/nativeUsageStatsClient', () => ({
+jest.mock('@/specs/nativeUsageStatsClient.android', () => ({
   getNativeUsageStats: jest.fn(() => mockUsageStats),
 }));
 
-type NativeUsageStatsApi = typeof import('../../source/specs/nativeUsageStatsApi');
+type NativeUsageStatsApi = typeof import('@/specs/nativeUsageStatsApi.android');
 
 const loadSpecs = (): NativeUsageStatsApi => {
   jest.resetModules();
-  jest.unmock('@/specs/nativeUsageStatsClient');
-  jest.mock('@/specs/nativeUsageStatsClient', () => ({
+  jest.unmock('@/specs/nativeUsageStatsClient.android');
+  jest.mock('@/specs/nativeUsageStatsClient.android', () => ({
     getNativeUsageStats: jest.fn(() => mockUsageStats),
   }));
-  return require('../../source/specs/nativeUsageStatsApi');
+  return require('@/specs/nativeUsageStatsApi.android');
 };
 
-describe('NativeUsageStats', () => {
+describe('nativeUsageStatsApi.android', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     capturedPermissionsChangedListener = undefined;
@@ -76,11 +76,11 @@ describe('NativeUsageStats', () => {
 
   it('returns safe defaults when native module is unavailable', async () => {
     jest.resetModules();
-    jest.unmock('@/specs/nativeUsageStatsClient');
-    jest.mock('@/specs/nativeUsageStatsClient', () => ({
+    jest.unmock('@/specs/nativeUsageStatsClient.android');
+    jest.mock('@/specs/nativeUsageStatsClient.android', () => ({
       getNativeUsageStats: jest.fn(() => null),
     }));
-    const specs = require('../../source/specs/nativeUsageStatsApi') as NativeUsageStatsApi;
+    const specs = require('@/specs/nativeUsageStatsApi.android') as NativeUsageStatsApi;
 
     expect(specs.checkForPermission()).toBe(false);
     expect(specs.checkForSystemAlertWindowPermission()).toBe(false);
@@ -100,7 +100,7 @@ describe('NativeUsageStats', () => {
     expect(() => specs.stopMonitorService()).not.toThrow();
   });
 
-  it('subscribes to codegen onPermissionsChanged events with payload', () => {
+  it('subscribes to onPermissionsChanged events', () => {
     const listener = jest.fn();
     const specs = loadSpecs();
 

@@ -1,6 +1,5 @@
 import { TurboModuleRegistry } from 'react-native';
 
-import type { Spec } from './NativeUsageStats';
+import type { Spec } from './NativeUsageStats.android';
 
-/** Android requires the Turbo Module at runtime. */
 export const getNativeUsageStats = (): Spec | null => TurboModuleRegistry.getEnforcing<Spec>('NativeUsageStats');

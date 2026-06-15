@@ -1,8 +1,8 @@
-import type { PermissionsChangedEvent, Spec } from './NativeUsageStats';
-import { getNativeUsageStats } from './nativeUsageStatsClient';
+import type { PermissionsChangedEvent, Spec } from './NativeUsageStats.android';
+import { getNativeUsageStats } from './nativeUsageStatsClient.android';
 import type { InstallApp, MonitorServiceStartResult, PackageUsage } from './types';
 
-export type { PermissionsChangedEvent } from './NativeUsageStats';
+export type { PermissionsChangedEvent } from './types';
 export type { InstallApp, MonitorServiceFailureReason, MonitorServiceStartResult, PackageUsage } from './types';
 
 const getModule = (): Spec | null => getNativeUsageStats();
@@ -78,12 +78,6 @@ export const invalidateNativeCatalogCaches = (): void => {
 export const syncTrackingConfig = (snapshotJson: string): void => {
   getModule()?.syncTrackingConfig(snapshotJson);
 };
-
-export const requestScreenTimeAuthorization = async (): Promise<boolean> =>
-  (await getModule()?.requestScreenTimeAuthorization()) ?? false;
-
-export const presentFamilyActivityPicker = async (): Promise<InstallApp[]> =>
-  (await getModule()?.presentFamilyActivityPicker()) ?? [];
 
 export const subscribePermissionsChanged = (
   listener: (event: PermissionsChangedEvent) => void,

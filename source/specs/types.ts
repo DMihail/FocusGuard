@@ -1,5 +1,10 @@
 /** @format */
 
+/** Emitted when Android permission state may have changed (e.g. returning from Settings). */
+export type PermissionsChangedEvent = Readonly<{
+  changedAtMs: number;
+}>;
+
 /** Daily foreground usage for a single tracked package. */
 export type PackageUsage = Readonly<{
   packageName: string;
