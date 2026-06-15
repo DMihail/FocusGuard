@@ -1,5 +1,3 @@
-import { TurboModuleRegistry } from 'react-native';
-
 import type { TurboModule } from 'react-native';
 import type { EventEmitter } from 'react-native/Libraries/Types/CodegenTypes';
 
@@ -39,5 +37,3 @@ export interface Spec extends TurboModule {
   requestScreenTimeAuthorization(): Promise<boolean>;
   presentFamilyActivityPicker(): Promise<InstallApp[]>;
 }
-
-export default TurboModuleRegistry.get<Spec>('NativeUsageStats');

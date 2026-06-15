@@ -2,7 +2,7 @@
 
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
-import type { LegalDocumentId } from '@/screen/Legal';
+import type { LegalDocumentId } from '@/domain/types/legal';
 
 export type RootStackParamList = {
   Onboarding: undefined;

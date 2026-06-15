@@ -1,14 +1,12 @@
 /** @format */
 
-import { Platform } from 'react-native';
+import { createPermissions, getPermissionIds } from '@/screen/EnablePermissions/data/permissions.android';
 
-import { createPermissions, getPermissionIds } from '@/screen/EnablePermissions/data/permissions';
-
-describe('permissions data', () => {
+describe('permissions data (Android)', () => {
   const permissions = createPermissions('Keept');
 
-  it('defines platform-specific permission steps', () => {
-    expect(permissions).toHaveLength(Platform.OS === 'ios' ? 2 : 4);
+  it('defines Android permission steps', () => {
+    expect(permissions).toHaveLength(4);
   });
 
   it('includes required permission ids', () => {

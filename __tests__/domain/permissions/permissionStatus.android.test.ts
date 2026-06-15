@@ -1,7 +1,5 @@
 /** @format */
 
-import { Platform } from 'react-native';
-
 const mockCheckForPermission = jest.fn();
 const mockCheckForSystemAlertWindowPermission = jest.fn();
 const mockCheckForNotificationsPermission = jest.fn();
@@ -30,7 +28,7 @@ import {
   areRequiredPermissionsGranted,
   readPermissionStatuses,
   requestPermissionById,
-} from '@/screen/EnablePermissions/utils/permissionStatus';
+} from '@/domain/permissions/permissionStatus.android';
 
 const allPending = {
   'usage-access': 'pending',
@@ -57,21 +55,14 @@ const grantAllCardChecks = () => {
   mockCheckForNotificationsPermission.mockReturnValue(true);
 };
 
-describe('permissionStatus utils', () => {
-  const originalPlatform = Platform.OS;
-
+describe('permissionStatus.android', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    Object.defineProperty(Platform, 'OS', { configurable: true, value: 'android' });
     mockCheckForPermission.mockReturnValue(false);
     mockCheckForSystemAlertWindowPermission.mockReturnValue(false);
     mockCheckForNotificationsPermission.mockReturnValue(false);
     mockCheckForIgnoreBatteryOptimizationsPermission.mockReturnValue(false);
     mockCheckForManifestMonitorPermissions.mockReturnValue(false);
-  });
-
-  afterAll(() => {
-    Object.defineProperty(Platform, 'OS', { configurable: true, value: originalPlatform });
   });
 
   it('reads pending statuses when native checks fail', () => {
@@ -105,35 +96,5 @@ describe('permissionStatus utils', () => {
   it('requests battery optimization settings for battery-optimization', () => {
     requestPermissionById('battery-optimization');
     expect(mockRequestIgnoreBatteryOptimizationsPermission).toHaveBeenCalledTimes(1);
-  });
-
-  it('reads iOS permission statuses from native checks', () => {
-    Object.defineProperty(Platform, 'OS', { configurable: true, value: 'ios' });
-    mockCheckForPermission.mockReturnValue(false);
-    mockCheckForNotificationsPermission.mockReturnValue(true);
-
-    expect(readPermissionStatuses()).toEqual({
-      'usage-access': 'pending',
-      notifications: 'granted',
-      'display-over-apps': 'granted',
-      'battery-optimization': 'granted',
-    });
-    expect(mockCheckForPermission).toHaveBeenCalled();
-  });
-
-  it('requires Screen Time authorization on iOS', () => {
-    Object.defineProperty(Platform, 'OS', { configurable: true, value: 'ios' });
-
-    expect(areRequiredPermissionsGranted(readPermissionStatuses())).toBe(false);
-
-    mockCheckForPermission.mockReturnValue(true);
-    expect(areRequiredPermissionsGranted(readPermissionStatuses())).toBe(true);
-  });
-
-  it('requests usage access permission on iOS for usage-access', () => {
-    Object.defineProperty(Platform, 'OS', { configurable: true, value: 'ios' });
-
-    requestPermissionById('usage-access');
-    expect(mockRequestUsageStatsPermission).toHaveBeenCalledTimes(1);
   });
 });

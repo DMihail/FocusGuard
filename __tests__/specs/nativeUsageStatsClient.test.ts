@@ -13,7 +13,7 @@ jest.mock('react-native', () => ({
   },
 }));
 
-describe('nativeUsageStatsClient', () => {
+describe('nativeUsageStatsClient.android', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     jest.resetModules();
@@ -21,7 +21,7 @@ describe('nativeUsageStatsClient', () => {
   });
 
   it('uses getEnforcing on Android', () => {
-    const { getNativeUsageStats } = require('../../source/specs/nativeUsageStatsClient');
+    const { getNativeUsageStats } = require('../../source/specs/nativeUsageStatsClient.android');
 
     expect(getNativeUsageStats()?.checkForPermission()).toBe(true);
     expect(mockAndroidGetEnforcing).toHaveBeenCalledWith('NativeUsageStats');

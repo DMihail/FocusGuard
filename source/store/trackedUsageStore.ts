@@ -1,11 +1,11 @@
 import { create } from 'zustand';
 
 import { invalidateInstalledAppsCache, loadInstalledApps } from '@/domain/installedAppsCatalog';
+import type { UsageByPackage } from '@/domain/usageStatsCatalog';
 import { getCachedUsageByPackage, invalidateUsageStatsCache, loadUsageByPackage } from '@/domain/usageStatsCatalog';
 
 import { selectedAppsStore } from './selectedAppsStore';
-
-type UsageByPackage = Record<string, number>;
+import type { TrackedUsageStore } from './types/trackedUsageStore';
 
 let hasSeededFromCache = false;
 
@@ -51,13 +51,6 @@ const hasUsageChanged = (previous: UsageByPackage, next: UsageByPackage): boolea
   }
 
   return nextKeys.some((key) => previous[key] !== next[key]);
-};
-
-type TrackedUsageStore = {
-  usageByPackage: UsageByPackage;
-  isRefreshingUsage: boolean;
-  seedUsageFromCache: () => void;
-  refreshUsage: (packageNames: readonly string[], force?: boolean) => Promise<void>;
 };
 
 export const trackedUsageStore = create<TrackedUsageStore>((set, get) => ({

@@ -5,23 +5,32 @@ import { AppState, LayoutAnimation } from 'react-native';
 
 import ReactTestRenderer from 'react-test-renderer';
 
-import type { PermissionId, PermissionStatus } from '@/screen/EnablePermissions/types';
+import type { PermissionId, PermissionStatus } from '@/domain/permissions';
 
-const mockReadPermissionStatuses = jest.fn<Record<PermissionId, PermissionStatus>, []>();
+const mockGetPermissionStatuses = jest.fn<Record<PermissionId, PermissionStatus>, [boolean?]>();
+const mockInvalidatePermissionSnapshot = jest.fn();
 const mockRequestPermissionById = jest.fn();
 
-jest.mock('../../../../source/screen/EnablePermissions/utils/permissionStatus', () => ({
-  readPermissionStatuses: () => mockReadPermissionStatuses(),
-  requestPermissionById: (id: PermissionId) => mockRequestPermissionById(id),
-  areRequiredPermissionsGranted: (statuses: Record<PermissionId, PermissionStatus>) =>
-    (['usage-access', 'display-over-apps', 'battery-optimization'] as PermissionId[]).every(
-      (id) => statuses[id] === 'granted',
-    ),
+jest.mock('@/domain/permissionSnapshot', () => ({
+  getPermissionStatuses: (force?: boolean) => mockGetPermissionStatuses(force),
+  invalidatePermissionSnapshot: () => mockInvalidatePermissionSnapshot(),
 }));
+
+jest.mock('@/domain/permissions', () => {
+  const actual = jest.requireActual('@/domain/permissions');
+  return {
+    ...actual,
+    requestPermissionById: (id: PermissionId) => mockRequestPermissionById(id),
+    areRequiredPermissionsGranted: (statuses: Record<PermissionId, PermissionStatus>) =>
+      (['usage-access', 'display-over-apps', 'battery-optimization'] as PermissionId[]).every(
+        (id) => statuses[id] === 'granted',
+      ),
+  };
+});
 
 let triggerPermissionsChanged: (() => void) | undefined;
 
-jest.mock('@/utils/permissions/notificationPermissionEvents', () => ({
+jest.mock('@/specs', () => ({
   subscribePermissionsChanged: (listener: () => void) => {
     triggerPermissionsChanged = listener;
     return { remove: jest.fn() };
@@ -60,7 +69,7 @@ describe('usePermissionsSync', () => {
     jest.clearAllMocks();
     triggerPermissionsChanged = undefined;
     appStateListener = undefined;
-    mockReadPermissionStatuses.mockReturnValue(pendingStatuses);
+    mockGetPermissionStatuses.mockReturnValue(pendingStatuses);
 
     jest.spyOn(AppState, 'addEventListener').mockImplementation((_, listener) => {
       appStateListener = listener as (state: string) => void;
@@ -72,7 +81,7 @@ describe('usePermissionsSync', () => {
     configureNextSpy.mockRestore();
   });
 
-  it('initializes statuses from readPermissionStatuses', () => {
+  it('initializes statuses from getPermissionStatuses', () => {
     let hook: ReturnType<typeof usePermissionsSync> | undefined;
 
     ReactTestRenderer.act(() => {
@@ -85,7 +94,7 @@ describe('usePermissionsSync', () => {
       );
     });
 
-    expect(mockReadPermissionStatuses).toHaveBeenCalled();
+    expect(mockGetPermissionStatuses).toHaveBeenCalled();
     expect(hook!.permissions.every((item) => item.status === 'pending')).toBe(true);
   });
 
@@ -102,7 +111,7 @@ describe('usePermissionsSync', () => {
       );
     });
 
-    mockReadPermissionStatuses.mockReturnValue(grantedStatuses);
+    mockGetPermissionStatuses.mockReturnValue(grantedStatuses);
 
     ReactTestRenderer.act(() => {
       appStateListener?.('active');
@@ -117,13 +126,13 @@ describe('usePermissionsSync', () => {
       ReactTestRenderer.create(<PermissionsProbe onReady={() => undefined} />);
     });
 
-    const callsBefore = mockReadPermissionStatuses.mock.calls.length;
+    const callsBefore = mockGetPermissionStatuses.mock.calls.length;
 
     ReactTestRenderer.act(() => {
       appStateListener?.('background');
     });
 
-    expect(mockReadPermissionStatuses).toHaveBeenCalledTimes(callsBefore);
+    expect(mockGetPermissionStatuses).toHaveBeenCalledTimes(callsBefore);
   });
 
   it('calls requestPermissionById from handleGrant', () => {
@@ -152,7 +161,7 @@ describe('usePermissionsSync', () => {
     });
 
     configureNextSpy.mockClear();
-    mockReadPermissionStatuses.mockReturnValue(grantedStatuses);
+    mockGetPermissionStatuses.mockReturnValue(grantedStatuses);
 
     ReactTestRenderer.act(() => {
       appStateListener?.('active');
@@ -188,7 +197,7 @@ describe('usePermissionsSync', () => {
       );
     });
 
-    mockReadPermissionStatuses.mockReturnValue(grantedStatuses);
+    mockGetPermissionStatuses.mockReturnValue(grantedStatuses);
 
     ReactTestRenderer.act(() => {
       triggerPermissionsChanged?.();

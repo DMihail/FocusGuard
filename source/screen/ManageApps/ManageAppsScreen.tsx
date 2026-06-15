@@ -1,7 +1,6 @@
 /** @format */
 
 import React, { useCallback } from 'react';
-import { Platform } from 'react-native';
 
 import { useFocusEffect } from '@react-navigation/native';
 
@@ -11,13 +10,13 @@ import { testIds } from '@/testing/testIds';
 
 import { useFamilyActivityPicker } from './hooks/useFamilyActivityPicker';
 import { useManageApps } from './hooks/useManageApps';
+import { manageAppsPlatform } from './manageAppsPlatform';
 import { manageAppsStyles } from './styles';
 
 import { ManageAppsContent, ManageAppsHeader, ManageAppsSearchToolbar } from './components';
 import { ScreenSafeArea } from '@/components';
 
 export const ManageAppsScreen = () => {
-  const isIos = Platform.OS === 'ios';
   const goBack = useGoBack();
   const openConfigureLimits = useNavigateToConfigureLimits();
   const { pickApps, isPicking } = useFamilyActivityPicker();
@@ -57,7 +56,7 @@ export const ManageAppsScreen = () => {
       accessibilityLabel="Manage apps screen"
     >
       <ManageAppsHeader selectedCount={selectedCount} onBack={goBack} />
-      {!isIos ? (
+      {manageAppsPlatform.showSearchToolbar ? (
         <ManageAppsSearchToolbar onQueryChange={setSearchQuery} onQueryActiveChange={setSearchInputActive} />
       ) : null}
       <ManageAppsContent
@@ -73,8 +72,8 @@ export const ManageAppsScreen = () => {
         categoryFilters={categoryFilters}
         activeCategoryId={activeCategoryId}
         onCategoryChange={setActiveCategory}
-        showInstalledAppsList={!isIos}
-        onPickApps={isIos ? handlePickApps : undefined}
+        showInstalledAppsList={manageAppsPlatform.showInstalledAppsList}
+        onPickApps={manageAppsPlatform.supportsFamilyPicker ? handlePickApps : undefined}
         isPickingApps={isPicking}
       />
     </ScreenSafeArea>

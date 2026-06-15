@@ -6,3 +6,4 @@ export type { MonitoringStore } from './monitoringStore';
 export type { OnboardingStore } from './onboardingStore';
 export type { SelectedAppsStore } from './selectedAppsStore';
 export type { SettingsStore } from './settingsStore';
+export type { TrackedUsageStore } from './trackedUsageStore';

@@ -1,13 +1,14 @@
 /** @format */
 
-import { Platform } from 'react-native';
-
-import type React from 'react';
 import { act } from 'react-test-renderer';
 
 import type { ManageApp } from '@/domain/types';
 import { mockInstallApps, mockManageApps } from '@/testing/fixtures/manageApps';
 import { testIds } from '@/testing/testIds';
+
+jest.mock('@/screen/ManageApps/manageAppsPlatform', () =>
+  jest.requireActual('@/screen/ManageApps/manageAppsPlatform.android'),
+);
 
 import {
   cleanupTestTrees,
@@ -82,10 +83,7 @@ import { SELECTED_APPS_ACCORDION_SETTLE_MS } from '@/screen/ManageApps/constants
 import { ManageAppsScreen } from '@/screen/ManageApps/ManageAppsScreen';
 
 describe('ManageAppsScreen', () => {
-  const originalPlatform = Platform.OS;
-
   beforeEach(() => {
-    Object.defineProperty(Platform, 'OS', { configurable: true, value: 'android' });
     jest.clearAllMocks();
     jest.useFakeTimers();
     invalidateInstalledAppsCache();
@@ -106,10 +104,6 @@ describe('ManageAppsScreen', () => {
     cleanupTestTrees();
     jest.useRealTimers();
     await flushVirtualizedListWork();
-  });
-
-  afterAll(() => {
-    Object.defineProperty(Platform, 'OS', { configurable: true, value: originalPlatform });
   });
 
   it('renders header, search, filters, and app list', async () => {

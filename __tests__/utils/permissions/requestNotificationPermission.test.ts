@@ -8,22 +8,19 @@ jest.mock('@/specs', () => ({
   checkForNotificationsPermission: () => mockCheckForNotificationsPermission(),
 }));
 
-import { requestPostNotificationsPermission } from '@/utils/permissions/requestNotificationPermission';
+import { requestPostNotificationsPermission } from '@/utils/permissions/requestNotificationPermission.android';
 
-describe('requestPostNotificationsPermission', () => {
-  const originalOS = Platform.OS;
+describe('requestPostNotificationsPermission (Android)', () => {
   const originalVersion = Platform.Version;
 
   beforeEach(() => {
     jest.clearAllMocks();
-    Platform.OS = 'android';
     Platform.Version = 33;
     mockCheckForNotificationsPermission.mockReturnValue(false);
     jest.spyOn(PermissionsAndroid, 'request').mockResolvedValue(PermissionsAndroid.RESULTS.GRANTED);
   });
 
   afterEach(() => {
-    Platform.OS = originalOS;
     Platform.Version = originalVersion;
     jest.restoreAllMocks();
   });

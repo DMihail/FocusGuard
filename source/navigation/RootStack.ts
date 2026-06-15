@@ -27,7 +27,6 @@ const rootScreens = {
   },
   Dashboard: {
     screen: DashboardScreen,
-    linking: 'dashboard',
     options: rootScreenTransitionOptions.dashboard,
   },
   ManageApps: {
@@ -36,12 +35,10 @@ const rootScreens = {
   },
   TrackedApps: {
     screen: TrackedAppsScreen,
-    linking: 'tracked-apps',
     options: rootScreenTransitionOptions.trackedApps,
   },
   ConfigureLimits: {
     screen: ConfigureLimitsScreen,
-    linking: 'configure/:packageName',
     options: rootScreenTransitionOptions.configureLimits,
   },
   Settings: {

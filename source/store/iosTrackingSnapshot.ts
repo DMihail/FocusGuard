@@ -1,10 +1,12 @@
 /** @format */
 
+import { appLimitsStore } from './appLimitsStore';
 import {
   IOS_FAMILY_ACTIVITY_SELECTION_KEY,
   IOS_TRACKING_SNAPSHOT_KEY,
   IOS_TRACKING_SNAPSHOT_VERSION,
 } from './persistSchema';
+import { selectedAppsStore } from './selectedAppsStore';
 import type { AppLimits } from './types';
 
 /** Keept uses Screen Time self-control — the device owner limits their own apps. */
@@ -48,3 +50,11 @@ export const isIosTrackingSnapshot = (value: unknown): value is IosTrackingSnaps
     snapshot.limitsByTokenId !== null
   );
 };
+
+export const buildIosTrackingSnapshot = (): IosTrackingSnapshot => ({
+  version: IOS_TRACKING_SNAPSHOT_VERSION,
+  platform: 'ios',
+  authMode: IOS_SCREEN_TIME_AUTH_MODE,
+  trackedAppTokenIds: selectedAppsStore.getState().apps.map((app) => app.packageName),
+  limitsByTokenId: appLimitsStore.getState().limitsByPackage,
+});
