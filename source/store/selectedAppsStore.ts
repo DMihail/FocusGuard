@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
+import { getManageAppKey } from '@/domain/appKey';
 import { syncSelectedAppsMetadata as mergeSelectedAppsMetadata } from '@/domain/reconcileSelectedApps';
 
 import { zustandStorage } from './mmkv';
@@ -16,10 +17,11 @@ export const selectedAppsStore = create<SelectedAppsStore>()(
 
       toggleApp: (app) => {
         const { apps } = get();
-        const isAlreadySelected = apps.some((item) => item.packageName === app.packageName);
+        const appKey = getManageAppKey(app);
+        const isAlreadySelected = apps.some((item) => getManageAppKey(item) === appKey);
 
         set({
-          apps: isAlreadySelected ? apps.filter((item) => item.packageName !== app.packageName) : [...apps, app],
+          apps: isAlreadySelected ? apps.filter((item) => getManageAppKey(item) !== appKey) : [...apps, app],
         });
       },
 
@@ -27,7 +29,7 @@ export const selectedAppsStore = create<SelectedAppsStore>()(
         set({ apps });
       },
 
-      isSelected: (packageName) => get().apps.some((app) => app.packageName === packageName),
+      isSelected: (packageName) => get().apps.some((app) => getManageAppKey(app) === packageName),
 
       syncSelectedAppsMetadata: (installedApps) => {
         const nextApps = mergeSelectedAppsMetadata(get().apps, installedApps);

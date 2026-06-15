@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo } from 'react';
 import { useFocusEffect, useIsFocused } from '@react-navigation/native';
 import { useShallow } from 'zustand/react/shallow';
 
+import { getManageAppKey } from '@/domain/appKey';
 import { useAppStateOnActive } from '@/hooks/useAppStateOnActive';
 import { appLimitsStore, selectedAppsStore, trackedUsageStore } from '@/store';
 import { buildDashboardAppRows, type DashboardAppRow } from '@/utils/usage/dashboardStats';
@@ -20,7 +21,7 @@ export const useTrackedAppRows = (): {
   }, []);
 
   const selectedApps = selectedAppsStore((state) => state.apps);
-  const selectedPackages = useMemo(() => selectedApps.map((app) => app.packageName), [selectedApps]);
+  const selectedAppKeys = useMemo(() => selectedApps.map((app) => getManageAppKey(app)), [selectedApps]);
   const { usageByPackage, isRefreshingUsage, refreshTrackedUsage } = trackedUsageStore(
     useShallow((state) => ({
       usageByPackage: state.usageByPackage,
@@ -29,14 +30,12 @@ export const useTrackedAppRows = (): {
     })),
   );
   const limitsByPackage = appLimitsStore(
-    useShallow((state) =>
-      Object.fromEntries(selectedPackages.map((packageName) => [packageName, state.limitsByPackage[packageName]])),
-    ),
+    useShallow((state) => Object.fromEntries(selectedAppKeys.map((appKey) => [appKey, state.limitsByPackage[appKey]]))),
   );
 
   const refreshUsage = useCallback(
-    (force = false) => refreshTrackedUsage(selectedPackages, force),
-    [refreshTrackedUsage, selectedPackages],
+    (force = false) => refreshTrackedUsage(selectedAppKeys, force),
+    [refreshTrackedUsage, selectedAppKeys],
   );
 
   const refreshOnFocus = useCallback(() => {

@@ -2,7 +2,7 @@
 
 import { checkForManifestMonitorPermissions } from '@/specs';
 
-import { permissionChecks, permissionRequests } from './permissionHandlers';
+import { permissionChecks, permissionRequests } from './permissionHandlers.android';
 import { getPermissionIds } from './permissionIds.android';
 import type { PermissionId, PermissionStatus } from './types';
 

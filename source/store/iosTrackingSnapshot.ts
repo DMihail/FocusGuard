@@ -1,6 +1,8 @@
 /** @format */
 
-import { appLimitsStore } from './appLimitsStore';
+import { getManageAppKey } from '@/domain/appKey';
+
+import { appLimitsStore, DEFAULT_APP_LIMITS } from './appLimitsStore';
 import {
   IOS_FAMILY_ACTIVITY_SELECTION_KEY,
   IOS_TRACKING_SNAPSHOT_KEY,
@@ -51,10 +53,21 @@ export const isIosTrackingSnapshot = (value: unknown): value is IosTrackingSnaps
   );
 };
 
-export const buildIosTrackingSnapshot = (): IosTrackingSnapshot => ({
-  version: IOS_TRACKING_SNAPSHOT_VERSION,
-  platform: 'ios',
-  authMode: IOS_SCREEN_TIME_AUTH_MODE,
-  trackedAppTokenIds: selectedAppsStore.getState().apps.map((app) => app.packageName),
-  limitsByTokenId: appLimitsStore.getState().limitsByPackage,
-});
+export const buildIosTrackingSnapshot = (): IosTrackingSnapshot => {
+  const apps = selectedAppsStore.getState().apps;
+  const limitsByPackage = appLimitsStore.getState().limitsByPackage;
+
+  return {
+    version: IOS_TRACKING_SNAPSHOT_VERSION,
+    platform: 'ios',
+    authMode: IOS_SCREEN_TIME_AUTH_MODE,
+    trackedAppTokenIds: apps.map((app) => getManageAppKey(app)),
+    limitsByTokenId: Object.fromEntries(
+      apps.map((app) => {
+        const tokenId = getManageAppKey(app);
+
+        return [tokenId, limitsByPackage[tokenId] ?? DEFAULT_APP_LIMITS];
+      }),
+    ),
+  };
+};
