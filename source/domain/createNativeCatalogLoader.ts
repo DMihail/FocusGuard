@@ -31,7 +31,6 @@ export type NativeCatalogLoader<T> = {
 export const createNativeCatalogLoader = <T>(config: {
   read: () => T | Promise<T>;
   fallback: T;
-  label: string;
   onInvalidate?: () => void;
 }): NativeCatalogLoader<T> => {
   const state: CatalogLoaderState<T> = {
@@ -84,7 +83,6 @@ export type NativeKeyedCatalogLoader<T extends Record<string, number>> = {
 
 export const createNativeKeyedCatalogLoader = <T extends Record<string, number>>(config: {
   readKeys: (keys: readonly string[]) => T | Promise<T>;
-  label: string;
   onInvalidate?: () => void;
 }): NativeKeyedCatalogLoader<T> => {
   const state: KeyedCatalogLoaderState<T> = {

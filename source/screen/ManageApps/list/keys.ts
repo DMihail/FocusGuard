@@ -1,3 +1,1 @@
-/** @format */
-
-export { keyById as categoryFilterKeyExtractor, keyByPackageName as manageAppKeyExtractor } from '@/list/keys';
+export { keyById as categoryFilterKeyExtractor, keyByManageApp as manageAppKeyExtractor } from '@/list/keys';

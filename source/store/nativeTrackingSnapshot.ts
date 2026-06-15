@@ -11,10 +11,6 @@ export type { AndroidTrackingSnapshot } from './androidTrackingSnapshot';
 export { buildAndroidTrackingSnapshot } from './androidTrackingSnapshot';
 export { buildIosTrackingSnapshot } from './iosTrackingSnapshot';
 
-/** @deprecated Use `buildAndroidTrackingSnapshot` on Android or `buildIosTrackingSnapshot` on iOS. */
-export const buildNativeTrackingSnapshot = buildPlatformTrackingSnapshot;
-
-/** Writes the flat snapshot for native monitoring via Turbo Module, with MMKV fallback in tests. */
 export const syncNativeTrackingSnapshot = (): void => {
   const snapshotJson = JSON.stringify(buildPlatformTrackingSnapshot());
   const nativeModule = getNativeUsageStats();

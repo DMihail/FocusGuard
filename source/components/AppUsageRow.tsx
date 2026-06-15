@@ -1,8 +1,7 @@
-/** @format */
-
 import React, { memo } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { getManageAppKey } from '@/domain/appKey';
 import { testIds } from '@/testing/testIds';
 import { colors, fontSize, iconBoxPresets, layoutPresets, spacing, textPresets, typography } from '@/theme';
 import { computeUsageMetrics } from '@/utils/usage/computeUsageMetrics';
@@ -13,78 +12,56 @@ import { AppIcon } from './AppIcon';
 import { ProgressBar } from './ProgressBar';
 
 export type AppUsageRowProps = DashboardAppRow & {
-  onPress: (packageName: string) => void;
+  onPress: (appKey: string) => void;
   rowTestID?: string;
 };
 
-const areAppUsageRowPropsEqual = (previous: AppUsageRowProps, next: AppUsageRowProps): boolean =>
-  previous.packageName === next.packageName &&
-  previous.appName === next.appName &&
-  previous.appImage === next.appImage &&
-  previous.usedMs === next.usedMs &&
-  previous.limitMs === next.limitMs &&
-  previous.percentUsed === next.percentUsed &&
-  previous.isOverLimit === next.isOverLimit &&
-  previous.onPress === next.onPress &&
-  previous.rowTestID === next.rowTestID;
+export const AppUsageRow = memo(({ onPress, rowTestID, ...app }: AppUsageRowProps) => {
+  const appKey = getManageAppKey(app);
+  const { appImage, appName, usedMs, limitMs, percentUsed, isOverLimit } = app;
+  const { barProgress } = computeUsageMetrics(usedMs, limitMs);
+  const fillColor = isOverLimit ? colors.overLimit : colors.accent;
 
-export const AppUsageRow = memo(
-  ({
-    packageName,
-    appImage,
-    appName,
-    usedMs,
-    limitMs,
-    percentUsed,
-    isOverLimit,
-    onPress,
-    rowTestID,
-  }: AppUsageRowProps) => {
-    const { barProgress } = computeUsageMetrics(usedMs, limitMs);
-    const fillColor = isOverLimit ? colors.overLimit : colors.accent;
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={`Configure limits for ${appName}, ${percentUsed} percent used`}
+      onPress={() => onPress(appKey)}
+      style={styles.item}
+      testID={rowTestID ?? testIds.dashboard.appRow(appKey)}
+    >
+      <View style={styles.row}>
+        <AppIcon
+          appName={appName}
+          appImage={appImage}
+          size="sm"
+          boxStyle={styles.iconBox}
+          imageStyle={styles.icon}
+          fallbackStyle={styles.iconFallback}
+        />
 
-    return (
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel={`Configure limits for ${appName}, ${percentUsed} percent used`}
-        onPress={() => onPress(packageName)}
-        style={styles.item}
-        testID={rowTestID ?? testIds.dashboard.appRow(packageName)}
-      >
-        <View style={styles.row}>
-          <AppIcon
-            appName={appName}
-            appImage={appImage}
-            size="sm"
-            boxStyle={styles.iconBox}
-            imageStyle={styles.icon}
-            fallbackStyle={styles.iconFallback}
-          />
-
-          <View style={styles.info}>
-            <Text style={styles.name} numberOfLines={1}>
-              {appName}
-            </Text>
-            <Text style={styles.usage}>{formatUsagePair(usedMs, limitMs)}</Text>
-          </View>
-
-          <Text style={[styles.percent, isOverLimit && styles.percentOver]} numberOfLines={1}>
-            {percentUsed}%
+        <View style={styles.info}>
+          <Text style={styles.name} numberOfLines={1}>
+            {appName}
           </Text>
+          <Text style={styles.usage}>{formatUsagePair(usedMs, limitMs)}</Text>
         </View>
 
-        <ProgressBar
-          progress={barProgress}
-          fillColor={fillColor}
-          accessibilityRole="progressbar"
-          accessibilityLabel={`${appName} daily usage`}
-          accessibilityValue={{ min: 0, max: 100, now: Math.round(barProgress) }}
-        />
-      </Pressable>
-    );
-  },
-  areAppUsageRowPropsEqual,
-);
+        <Text style={[styles.percent, isOverLimit && styles.percentOver]} numberOfLines={1}>
+          {percentUsed}%
+        </Text>
+      </View>
+
+      <ProgressBar
+        progress={barProgress}
+        fillColor={fillColor}
+        accessibilityRole="progressbar"
+        accessibilityLabel={`${appName} daily usage`}
+        accessibilityValue={{ min: 0, max: 100, now: Math.round(barProgress) }}
+      />
+    </Pressable>
+  );
+});
 
 const styles = StyleSheet.create({
   item: {

@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 
+import { getManageAppKey } from '@/domain/appKey';
 import { invalidateInstalledAppsCache, loadInstalledApps } from '@/domain/installedAppsCatalog';
 import type { UsageByPackage } from '@/domain/usageStatsCatalog';
 import { getCachedUsageByPackage, invalidateUsageStatsCache, loadUsageByPackage } from '@/domain/usageStatsCatalog';
@@ -21,19 +22,19 @@ const seedUsageFromCache = (): void => {
   hasSeededFromCache = true;
 
   const cached = getCachedUsageByPackage();
-  const packageNames = selectedAppsStore.getState().apps.map((app) => app.packageName);
+  const appKeys = selectedAppsStore.getState().apps.map((app) => getManageAppKey(app));
 
-  if (!cached || packageNames.length === 0) {
+  if (!cached || appKeys.length === 0) {
     return;
   }
 
   const picked: UsageByPackage = {};
 
-  for (const packageName of packageNames) {
-    const usageMs = cached[packageName];
+  for (const appKey of appKeys) {
+    const usageMs = cached[appKey];
 
     if (usageMs !== undefined) {
-      picked[packageName] = usageMs;
+      picked[appKey] = usageMs;
     }
   }
 

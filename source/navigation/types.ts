@@ -10,7 +10,7 @@ export type RootStackParamList = {
   Dashboard: undefined;
   TrackedApps: undefined;
   ManageApps: undefined;
-  ConfigureLimits: { packageName: string };
+  ConfigureLimits: { appKey: string };
   Settings: undefined;
   LegalDocument: { documentId: LegalDocumentId };
 };

@@ -29,7 +29,7 @@ export const selectedAppsStore = create<SelectedAppsStore>()(
         set({ apps });
       },
 
-      isSelected: (packageName) => get().apps.some((app) => getManageAppKey(app) === packageName),
+      isSelected: (appKey) => get().apps.some((app) => getManageAppKey(app) === appKey),
 
       syncSelectedAppsMetadata: (installedApps) => {
         const nextApps = mergeSelectedAppsMetadata(get().apps, installedApps);

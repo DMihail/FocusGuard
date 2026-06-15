@@ -1,13 +1,12 @@
-/** @format */
-
-import React from 'react';
+import React, { useCallback } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 
+import { useGoBack } from '@/hooks/useGoBack';
 import { LIMIT_SLIDER_BOUNDS } from '@/store';
 import { testIds } from '@/testing/testIds';
 
 import { LIMIT_CARD_COLORS } from './constants';
-import { useConfigureLimitsScreen } from './hooks/useConfigureLimitsScreen';
+import { useConfigureLimits } from './hooks/useConfigureLimits';
 import { configureLimitsStyles as styles } from './styles';
 import type { ConfigureLimitsScreenProps } from './types';
 
@@ -19,7 +18,8 @@ import { StrictModeCard } from './components/StrictModeCard';
 import { ScreenSafeArea } from '@/components';
 
 export const ConfigureLimitsScreen = ({ route }: ConfigureLimitsScreenProps) => {
-  const { packageName } = route.params;
+  const { appKey } = route.params;
+  const goBack = useGoBack();
   const {
     app,
     draft,
@@ -29,9 +29,13 @@ export const ConfigureLimitsScreen = ({ route }: ConfigureLimitsScreenProps) => 
     setWarningMinutes,
     setHardBlockMinutes,
     setStrictMode,
-    goBack,
-    handleSave,
-  } = useConfigureLimitsScreen(packageName);
+    save,
+  } = useConfigureLimits(appKey);
+
+  const handleSave = useCallback(() => {
+    save();
+    goBack();
+  }, [goBack, save]);
 
   if (!app) {
     return (
@@ -58,10 +62,10 @@ export const ConfigureLimitsScreen = ({ route }: ConfigureLimitsScreenProps) => 
         <AppLimitsAppBadge
           appName={app.appName}
           appImage={app.appImage}
-          testID={testIds.configureLimits.appBadge(packageName)}
+          testID={testIds.configureLimits.appBadge(appKey)}
         />
 
-        <DailyUsageCard packageName={packageName} usedMs={usedMsToday} limitMs={limitMsToday} />
+        <DailyUsageCard appKey={appKey} usedMs={usedMsToday} limitMs={limitMsToday} />
 
         <View style={styles.cards}>
           <LimitSliderCard

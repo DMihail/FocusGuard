@@ -13,19 +13,19 @@ import { configureLimitsStyles as styles } from '../styles';
 import { ProgressBar } from '@/components/ProgressBar';
 
 type DailyUsageCardProps = {
-  packageName: string;
+  appKey: string;
   usedMs: number;
   limitMs: number;
 };
 
-export const DailyUsageCard = memo(({ packageName, usedMs, limitMs }: DailyUsageCardProps) => {
+export const DailyUsageCard = memo(({ appKey, usedMs, limitMs }: DailyUsageCardProps) => {
   const { barProgress, isOverLimit } = computeUsageMetrics(usedMs, limitMs);
   const percent = Math.round(barProgress);
 
   return (
     <View
       style={styles.dailyUsageCard}
-      testID={testIds.configureLimits.dailyUsageCard(packageName)}
+      testID={testIds.configureLimits.dailyUsageCard(appKey)}
       accessible
       accessibilityRole="summary"
       accessibilityLabel={`Usage today, ${formatUsagePair(usedMs, limitMs)}`}

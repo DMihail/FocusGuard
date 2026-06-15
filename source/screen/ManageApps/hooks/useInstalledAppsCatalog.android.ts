@@ -1,30 +1,18 @@
-/** @format */
-
 import { useCallback, useState } from 'react';
 
-import { getCachedInstalledApps, invalidateInstalledAppsCache, loadInstalledApps } from '@/domain/installedAppsCatalog';
+import { loadSyncedInstalledApps, readInstalledAppsCache } from '@/domain/loadSyncedInstalledApps';
 import type { ManageApp } from '@/domain/types';
-import { selectedAppsStore } from '@/store';
 
-/** Loads and caches the full device app catalog for Manage Apps on Android. */
 export const useInstalledAppsCatalog = () => {
-  const [installedApps, setInstalledApps] = useState<ManageApp[]>(() => getCachedInstalledApps() ?? []);
-  const [isLoadingApps, setIsLoadingApps] = useState(() => getCachedInstalledApps() === null);
+  const [installedApps, setInstalledApps] = useState<ManageApp[]>(() => readInstalledAppsCache() ?? []);
+  const [isLoadingApps, setIsLoadingApps] = useState(() => readInstalledAppsCache() === null);
 
   const refreshInstalledApps = useCallback(async (force = false) => {
-    if (force) {
-      invalidateInstalledAppsCache();
-    }
-
-    const hasCachedApps = getCachedInstalledApps() !== null;
-
-    if (!hasCachedApps) {
+    if (readInstalledAppsCache() === null) {
       setIsLoadingApps(true);
     }
 
-    const apps = await loadInstalledApps(force);
-    selectedAppsStore.getState().syncSelectedAppsMetadata(apps);
-    setInstalledApps(apps);
+    setInstalledApps(await loadSyncedInstalledApps(force));
     setIsLoadingApps(false);
   }, []);
 

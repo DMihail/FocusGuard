@@ -12,7 +12,7 @@ describe('deep link parsing', () => {
   it('parses configure limits path with package name', () => {
     const target = {
       screen: 'ConfigureLimits' as const,
-      params: { packageName: 'com.instagram.android' },
+      params: { appKey: 'com.instagram.android' },
     };
 
     expect(matchDeepLinkPath('configure/com.instagram.android')).toEqual(target);
@@ -41,7 +41,7 @@ describe('deep link parsing', () => {
         { name: 'Dashboard' },
         {
           name: 'ConfigureLimits',
-          params: { packageName: 'com.instagram.android' },
+          params: { appKey: 'com.instagram.android' },
         },
       ],
       index: 1,

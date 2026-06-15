@@ -1,14 +1,21 @@
-/** @format */
+import { useShallow } from 'zustand/react/shallow';
+
+import { selectedAppsStore } from '@/store';
 
 import { useInstalledAppsCatalog } from './useInstalledAppsCatalog.android';
 import { useManageAppsFilters } from './useManageAppsFilters';
-import { useManageAppsSelection } from './useManageAppsSelection';
 
-/** Composes catalog loading, list filters, and selection state for Manage Apps on Android. */
 export const useManageApps = () => {
   const { installedApps, isLoadingApps, refreshInstalledApps } = useInstalledAppsCatalog();
   const filters = useManageAppsFilters({ installedApps });
-  const selection = useManageAppsSelection();
+  const selection = selectedAppsStore(
+    useShallow((state) => ({
+      selectedApps: state.apps,
+      toggleAppSelection: state.toggleApp,
+      isSelected: state.isSelected,
+      selectedCount: state.apps.length,
+    })),
+  );
 
   return {
     ...filters,

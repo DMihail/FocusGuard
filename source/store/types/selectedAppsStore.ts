@@ -6,6 +6,6 @@ export type SelectedAppsStore = {
   apps: ManageApp[];
   toggleApp: (app: ManageApp) => void;
   replaceApps: (apps: ManageApp[]) => void;
-  isSelected: (packageName: string) => boolean;
+  isSelected: (appKey: string) => boolean;
   syncSelectedAppsMetadata: (installedApps: ManageApp[]) => void;
 };

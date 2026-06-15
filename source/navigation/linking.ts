@@ -40,7 +40,7 @@ export const matchDeepLinkPath = (path: string | null | undefined): DeepLinkTarg
   if (configureMatch?.[1]) {
     return {
       screen: 'ConfigureLimits',
-      params: { packageName: decodeURIComponent(configureMatch[1]) },
+      params: { appKey: decodeURIComponent(configureMatch[1]) },
     };
   }
 
@@ -77,12 +77,12 @@ const rootLinkingConfig: LinkingOptions<RootStackParamList>['config'] = {
     Dashboard: 'dashboard',
     TrackedApps: 'tracked-apps',
     ConfigureLimits: {
-      path: 'configure/:packageName',
+      path: 'configure/:appKey',
       parse: {
-        packageName: (value: string) => decodeURIComponent(value),
+        appKey: (value: string) => decodeURIComponent(value),
       },
       stringify: {
-        packageName: (value: string) => encodeURIComponent(value),
+        appKey: (value: string) => encodeURIComponent(value),
       },
     },
   },

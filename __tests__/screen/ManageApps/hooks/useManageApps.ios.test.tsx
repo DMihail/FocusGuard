@@ -27,13 +27,13 @@ jest.mock('@/screen/ManageApps/hooks/useInstalledAppsCatalog.ios', () => ({
   }),
 }));
 
-jest.mock('@/screen/ManageApps/hooks/useManageAppsSelection', () => ({
-  useManageAppsSelection: () => ({
-    selectedApps: mockInstalledApps,
-    isSelected: () => true,
-    toggleAppSelection: jest.fn(),
-    selectedCount: 1,
-  }),
+jest.mock('@/store', () => ({
+  selectedAppsStore: (selector: (state: unknown) => unknown) =>
+    selector({
+      apps: mockInstalledApps,
+      toggleApp: jest.fn(),
+      isSelected: () => true,
+    }),
 }));
 
 import { useManageApps } from '@/screen/ManageApps/hooks/useManageApps.ios';
