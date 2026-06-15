@@ -1,7 +1,6 @@
-/** @format */
-
 import React from 'react';
 
+import { getManageAppKey } from '@/domain/appKey';
 import type { ListRenderItem } from '@/list';
 
 import type { CategoryFilterOption, ManageApp } from '../types';
@@ -10,10 +9,12 @@ import { CategoryFilterChip } from '../components/CategoryFilterChip';
 import { ManageAppListItem } from '../components/ManageAppListItem';
 
 export const createManageAppListRenderItem = (
-  isSelected: (packageName: string) => boolean,
+  isSelected: (appKey: string) => boolean,
   onToggle: (app: ManageApp) => void,
 ): ListRenderItem<ManageApp> => {
-  return ({ item }) => <ManageAppListItem app={item} isSelected={isSelected(item.packageName)} onToggle={onToggle} />;
+  return ({ item }) => (
+    <ManageAppListItem app={item} isSelected={isSelected(getManageAppKey(item))} onToggle={onToggle} />
+  );
 };
 
 export const createCategoryFilterRenderItem = (

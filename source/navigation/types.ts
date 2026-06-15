@@ -2,7 +2,7 @@
 
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
-import type { LegalDocumentId } from '@/screen/Legal';
+import type { LegalDocumentId } from '@/domain/types/legal';
 
 export type RootStackParamList = {
   Onboarding: undefined;
@@ -10,7 +10,7 @@ export type RootStackParamList = {
   Dashboard: undefined;
   TrackedApps: undefined;
   ManageApps: undefined;
-  ConfigureLimits: { packageName: string };
+  ConfigureLimits: { appKey: string };
   Settings: undefined;
   LegalDocument: { documentId: LegalDocumentId };
 };

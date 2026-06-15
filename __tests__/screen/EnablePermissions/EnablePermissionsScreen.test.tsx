@@ -1,6 +1,15 @@
 /** @format */
 
-import { AppState, Platform } from 'react-native';
+import { AppState } from 'react-native';
+
+jest.mock('@/domain/permissions', () => ({
+  ...jest.requireActual('@/domain/permissions/permissionIds.android'),
+  ...jest.requireActual('@/domain/permissions/permissionStatus.android'),
+}));
+
+jest.mock('@/screen/EnablePermissions/data/permissions', () =>
+  jest.requireActual('@/screen/EnablePermissions/data/permissions.android'),
+);
 
 import type React from 'react';
 
@@ -38,7 +47,7 @@ jest.mock('../../../source/navigation', () => ({
   }),
 }));
 
-jest.mock('@/specs', () => ({
+jest.mock('@/specs/nativeUsageStatsApi.android', () => ({
   checkForPermission: (...args: unknown[]) => mockCheckForPermission(...args),
   checkForSystemAlertWindowPermission: (...args: unknown[]) => mockCheckForSystemAlertWindowPermission(...args),
   checkForNotificationsPermission: (...args: unknown[]) => mockCheckForNotificationsPermission(...args),
@@ -50,6 +59,7 @@ jest.mock('@/specs', () => ({
   requestNotificationsPermission: (...args: unknown[]) => mockRequestNotificationsPermission(...args),
   requestIgnoreBatteryOptimizationsPermission: (...args: unknown[]) =>
     mockRequestIgnoreBatteryOptimizationsPermission(...args),
+  subscribePermissionsChanged: () => ({ remove: jest.fn() }),
 }));
 
 jest.mock('react-native-safe-area-context', () => {
@@ -91,12 +101,9 @@ const grantAllNativePermissions = () => {
 };
 
 describe('EnablePermissionsScreen', () => {
-  const originalPlatform = Platform.OS;
-
   beforeEach(() => {
     jest.clearAllMocks();
     jest.useFakeTimers();
-    Object.defineProperty(Platform, 'OS', { configurable: true, value: 'android' });
     appStateListener = undefined;
     mockCheckForPermission.mockReturnValue(false);
     mockCheckForSystemAlertWindowPermission.mockReturnValue(false);
@@ -109,10 +116,6 @@ describe('EnablePermissionsScreen', () => {
     cleanupTestTrees();
     jest.useRealTimers();
     await flushVirtualizedListWork();
-  });
-
-  afterAll(() => {
-    Object.defineProperty(Platform, 'OS', { configurable: true, value: originalPlatform });
   });
 
   it('renders header, permission cards, privacy notice, and footer', () => {

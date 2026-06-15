@@ -2537,7 +2537,7 @@ SPEC CHECKSUMS:
   React-viewtransitionnativemodule: 11fe091101d381451b1542c37b2745900254f096
   React-webperformancenativemodule: b5d249419f1546663845c82f24de4e18a3180997
   ReactAppDependencyProvider: dcdd0e1b9559a6d8d8aea05286f4ed085091978e
-  ReactCodegen: f8be7be9a8c2f31afc765cd4c93d53b10aa8d8b5
+  ReactCodegen: ccd679db5cfeb7cdf7d40545a55e261407be5887
   ReactCommon: d5c1bb4427bf51c443de5926aac332c89ddd9363
   ReactNativeDependencies: fa0a54b3f5319ae0e3b9aff32bfee7a424b88e66
   RNGestureHandler: 1fac5cb6e78ca6836f4c0b9beba31b10490c70ce
@@ -2547,6 +2547,6 @@ SPEC CHECKSUMS:
   RNWorklets: 2dd3ec21113976f9cf85f2864b9d9d27d9dedbaa
   Yoga: fe50ab299e578f397fef753cf309c6703a4db29b
 
-PODFILE CHECKSUM: 9bdfb56588d4b3ce2bcc8e6d8c6b9dcd294c628e
+PODFILE CHECKSUM: 1200541604ade83eb6bd5b4988d90b74517fce44
 
 COCOAPODS: 1.16.2

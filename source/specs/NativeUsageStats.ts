@@ -1,3 +1,7 @@
+/**
+ * Codegen-only Turbo Module schema (platform-agnostic filename).
+ * Runtime uses `NativeUsageStats.ios.ts` / `NativeUsageStats.android.ts` via moduleSuffixes.
+ */
 import { TurboModuleRegistry } from 'react-native';
 
 import type { TurboModule } from 'react-native';
@@ -5,18 +9,17 @@ import type { EventEmitter } from 'react-native/Libraries/Types/CodegenTypes';
 
 import type { InstallApp, PackageUsage } from './types';
 
-export type PermissionsChangedEvent = {
+type PermissionsChangedEventCodegen = Readonly<{
   changedAtMs: number;
-};
+}>;
 
 type MonitorServiceStartResultCodegen = {
   started: boolean;
   reason?: string;
 };
 
-/** Codegen Turbo Module contract — keep in sync with Android `NativeUsageStatsSpec` and iOS `NativeUsageStatsSpec`. */
 export interface Spec extends TurboModule {
-  readonly onPermissionsChanged: EventEmitter<PermissionsChangedEvent>;
+  readonly onPermissionsChanged: EventEmitter<PermissionsChangedEventCodegen>;
   checkForPermission(): boolean;
   checkForSystemAlertWindowPermission(): boolean;
   checkForNotificationsPermission(): boolean;
@@ -36,6 +39,8 @@ export interface Spec extends TurboModule {
   getAppVersion(): string;
   invalidateNativeCatalogCaches(): void;
   syncTrackingConfig(snapshotJson: string): void;
+  requestScreenTimeAuthorization(): Promise<boolean>;
+  presentFamilyActivityPicker(): Promise<InstallApp[]>;
 }
 
-export default TurboModuleRegistry.get<Spec>('NativeUsageStats');
+export const NativeUsageStatsModule = TurboModuleRegistry.getEnforcing<Spec>('NativeUsageStats');

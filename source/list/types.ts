@@ -8,10 +8,6 @@ export type Identifiable = {
   id: string;
 };
 
-export type PackageIdentifiable = {
-  packageName: string;
-};
-
 export type Titled = {
   title: string;
 };

@@ -1,6 +1,7 @@
 import React, { memo, useLayoutEffect, useMemo, useRef } from 'react';
 import { Pressable, Text, View } from 'react-native';
 
+import { getManageAppKey } from '@/domain/appKey';
 import { testIds } from '@/testing/testIds';
 import { spacing } from '@/theme';
 import { configureSectionLayoutAnimation } from '@/utils/layoutAnimation';
@@ -15,7 +16,7 @@ const MAX_VISIBLE_APPS = 4;
 
 type DistractingAppsSectionProps = {
   appRows: DashboardAppRow[];
-  onConfigureLimits: (packageName: string) => void;
+  onConfigureLimits: (appKey: string) => void;
   onViewAllPress: () => void;
 };
 
@@ -29,7 +30,7 @@ const areVisibleAppRowsEqual = (previous: DashboardAppRow[], next: DashboardAppR
     if (
       !left ||
       !right ||
-      left.packageName !== right.packageName ||
+      getManageAppKey(left) !== getManageAppKey(right) ||
       left.usedMs !== right.usedMs ||
       left.limitMs !== right.limitMs ||
       left.percentUsed !== right.percentUsed ||
@@ -90,7 +91,7 @@ export const DistractingAppsSection = memo(
           {visibleApps.length === 0 ? (
             <DistractingAppsListEmpty />
           ) : (
-            visibleApps.map((app) => <AppUsageRow key={app.packageName} {...app} onPress={onConfigureLimits} />)
+            visibleApps.map((app) => <AppUsageRow key={getManageAppKey(app)} {...app} onPress={onConfigureLimits} />)
           )}
         </View>
       </View>

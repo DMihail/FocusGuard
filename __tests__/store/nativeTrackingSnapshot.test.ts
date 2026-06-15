@@ -14,19 +14,22 @@ jest.mock('@/specs/nativeUsageStatsClient', () => ({
   getNativeUsageStats: jest.fn(),
 }));
 
+jest.mock('@/store/trackingSnapshotPayload', () => jest.requireActual('@/store/trackingSnapshotPayload.android'));
+
 import { getNativeUsageStats } from '@/specs/nativeUsageStatsClient';
+import { buildAndroidTrackingSnapshot } from '@/store/androidTrackingSnapshot';
 import { appLimitsStore } from '@/store/appLimitsStore';
-import { buildNativeTrackingSnapshot, syncNativeTrackingSnapshot } from '@/store/nativeTrackingSnapshot';
+import { syncNativeTrackingSnapshot } from '@/store/nativeTrackingSnapshot';
 import { NATIVE_TRACKING_SNAPSHOT_KEY } from '@/store/persistSchema';
 import { selectedAppsStore } from '@/store/selectedAppsStore';
 
 const mockGetNativeUsageStats = getNativeUsageStats as jest.MockedFunction<typeof getNativeUsageStats>;
 
-describe('nativeTrackingSnapshot', () => {
+describe('nativeTrackingSnapshot (Android)', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     selectedAppsStore.setState({ apps: [] });
-    appLimitsStore.setState({ limitsByPackage: {} });
+    appLimitsStore.setState({ limitsByAppKey: {} });
     mockGetNativeUsageStats.mockReturnValue({ syncTrackingConfig: mockSyncTrackingConfig } as never);
   });
 
@@ -50,7 +53,7 @@ describe('nativeTrackingSnapshot', () => {
 
     syncNativeTrackingSnapshot();
 
-    const snapshotJson = JSON.stringify(buildNativeTrackingSnapshot());
+    const snapshotJson = JSON.stringify(buildAndroidTrackingSnapshot());
     expect(mockSyncTrackingConfig).toHaveBeenCalledWith(snapshotJson);
     expect(mockSet).not.toHaveBeenCalled();
   });
@@ -60,7 +63,7 @@ describe('nativeTrackingSnapshot', () => {
 
     syncNativeTrackingSnapshot();
 
-    expect(mockSet).toHaveBeenCalledWith(NATIVE_TRACKING_SNAPSHOT_KEY, JSON.stringify(buildNativeTrackingSnapshot()));
+    expect(mockSet).toHaveBeenCalledWith(NATIVE_TRACKING_SNAPSHOT_KEY, JSON.stringify(buildAndroidTrackingSnapshot()));
     expect(mockSyncTrackingConfig).not.toHaveBeenCalled();
   });
 });

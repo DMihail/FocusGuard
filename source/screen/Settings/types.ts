@@ -3,7 +3,7 @@
 import type { ComponentType } from 'react';
 import type { SvgProps } from 'react-native-svg';
 
-import type { LegalDocumentId } from '@/screen/Legal';
+import type { LegalDocumentId } from '@/domain/types/legal';
 
 export type SettingsToggleItem = {
   title: string;

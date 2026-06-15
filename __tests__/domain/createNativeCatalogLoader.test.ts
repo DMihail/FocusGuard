@@ -4,7 +4,6 @@ describe('createNativeCatalogLoader', () => {
   it('caches loaded values until invalidated', async () => {
     let reads = 0;
     const loader = createNativeCatalogLoader({
-      label: 'testCatalog',
       fallback: [],
       read: () => {
         reads += 1;
@@ -25,7 +24,6 @@ describe('createNativeCatalogLoader', () => {
 describe('createNativeKeyedCatalogLoader', () => {
   it('loads only requested package keys and merges cache entries', async () => {
     const loader = createNativeKeyedCatalogLoader<Record<string, number>>({
-      label: 'usageCatalog',
       readKeys: (keys) =>
         Object.fromEntries(keys.map((key) => [key, key === 'com.social.chat' ? 15 : 45])) as Record<string, number>,
     });
@@ -45,7 +43,6 @@ describe('createNativeKeyedCatalogLoader', () => {
       (keys: readonly string[]) => Object.fromEntries(keys.map((key) => [key, key.length])) as Record<string, number>,
     );
     const loader = createNativeKeyedCatalogLoader<Record<string, number>>({
-      label: 'usageCatalog',
       readKeys,
     });
 

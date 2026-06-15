@@ -168,4 +168,27 @@ export const manageAppsStyles = StyleSheet.create({
     ...textPresets.empty,
     paddingVertical: spacing.xl,
   },
+  iosPickAppsContainer: {
+    gap: spacing.sm,
+    paddingHorizontal: spacing.xl,
+    paddingBottom: spacing.md,
+  },
+  iosPickAppsButton: {
+    ...layoutPresets.cardLg,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 52,
+    backgroundColor: colors.accentMuted,
+    borderColor: colors.accent,
+  },
+  iosPickAppsButtonPressed: {
+    opacity: 0.85,
+  },
+  iosPickAppsButtonText: {
+    ...textPresets.accentButton,
+  },
+  iosPickAppsHint: {
+    ...textPresets.captionMuted,
+    textAlign: 'center',
+  },
 });

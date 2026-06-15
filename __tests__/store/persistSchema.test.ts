@@ -16,17 +16,17 @@ import {
  * Update both files together when keys or versions change.
  */
 const ANDROID_PERSIST_CONTRACT = {
-  MMKV_INSTANCE_ID: 'focus-guard-storage',
+  MMKV_INSTANCE_ID: 'keept-storage',
   SELECTED_APPS_STORAGE_KEY: 'selected-apps-storage',
   APP_LIMITS_STORAGE_KEY: 'app-limits-storage',
   MONITORING_STORAGE_KEY: 'monitoring-storage',
   SETTINGS_STORAGE_KEY: 'settings-storage',
   SELECTED_APPS_PERSIST_VERSION: 1,
-  APP_LIMITS_PERSIST_VERSION: 1,
+  APP_LIMITS_PERSIST_VERSION: 2,
   MONITORING_PERSIST_VERSION: 1,
   SETTINGS_PERSIST_VERSION: 1,
   NATIVE_TRACKING_SNAPSHOT_KEY: 'native-tracking-snapshot-v1',
-  NATIVE_TRACKING_SNAPSHOT_VERSION: 1,
+  NATIVE_TRACKING_SNAPSHOT_VERSION: 2,
 } as const;
 
 describe('persistSchema', () => {

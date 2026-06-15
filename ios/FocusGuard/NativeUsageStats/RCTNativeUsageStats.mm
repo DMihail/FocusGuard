@@ -3,11 +3,13 @@
 #import <ReactCommon/RCTTurboModule.h>
 #import <ReactCodegen/NativeUsageStatsSpecJSI.h>
 
+#import "../ScreenTime/KeeptScreenTimeBridge.h"
+
 @implementation RCTNativeUsageStats
 
 - (NSNumber *)checkForPermission
 {
-  return @YES;
+  return @(KeeptScreenTimeBridge.isScreenTimeAuthorized);
 }
 
 - (NSNumber *)checkForSystemAlertWindowPermission
@@ -17,7 +19,7 @@
 
 - (NSNumber *)checkForNotificationsPermission
 {
-  return @YES;
+  return @(KeeptScreenTimeBridge.areNotificationsAuthorized);
 }
 
 - (NSNumber *)checkForIgnoreBatteryOptimizationsPermission
@@ -32,20 +34,28 @@
 
 - (NSDictionary *)startMonitorService
 {
-  return @{@"started" : @NO, @"reason" : @"unsupported_platform"};
+  return [KeeptScreenTimeBridge startMonitorService];
 }
 
 - (void)stopMonitorService
 {
+  [KeeptScreenTimeBridge stopMonitorService];
 }
 
 - (NSNumber *)isMonitorServiceRunning
 {
-  return @NO;
+  return @([KeeptScreenTimeBridge isMonitorServiceRunning]);
 }
 
 - (void)requestUsageStatsPermission
 {
+  [KeeptScreenTimeBridge requestScreenTimeAuthorization:^(id result) {
+  }
+                                       reject:^(NSString *code, NSString *message, NSError *error) {
+                                         (void)code;
+                                         (void)message;
+                                         (void)error;
+                                       }];
 }
 
 - (void)requestSystemAlertWindowPermission
@@ -54,10 +64,18 @@
 
 - (void)requestNotificationsPermission
 {
+  [KeeptScreenTimeBridge requestNotificationsAuthorization:^(id result) {
+  }
+                                          reject:^(NSString *code, NSString *message, NSError *error) {
+                                            (void)code;
+                                            (void)message;
+                                            (void)error;
+                                          }];
 }
 
 - (void)openNotificationsSettings
 {
+  [KeeptScreenTimeBridge openNotificationsSettings];
 }
 
 - (void)requestIgnoreBatteryOptimizationsPermission
@@ -68,12 +86,20 @@
                       resolve:(RCTPromiseResolveBlock)resolve
                        reject:(RCTPromiseRejectBlock)reject
 {
-  resolve(@[]);
+  [KeeptScreenTimeBridge getPackagesUsageToday:packageNames
+                                       resolve:resolve
+                                        reject:reject];
 }
 
 - (void)getInstalledApplications:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject
 {
-  resolve(@[]);
+  (void)reject;
+  [KeeptScreenTimeBridge getSelectedApplications:resolve
+                                          reject:^(NSString *code, NSString *message, NSError *error) {
+                                            (void)code;
+                                            (void)message;
+                                            (void)error;
+                                          }];
 }
 
 - (NSString *)getAppDisplayName
@@ -88,10 +114,22 @@
 
 - (void)invalidateNativeCatalogCaches
 {
+  [KeeptScreenTimeBridge invalidateNativeCatalogCaches];
 }
 
 - (void)syncTrackingConfig:(NSString *)snapshotJson
 {
+  [KeeptScreenTimeBridge syncTrackingConfig:snapshotJson];
+}
+
+- (void)requestScreenTimeAuthorization:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject
+{
+  [KeeptScreenTimeBridge requestScreenTimeAuthorization:resolve reject:reject];
+}
+
+- (void)presentFamilyActivityPicker:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject
+{
+  [KeeptScreenTimeBridge presentFamilyActivityPicker:resolve reject:reject];
 }
 
 - (std::shared_ptr<facebook::react::TurboModule>)getTurboModule:

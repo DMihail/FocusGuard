@@ -1,9 +1,16 @@
 /** @format */
 
 import React, { useEffect, useRef } from 'react';
-import { Platform } from 'react-native';
 
 import ReactTestRenderer, { act } from 'react-test-renderer';
+
+jest.mock('@/screen/Settings/notificationGrant', () =>
+  jest.requireActual('@/screen/Settings/notificationGrant.android'),
+);
+
+jest.mock('@/utils/permissions/requestNotificationPermission', () =>
+  jest.requireActual('@/utils/permissions/requestNotificationPermission.android'),
+);
 
 const mockCheckForNotificationsPermission = jest.fn(() => false);
 const mockOpenNotificationsSettings = jest.fn();
@@ -17,9 +24,10 @@ const mockStoreState = {
   }),
 };
 
-jest.mock('@/specs', () => ({
+jest.mock('@/specs/nativeUsageStatsApi.android', () => ({
   checkForNotificationsPermission: () => mockCheckForNotificationsPermission(),
   openNotificationsSettings: () => mockOpenNotificationsSettings(),
+  subscribePermissionsChanged: () => ({ remove: jest.fn() }),
 }));
 
 jest.mock('@/utils/permissions/requestNotificationPermission', () => ({
@@ -68,18 +76,11 @@ const UseNotificationsSettingHarness = ({ onReady }: HarnessProps) => {
 };
 
 describe('useNotificationsSetting', () => {
-  const originalOS = Platform.OS;
-
   beforeEach(() => {
     jest.clearAllMocks();
-    Platform.OS = 'android';
     mockStoreState.notificationsEnabled = true;
     mockCheckForNotificationsPermission.mockReturnValue(false);
     mockRequestPostNotificationsPermission.mockResolvedValue(true);
-  });
-
-  afterEach(() => {
-    Platform.OS = originalOS;
   });
 
   it('reflects granted system permission in isEnabled', () => {

@@ -6,10 +6,14 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 
-/** Builds `focusguard://` VIEW intents consumed by React Navigation linking on JS. */
+/** Builds deep-link VIEW intents consumed by React Navigation linking on JS. */
 object DeepLinks {
 
-    const val SCHEME = "focusguard"
+    /** Preferred scheme — see docs/MIGRATION_KEEPT.md. */
+    const val SCHEME = "keept"
+
+    /** Legacy scheme kept for backward compatibility. */
+    const val LEGACY_SCHEME = "focusguard"
 
     fun dashboardUri(): Uri =
         Uri.Builder()

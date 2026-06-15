@@ -165,5 +165,7 @@ jest.mock('@/specs/nativeUsageStatsClient', () => ({
     getAppVersion: jest.fn(() => ''),
     invalidateNativeCatalogCaches: jest.fn(),
     syncTrackingConfig: jest.fn(),
+    requestScreenTimeAuthorization: jest.fn(async () => true),
+    presentFamilyActivityPicker: jest.fn(async () => []),
   })),
 }));

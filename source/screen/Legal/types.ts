@@ -1,6 +1,6 @@
 /** @format */
 
-export type LegalDocumentId = 'dataPrivacy' | 'termsPrivacy';
+export type { LegalDocumentId } from '@/domain/types/legal';
 
 export type LegalSection = {
   title: string;

@@ -4,25 +4,15 @@ import { getNativeUsageStats } from '@/specs/nativeUsageStatsClient';
 
 import { appLimitsStore } from './appLimitsStore';
 import { storage } from './mmkv';
-import { NATIVE_TRACKING_SNAPSHOT_KEY, NATIVE_TRACKING_SNAPSHOT_VERSION } from './persistSchema';
 import { selectedAppsStore } from './selectedAppsStore';
-import type { AppLimits } from './types';
+import { buildPlatformTrackingSnapshot, platformTrackingSnapshotKey } from './trackingSnapshotPayload';
 
-export type NativeTrackingSnapshot = {
-  version: number;
-  trackedApps: string[];
-  limitsByPackage: Record<string, AppLimits>;
-};
+export type { AndroidTrackingSnapshot } from './androidTrackingSnapshot';
+export { buildAndroidTrackingSnapshot } from './androidTrackingSnapshot';
+export { buildIosTrackingSnapshot } from './iosTrackingSnapshot';
 
-export const buildNativeTrackingSnapshot = (): NativeTrackingSnapshot => ({
-  version: NATIVE_TRACKING_SNAPSHOT_VERSION,
-  trackedApps: selectedAppsStore.getState().apps.map((app) => app.packageName),
-  limitsByPackage: appLimitsStore.getState().limitsByPackage,
-});
-
-/** Writes the flat snapshot for native monitoring via Turbo Module, with MMKV fallback in tests. */
 export const syncNativeTrackingSnapshot = (): void => {
-  const snapshotJson = JSON.stringify(buildNativeTrackingSnapshot());
+  const snapshotJson = JSON.stringify(buildPlatformTrackingSnapshot());
   const nativeModule = getNativeUsageStats();
 
   if (nativeModule) {
@@ -30,7 +20,7 @@ export const syncNativeTrackingSnapshot = (): void => {
     return;
   }
 
-  storage.set(NATIVE_TRACKING_SNAPSHOT_KEY, snapshotJson);
+  storage.set(platformTrackingSnapshotKey, snapshotJson);
 };
 
 let unsubscribeSelectedApps: (() => void) | null = null;
@@ -50,7 +40,7 @@ export const startNativeTrackingSnapshotSync = (): (() => void) => {
 
   if (!unsubscribeAppLimits) {
     unsubscribeAppLimits = appLimitsStore.subscribe((state, previous) => {
-      if (state.limitsByPackage !== previous.limitsByPackage) {
+      if (state.limitsByAppKey !== previous.limitsByAppKey) {
         syncNativeTrackingSnapshot();
       }
     });

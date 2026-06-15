@@ -1,5 +1,6 @@
 /** @format */
 
+import { getManageAppKey } from '@/domain/appKey';
 import type { ManageApp } from '@/domain/types';
 import { type AppLimits, DEFAULT_APP_LIMITS } from '@/store';
 
@@ -23,13 +24,14 @@ export type DashboardSummary = {
 /** Builds dashboard rows with usage percentages sorted by time spent. */
 export const buildDashboardAppRows = (
   apps: ManageApp[],
-  limitsByPackage: Record<string, AppLimits>,
+  limitsByAppKey: Record<string, AppLimits>,
   usageByPackage: Record<string, number>,
 ): DashboardAppRow[] =>
   apps
     .map((app) => {
-      const limits = limitsByPackage[app.packageName] ?? DEFAULT_APP_LIMITS;
-      const usedMs = usageByPackage[app.packageName] ?? 0;
+      const appKey = getManageAppKey(app);
+      const limits = limitsByAppKey[appKey] ?? DEFAULT_APP_LIMITS;
+      const usedMs = usageByPackage[appKey] ?? 0;
       const limitMs = limits.hardBlockMinutes * MS_PER_MINUTE;
       const { percentUsed, isOverLimit } = computeUsageMetrics(usedMs, limitMs);
 

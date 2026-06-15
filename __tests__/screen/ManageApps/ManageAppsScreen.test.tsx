@@ -1,11 +1,14 @@
 /** @format */
 
-import type React from 'react';
 import { act } from 'react-test-renderer';
 
 import type { ManageApp } from '@/domain/types';
 import { mockInstallApps, mockManageApps } from '@/testing/fixtures/manageApps';
 import { testIds } from '@/testing/testIds';
+
+jest.mock('@/screen/ManageApps/hooks/useManageAppsScreen', () =>
+  jest.requireActual('@/screen/ManageApps/hooks/useManageAppsScreen.android'),
+);
 
 import {
   cleanupTestTrees,

@@ -1,11 +1,11 @@
 /** @format */
 
-import type { AppLimits, AppLimitsByPackage } from './appLimits';
+import type { AppLimits, AppLimitsByAppKey } from './appLimits';
 
 export type AppLimitsStore = {
-  limitsByPackage: AppLimitsByPackage;
-  getLimits: (packageName: string) => AppLimits;
-  setLimits: (packageName: string, limits: AppLimits) => void;
+  limitsByAppKey: AppLimitsByAppKey;
+  getLimits: (appKey: string) => AppLimits;
+  setLimits: (appKey: string, limits: AppLimits) => void;
 };
 
 export type LimitSliderBound = {

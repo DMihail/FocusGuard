@@ -13,11 +13,94 @@
 		60A85BFB18134E24AD778BC6 /* Inter-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A33565A2A5E04F02B2D8C759 /* Inter-Bold.ttf */; };
 		761780ED2CA45674006654EE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 761780EC2CA45674006654EE /* AppDelegate.swift */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
+		A1B2C3D491A680F5B00A75B9A /* DeviceActivityMonitorExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D481A680F5B00A75B9A /* DeviceActivityMonitorExtension.swift */; };
+		A1B2C3D4C1A680F5B00A75B9A /* KeeptAppGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4B1A680F5B00A75B9A /* KeeptAppGroup.swift */; };
+		A1B2C3D4D1A680F5B00A75B9A /* KeeptAppGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4B1A680F5B00A75B9A /* KeeptAppGroup.swift */; };
+		A1B2C3D4F1A680F5B00A75B9A /* IosTrackingSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E1A680F5B00A75B9A /* IosTrackingSnapshot.swift */; };
+		A1B2C3D501A680F5B00A75B9A /* IosTrackingSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E1A680F5B00A75B9A /* IosTrackingSnapshot.swift */; };
+		A1B2C3D541A680F5B00A75B9A /* KeeptMonitor.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = A1B2C3D401A680F5B00A75B9A /* KeeptMonitor.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		A1B2C3D5C1A680F5B00A75B9A /* DeviceActivity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1B2C3D591A680F5B00A75B9A /* DeviceActivity.framework */; };
+		A1B2C3D5D1A680F5B00A75B9A /* FamilyControls.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1B2C3D5A1A680F5B00A75B9A /* FamilyControls.framework */; };
+		A1B2C3D5E1A680F5B00A75B9A /* ManagedSettings.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1B2C3D5B1A680F5B00A75B9A /* ManagedSettings.framework */; };
+		B1C2D3E421A680F5B00A75B9A /* KeeptScreenTimeAuthorization.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1C2D3E431A680F5B00A75B9A /* KeeptScreenTimeAuthorization.swift */; };
+		B1C2D3E461A680F5B00A75B9A /* SelectedAppsPayloadBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1C2D3E471A680F5B00A75B9A /* SelectedAppsPayloadBuilder.swift */; };
+		B1C2D3E481A680F5B00A75B9A /* KeeptFamilyActivityPickerPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1C2D3E491A680F5B00A75B9A /* KeeptFamilyActivityPickerPresenter.swift */; };
+		B1C2D3E4A1A680F5B00A75B9A /* KeeptNotificationAuthorization.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1C2D3E4B1A680F5B00A75B9A /* KeeptNotificationAuthorization.swift */; };
+		B1C2D3E4C1A680F5B00A75B9A /* KeeptScreenTimeBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1C2D3E4D1A680F5B00A75B9A /* KeeptScreenTimeBridge.swift */; };
+		B1C2D3E4E1A680F5B00A75B9A /* FamilyControls.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1B2C3D5A1A680F5B00A75B9A /* FamilyControls.framework */; };
+		B1C2D3E4F1A680F5B00A75B9A /* ManagedSettings.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1B2C3D5B1A680F5B00A75B9A /* ManagedSettings.framework */; };
+		C2D3E5021A680F5B00A75B9A /* KeeptMonitoringNames.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2D3E5011A680F5B00A75B9A /* KeeptMonitoringNames.swift */; };
+		C2D3E5121A680F5B00A75B9A /* IosTokenCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2D3E5111A680F5B00A75B9A /* IosTokenCatalog.swift */; };
+		C2D3E5221A680F5B00A75B9A /* IosFamilyActivitySelectionStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2D3E5211A680F5B00A75B9A /* IosFamilyActivitySelectionStore.swift */; };
+		C2D3E5321A680F5B00A75B9A /* KeeptMonitoringStateStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2D3E5311A680F5B00A75B9A /* KeeptMonitoringStateStore.swift */; };
+		C2D3E5421A680F5B00A75B9A /* IosTrackingSnoozeStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2D3E5411A680F5B00A75B9A /* IosTrackingSnoozeStore.swift */; };
+		C2D3E5521A680F5B00A75B9A /* IosDailyWarningStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2D3E5511A680F5B00A75B9A /* IosDailyWarningStore.swift */; };
+		C2D3E5621A680F5B00A75B9A /* IosShieldStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2D3E5611A680F5B00A75B9A /* IosShieldStore.swift */; };
+		C2D3E5721A680F5B00A75B9A /* KeeptMonitoringScheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2D3E5711A680F5B00A75B9A /* KeeptMonitoringScheduler.swift */; };
+		C2D3E5821A680F5B00A75B9A /* KeeptMonitorActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2D3E5811A680F5B00A75B9A /* KeeptMonitorActions.swift */; };
+		C2D3E5921A680F5B00A75B9A /* DeviceActivity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1B2C3D591A680F5B00A75B9A /* DeviceActivity.framework */; };
+		C2D3E5A21A680F5B00A75B9A /* KeeptMonitoringNames.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2D3E5011A680F5B00A75B9A /* KeeptMonitoringNames.swift */; };
+		C2D3E5B21A680F5B00A75B9A /* IosTokenCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2D3E5111A680F5B00A75B9A /* IosTokenCatalog.swift */; };
+		C2D3E5C21A680F5B00A75B9A /* IosFamilyActivitySelectionStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2D3E5211A680F5B00A75B9A /* IosFamilyActivitySelectionStore.swift */; };
+		C2D3E5D21A680F5B00A75B9A /* KeeptMonitoringStateStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2D3E5311A680F5B00A75B9A /* KeeptMonitoringStateStore.swift */; };
+		C2D3E5E21A680F5B00A75B9A /* IosTrackingSnoozeStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2D3E5411A680F5B00A75B9A /* IosTrackingSnoozeStore.swift */; };
+		C2D3E5F21A680F5B00A75B9A /* IosDailyWarningStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2D3E5511A680F5B00A75B9A /* IosDailyWarningStore.swift */; };
+		C2D3E6021A680F5B00A75B9A /* IosShieldStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2D3E5611A680F5B00A75B9A /* IosShieldStore.swift */; };
+		C2D3E6121A680F5B00A75B9A /* KeeptMonitoringScheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2D3E5711A680F5B00A75B9A /* KeeptMonitoringScheduler.swift */; };
+		C2D3E6221A680F5B00A75B9A /* KeeptMonitorActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2D3E5811A680F5B00A75B9A /* KeeptMonitorActions.swift */; };
 		C89960D5814A437FA4D5E865 /* Inter-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4FF812CD12A24C7C9F6AC828 /* Inter-Regular.ttf */; };
 		D170490DEF45D6F0125B19E7 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */; };
+		D2E3F5411A680F5B00A75B9A /* IosDailyUsageStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2E3F5011A680F5B00A75B9A /* IosDailyUsageStore.swift */; };
+		D2E3F5511A680F5B00A75B9A /* KeeptUsageReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2E3F5111A680F5B00A75B9A /* KeeptUsageReader.swift */; };
+		D2E3F5611A680F5B00A75B9A /* KeeptUsageReportContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2E3F5211A680F5B00A75B9A /* KeeptUsageReportContext.swift */; };
+		D2E3F5711A680F5B00A75B9A /* KeeptUsageReportCollector.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2E3F5311A680F5B00A75B9A /* KeeptUsageReportCollector.swift */; };
+		D2E3F5811A680F5B00A75B9A /* IosDailyUsageStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2E3F5011A680F5B00A75B9A /* IosDailyUsageStore.swift */; };
+		D2E3F5911A680F5B00A75B9A /* KeeptReportExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2E3F4811A680F5B00A75B9A /* KeeptReportExtension.swift */; };
+		D2E3F5A11A680F5B00A75B9A /* TrackedAppsReport.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2E3F4911A680F5B00A75B9A /* TrackedAppsReport.swift */; };
+		D2E3F5B11A680F5B00A75B9A /* TrackedAppsReportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2E3F4A11A680F5B00A75B9A /* TrackedAppsReportView.swift */; };
+		D2E3F5C11A680F5B00A75B9A /* IosDailyUsageStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2E3F5011A680F5B00A75B9A /* IosDailyUsageStore.swift */; };
+		D2E3F5D11A680F5B00A75B9A /* KeeptUsageReportContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2E3F5211A680F5B00A75B9A /* KeeptUsageReportContext.swift */; };
+		D2E3F5E11A680F5B00A75B9A /* IosTokenCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2D3E5111A680F5B00A75B9A /* IosTokenCatalog.swift */; };
+		D2E3F5F11A680F5B00A75B9A /* IosFamilyActivitySelectionStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2D3E5211A680F5B00A75B9A /* IosFamilyActivitySelectionStore.swift */; };
+		D2E3F6011A680F5B00A75B9A /* KeeptAppGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4B1A680F5B00A75B9A /* KeeptAppGroup.swift */; };
+		D2E3F6111A680F5B00A75B9A /* DeviceActivity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1B2C3D591A680F5B00A75B9A /* DeviceActivity.framework */; };
+		D2E3F6211A680F5B00A75B9A /* FamilyControls.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1B2C3D5A1A680F5B00A75B9A /* FamilyControls.framework */; };
+		D2E3F6311A680F5B00A75B9A /* KeeptReport.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = D2E3F4011A680F5B00A75B9A /* KeeptReport.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		E7CDC4C2890D475FA557F479 /* Inter-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 48B53B5AA62C4F62ADACAE00 /* Inter-Medium.ttf */; };
 		F1A2B3C42CA45674006654EE /* RCTNativeUsageStats.mm in Sources */ = {isa = PBXBuildFile; fileRef = F1A2B3C32CA45674006654EE /* RCTNativeUsageStats.mm */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		A1B2C3D561A680F5B00A75B9A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 83CBB9F71A601CBA00E9B192 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A1B2C3D411A680F5B00A75B9A;
+			remoteInfo = KeeptMonitor;
+		};
+		D2E3F4E11A680F5B00A75B9A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 83CBB9F71A601CBA00E9B192 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D2E3F4111A680F5B00A75B9A;
+			remoteInfo = KeeptReport;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		A1B2C3D531A680F5B00A75B9A /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				A1B2C3D541A680F5B00A75B9A /* KeeptMonitor.appex in Embed Foundation Extensions */,
+				D2E3F6311A680F5B00A75B9A /* KeeptReport.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		13B07F961A680F5B00A75B9A /* FocusGuard.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FocusGuard.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -31,8 +114,42 @@
 		5DCACB8F33CDC322A6C60F78 /* libPods-FocusGuard.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-FocusGuard.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		761780EC2CA45674006654EE /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = FocusGuard/AppDelegate.swift; sourceTree = "<group>"; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = FocusGuard/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		A1B2C3D401A680F5B00A75B9A /* KeeptMonitor.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = KeeptMonitor.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		A1B2C3D481A680F5B00A75B9A /* DeviceActivityMonitorExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceActivityMonitorExtension.swift; sourceTree = "<group>"; };
+		A1B2C3D4A1A680F5B00A75B9A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		A1B2C3D4B1A680F5B00A75B9A /* KeeptAppGroup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeeptAppGroup.swift; sourceTree = "<group>"; };
+		A1B2C3D4E1A680F5B00A75B9A /* IosTrackingSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IosTrackingSnapshot.swift; sourceTree = "<group>"; };
+		A1B2C3D571A680F5B00A75B9A /* FocusGuard.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = FocusGuard.entitlements; path = FocusGuard/FocusGuard.entitlements; sourceTree = "<group>"; };
+		A1B2C3D581A680F5B00A75B9A /* KeeptMonitor.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = KeeptMonitor.entitlements; sourceTree = "<group>"; };
+		A1B2C3D591A680F5B00A75B9A /* DeviceActivity.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = DeviceActivity.framework; path = System/Library/Frameworks/DeviceActivity.framework; sourceTree = SDKROOT; };
+		A1B2C3D5A1A680F5B00A75B9A /* FamilyControls.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = FamilyControls.framework; path = System/Library/Frameworks/FamilyControls.framework; sourceTree = SDKROOT; };
+		A1B2C3D5B1A680F5B00A75B9A /* ManagedSettings.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ManagedSettings.framework; path = System/Library/Frameworks/ManagedSettings.framework; sourceTree = SDKROOT; };
 		A33565A2A5E04F02B2D8C759 /* Inter-Bold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Inter-Bold.ttf"; path = "../source/assets/fonts/Inter-Bold.ttf"; sourceTree = "<group>"; };
+		B1C2D3E431A680F5B00A75B9A /* KeeptScreenTimeAuthorization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeeptScreenTimeAuthorization.swift; sourceTree = "<group>"; };
+		B1C2D3E471A680F5B00A75B9A /* SelectedAppsPayloadBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectedAppsPayloadBuilder.swift; sourceTree = "<group>"; };
+		B1C2D3E491A680F5B00A75B9A /* KeeptFamilyActivityPickerPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeeptFamilyActivityPickerPresenter.swift; sourceTree = "<group>"; };
+		B1C2D3E4B1A680F5B00A75B9A /* KeeptNotificationAuthorization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeeptNotificationAuthorization.swift; sourceTree = "<group>"; };
+		B1C2D3E4D1A680F5B00A75B9A /* KeeptScreenTimeBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeeptScreenTimeBridge.swift; sourceTree = "<group>"; };
+		C2D3E5011A680F5B00A75B9A /* KeeptMonitoringNames.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeeptMonitoringNames.swift; sourceTree = "<group>"; };
+		C2D3E5111A680F5B00A75B9A /* IosTokenCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IosTokenCatalog.swift; sourceTree = "<group>"; };
+		C2D3E5211A680F5B00A75B9A /* IosFamilyActivitySelectionStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IosFamilyActivitySelectionStore.swift; sourceTree = "<group>"; };
+		C2D3E5311A680F5B00A75B9A /* KeeptMonitoringStateStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeeptMonitoringStateStore.swift; sourceTree = "<group>"; };
+		C2D3E5411A680F5B00A75B9A /* IosTrackingSnoozeStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IosTrackingSnoozeStore.swift; sourceTree = "<group>"; };
+		C2D3E5511A680F5B00A75B9A /* IosDailyWarningStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IosDailyWarningStore.swift; sourceTree = "<group>"; };
+		C2D3E5611A680F5B00A75B9A /* IosShieldStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IosShieldStore.swift; sourceTree = "<group>"; };
+		C2D3E5711A680F5B00A75B9A /* KeeptMonitoringScheduler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeeptMonitoringScheduler.swift; sourceTree = "<group>"; };
+		C2D3E5811A680F5B00A75B9A /* KeeptMonitorActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeeptMonitorActions.swift; sourceTree = "<group>"; };
 		CB17F5AB88324B4D9C0E2215 /* Inter-SemiBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Inter-SemiBold.ttf"; path = "../source/assets/fonts/Inter-SemiBold.ttf"; sourceTree = "<group>"; };
+		D2E3F4011A680F5B00A75B9A /* KeeptReport.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = KeeptReport.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		D2E3F4811A680F5B00A75B9A /* KeeptReportExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeeptReportExtension.swift; sourceTree = "<group>"; };
+		D2E3F4911A680F5B00A75B9A /* TrackedAppsReport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackedAppsReport.swift; sourceTree = "<group>"; };
+		D2E3F4A11A680F5B00A75B9A /* TrackedAppsReportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackedAppsReportView.swift; sourceTree = "<group>"; };
+		D2E3F4B11A680F5B00A75B9A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		D2E3F4C11A680F5B00A75B9A /* KeeptReport.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = KeeptReport.entitlements; sourceTree = "<group>"; };
+		D2E3F5011A680F5B00A75B9A /* IosDailyUsageStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IosDailyUsageStore.swift; sourceTree = "<group>"; };
+		D2E3F5111A680F5B00A75B9A /* KeeptUsageReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeeptUsageReader.swift; sourceTree = "<group>"; };
+		D2E3F5211A680F5B00A75B9A /* KeeptUsageReportContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeeptUsageReportContext.swift; sourceTree = "<group>"; };
+		D2E3F5311A680F5B00A75B9A /* KeeptUsageReportCollector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeeptUsageReportCollector.swift; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		F1A2B3C22CA45674006654EE /* RCTNativeUsageStats.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = RCTNativeUsageStats.h; path = FocusGuard/NativeUsageStats/RCTNativeUsageStats.h; sourceTree = "<group>"; };
 		F1A2B3C32CA45674006654EE /* RCTNativeUsageStats.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = RCTNativeUsageStats.mm; path = FocusGuard/NativeUsageStats/RCTNativeUsageStats.mm; sourceTree = "<group>"; };
@@ -44,6 +161,28 @@
 			buildActionMask = 2147483647;
 			files = (
 				0C80B921A6F3F58F76C31292 /* libPods-FocusGuard.a in Frameworks */,
+				C2D3E5921A680F5B00A75B9A /* DeviceActivity.framework in Frameworks */,
+				B1C2D3E4E1A680F5B00A75B9A /* FamilyControls.framework in Frameworks */,
+				B1C2D3E4F1A680F5B00A75B9A /* ManagedSettings.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A1B2C3D431A680F5B00A75B9A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A1B2C3D5C1A680F5B00A75B9A /* DeviceActivity.framework in Frameworks */,
+				A1B2C3D5D1A680F5B00A75B9A /* FamilyControls.framework in Frameworks */,
+				A1B2C3D5E1A680F5B00A75B9A /* ManagedSettings.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D2E3F4311A680F5B00A75B9A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D2E3F6111A680F5B00A75B9A /* DeviceActivity.framework in Frameworks */,
+				D2E3F6211A680F5B00A75B9A /* FamilyControls.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -60,6 +199,7 @@
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */,
 				13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */,
+				A1B2C3D571A680F5B00A75B9A /* FocusGuard.entitlements */,
 			);
 			name = FocusGuard;
 			sourceTree = "<group>";
@@ -69,6 +209,9 @@
 			children = (
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
 				5DCACB8F33CDC322A6C60F78 /* libPods-FocusGuard.a */,
+				A1B2C3D591A680F5B00A75B9A /* DeviceActivity.framework */,
+				A1B2C3D5A1A680F5B00A75B9A /* FamilyControls.framework */,
+				A1B2C3D5B1A680F5B00A75B9A /* ManagedSettings.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -95,6 +238,10 @@
 			isa = PBXGroup;
 			children = (
 				13B07FAE1A68108700A75B9A /* FocusGuard */,
+				B1C2D3E501A680F5B00A75B9A /* ScreenTime */,
+				A1B2C3D511A680F5B00A75B9A /* Shared */,
+				A1B2C3D521A680F5B00A75B9A /* KeeptMonitor */,
+				D2E3F511A680F5B00A75B9A /* KeeptReport */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
@@ -110,8 +257,55 @@
 			isa = PBXGroup;
 			children = (
 				13B07F961A680F5B00A75B9A /* FocusGuard.app */,
+				A1B2C3D401A680F5B00A75B9A /* KeeptMonitor.appex */,
+				D2E3F4011A680F5B00A75B9A /* KeeptReport.appex */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		A1B2C3D511A680F5B00A75B9A /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				A1B2C3D4B1A680F5B00A75B9A /* KeeptAppGroup.swift */,
+				A1B2C3D4E1A680F5B00A75B9A /* IosTrackingSnapshot.swift */,
+				C2D3E5011A680F5B00A75B9A /* KeeptMonitoringNames.swift */,
+				C2D3E5111A680F5B00A75B9A /* IosTokenCatalog.swift */,
+				C2D3E5211A680F5B00A75B9A /* IosFamilyActivitySelectionStore.swift */,
+				C2D3E5311A680F5B00A75B9A /* KeeptMonitoringStateStore.swift */,
+				C2D3E5411A680F5B00A75B9A /* IosTrackingSnoozeStore.swift */,
+				C2D3E5511A680F5B00A75B9A /* IosDailyWarningStore.swift */,
+				C2D3E5611A680F5B00A75B9A /* IosShieldStore.swift */,
+				C2D3E5711A680F5B00A75B9A /* KeeptMonitoringScheduler.swift */,
+				C2D3E5811A680F5B00A75B9A /* KeeptMonitorActions.swift */,
+				D2E3F5011A680F5B00A75B9A /* IosDailyUsageStore.swift */,
+				D2E3F5111A680F5B00A75B9A /* KeeptUsageReader.swift */,
+				D2E3F5211A680F5B00A75B9A /* KeeptUsageReportContext.swift */,
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
+		A1B2C3D521A680F5B00A75B9A /* KeeptMonitor */ = {
+			isa = PBXGroup;
+			children = (
+				A1B2C3D481A680F5B00A75B9A /* DeviceActivityMonitorExtension.swift */,
+				A1B2C3D4A1A680F5B00A75B9A /* Info.plist */,
+				A1B2C3D581A680F5B00A75B9A /* KeeptMonitor.entitlements */,
+			);
+			path = KeeptMonitor;
+			sourceTree = "<group>";
+		};
+		B1C2D3E501A680F5B00A75B9A /* ScreenTime */ = {
+			isa = PBXGroup;
+			children = (
+				B1C2D3E431A680F5B00A75B9A /* KeeptScreenTimeAuthorization.swift */,
+				B1C2D3E471A680F5B00A75B9A /* SelectedAppsPayloadBuilder.swift */,
+				B1C2D3E491A680F5B00A75B9A /* KeeptFamilyActivityPickerPresenter.swift */,
+				B1C2D3E4B1A680F5B00A75B9A /* KeeptNotificationAuthorization.swift */,
+				B1C2D3E4D1A680F5B00A75B9A /* KeeptScreenTimeBridge.swift */,
+				D2E3F5311A680F5B00A75B9A /* KeeptUsageReportCollector.swift */,
+			);
+			name = ScreenTime;
+			path = FocusGuard/ScreenTime;
 			sourceTree = "<group>";
 		};
 		BBD78D7AC51CEA395F1C20DB /* Pods */ = {
@@ -121,6 +315,18 @@
 				5709B34CF0A7D63546082F79 /* Pods-FocusGuard.release.xcconfig */,
 			);
 			path = Pods;
+			sourceTree = "<group>";
+		};
+		D2E3F511A680F5B00A75B9A /* KeeptReport */ = {
+			isa = PBXGroup;
+			children = (
+				D2E3F4811A680F5B00A75B9A /* KeeptReportExtension.swift */,
+				D2E3F4911A680F5B00A75B9A /* TrackedAppsReport.swift */,
+				D2E3F4A11A680F5B00A75B9A /* TrackedAppsReportView.swift */,
+				D2E3F4B11A680F5B00A75B9A /* Info.plist */,
+				D2E3F4C11A680F5B00A75B9A /* KeeptReport.entitlements */,
+			);
+			path = KeeptReport;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -137,15 +343,52 @@
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
 				00EEFC60759A1932668264C0 /* [CP] Embed Pods Frameworks */,
 				E235C05ADACE081382539298 /* [CP] Copy Pods Resources */,
+				A1B2C3D531A680F5B00A75B9A /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				A1B2C3D551A680F5B00A75B9A /* PBXTargetDependency */,
+				D2E3F4F11A680F5B00A75B9A /* PBXTargetDependency */,
 			);
 			name = FocusGuard;
 			productName = FocusGuard;
 			productReference = 13B07F961A680F5B00A75B9A /* FocusGuard.app */;
 			productType = "com.apple.product-type.application";
+		};
+		A1B2C3D411A680F5B00A75B9A /* KeeptMonitor */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A1B2C3D451A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "KeeptMonitor" */;
+			buildPhases = (
+				A1B2C3D421A680F5B00A75B9A /* Sources */,
+				A1B2C3D431A680F5B00A75B9A /* Frameworks */,
+				A1B2C3D441A680F5B00A75B9A /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = KeeptMonitor;
+			productName = KeeptMonitor;
+			productReference = A1B2C3D401A680F5B00A75B9A /* KeeptMonitor.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		D2E3F4111A680F5B00A75B9A /* KeeptReport */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D2E3F4511A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "KeeptReport" */;
+			buildPhases = (
+				D2E3F4211A680F5B00A75B9A /* Sources */,
+				D2E3F4311A680F5B00A75B9A /* Frameworks */,
+				D2E3F4411A680F5B00A75B9A /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = KeeptReport;
+			productName = KeeptReport;
+			productReference = D2E3F4011A680F5B00A75B9A /* KeeptReport.appex */;
+			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
 
@@ -157,6 +400,12 @@
 				TargetAttributes = {
 					13B07F861A680F5B00A75B9A = {
 						LastSwiftMigration = 1120;
+					};
+					A1B2C3D411A680F5B00A75B9A = {
+						CreatedOnToolsVersion = 16.0;
+					};
+					D2E3F4111A680F5B00A75B9A = {
+						CreatedOnToolsVersion = 16.0;
 					};
 				};
 			};
@@ -174,6 +423,8 @@
 			projectRoot = "";
 			targets = (
 				13B07F861A680F5B00A75B9A /* FocusGuard */,
+				A1B2C3D411A680F5B00A75B9A /* KeeptMonitor */,
+				D2E3F4111A680F5B00A75B9A /* KeeptReport */,
 			);
 		};
 /* End PBXProject section */
@@ -190,6 +441,20 @@
 				60A85BFB18134E24AD778BC6 /* Inter-Bold.ttf in Resources */,
 				C89960D5814A437FA4D5E865 /* Inter-Regular.ttf in Resources */,
 				5B76FF05E208434195FA7918 /* Inter-SemiBold.ttf in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A1B2C3D441A680F5B00A75B9A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D2E3F4411A680F5B00A75B9A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -277,10 +542,78 @@
 			files = (
 				761780ED2CA45674006654EE /* AppDelegate.swift in Sources */,
 				F1A2B3C42CA45674006654EE /* RCTNativeUsageStats.mm in Sources */,
+				A1B2C3D4C1A680F5B00A75B9A /* KeeptAppGroup.swift in Sources */,
+				A1B2C3D4F1A680F5B00A75B9A /* IosTrackingSnapshot.swift in Sources */,
+				B1C2D3E421A680F5B00A75B9A /* KeeptScreenTimeAuthorization.swift in Sources */,
+				C2D3E5021A680F5B00A75B9A /* KeeptMonitoringNames.swift in Sources */,
+				C2D3E5121A680F5B00A75B9A /* IosTokenCatalog.swift in Sources */,
+				C2D3E5221A680F5B00A75B9A /* IosFamilyActivitySelectionStore.swift in Sources */,
+				C2D3E5321A680F5B00A75B9A /* KeeptMonitoringStateStore.swift in Sources */,
+				C2D3E5421A680F5B00A75B9A /* IosTrackingSnoozeStore.swift in Sources */,
+				C2D3E5521A680F5B00A75B9A /* IosDailyWarningStore.swift in Sources */,
+				C2D3E5621A680F5B00A75B9A /* IosShieldStore.swift in Sources */,
+				C2D3E5721A680F5B00A75B9A /* KeeptMonitoringScheduler.swift in Sources */,
+				C2D3E5821A680F5B00A75B9A /* KeeptMonitorActions.swift in Sources */,
+				B1C2D3E461A680F5B00A75B9A /* SelectedAppsPayloadBuilder.swift in Sources */,
+				B1C2D3E481A680F5B00A75B9A /* KeeptFamilyActivityPickerPresenter.swift in Sources */,
+				B1C2D3E4A1A680F5B00A75B9A /* KeeptNotificationAuthorization.swift in Sources */,
+				B1C2D3E4C1A680F5B00A75B9A /* KeeptScreenTimeBridge.swift in Sources */,
+				D2E3F5411A680F5B00A75B9A /* IosDailyUsageStore.swift in Sources */,
+				D2E3F5511A680F5B00A75B9A /* KeeptUsageReader.swift in Sources */,
+				D2E3F5611A680F5B00A75B9A /* KeeptUsageReportContext.swift in Sources */,
+				D2E3F5711A680F5B00A75B9A /* KeeptUsageReportCollector.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A1B2C3D421A680F5B00A75B9A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A1B2C3D491A680F5B00A75B9A /* DeviceActivityMonitorExtension.swift in Sources */,
+				A1B2C3D4D1A680F5B00A75B9A /* KeeptAppGroup.swift in Sources */,
+				A1B2C3D501A680F5B00A75B9A /* IosTrackingSnapshot.swift in Sources */,
+				C2D3E5A21A680F5B00A75B9A /* KeeptMonitoringNames.swift in Sources */,
+				C2D3E5B21A680F5B00A75B9A /* IosTokenCatalog.swift in Sources */,
+				C2D3E5C21A680F5B00A75B9A /* IosFamilyActivitySelectionStore.swift in Sources */,
+				C2D3E5D21A680F5B00A75B9A /* KeeptMonitoringStateStore.swift in Sources */,
+				C2D3E5E21A680F5B00A75B9A /* IosTrackingSnoozeStore.swift in Sources */,
+				C2D3E5F21A680F5B00A75B9A /* IosDailyWarningStore.swift in Sources */,
+				C2D3E6021A680F5B00A75B9A /* IosShieldStore.swift in Sources */,
+				C2D3E6121A680F5B00A75B9A /* KeeptMonitoringScheduler.swift in Sources */,
+				C2D3E6221A680F5B00A75B9A /* KeeptMonitorActions.swift in Sources */,
+				D2E3F5811A680F5B00A75B9A /* IosDailyUsageStore.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D2E3F4211A680F5B00A75B9A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D2E3F5911A680F5B00A75B9A /* KeeptReportExtension.swift in Sources */,
+				D2E3F5A11A680F5B00A75B9A /* TrackedAppsReport.swift in Sources */,
+				D2E3F5B11A680F5B00A75B9A /* TrackedAppsReportView.swift in Sources */,
+				D2E3F5C11A680F5B00A75B9A /* IosDailyUsageStore.swift in Sources */,
+				D2E3F5D11A680F5B00A75B9A /* KeeptUsageReportContext.swift in Sources */,
+				D2E3F5E11A680F5B00A75B9A /* IosTokenCatalog.swift in Sources */,
+				D2E3F5F11A680F5B00A75B9A /* IosFamilyActivitySelectionStore.swift in Sources */,
+				D2E3F6011A680F5B00A75B9A /* KeeptAppGroup.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		A1B2C3D551A680F5B00A75B9A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A1B2C3D411A680F5B00A75B9A /* KeeptMonitor */;
+			targetProxy = A1B2C3D561A680F5B00A75B9A /* PBXContainerItemProxy */;
+		};
+		D2E3F4F11A680F5B00A75B9A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D2E3F4111A680F5B00A75B9A /* KeeptReport */;
+			targetProxy = D2E3F4E11A680F5B00A75B9A /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		13B07F941A680F5B00A75B9A /* Debug */ = {
@@ -289,13 +622,14 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = FocusGuard/FocusGuard.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 82G74Q7LRB;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = FocusGuard/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Keept;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
-				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -322,12 +656,13 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = FocusGuard/FocusGuard.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 82G74Q7LRB;
 				INFOPLIST_FILE = FocusGuard/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Keept;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
-				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -396,7 +731,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					/usr/lib/swift,
 					"$(inherited)",
@@ -472,7 +807,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					/usr/lib/swift,
 					"$(inherited)",
@@ -505,6 +840,110 @@
 			};
 			name = Release;
 		};
+		A1B2C3D461A680F5B00A75B9A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = KeeptMonitor/KeeptMonitor.entitlements;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 82G74Q7LRB;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = KeeptMonitor/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.keept.monitor;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		A1B2C3D471A680F5B00A75B9A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = KeeptMonitor/KeeptMonitor.entitlements;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 82G74Q7LRB;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = KeeptMonitor/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.keept.monitor;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		D2E3F4611A680F5B00A75B9A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = KeeptReport/KeeptReport.entitlements;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 82G74Q7LRB;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = KeeptReport/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.keept.report;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		D2E3F4711A680F5B00A75B9A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = KeeptReport/KeeptReport.entitlements;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 82G74Q7LRB;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = KeeptReport/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.keept.report;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -522,6 +961,24 @@
 			buildConfigurations = (
 				83CBBA201A601CBA00E9B192 /* Debug */,
 				83CBBA211A601CBA00E9B192 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A1B2C3D451A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "KeeptMonitor" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A1B2C3D461A680F5B00A75B9A /* Debug */,
+				A1B2C3D471A680F5B00A75B9A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		D2E3F4511A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "KeeptReport" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D2E3F4611A680F5B00A75B9A /* Debug */,
+				D2E3F4711A680F5B00A75B9A /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

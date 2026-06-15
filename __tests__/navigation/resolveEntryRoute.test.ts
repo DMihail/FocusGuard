@@ -1,41 +1,18 @@
 /** @format */
 
-import { Platform } from 'react-native';
+const mockAreAllPermissionsGranted = jest.fn();
 
-const mockCheckForPermission = jest.fn();
-const mockCheckForSystemAlertWindowPermission = jest.fn();
-const mockCheckForNotificationsPermission = jest.fn();
-const mockCheckForIgnoreBatteryOptimizationsPermission = jest.fn();
-const mockCheckForManifestMonitorPermissions = jest.fn();
-
-jest.mock('@/specs', () => ({
-  checkForPermission: (...args: unknown[]) => mockCheckForPermission(...args),
-  checkForSystemAlertWindowPermission: (...args: unknown[]) => mockCheckForSystemAlertWindowPermission(...args),
-  checkForNotificationsPermission: (...args: unknown[]) => mockCheckForNotificationsPermission(...args),
-  checkForIgnoreBatteryOptimizationsPermission: (...args: unknown[]) =>
-    mockCheckForIgnoreBatteryOptimizationsPermission(...args),
-  checkForManifestMonitorPermissions: (...args: unknown[]) => mockCheckForManifestMonitorPermissions(...args),
+jest.mock('@/domain/permissionSnapshot', () => ({
+  areAllPermissionsGranted: () => mockAreAllPermissionsGranted(),
+  invalidatePermissionSnapshot: jest.fn(),
 }));
 
-import { invalidatePermissionSnapshot } from '@/domain/permissionSnapshot';
 import { resolveEntryRoute } from '@/navigation/resolveEntryRoute';
 
 describe('resolveEntryRoute', () => {
-  const originalPlatform = Platform.OS;
-
   beforeEach(() => {
     jest.clearAllMocks();
-    invalidatePermissionSnapshot();
-    Object.defineProperty(Platform, 'OS', { configurable: true, value: 'android' });
-    mockCheckForPermission.mockReturnValue(false);
-    mockCheckForSystemAlertWindowPermission.mockReturnValue(false);
-    mockCheckForNotificationsPermission.mockReturnValue(false);
-    mockCheckForIgnoreBatteryOptimizationsPermission.mockReturnValue(false);
-    mockCheckForManifestMonitorPermissions.mockReturnValue(true);
-  });
-
-  afterAll(() => {
-    Object.defineProperty(Platform, 'OS', { configurable: true, value: originalPlatform });
+    mockAreAllPermissionsGranted.mockReturnValue(false);
   });
 
   it('returns Onboarding when onboarding is not confirmed', () => {
@@ -47,11 +24,7 @@ describe('resolveEntryRoute', () => {
   });
 
   it('returns Dashboard when onboarding is confirmed and all permissions are granted', () => {
-    mockCheckForPermission.mockReturnValue(true);
-    mockCheckForSystemAlertWindowPermission.mockReturnValue(true);
-    mockCheckForNotificationsPermission.mockReturnValue(true);
-    mockCheckForIgnoreBatteryOptimizationsPermission.mockReturnValue(true);
-    mockCheckForManifestMonitorPermissions.mockReturnValue(true);
+    mockAreAllPermissionsGranted.mockReturnValue(true);
 
     expect(resolveEntryRoute(true)).toBe('Dashboard');
   });
