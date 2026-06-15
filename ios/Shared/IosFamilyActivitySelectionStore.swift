@@ -1,7 +1,7 @@
 import FamilyControls
 import Foundation
 
-enum FamilyActivitySelectionStore {
+enum IosFamilyActivitySelectionStore {
   static func load() -> FamilyActivitySelection {
     guard
       let raw = KeeptAppGroup.defaults?.string(forKey: KeeptAppGroup.StorageKey.familyActivitySelection),

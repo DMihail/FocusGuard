@@ -34,16 +34,17 @@
 
 - (NSDictionary *)startMonitorService
 {
-  return @{@"started" : @NO, @"reason" : @"unsupported_platform"};
+  return [KeeptScreenTimeBridge startMonitorService];
 }
 
 - (void)stopMonitorService
 {
+  [KeeptScreenTimeBridge stopMonitorService];
 }
 
 - (NSNumber *)isMonitorServiceRunning
 {
-  return @NO;
+  return @([KeeptScreenTimeBridge isMonitorServiceRunning]);
 }
 
 - (void)requestUsageStatsPermission

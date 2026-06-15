@@ -50,7 +50,7 @@ final class KeeptScreenTimeBridge: NSObject {
     _ resolve: RCTPromiseResolveBlock,
     reject: RCTPromiseRejectBlock
   ) {
-    let selection = FamilyActivitySelectionStore.load()
+    let selection = IosFamilyActivitySelectionStore.load()
     resolve(SelectedAppsPayloadBuilder.build(from: selection))
   }
 
@@ -70,5 +70,29 @@ final class KeeptScreenTimeBridge: NSObject {
 
   @objc static func syncTrackingConfig(_ snapshotJson: String) {
     IosTrackingSnapshotStore.writeJson(snapshotJson)
+    KeeptMonitoringScheduler.rescheduleIfRunning()
+  }
+
+  @objc static func startMonitorService() -> [String: Any] {
+    do {
+      let started = try KeeptMonitoringScheduler.start()
+      return ["started": started]
+    } catch KeeptMonitoringScheduler.StartFailure.unauthorized {
+      return ["started": false, "reason": "screen_time_unauthorized"]
+    } catch KeeptMonitoringScheduler.StartFailure.missingSnapshot {
+      return ["started": false, "reason": "tracking_snapshot_missing"]
+    } catch KeeptMonitoringScheduler.StartFailure.noTrackedApps {
+      return ["started": false, "reason": "no_tracked_apps"]
+    } catch {
+      return ["started": false, "reason": "monitor_schedule_failed"]
+    }
+  }
+
+  @objc static func stopMonitorService() {
+    KeeptMonitoringScheduler.stop()
+  }
+
+  @objc static func isMonitorServiceRunning() -> Bool {
+    KeeptMonitoringScheduler.isRunning
   }
 }

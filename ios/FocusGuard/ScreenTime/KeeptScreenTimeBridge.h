@@ -18,6 +18,9 @@ NS_ASSUME_NONNULL_BEGIN
                                    reject:(RCTPromiseRejectBlock)reject;
 + (void)openNotificationsSettings;
 + (void)syncTrackingConfig:(NSString *)snapshotJson;
++ (NSDictionary *)startMonitorService;
++ (void)stopMonitorService;
++ (BOOL)isMonitorServiceRunning;
 
 @end
 

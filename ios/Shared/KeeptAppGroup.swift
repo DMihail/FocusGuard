@@ -8,6 +8,8 @@ enum KeeptAppGroup {
     static let iosTrackingSnapshot = "ios-tracking-snapshot-v2"
     static let familyActivitySelection = "ios-family-activity-selection-v1"
     static let monitoringEnabled = "ios-monitoring-enabled-v1"
+    static let blockSnoozePrefix = "ios-block-snooze-"
+    static let dailyWarningPrefix = "ios-daily-warning-"
   }
 
   /// Screen Time authorization mode for Keept — self-control only.

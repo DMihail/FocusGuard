@@ -17,12 +17,12 @@ enum KeeptFamilyActivityPickerPresenter {
       return
     }
 
-    var selection = FamilyActivitySelectionStore.load()
+    var selection = IosFamilyActivitySelectionStore.load()
     let pickerView = FamilyActivityPickerSheet(
       selection: selection,
       onCancel: { dismiss(from: presenter, result: .success([])) },
       onDone: { updatedSelection in
-        FamilyActivitySelectionStore.save(updatedSelection)
+        IosFamilyActivitySelectionStore.save(updatedSelection)
         let payload = SelectedAppsPayloadBuilder.build(from: updatedSelection)
         dismiss(from: presenter, result: .success(payload))
       },
