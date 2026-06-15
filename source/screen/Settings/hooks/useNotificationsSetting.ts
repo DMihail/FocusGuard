@@ -2,10 +2,9 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { useFocusEffect } from '@react-navigation/native';
 import { useShallow } from 'zustand/react/shallow';
 
-import { useAppStateOnActive } from '@/hooks/useAppStateOnActive';
+import { useRunOnFocusAndActive } from '@/hooks/useRunOnFocusAndActive';
 import { openNotificationsSettings, subscribePermissionsChanged } from '@/specs';
 import { settingsStore } from '@/store';
 import { requestPostNotificationsPermission } from '@/utils/permissions/requestNotificationPermission';
@@ -49,13 +48,7 @@ export const useNotificationsSetting = () => {
     return () => subscription.remove();
   }, [reconcileRevokedPermission]);
 
-  useAppStateOnActive(reconcileRevokedPermission);
-
-  useFocusEffect(
-    useCallback(() => {
-      reconcileRevokedPermission();
-    }, [reconcileRevokedPermission]),
-  );
+  useRunOnFocusAndActive(reconcileRevokedPermission);
 
   const isEnabled = notificationsEnabled && (!isSystemNotificationGrantRequired || systemGranted);
 

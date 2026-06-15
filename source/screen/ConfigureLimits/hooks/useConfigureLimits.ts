@@ -1,10 +1,9 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useOptimistic } from 'react';
 
-import { useFocusEffect, useIsFocused } from '@react-navigation/native';
 import { useShallow } from 'zustand/react/shallow';
 
 import { findSelectedApp } from '@/domain/findSelectedApp';
-import { useAppStateOnActive } from '@/hooks/useAppStateOnActive';
+import { useRefreshWhenVisible } from '@/hooks/useRefreshWhenVisible';
 import {
   type AppLimits,
   appLimitsStore,
@@ -19,8 +18,6 @@ import { MS_PER_MINUTE } from '@/utils/usage/constants';
 import type { UseConfigureLimitsResult } from '../types';
 
 export const useConfigureLimits = (appKey: string): UseConfigureLimitsResult => {
-  const isFocused = useIsFocused();
-
   const app = selectedAppsStore((state) => findSelectedApp(state.apps, appKey));
   const { storedLimits, setStoredLimits } = appLimitsStore(
     useShallow((state) => ({
@@ -30,54 +27,38 @@ export const useConfigureLimits = (appKey: string): UseConfigureLimitsResult => 
   );
   const usedMsToday = trackedUsageStore((state) => state.usageByPackage[appKey] ?? 0);
 
-  const [draft, setDraft] = useState<AppLimits>(storedLimits);
+  const [draft, setDraft] = useOptimistic(storedLimits, (_stored, next: AppLimits) => next);
 
-  const refreshUsage = useCallback(() => {
-    trackedUsageStore
-      .getState()
-      .refreshUsage([appKey])
-      .catch(() => undefined);
-  }, [appKey]);
+  const refreshUsage = useCallback(() => trackedUsageStore.getState().refreshUsage([appKey]), [appKey]);
 
-  const refreshWhenActive = useCallback(() => {
-    if (!isFocused) {
-      return;
-    }
-
-    refreshUsage();
-  }, [isFocused, refreshUsage]);
-
-  useFocusEffect(
-    useCallback(() => {
-      refreshUsage();
-    }, [refreshUsage]),
-  );
-
-  useAppStateOnActive(refreshWhenActive);
-
-  useEffect(() => {
-    setDraft(storedLimits);
-  }, [appKey, storedLimits]);
+  useRefreshWhenVisible(refreshUsage);
 
   const hardBlockMin = Math.max(LIMIT_SLIDER_BOUNDS.hardBlock.min, draft.warningMinutes);
 
-  const setWarningMinutes = useCallback((warningMinutes: number) => {
-    setDraft((current) => {
-      const next = { ...current, warningMinutes };
+  const setWarningMinutes = useCallback(
+    (warningMinutes: number) => {
+      const next = { ...draft, warningMinutes };
       if (next.hardBlockMinutes < warningMinutes) {
         next.hardBlockMinutes = warningMinutes;
       }
-      return next;
-    });
-  }, []);
+      setDraft(next);
+    },
+    [draft, setDraft],
+  );
 
-  const setHardBlockMinutes = useCallback((hardBlockMinutes: number) => {
-    setDraft((current) => ({ ...current, hardBlockMinutes }));
-  }, []);
+  const setHardBlockMinutes = useCallback(
+    (hardBlockMinutes: number) => {
+      setDraft({ ...draft, hardBlockMinutes });
+    },
+    [draft, setDraft],
+  );
 
-  const setStrictMode = useCallback((strictMode: boolean) => {
-    setDraft((current) => ({ ...current, strictMode }));
-  }, []);
+  const setStrictMode = useCallback(
+    (strictMode: boolean) => {
+      setDraft({ ...draft, strictMode });
+    },
+    [draft, setDraft],
+  );
 
   const save = useCallback(() => {
     setStoredLimits(appKey, normalizeAppLimits(draft));

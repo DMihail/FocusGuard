@@ -1,8 +1,6 @@
 /** @format */
 
-import { useCallback } from 'react';
-
-import { useFocusEffect } from '@react-navigation/native';
+import { useRefreshOnFocus } from '@/hooks/useRefreshOnFocus';
 
 import { useManageApps } from './useManageApps.android';
 
@@ -10,11 +8,7 @@ import { useManageApps } from './useManageApps.android';
 export const useManageAppsScreen = () => {
   const { refreshInstalledApps, ...manageApps } = useManageApps();
 
-  useFocusEffect(
-    useCallback(() => {
-      refreshInstalledApps().catch(() => undefined);
-    }, [refreshInstalledApps]),
-  );
+  useRefreshOnFocus(refreshInstalledApps);
 
   return {
     ...manageApps,

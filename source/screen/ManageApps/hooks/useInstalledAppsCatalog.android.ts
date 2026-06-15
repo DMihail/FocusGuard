@@ -12,8 +12,11 @@ export const useInstalledAppsCatalog = () => {
       setIsLoadingApps(true);
     }
 
-    setInstalledApps(await loadSyncedInstalledApps(force));
-    setIsLoadingApps(false);
+    try {
+      setInstalledApps(await loadSyncedInstalledApps(force));
+    } finally {
+      setIsLoadingApps(false);
+    }
   }, []);
 
   return { installedApps, isLoadingApps, refreshInstalledApps };

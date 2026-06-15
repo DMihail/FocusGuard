@@ -2,7 +2,8 @@
 
 import { useCallback } from 'react';
 
-import { useFocusEffect } from '@react-navigation/native';
+import { useRefreshOnFocus } from '@/hooks/useRefreshOnFocus';
+import { logDevWarning } from '@/utils/logDevWarning';
 
 import { useFamilyActivityPicker } from './useFamilyActivityPicker.ios';
 import { useManageApps } from './useManageApps.ios';
@@ -15,14 +16,10 @@ export const useManageAppsScreen = () => {
   const onPickApps = useCallback(() => {
     pickApps()
       .then(() => refreshInstalledApps(true))
-      .catch(() => undefined);
+      .catch(logDevWarning);
   }, [pickApps, refreshInstalledApps]);
 
-  useFocusEffect(
-    useCallback(() => {
-      refreshInstalledApps().catch(() => undefined);
-    }, [refreshInstalledApps]),
-  );
+  useRefreshOnFocus(refreshInstalledApps);
 
   return {
     ...manageApps,
