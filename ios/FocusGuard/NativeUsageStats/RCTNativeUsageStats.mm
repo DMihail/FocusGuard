@@ -12,9 +12,24 @@
   return @(KeeptScreenTimeBridge.isScreenTimeAuthorized);
 }
 
+- (NSNumber *)checkForSystemAlertWindowPermission
+{
+  return @YES;
+}
+
 - (NSNumber *)checkForNotificationsPermission
 {
   return @(KeeptScreenTimeBridge.areNotificationsAuthorized);
+}
+
+- (NSNumber *)checkForIgnoreBatteryOptimizationsPermission
+{
+  return @YES;
+}
+
+- (NSNumber *)checkForManifestMonitorPermissions
+{
+  return @YES;
 }
 
 - (NSDictionary *)startMonitorService
@@ -43,6 +58,10 @@
                                        }];
 }
 
+- (void)requestSystemAlertWindowPermission
+{
+}
+
 - (void)requestNotificationsPermission
 {
   [KeeptScreenTimeBridge requestNotificationsAuthorization:^(id result) {
@@ -57,6 +76,10 @@
 - (void)openNotificationsSettings
 {
   [KeeptScreenTimeBridge openNotificationsSettings];
+}
+
+- (void)requestIgnoreBatteryOptimizationsPermission
+{
 }
 
 - (void)getPackagesUsageToday:(NSArray *)packageNames

@@ -131,6 +131,14 @@ class NativeUsageStatsModule(
     TrackingSnapshotWriter.write(snapshotJson)
   }
 
+  override fun requestScreenTimeAuthorization(promise: Promise) {
+    promise.resolve(false)
+  }
+
+  override fun presentFamilyActivityPicker(promise: Promise) {
+    promise.resolve(Arguments.createArray())
+  }
+
   private fun emitPermissionsChanged() {
     reactApplicationContext.runOnUiQueueThread {
       if (reactApplicationContext.hasActiveReactInstance()) {
