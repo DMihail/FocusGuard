@@ -5,8 +5,8 @@ enforcing limits you configure.
 
 Built with [React Native](https://reactnative.dev) **0.86** (New Architecture / Turbo Modules) and **React 19**.
 
-> Legacy identifiers (`FocusGuard`, `com.focusguard`, `focus-guard-storage`) are being migrated — see
-> [docs/MIGRATION_KEEPT.md](docs/MIGRATION_KEEPT.md).
+> Legacy identifiers (`FocusGuard`, `com.focusguard` Kotlin package, `focusguard://`) are documented in
+> [docs/MIGRATION_KEEPT.md](docs/MIGRATION_KEEPT.md). MMKV auto-migrates from `focus-guard-storage` to `keept-storage`.
 
 ## Features
 
@@ -44,7 +44,7 @@ Platform-specific logic uses `.ios.ts` / `.android.ts` module suffixes (see `tsc
 | ----------------- | ---------------------------------------------------- |
 | Product name      | Keept                                                |
 | Store IDs         | `com.keept` (Android + iOS)                          |
-| Android namespace | `com.focusguard` (legacy)                            |
+| Android namespace | `com.focusguard` (legacy Kotlin package)             |
 | Deep links        | `keept://dashboard`, `configure/:id`, `tracked-apps` |
 | Legacy deep links | `focusguard://…` (still supported)                   |
 
@@ -123,11 +123,11 @@ GitHub Actions (`.github/workflows/ci.yml`):
 
 ## Native bridge
 
-| Channel                                 | Purpose                                                         |
-| --------------------------------------- | --------------------------------------------------------------- |
-| **Turbo Module (`NativeUsageStats`)**   | Permissions, catalogs, monitor start/stop, `syncTrackingConfig` |
-| **Shared MMKV (`focus-guard-storage`)** | Zustand persist + Android flat snapshot                         |
-| **iOS App Group**                       | Screen Time snapshot, selection, daily usage                    |
+| Channel                               | Purpose                                                         |
+| ------------------------------------- | --------------------------------------------------------------- |
+| **Turbo Module (`NativeUsageStats`)** | Permissions, catalogs, monitor start/stop, `syncTrackingConfig` |
+| **Shared MMKV (`keept-storage`)**     | Zustand persist + Android flat snapshot                         |
+| **iOS App Group**                     | Screen Time snapshot, selection, daily usage                    |
 
 Storage keys: `source/store/persistSchema.ts` ↔ `PersistSchema.kt` ↔ `ios/Shared/`.
 
