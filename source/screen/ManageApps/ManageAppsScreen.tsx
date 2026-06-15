@@ -1,6 +1,7 @@
 /** @format */
 
 import React, { useCallback } from 'react';
+import { Platform } from 'react-native';
 
 import { useFocusEffect } from '@react-navigation/native';
 
@@ -8,6 +9,7 @@ import { useGoBack } from '@/hooks/useGoBack';
 import { useNavigateToConfigureLimits } from '@/navigation/hooks/useNavigateToConfigureLimits';
 import { testIds } from '@/testing/testIds';
 
+import { useFamilyActivityPicker } from './hooks/useFamilyActivityPicker';
 import { useManageApps } from './hooks/useManageApps';
 import { manageAppsStyles } from './styles';
 
@@ -15,8 +17,10 @@ import { ManageAppsContent, ManageAppsHeader, ManageAppsSearchToolbar } from './
 import { ScreenSafeArea } from '@/components';
 
 export const ManageAppsScreen = () => {
+  const isIos = Platform.OS === 'ios';
   const goBack = useGoBack();
   const openConfigureLimits = useNavigateToConfigureLimits();
+  const { pickApps, isPicking } = useFamilyActivityPicker();
   const {
     apps,
     isLoadingApps,
@@ -34,6 +38,12 @@ export const ManageAppsScreen = () => {
     selectedCount,
   } = useManageApps();
 
+  const handlePickApps = useCallback(() => {
+    pickApps()
+      .then(() => refreshInstalledApps(true))
+      .catch(() => undefined);
+  }, [pickApps, refreshInstalledApps]);
+
   useFocusEffect(
     useCallback(() => {
       refreshInstalledApps().catch(() => undefined);
@@ -47,7 +57,9 @@ export const ManageAppsScreen = () => {
       accessibilityLabel="Manage apps screen"
     >
       <ManageAppsHeader selectedCount={selectedCount} onBack={goBack} />
-      <ManageAppsSearchToolbar onQueryChange={setSearchQuery} onQueryActiveChange={setSearchInputActive} />
+      {!isIos ? (
+        <ManageAppsSearchToolbar onQueryChange={setSearchQuery} onQueryActiveChange={setSearchInputActive} />
+      ) : null}
       <ManageAppsContent
         apps={apps}
         isLoadingApps={isLoadingApps}
@@ -61,6 +73,9 @@ export const ManageAppsScreen = () => {
         categoryFilters={categoryFilters}
         activeCategoryId={activeCategoryId}
         onCategoryChange={setActiveCategory}
+        showInstalledAppsList={!isIos}
+        onPickApps={isIos ? handlePickApps : undefined}
+        isPickingApps={isPicking}
       />
     </ScreenSafeArea>
   );

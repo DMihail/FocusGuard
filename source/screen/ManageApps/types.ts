@@ -24,6 +24,7 @@ export type ManageAppsListHeaderProps = {
   categoryFilters: CategoryFilterOption[];
   activeCategoryId: string;
   onCategoryChange: (categoryId: string) => void;
+  showCategoryFilters?: boolean;
 };
 
 export type ManageAppsContentProps = ManageAppsListHeaderProps & {
@@ -32,4 +33,7 @@ export type ManageAppsContentProps = ManageAppsListHeaderProps & {
   isFiltering: boolean;
   isSelected: (packageName: string) => boolean;
   onToggle: (app: ManageApp) => void;
+  showInstalledAppsList?: boolean;
+  onPickApps?: () => void;
+  isPickingApps?: boolean;
 };

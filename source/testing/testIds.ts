@@ -123,6 +123,7 @@ export const testIds = {
     appsFilterLoader: 'manage-apps-filter-loader',
     appsLoader: 'manage-apps-loader',
     appsEmpty: 'manage-apps-empty',
+    iosPickAppsButton: 'manage-apps-ios-pick-apps-button',
     appRow: (packageName: string) => `manage-apps-row-${toSegment(packageName)}`,
     appSelectionControl: (packageName: string) => `manage-apps-selection-${toSegment(packageName)}`,
   },

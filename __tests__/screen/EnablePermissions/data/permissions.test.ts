@@ -1,16 +1,18 @@
 /** @format */
 
-import { createPermissions, PERMISSION_IDS } from '@/screen/EnablePermissions/data/permissions';
+import { Platform } from 'react-native';
+
+import { createPermissions, getPermissionIds } from '@/screen/EnablePermissions/data/permissions';
 
 describe('permissions data', () => {
   const permissions = createPermissions('Keept');
 
-  it('defines four user-facing permission steps', () => {
-    expect(permissions).toHaveLength(4);
+  it('defines platform-specific permission steps', () => {
+    expect(permissions).toHaveLength(Platform.OS === 'ios' ? 2 : 4);
   });
 
   it('includes required permission ids', () => {
-    expect(permissions.map((item) => item.id)).toEqual(PERMISSION_IDS);
+    expect(permissions.map((item) => item.id)).toEqual(getPermissionIds());
   });
 
   it('starts every permission in pending state', () => {

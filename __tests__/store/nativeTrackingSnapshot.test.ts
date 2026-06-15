@@ -1,5 +1,7 @@
 /** @format */
 
+import { Platform } from 'react-native';
+
 const mockSet = jest.fn();
 const mockSyncTrackingConfig = jest.fn();
 
@@ -23,11 +25,18 @@ import { selectedAppsStore } from '@/store/selectedAppsStore';
 const mockGetNativeUsageStats = getNativeUsageStats as jest.MockedFunction<typeof getNativeUsageStats>;
 
 describe('nativeTrackingSnapshot', () => {
+  const originalPlatform = Platform.OS;
+
   beforeEach(() => {
+    Object.defineProperty(Platform, 'OS', { configurable: true, value: 'android' });
     jest.clearAllMocks();
     selectedAppsStore.setState({ apps: [] });
     appLimitsStore.setState({ limitsByPackage: {} });
     mockGetNativeUsageStats.mockReturnValue({ syncTrackingConfig: mockSyncTrackingConfig } as never);
+  });
+
+  afterAll(() => {
+    Object.defineProperty(Platform, 'OS', { configurable: true, value: originalPlatform });
   });
 
   it('writes a flat snapshot through syncTrackingConfig when the turbo module is available', () => {

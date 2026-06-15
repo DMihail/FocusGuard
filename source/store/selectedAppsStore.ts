@@ -23,6 +23,10 @@ export const selectedAppsStore = create<SelectedAppsStore>()(
         });
       },
 
+      replaceApps: (apps) => {
+        set({ apps });
+      },
+
       isSelected: (packageName) => get().apps.some((app) => app.packageName === packageName),
 
       syncSelectedAppsMetadata: (installedApps) => {

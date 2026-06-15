@@ -6,7 +6,7 @@ import { useAppStateOnActive } from '@/hooks/useAppStateOnActive';
 import { subscribePermissionsChanged } from '@/utils/permissions/notificationPermissionEvents';
 import { scheduleAfterInteractions } from '@/utils/scheduleAfterInteractions';
 
-import { createPermissions, PERMISSION_IDS } from '../data/permissions';
+import { createPermissions, getPermissionIds } from '../data/permissions';
 import type { PermissionId, PermissionStatus } from '../types';
 import { buildPermissionsWithStatus } from '../utils/buildPermissionsWithStatus';
 import { areRequiredPermissionsGranted, requestPermissionById } from '../utils/permissionStatus';
@@ -14,7 +14,7 @@ import { areRequiredPermissionsGranted, requestPermissionById } from '../utils/p
 const hasStatusChanged = (
   previous: Record<PermissionId, PermissionStatus>,
   next: Record<PermissionId, PermissionStatus>,
-): boolean => PERMISSION_IDS.some((id) => previous[id] !== next[id]);
+): boolean => getPermissionIds().some((id) => previous[id] !== next[id]);
 
 export const usePermissionsSync = () => {
   const permissionItems = useMemo(() => createPermissions(getAppDisplayName()), []);

@@ -79,6 +79,12 @@ export const syncTrackingConfig = (snapshotJson: string): void => {
   getModule()?.syncTrackingConfig(snapshotJson);
 };
 
+export const requestScreenTimeAuthorization = async (): Promise<boolean> =>
+  (await getModule()?.requestScreenTimeAuthorization()) ?? false;
+
+export const presentFamilyActivityPicker = async (): Promise<InstallApp[]> =>
+  (await getModule()?.presentFamilyActivityPicker()) ?? [];
+
 export const subscribePermissionsChanged = (
   listener: (event: PermissionsChangedEvent) => void,
 ): { remove: () => void } => {

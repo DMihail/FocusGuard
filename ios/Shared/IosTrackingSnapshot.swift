@@ -60,4 +60,8 @@ enum IosTrackingSnapshotStore {
 
     defaults?.set(raw, forKey: KeeptAppGroup.StorageKey.iosTrackingSnapshot)
   }
+
+  static func writeJson(_ snapshotJson: String, to defaults: UserDefaults? = KeeptAppGroup.defaults) {
+    defaults?.set(snapshotJson, forKey: KeeptAppGroup.StorageKey.iosTrackingSnapshot)
+  }
 }

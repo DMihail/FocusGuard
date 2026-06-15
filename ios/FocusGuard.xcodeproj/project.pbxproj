@@ -17,6 +17,14 @@
 		A1B2C3D4C1A680F5B00A75B9A /* KeeptAppGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4B1A680F5B00A75B9A /* KeeptAppGroup.swift */; };
 		A1B2C3D4D1A680F5B00A75B9A /* KeeptAppGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4B1A680F5B00A75B9A /* KeeptAppGroup.swift */; };
 		A1B2C3D4F1A680F5B00A75B9A /* IosTrackingSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E1A680F5B00A75B9A /* IosTrackingSnapshot.swift */; };
+		B1C2D3E421A680F5B00A75B9A /* KeeptScreenTimeAuthorization.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1C2D3E431A680F5B00A75B9A /* KeeptScreenTimeAuthorization.swift */; };
+		B1C2D3E441A680F5B00A75B9A /* FamilyActivitySelectionStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1C2D3E451A680F5B00A75B9A /* FamilyActivitySelectionStore.swift */; };
+		B1C2D3E461A680F5B00A75B9A /* SelectedAppsPayloadBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1C2D3E471A680F5B00A75B9A /* SelectedAppsPayloadBuilder.swift */; };
+		B1C2D3E481A680F5B00A75B9A /* KeeptFamilyActivityPickerPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1C2D3E491A680F5B00A75B9A /* KeeptFamilyActivityPickerPresenter.swift */; };
+		B1C2D3E4A1A680F5B00A75B9A /* KeeptNotificationAuthorization.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1C2D3E4B1A680F5B00A75B9A /* KeeptNotificationAuthorization.swift */; };
+		B1C2D3E4C1A680F5B00A75B9A /* KeeptScreenTimeBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1C2D3E4D1A680F5B00A75B9A /* KeeptScreenTimeBridge.swift */; };
+		B1C2D3E4E1A680F5B00A75B9A /* FamilyControls.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1B2C3D5A1A680F5B00A75B9A /* FamilyControls.framework */; };
+		B1C2D3E4F1A680F5B00A75B9A /* ManagedSettings.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1B2C3D5B1A680F5B00A75B9A /* ManagedSettings.framework */; };
 		A1B2C3D501A680F5B00A75B9A /* IosTrackingSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E1A680F5B00A75B9A /* IosTrackingSnapshot.swift */; };
 		A1B2C3D541A680F5B00A75B9A /* KeeptMonitor.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = A1B2C3D401A680F5B00A75B9A /* KeeptMonitor.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		A1B2C3D5C1A680F5B00A75B9A /* DeviceActivity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1B2C3D591A680F5B00A75B9A /* DeviceActivity.framework */; };
@@ -74,6 +82,12 @@
 		A1B2C3D591A680F5B00A75B9A /* DeviceActivity.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = DeviceActivity.framework; path = System/Library/Frameworks/DeviceActivity.framework; sourceTree = SDKROOT; };
 		A1B2C3D5A1A680F5B00A75B9A /* FamilyControls.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = FamilyControls.framework; path = System/Library/Frameworks/FamilyControls.framework; sourceTree = SDKROOT; };
 		A1B2C3D5B1A680F5B00A75B9A /* ManagedSettings.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ManagedSettings.framework; path = System/Library/Frameworks/ManagedSettings.framework; sourceTree = SDKROOT; };
+		B1C2D3E431A680F5B00A75B9A /* KeeptScreenTimeAuthorization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeeptScreenTimeAuthorization.swift; sourceTree = "<group>"; };
+		B1C2D3E451A680F5B00A75B9A /* FamilyActivitySelectionStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FamilyActivitySelectionStore.swift; sourceTree = "<group>"; };
+		B1C2D3E471A680F5B00A75B9A /* SelectedAppsPayloadBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectedAppsPayloadBuilder.swift; sourceTree = "<group>"; };
+		B1C2D3E491A680F5B00A75B9A /* KeeptFamilyActivityPickerPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeeptFamilyActivityPickerPresenter.swift; sourceTree = "<group>"; };
+		B1C2D3E4B1A680F5B00A75B9A /* KeeptNotificationAuthorization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeeptNotificationAuthorization.swift; sourceTree = "<group>"; };
+		B1C2D3E4D1A680F5B00A75B9A /* KeeptScreenTimeBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeeptScreenTimeBridge.swift; sourceTree = "<group>"; };
 		A33565A2A5E04F02B2D8C759 /* Inter-Bold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Inter-Bold.ttf"; path = "../source/assets/fonts/Inter-Bold.ttf"; sourceTree = "<group>"; };
 		CB17F5AB88324B4D9C0E2215 /* Inter-SemiBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Inter-SemiBold.ttf"; path = "../source/assets/fonts/Inter-SemiBold.ttf"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
@@ -87,6 +101,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				0C80B921A6F3F58F76C31292 /* libPods-FocusGuard.a in Frameworks */,
+				B1C2D3E4E1A680F5B00A75B9A /* FamilyControls.framework in Frameworks */,
+				B1C2D3E4F1A680F5B00A75B9A /* ManagedSettings.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -152,6 +168,7 @@
 			isa = PBXGroup;
 			children = (
 				13B07FAE1A68108700A75B9A /* FocusGuard */,
+				B1C2D3E501A680F5B00A75B9A /* ScreenTime */,
 				A1B2C3D511A680F5B00A75B9A /* Shared */,
 				A1B2C3D521A680F5B00A75B9A /* KeeptMonitor */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
@@ -182,6 +199,20 @@
 			);
 			name = Shared;
 			path = Shared;
+			sourceTree = "<group>";
+		};
+		B1C2D3E501A680F5B00A75B9A /* ScreenTime */ = {
+			isa = PBXGroup;
+			children = (
+				B1C2D3E431A680F5B00A75B9A /* KeeptScreenTimeAuthorization.swift */,
+				B1C2D3E451A680F5B00A75B9A /* FamilyActivitySelectionStore.swift */,
+				B1C2D3E471A680F5B00A75B9A /* SelectedAppsPayloadBuilder.swift */,
+				B1C2D3E491A680F5B00A75B9A /* KeeptFamilyActivityPickerPresenter.swift */,
+				B1C2D3E4B1A680F5B00A75B9A /* KeeptNotificationAuthorization.swift */,
+				B1C2D3E4D1A680F5B00A75B9A /* KeeptScreenTimeBridge.swift */,
+			);
+			name = ScreenTime;
+			path = FocusGuard/ScreenTime;
 			sourceTree = "<group>";
 		};
 		A1B2C3D521A680F5B00A75B9A /* KeeptMonitor */ = {
@@ -390,6 +421,12 @@
 				F1A2B3C42CA45674006654EE /* RCTNativeUsageStats.mm in Sources */,
 				A1B2C3D4C1A680F5B00A75B9A /* KeeptAppGroup.swift in Sources */,
 				A1B2C3D4F1A680F5B00A75B9A /* IosTrackingSnapshot.swift in Sources */,
+				B1C2D3E421A680F5B00A75B9A /* KeeptScreenTimeAuthorization.swift in Sources */,
+				B1C2D3E441A680F5B00A75B9A /* FamilyActivitySelectionStore.swift in Sources */,
+				B1C2D3E461A680F5B00A75B9A /* SelectedAppsPayloadBuilder.swift in Sources */,
+				B1C2D3E481A680F5B00A75B9A /* KeeptFamilyActivityPickerPresenter.swift in Sources */,
+				B1C2D3E4A1A680F5B00A75B9A /* KeeptNotificationAuthorization.swift in Sources */,
+				B1C2D3E4C1A680F5B00A75B9A /* KeeptScreenTimeBridge.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -427,7 +464,7 @@
 				INFOPLIST_FILE = FocusGuard/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Keept;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
-				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -460,7 +497,7 @@
 				INFOPLIST_FILE = FocusGuard/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Keept;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
-				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -529,7 +566,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					/usr/lib/swift,
 					"$(inherited)",
@@ -605,7 +642,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					/usr/lib/swift,
 					"$(inherited)",

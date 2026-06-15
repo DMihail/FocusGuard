@@ -36,6 +36,8 @@ export interface Spec extends TurboModule {
   getAppVersion(): string;
   invalidateNativeCatalogCaches(): void;
   syncTrackingConfig(snapshotJson: string): void;
+  requestScreenTimeAuthorization(): Promise<boolean>;
+  presentFamilyActivityPicker(): Promise<InstallApp[]>;
 }
 
 export default TurboModuleRegistry.get<Spec>('NativeUsageStats');

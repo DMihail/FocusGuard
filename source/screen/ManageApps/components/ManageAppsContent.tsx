@@ -8,6 +8,7 @@ import { colors } from '@/theme';
 import { createManageAppListRenderItem, manageAppKeyExtractor, ManageAppsListEmpty } from '../list';
 import { manageAppsStyles } from '../styles';
 import type { ManageAppsContentProps } from '../types';
+import { IosPickAppsButton } from './IosPickAppsButton';
 import { ManageAppsListHeader } from './ManageAppsListHeader';
 
 export const ManageAppsContent = ({
@@ -23,33 +24,51 @@ export const ManageAppsContent = ({
   categoryFilters,
   activeCategoryId,
   onCategoryChange,
+  showInstalledAppsList = true,
+  onPickApps,
+  isPickingApps = false,
 }: ManageAppsContentProps) => {
   const renderItem = useMemo(() => createManageAppListRenderItem(isSelected, onToggle), [isSelected, onToggle]);
 
   const listHeader = useMemo(
     () => (
-      <ManageAppsListHeader
-        selectedApps={selectedApps}
-        onSelectedAppPress={onSelectedAppPress}
-        onSelectedAppRemove={onSelectedAppRemove}
-        isSearchActive={isSearchActive}
-        categoryFilters={categoryFilters}
-        activeCategoryId={activeCategoryId}
-        onCategoryChange={onCategoryChange}
-      />
+      <>
+        {onPickApps ? <IosPickAppsButton isPicking={isPickingApps} onPress={onPickApps} /> : null}
+        <ManageAppsListHeader
+          selectedApps={selectedApps}
+          onSelectedAppPress={onSelectedAppPress}
+          onSelectedAppRemove={onSelectedAppRemove}
+          isSearchActive={isSearchActive}
+          categoryFilters={categoryFilters}
+          activeCategoryId={activeCategoryId}
+          onCategoryChange={onCategoryChange}
+          showCategoryFilters={showInstalledAppsList}
+        />
+      </>
     ),
     [
       activeCategoryId,
       categoryFilters,
+      isPickingApps,
       isSearchActive,
       onCategoryChange,
+      onPickApps,
       onSelectedAppPress,
       onSelectedAppRemove,
       selectedApps,
+      showInstalledAppsList,
     ],
   );
 
   const listEmpty = useMemo(() => <ManageAppsListEmpty isFiltering={isFiltering} />, [isFiltering]);
+
+  if (!showInstalledAppsList) {
+    return (
+      <View style={manageAppsStyles.content} testID={testIds.manageApps.appsList}>
+        {listHeader}
+      </View>
+    );
+  }
 
   return (
     <View style={manageAppsStyles.content} testID={testIds.manageApps.appsList}>

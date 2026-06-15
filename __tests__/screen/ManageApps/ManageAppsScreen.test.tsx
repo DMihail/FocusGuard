@@ -1,5 +1,7 @@
 /** @format */
 
+import { Platform } from 'react-native';
+
 import type React from 'react';
 import { act } from 'react-test-renderer';
 
@@ -80,7 +82,10 @@ import { SELECTED_APPS_ACCORDION_SETTLE_MS } from '@/screen/ManageApps/constants
 import { ManageAppsScreen } from '@/screen/ManageApps/ManageAppsScreen';
 
 describe('ManageAppsScreen', () => {
+  const originalPlatform = Platform.OS;
+
   beforeEach(() => {
+    Object.defineProperty(Platform, 'OS', { configurable: true, value: 'android' });
     jest.clearAllMocks();
     jest.useFakeTimers();
     invalidateInstalledAppsCache();
@@ -101,6 +106,10 @@ describe('ManageAppsScreen', () => {
     cleanupTestTrees();
     jest.useRealTimers();
     await flushVirtualizedListWork();
+  });
+
+  afterAll(() => {
+    Object.defineProperty(Platform, 'OS', { configurable: true, value: originalPlatform });
   });
 
   it('renders header, search, filters, and app list', async () => {
