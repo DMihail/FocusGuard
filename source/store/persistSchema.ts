@@ -14,6 +14,13 @@
  *
  * Prefer `syncNativeTrackingSnapshot()` (calls `syncTrackingConfig`) over writing the
  * snapshot key directly so native cache invalidation stays in sync.
+ *
+ * ## iOS (Screen Time)
+ *
+ * - App Group: `group.com.keept.shared` (`IOS_APP_GROUP_ID`)
+ * - Flat snapshot: `ios-tracking-snapshot-v2` with opaque `trackedAppTokenIds`
+ * - Selection blob: `ios-family-activity-selection-v1` (phase 1 picker)
+ * - Auth mode: `individual` (self-control only)
  */
 export const MMKV_INSTANCE_ID = 'focus-guard-storage';
 
@@ -42,3 +49,15 @@ export const NATIVE_TRACKING_SNAPSHOT_KEY = 'native-tracking-snapshot-v1';
 
 /** Bump when the flat native snapshot JSON shape changes. */
 export const NATIVE_TRACKING_SNAPSHOT_VERSION = 1;
+
+/** App Group shared between the iOS app and DeviceActivity extensions (`KeeptAppGroup.swift`). */
+export const IOS_APP_GROUP_ID = 'group.com.keept.shared';
+
+/** iOS flat snapshot for Screen Time monitoring (`IosTrackingSnapshot.swift`). */
+export const IOS_TRACKING_SNAPSHOT_KEY = 'ios-tracking-snapshot-v2';
+
+/** Bump when `IosTrackingSnapshot` JSON shape changes. */
+export const IOS_TRACKING_SNAPSHOT_VERSION = 2;
+
+/** Base64-encoded `FamilyActivitySelection` blob written by native picker (phase 1). */
+export const IOS_FAMILY_ACTIVITY_SELECTION_KEY = 'ios-family-activity-selection-v1';

@@ -163,4 +163,15 @@ Storage keys and schema versions live in `source/store/persistSchema.ts` ↔ `Pe
 
 ## iOS
 
-The iOS target loads the JS bundle but **monitoring is Android-only**. Not production-ready for the core feature set.
+The iOS target loads the JS bundle. **Screen Time monitoring is in progress** — see
+[ios/docs/PHASE0_FAMILY_CONTROLS.md](ios/docs/PHASE0_FAMILY_CONTROLS.md).
+
+| Item              | Value                                |
+| ----------------- | ------------------------------------ |
+| App Group         | `group.com.keept.shared`             |
+| Monitor extension | `KeeptMonitor` (`com.keept.monitor`) |
+| Auth mode         | Self-control (`.individual`)         |
+| Snapshot key      | `ios-tracking-snapshot-v2`           |
+
+Phase 0 adds the extension skeleton, shared Swift models, and entitlement placeholders. **Family Controls entitlement**
+must be approved in Apple Developer before device builds succeed.
