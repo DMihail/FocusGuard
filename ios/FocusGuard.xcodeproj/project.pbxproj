@@ -27,6 +27,8 @@
 		B1C2D3E481A680F5B00A75B9A /* KeeptFamilyActivityPickerPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1C2D3E491A680F5B00A75B9A /* KeeptFamilyActivityPickerPresenter.swift */; };
 		B1C2D3E4A1A680F5B00A75B9A /* KeeptNotificationAuthorization.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1C2D3E4B1A680F5B00A75B9A /* KeeptNotificationAuthorization.swift */; };
 		B1C2D3E4C1A680F5B00A75B9A /* KeeptScreenTimeBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1C2D3E4D1A680F5B00A75B9A /* KeeptScreenTimeBridge.swift */; };
+		B1C2D3E4E1A680F5B00A75B9A /* FamilyControls.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1B2C3D5A1A680F5B00A75B9A /* FamilyControls.framework */; };
+		B1C2D3E4F1A680F5B00A75B9A /* ManagedSettings.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1B2C3D5B1A680F5B00A75B9A /* ManagedSettings.framework */; };
 		C2D3E5021A680F5B00A75B9A /* KeeptMonitoringNames.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2D3E5011A680F5B00A75B9A /* KeeptMonitoringNames.swift */; };
 		C2D3E5121A680F5B00A75B9A /* IosTokenCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2D3E5111A680F5B00A75B9A /* IosTokenCatalog.swift */; };
 		C2D3E5221A680F5B00A75B9A /* IosFamilyActivitySelectionStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2D3E5211A680F5B00A75B9A /* IosFamilyActivitySelectionStore.swift */; };
@@ -46,12 +48,8 @@
 		C2D3E6021A680F5B00A75B9A /* IosShieldStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2D3E5611A680F5B00A75B9A /* IosShieldStore.swift */; };
 		C2D3E6121A680F5B00A75B9A /* KeeptMonitoringScheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2D3E5711A680F5B00A75B9A /* KeeptMonitoringScheduler.swift */; };
 		C2D3E6221A680F5B00A75B9A /* KeeptMonitorActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2D3E5811A680F5B00A75B9A /* KeeptMonitorActions.swift */; };
-		B1C2D3E4E1A680F5B00A75B9A /* FamilyControls.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1B2C3D5A1A680F5B00A75B9A /* FamilyControls.framework */; };
-		B1C2D3E4F1A680F5B00A75B9A /* ManagedSettings.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1B2C3D5B1A680F5B00A75B9A /* ManagedSettings.framework */; };
 		C89960D5814A437FA4D5E865 /* Inter-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4FF812CD12A24C7C9F6AC828 /* Inter-Regular.ttf */; };
 		D170490DEF45D6F0125B19E7 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */; };
-		E7CDC4C2890D475FA557F479 /* Inter-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 48B53B5AA62C4F62ADACAE00 /* Inter-Medium.ttf */; };
-		F1A2B3C42CA45674006654EE /* RCTNativeUsageStats.mm in Sources */ = {isa = PBXBuildFile; fileRef = F1A2B3C32CA45674006654EE /* RCTNativeUsageStats.mm */; };
 		D2E3F5411A680F5B00A75B9A /* IosDailyUsageStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2E3F5011A680F5B00A75B9A /* IosDailyUsageStore.swift */; };
 		D2E3F5511A680F5B00A75B9A /* KeeptUsageReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2E3F5111A680F5B00A75B9A /* KeeptUsageReader.swift */; };
 		D2E3F5611A680F5B00A75B9A /* KeeptUsageReportContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2E3F5211A680F5B00A75B9A /* KeeptUsageReportContext.swift */; };
@@ -68,6 +66,8 @@
 		D2E3F6111A680F5B00A75B9A /* DeviceActivity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1B2C3D591A680F5B00A75B9A /* DeviceActivity.framework */; };
 		D2E3F6211A680F5B00A75B9A /* FamilyControls.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1B2C3D5A1A680F5B00A75B9A /* FamilyControls.framework */; };
 		D2E3F6311A680F5B00A75B9A /* KeeptReport.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = D2E3F4011A680F5B00A75B9A /* KeeptReport.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		E7CDC4C2890D475FA557F479 /* Inter-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 48B53B5AA62C4F62ADACAE00 /* Inter-Medium.ttf */; };
+		F1A2B3C42CA45674006654EE /* RCTNativeUsageStats.mm in Sources */ = {isa = PBXBuildFile; fileRef = F1A2B3C32CA45674006654EE /* RCTNativeUsageStats.mm */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -126,6 +126,10 @@
 		A1B2C3D5B1A680F5B00A75B9A /* ManagedSettings.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ManagedSettings.framework; path = System/Library/Frameworks/ManagedSettings.framework; sourceTree = SDKROOT; };
 		A33565A2A5E04F02B2D8C759 /* Inter-Bold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Inter-Bold.ttf"; path = "../source/assets/fonts/Inter-Bold.ttf"; sourceTree = "<group>"; };
 		B1C2D3E431A680F5B00A75B9A /* KeeptScreenTimeAuthorization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeeptScreenTimeAuthorization.swift; sourceTree = "<group>"; };
+		B1C2D3E471A680F5B00A75B9A /* SelectedAppsPayloadBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectedAppsPayloadBuilder.swift; sourceTree = "<group>"; };
+		B1C2D3E491A680F5B00A75B9A /* KeeptFamilyActivityPickerPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeeptFamilyActivityPickerPresenter.swift; sourceTree = "<group>"; };
+		B1C2D3E4B1A680F5B00A75B9A /* KeeptNotificationAuthorization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeeptNotificationAuthorization.swift; sourceTree = "<group>"; };
+		B1C2D3E4D1A680F5B00A75B9A /* KeeptScreenTimeBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeeptScreenTimeBridge.swift; sourceTree = "<group>"; };
 		C2D3E5011A680F5B00A75B9A /* KeeptMonitoringNames.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeeptMonitoringNames.swift; sourceTree = "<group>"; };
 		C2D3E5111A680F5B00A75B9A /* IosTokenCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IosTokenCatalog.swift; sourceTree = "<group>"; };
 		C2D3E5211A680F5B00A75B9A /* IosFamilyActivitySelectionStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IosFamilyActivitySelectionStore.swift; sourceTree = "<group>"; };
@@ -135,14 +139,7 @@
 		C2D3E5611A680F5B00A75B9A /* IosShieldStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IosShieldStore.swift; sourceTree = "<group>"; };
 		C2D3E5711A680F5B00A75B9A /* KeeptMonitoringScheduler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeeptMonitoringScheduler.swift; sourceTree = "<group>"; };
 		C2D3E5811A680F5B00A75B9A /* KeeptMonitorActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeeptMonitorActions.swift; sourceTree = "<group>"; };
-		B1C2D3E471A680F5B00A75B9A /* SelectedAppsPayloadBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectedAppsPayloadBuilder.swift; sourceTree = "<group>"; };
-		B1C2D3E491A680F5B00A75B9A /* KeeptFamilyActivityPickerPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeeptFamilyActivityPickerPresenter.swift; sourceTree = "<group>"; };
-		B1C2D3E4B1A680F5B00A75B9A /* KeeptNotificationAuthorization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeeptNotificationAuthorization.swift; sourceTree = "<group>"; };
-		B1C2D3E4D1A680F5B00A75B9A /* KeeptScreenTimeBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeeptScreenTimeBridge.swift; sourceTree = "<group>"; };
 		CB17F5AB88324B4D9C0E2215 /* Inter-SemiBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Inter-SemiBold.ttf"; path = "../source/assets/fonts/Inter-SemiBold.ttf"; sourceTree = "<group>"; };
-		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
-		F1A2B3C22CA45674006654EE /* RCTNativeUsageStats.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = RCTNativeUsageStats.h; path = FocusGuard/NativeUsageStats/RCTNativeUsageStats.h; sourceTree = "<group>"; };
-		F1A2B3C32CA45674006654EE /* RCTNativeUsageStats.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = RCTNativeUsageStats.mm; path = FocusGuard/NativeUsageStats/RCTNativeUsageStats.mm; sourceTree = "<group>"; };
 		D2E3F4011A680F5B00A75B9A /* KeeptReport.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = KeeptReport.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		D2E3F4811A680F5B00A75B9A /* KeeptReportExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeeptReportExtension.swift; sourceTree = "<group>"; };
 		D2E3F4911A680F5B00A75B9A /* TrackedAppsReport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackedAppsReport.swift; sourceTree = "<group>"; };
@@ -153,6 +150,9 @@
 		D2E3F5111A680F5B00A75B9A /* KeeptUsageReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeeptUsageReader.swift; sourceTree = "<group>"; };
 		D2E3F5211A680F5B00A75B9A /* KeeptUsageReportContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeeptUsageReportContext.swift; sourceTree = "<group>"; };
 		D2E3F5311A680F5B00A75B9A /* KeeptUsageReportCollector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeeptUsageReportCollector.swift; sourceTree = "<group>"; };
+		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
+		F1A2B3C22CA45674006654EE /* RCTNativeUsageStats.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = RCTNativeUsageStats.h; path = FocusGuard/NativeUsageStats/RCTNativeUsageStats.h; sourceTree = "<group>"; };
+		F1A2B3C32CA45674006654EE /* RCTNativeUsageStats.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = RCTNativeUsageStats.mm; path = FocusGuard/NativeUsageStats/RCTNativeUsageStats.mm; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -294,18 +294,6 @@
 			path = KeeptMonitor;
 			sourceTree = "<group>";
 		};
-		D2E3F511A680F5B00A75B9A /* KeeptReport */ = {
-			isa = PBXGroup;
-			children = (
-				D2E3F4811A680F5B00A75B9A /* KeeptReportExtension.swift */,
-				D2E3F4911A680F5B00A75B9A /* TrackedAppsReport.swift */,
-				D2E3F4A11A680F5B00A75B9A /* TrackedAppsReportView.swift */,
-				D2E3F4B11A680F5B00A75B9A /* Info.plist */,
-				D2E3F4C11A680F5B00A75B9A /* KeeptReport.entitlements */,
-			);
-			path = KeeptReport;
-			sourceTree = "<group>";
-		};
 		B1C2D3E501A680F5B00A75B9A /* ScreenTime */ = {
 			isa = PBXGroup;
 			children = (
@@ -327,6 +315,18 @@
 				5709B34CF0A7D63546082F79 /* Pods-FocusGuard.release.xcconfig */,
 			);
 			path = Pods;
+			sourceTree = "<group>";
+		};
+		D2E3F511A680F5B00A75B9A /* KeeptReport */ = {
+			isa = PBXGroup;
+			children = (
+				D2E3F4811A680F5B00A75B9A /* KeeptReportExtension.swift */,
+				D2E3F4911A680F5B00A75B9A /* TrackedAppsReport.swift */,
+				D2E3F4A11A680F5B00A75B9A /* TrackedAppsReportView.swift */,
+				D2E3F4B11A680F5B00A75B9A /* Info.plist */,
+				D2E3F4C11A680F5B00A75B9A /* KeeptReport.entitlements */,
+			);
+			path = KeeptReport;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -485,13 +485,9 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-FocusGuard/Pods-FocusGuard-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			inputPaths = (
-			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-FocusGuard/Pods-FocusGuard-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -528,13 +524,9 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-FocusGuard/Pods-FocusGuard-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			inputPaths = (
-			);
 			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-FocusGuard/Pods-FocusGuard-resources-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
