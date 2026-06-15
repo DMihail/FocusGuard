@@ -3,7 +3,11 @@ import { TurboModuleRegistry } from 'react-native';
 import type { TurboModule } from 'react-native';
 import type { EventEmitter } from 'react-native/Libraries/Types/CodegenTypes';
 
-import type { InstallApp, PackageUsage, PermissionsChangedEvent } from './types';
+import type { InstallApp, PackageUsage } from './types';
+
+type PermissionsChangedEventCodegen = Readonly<{
+  changedAtMs: number;
+}>;
 
 type MonitorServiceStartResultCodegen = {
   started: boolean;
@@ -13,7 +17,7 @@ type MonitorServiceStartResultCodegen = {
 export type { PermissionsChangedEvent } from './types';
 
 export interface Spec extends TurboModule {
-  readonly onPermissionsChanged: EventEmitter<PermissionsChangedEvent>;
+  readonly onPermissionsChanged: EventEmitter<PermissionsChangedEventCodegen>;
   checkForPermission(): boolean;
   checkForSystemAlertWindowPermission(): boolean;
   checkForNotificationsPermission(): boolean;
