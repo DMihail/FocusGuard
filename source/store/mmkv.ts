@@ -3,10 +3,7 @@
 import { createMMKV } from 'react-native-mmkv';
 import type { StateStorage } from 'zustand/middleware';
 
-import { migrateMmkvIfNeeded } from './migrateMmkvStorage';
 import { MMKV_INSTANCE_ID } from './persistSchema';
-
-migrateMmkvIfNeeded(createMMKV);
 
 /** Shared MMKV instance for Zustand persistence and native monitor config reads. */
 export const storage = createMMKV({

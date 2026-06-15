@@ -5,8 +5,8 @@ enforcing limits you configure.
 
 Built with [React Native](https://reactnative.dev) **0.86** (New Architecture / Turbo Modules) and **React 19**.
 
-> Legacy identifiers (`FocusGuard`, `com.focusguard` Kotlin package, `focusguard://`) are documented in
-> [docs/MIGRATION_KEEPT.md](docs/MIGRATION_KEEPT.md). MMKV auto-migrates from `focus-guard-storage` to `keept-storage`.
+> Legacy identifiers (`FocusGuard`, `com.focusguard` Kotlin package, `focusguard://`) — see
+> [docs/MIGRATION_KEEPT.md](docs/MIGRATION_KEEPT.md).
 
 ## Features
 

@@ -23,13 +23,8 @@
  * - Daily usage totals: `ios-daily-usage-v1` (phase 3 report + monitor floors)
  * - Auth mode: `individual` (self-control only)
  */
-export const LEGACY_MMKV_INSTANCE_ID = 'focus-guard-storage';
-
 /** Shared MMKV instance for Zustand persistence and native monitor reads. */
 export const MMKV_INSTANCE_ID = 'keept-storage';
-
-/** Set to `true` after legacy MMKV data is copied into [MMKV_INSTANCE_ID]. */
-export const MMKV_MIGRATION_FLAG_KEY = 'keept-mmkv-migrated-v1';
 
 export const PERSIST_STORAGE_KEYS = {
   selectedApps: 'selected-apps-storage',
@@ -53,9 +48,6 @@ export const SETTINGS_PERSIST_VERSION = 1;
 
 /** Flat tracking snapshot written for native monitor reads (`NativeTrackingSnapshot.kt`). */
 export const NATIVE_TRACKING_SNAPSHOT_KEY = 'native-tracking-snapshot-v1';
-
-/** Keys copied from [LEGACY_MMKV_INSTANCE_ID] during upgrade. Keep in sync with `PersistSchema.kt`. */
-export const MMKV_MIGRATION_KEYS = [...Object.values(PERSIST_STORAGE_KEYS), NATIVE_TRACKING_SNAPSHOT_KEY] as const;
 
 /** Bump when the flat native snapshot JSON shape changes. */
 export const NATIVE_TRACKING_SNAPSHOT_VERSION = 2;
