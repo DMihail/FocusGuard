@@ -85,7 +85,8 @@ class TrackingConfigRepository {
                         PersistSchema.APP_LIMITS_PERSIST_VERSION,
                         PersistSchema.APP_LIMITS_STORAGE_KEY,
                     ) ?: return null
-                state.optJSONObject("limitsByPackage")
+                state.optJSONObject("limitsByAppKey")
+                    ?: state.optJSONObject("limitsByPackage")
             } catch (_: Exception) {
                 null
             }

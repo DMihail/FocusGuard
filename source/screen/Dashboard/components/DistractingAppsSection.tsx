@@ -30,7 +30,6 @@ const areVisibleAppRowsEqual = (previous: DashboardAppRow[], next: DashboardAppR
     if (
       !left ||
       !right ||
-      left.packageName !== right.packageName ||
       getManageAppKey(left) !== getManageAppKey(right) ||
       left.usedMs !== right.usedMs ||
       left.limitMs !== right.limitMs ||

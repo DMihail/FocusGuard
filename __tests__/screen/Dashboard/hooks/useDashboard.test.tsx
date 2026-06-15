@@ -18,7 +18,7 @@ const mockSyncSelectedAppsMetadata = jest.fn();
 
 const mockStoreState = {
   apps: [...mockSelectedApps],
-  limitsByPackage: {} as Record<string, unknown>,
+  limitsByAppKey: {} as Record<string, unknown>,
   isMonitoring: false,
   toggle: jest.fn(),
   syncSelectedAppsMetadata: mockSyncSelectedAppsMetadata,

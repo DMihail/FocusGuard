@@ -24,13 +24,13 @@ export type DashboardSummary = {
 /** Builds dashboard rows with usage percentages sorted by time spent. */
 export const buildDashboardAppRows = (
   apps: ManageApp[],
-  limitsByPackage: Record<string, AppLimits>,
+  limitsByAppKey: Record<string, AppLimits>,
   usageByPackage: Record<string, number>,
 ): DashboardAppRow[] =>
   apps
     .map((app) => {
       const appKey = getManageAppKey(app);
-      const limits = limitsByPackage[appKey] ?? DEFAULT_APP_LIMITS;
+      const limits = limitsByAppKey[appKey] ?? DEFAULT_APP_LIMITS;
       const usedMs = usageByPackage[appKey] ?? 0;
       const limitMs = limits.hardBlockMinutes * MS_PER_MINUTE;
       const { percentUsed, isOverLimit } = computeUsageMetrics(usedMs, limitMs);

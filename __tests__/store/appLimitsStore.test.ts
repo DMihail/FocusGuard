@@ -8,7 +8,20 @@ import { appLimitsStore, DEFAULT_APP_LIMITS, normalizeAppLimits } from '@/store/
 
 describe('appLimitsStore', () => {
   beforeEach(() => {
-    appLimitsStore.setState({ limitsByPackage: {} });
+    appLimitsStore.setState({ limitsByAppKey: {} });
+  });
+
+  it('migrates legacy limitsByPackage on persist v1', () => {
+    const migrated = appLimitsStore.persist
+      .getOptions()
+      .migrate?.(
+        { limitsByPackage: { 'com.legacy': { warningMinutes: 10, hardBlockMinutes: 20, strictMode: false } } },
+        1,
+      );
+
+    expect(migrated).toEqual({
+      limitsByAppKey: { 'com.legacy': { warningMinutes: 10, hardBlockMinutes: 20, strictMode: false } },
+    });
   });
 
   it('returns default limits for unknown packages', () => {

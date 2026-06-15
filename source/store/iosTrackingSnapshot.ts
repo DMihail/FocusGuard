@@ -55,7 +55,7 @@ export const isIosTrackingSnapshot = (value: unknown): value is IosTrackingSnaps
 
 export const buildIosTrackingSnapshot = (): IosTrackingSnapshot => {
   const apps = selectedAppsStore.getState().apps;
-  const limitsByPackage = appLimitsStore.getState().limitsByPackage;
+  const limitsByAppKey = appLimitsStore.getState().limitsByAppKey;
 
   return {
     version: IOS_TRACKING_SNAPSHOT_VERSION,
@@ -66,7 +66,7 @@ export const buildIosTrackingSnapshot = (): IosTrackingSnapshot => {
       apps.map((app) => {
         const tokenId = getManageAppKey(app);
 
-        return [tokenId, limitsByPackage[tokenId] ?? DEFAULT_APP_LIMITS];
+        return [tokenId, limitsByAppKey[tokenId] ?? DEFAULT_APP_LIMITS];
       }),
     ),
   };

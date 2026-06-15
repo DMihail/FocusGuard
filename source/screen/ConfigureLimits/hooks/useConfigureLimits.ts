@@ -24,7 +24,7 @@ export const useConfigureLimits = (appKey: string): UseConfigureLimitsResult => 
   const app = selectedAppsStore((state) => findSelectedApp(state.apps, appKey));
   const { storedLimits, setStoredLimits } = appLimitsStore(
     useShallow((state) => ({
-      storedLimits: state.limitsByPackage[appKey] ?? DEFAULT_APP_LIMITS,
+      storedLimits: state.limitsByAppKey[appKey] ?? DEFAULT_APP_LIMITS,
       setStoredLimits: state.setLimits,
     })),
   );

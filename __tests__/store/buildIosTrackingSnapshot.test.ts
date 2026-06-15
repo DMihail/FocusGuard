@@ -23,7 +23,7 @@ jest.mock('@/store/appLimitsStore', () => ({
   DEFAULT_APP_LIMITS: { warningMinutes: 30, hardBlockMinutes: 60, strictMode: false },
   appLimitsStore: {
     getState: () => ({
-      limitsByPackage: {
+      limitsByAppKey: {
         'ios-token-0': { warningMinutes: 15, hardBlockMinutes: 30, strictMode: true },
       },
     }),

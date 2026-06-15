@@ -16,10 +16,10 @@ object PersistSchema {
     const val SETTINGS_STORAGE_KEY = "settings-storage"
 
     const val SELECTED_APPS_PERSIST_VERSION = 1
-    const val APP_LIMITS_PERSIST_VERSION = 1
+    const val APP_LIMITS_PERSIST_VERSION = 2
     const val MONITORING_PERSIST_VERSION = 1
     const val SETTINGS_PERSIST_VERSION = 1
 
     const val NATIVE_TRACKING_SNAPSHOT_KEY = "native-tracking-snapshot-v1"
-    const val NATIVE_TRACKING_SNAPSHOT_VERSION = 1
+    const val NATIVE_TRACKING_SNAPSHOT_VERSION = 2
 }

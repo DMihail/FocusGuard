@@ -40,7 +40,7 @@ export const startNativeTrackingSnapshotSync = (): (() => void) => {
 
   if (!unsubscribeAppLimits) {
     unsubscribeAppLimits = appLimitsStore.subscribe((state, previous) => {
-      if (state.limitsByPackage !== previous.limitsByPackage) {
+      if (state.limitsByAppKey !== previous.limitsByAppKey) {
         syncNativeTrackingSnapshot();
       }
     });

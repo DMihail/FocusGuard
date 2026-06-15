@@ -36,8 +36,8 @@ export const PERSIST_STORAGE_KEYS = {
 /** Bump when `selectedAppsStore` persisted `state.apps` shape changes. */
 export const SELECTED_APPS_PERSIST_VERSION = 1;
 
-/** Bump when `appLimitsStore` persisted `state.limitsByPackage` shape changes. */
-export const APP_LIMITS_PERSIST_VERSION = 1;
+/** Bump when `appLimitsStore` persisted `state.limitsByAppKey` shape changes. */
+export const APP_LIMITS_PERSIST_VERSION = 2;
 
 /** Bump when `monitoringStore` persisted `state.isMonitoring` shape changes. */
 export const MONITORING_PERSIST_VERSION = 1;
@@ -49,7 +49,7 @@ export const SETTINGS_PERSIST_VERSION = 1;
 export const NATIVE_TRACKING_SNAPSHOT_KEY = 'native-tracking-snapshot-v1';
 
 /** Bump when the flat native snapshot JSON shape changes. */
-export const NATIVE_TRACKING_SNAPSHOT_VERSION = 1;
+export const NATIVE_TRACKING_SNAPSHOT_VERSION = 2;
 
 /** App Group shared between the iOS app and DeviceActivity extensions (`KeeptAppGroup.swift`). */
 export const IOS_APP_GROUP_ID = 'group.com.keept.shared';

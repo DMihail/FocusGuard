@@ -6,6 +6,7 @@ import { Pressable, ScrollView, Text, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 
 import { CloseIcon } from '@/assets/svg/ManageApps';
+import { getManageAppKey } from '@/domain/appKey';
 import { testIds } from '@/testing/testIds';
 
 import { SELECTED_APPS_ACCORDION_SETTLE_MS } from '../constants';
@@ -15,25 +16,27 @@ import type { ManageApp, SelectedAppsSectionProps } from '../types';
 
 type SelectedChipProps = {
   app: ManageApp;
-  onPress: (packageName: string) => void;
+  onPress: (appKey: string) => void;
   onRemove: (app: ManageApp) => void;
 };
 
 const areSelectedChipPropsEqual = (previous: SelectedChipProps, next: SelectedChipProps): boolean =>
-  previous.app.packageName === next.app.packageName &&
+  getManageAppKey(previous.app) === getManageAppKey(next.app) &&
   previous.app.appName === next.app.appName &&
   previous.onPress === next.onPress &&
   previous.onRemove === next.onRemove;
 
-const SelectedChip = memo(
-  ({ app, onPress, onRemove }: SelectedChipProps) => (
-    <View style={manageAppsStyles.selectedChip} testID={testIds.manageApps.selectedChip(app.packageName)}>
+const SelectedChip = memo(({ app, onPress, onRemove }: SelectedChipProps) => {
+  const appKey = getManageAppKey(app);
+
+  return (
+    <View style={manageAppsStyles.selectedChip} testID={testIds.manageApps.selectedChip(appKey)}>
       <Pressable
         accessibilityRole="button"
         accessibilityLabel={`Configure limits for ${app.appName}`}
-        onPress={() => onPress(app.packageName)}
+        onPress={() => onPress(appKey)}
         style={manageAppsStyles.selectedChipBody}
-        testID={testIds.manageApps.selectedChipPress(app.packageName)}
+        testID={testIds.manageApps.selectedChipPress(appKey)}
       >
         <Text style={manageAppsStyles.selectedChipLabel} numberOfLines={1}>
           {app.appName}
@@ -46,14 +49,13 @@ const SelectedChip = memo(
         onPress={() => onRemove(app)}
         style={manageAppsStyles.selectedChipRemove}
         hitSlop={8}
-        testID={testIds.manageApps.selectedChipRemove(app.packageName)}
+        testID={testIds.manageApps.selectedChipRemove(appKey)}
       >
         <CloseIcon />
       </Pressable>
     </View>
-  ),
-  areSelectedChipPropsEqual,
-);
+  );
+}, areSelectedChipPropsEqual);
 
 const areSelectedAppsSectionPropsEqual = (
   previous: SelectedAppsSectionProps,
@@ -71,7 +73,7 @@ const areSelectedAppsSectionPropsEqual = (
     const left = previous.apps[index];
     const right = next.apps[index];
 
-    if (!left || !right || left.packageName !== right.packageName || left.appName !== right.appName) {
+    if (!left || !right || getManageAppKey(left) !== getManageAppKey(right) || left.appName !== right.appName) {
       return false;
     }
   }
@@ -128,7 +130,7 @@ export const SelectedAppsSection = memo(({ apps, onAppPress, onAppRemove }: Sele
           >
             <View style={manageAppsStyles.selectedAppsRows}>
               {displayApps.map((app) => (
-                <SelectedChip key={app.packageName} app={app} onPress={onAppPress} onRemove={onAppRemove} />
+                <SelectedChip key={getManageAppKey(app)} app={app} onPress={onAppPress} onRemove={onAppRemove} />
               ))}
             </View>
           </ScrollView>

@@ -19,8 +19,24 @@ env:
   RCT_NEW_ARCH_ENABLED: '1'
 
 jobs:
-  ci:
-    name: Checks & Android build
+  js:
+    name: Lint, format, types & tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+      - run: npm run check
+
+  android:
+    name: Android assembleDebug
+    needs: js
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -32,7 +48,6 @@ jobs:
           cache: npm
 
       - run: npm ci
-      - run: npm run check
 
       - uses: actions/setup-java@v4
         with:
@@ -47,3 +62,32 @@ jobs:
       - name: Android assembleDebug
         working-directory: android
         run: ./gradlew assembleDebug --no-daemon
+
+  ios:
+    name: iOS simulator build
+    needs: js
+    runs-on: macos-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Install CocoaPods
+        run: pod install --project-directory=ios
+
+      - name: Build for iOS Simulator
+        run: |
+          xcodebuild \
+            -workspace ios/FocusGuard.xcworkspace \
+            -scheme FocusGuard \
+            -configuration Debug \
+            -sdk iphonesimulator \
+            -destination 'generic/platform=iOS Simulator' \
+            build \
+            CODE_SIGNING_ALLOWED=NO

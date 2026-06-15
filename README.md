@@ -115,10 +115,11 @@ Jest resolves `.ios.ts` by default; Android-specific tests import `.android` mod
 
 ## CI
 
-GitHub Actions (`.github/workflows/ci.yml`) — один job:
+GitHub Actions (`.github/workflows/ci.yml`):
 
-1. JS: ESLint, Prettier, TypeScript, Jest (`npm run check`)
-2. Android: `assembleDebug` (native compile smoke)
+1. **js** — ESLint, Prettier, TypeScript, Jest (`npm run check`)
+2. **android** — `assembleDebug` (native compile smoke)
+3. **ios** — `xcodebuild` for iOS Simulator (no code signing)
 
 ## Native bridge
 

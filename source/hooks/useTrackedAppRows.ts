@@ -29,8 +29,8 @@ export const useTrackedAppRows = (): {
       refreshTrackedUsage: state.refreshUsage,
     })),
   );
-  const limitsByPackage = appLimitsStore(
-    useShallow((state) => Object.fromEntries(selectedAppKeys.map((appKey) => [appKey, state.limitsByPackage[appKey]]))),
+  const limitsByAppKey = appLimitsStore(
+    useShallow((state) => Object.fromEntries(selectedAppKeys.map((appKey) => [appKey, state.limitsByAppKey[appKey]]))),
   );
 
   const refreshUsage = useCallback(
@@ -54,8 +54,8 @@ export const useTrackedAppRows = (): {
   useAppStateOnActive(refreshWhenActive);
 
   const appRows = useMemo(
-    () => buildDashboardAppRows(selectedApps, limitsByPackage, usageByPackage),
-    [limitsByPackage, selectedApps, usageByPackage],
+    () => buildDashboardAppRows(selectedApps, limitsByAppKey, usageByPackage),
+    [limitsByAppKey, selectedApps, usageByPackage],
   );
 
   return {

@@ -29,7 +29,7 @@ describe('nativeTrackingSnapshot (Android)', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     selectedAppsStore.setState({ apps: [] });
-    appLimitsStore.setState({ limitsByPackage: {} });
+    appLimitsStore.setState({ limitsByAppKey: {} });
     mockGetNativeUsageStats.mockReturnValue({ syncTrackingConfig: mockSyncTrackingConfig } as never);
   });
 
