@@ -6,7 +6,7 @@ import { getCachedInstalledApps, invalidateInstalledAppsCache, loadInstalledApps
 import type { ManageApp } from '@/domain/types';
 import { selectedAppsStore } from '@/store';
 
-/** Loads and caches the device app catalog for Manage Apps. */
+/** Loads and caches the full device app catalog for Manage Apps on Android. */
 export const useInstalledAppsCatalog = () => {
   const [installedApps, setInstalledApps] = useState<ManageApp[]>(() => getCachedInstalledApps() ?? []);
   const [isLoadingApps, setIsLoadingApps] = useState(() => getCachedInstalledApps() === null);

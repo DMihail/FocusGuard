@@ -6,8 +6,8 @@ import type { ManageApp } from '@/domain/types';
 import { mockInstallApps, mockManageApps } from '@/testing/fixtures/manageApps';
 import { testIds } from '@/testing/testIds';
 
-jest.mock('@/screen/ManageApps/manageAppsPlatform', () =>
-  jest.requireActual('@/screen/ManageApps/manageAppsPlatform.android'),
+jest.mock('@/screen/ManageApps/hooks/useManageAppsScreen', () =>
+  jest.requireActual('@/screen/ManageApps/hooks/useManageAppsScreen.android'),
 );
 
 import {
