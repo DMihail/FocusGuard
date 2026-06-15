@@ -1,3 +1,5 @@
+import { TurboModuleRegistry } from 'react-native';
+
 import type { TurboModule } from 'react-native';
 import type { EventEmitter } from 'react-native/Libraries/Types/CodegenTypes';
 
@@ -37,3 +39,9 @@ export interface Spec extends TurboModule {
   requestScreenTimeAuthorization(): Promise<boolean>;
   presentFamilyActivityPicker(): Promise<InstallApp[]>;
 }
+
+/**
+ * Module-scope TurboModuleRegistry call required by React Native codegen (same file as `Spec`).
+ * Runtime access goes through `nativeUsageStatsClient` for platform-specific lookup.
+ */
+export const NativeUsageStatsModule = TurboModuleRegistry.getEnforcing<Spec>('NativeUsageStats');
