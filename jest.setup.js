@@ -140,3 +140,32 @@ jest.mock('react-native-gesture-handler', () => {
 jest.mock('@/store/mmkv', () => ({
   zustandStorage: require('./__tests__/helpers/mockZustandMmkv').mockZustandStorage,
 }));
+
+const mockPermissionsChangedSubscription = { remove: jest.fn() };
+
+jest.mock('@/specs/nativeUsageStatsClient', () => ({
+  getNativeUsageStats: jest.fn(() => ({
+    onPermissionsChanged: jest.fn(() => mockPermissionsChangedSubscription),
+    checkForPermission: jest.fn(() => false),
+    checkForSystemAlertWindowPermission: jest.fn(() => false),
+    checkForNotificationsPermission: jest.fn(() => false),
+    checkForIgnoreBatteryOptimizationsPermission: jest.fn(() => false),
+    checkForManifestMonitorPermissions: jest.fn(() => false),
+    startMonitorService: jest.fn(() => ({ started: false, reason: 'manifest_permissions_missing' })),
+    stopMonitorService: jest.fn(),
+    isMonitorServiceRunning: jest.fn(() => false),
+    requestUsageStatsPermission: jest.fn(),
+    requestSystemAlertWindowPermission: jest.fn(),
+    requestNotificationsPermission: jest.fn(),
+    openNotificationsSettings: jest.fn(),
+    requestIgnoreBatteryOptimizationsPermission: jest.fn(),
+    getPackagesUsageToday: jest.fn(async () => []),
+    getInstalledApplications: jest.fn(async () => []),
+    getAppDisplayName: jest.fn(() => ''),
+    getAppVersion: jest.fn(() => ''),
+    invalidateNativeCatalogCaches: jest.fn(),
+    syncTrackingConfig: jest.fn(),
+    requestScreenTimeAuthorization: jest.fn(async () => true),
+    presentFamilyActivityPicker: jest.fn(async () => []),
+  })),
+}));

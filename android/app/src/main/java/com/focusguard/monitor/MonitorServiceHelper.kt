@@ -15,13 +15,16 @@ object MonitorServiceHelper {
    * (checked via [MonitorPermissions.canRunMonitorService]).
    * Uses [ContextCompat.startForegroundService] for compatibility with API 26+.
    */
-  fun start(context: Context) {
-    if (!MonitorPermissions.canRunMonitorService(context)) {
-      return
+  fun start(context: Context): MonitorServiceStartResult {
+    val failureReason = MonitorServiceStartResult.resolveStartFailureReason(context)
+
+    if (failureReason != null) {
+      return MonitorServiceStartResult(started = false, reason = failureReason)
     }
 
     val intent = Intent(context, FocusGuardMonitorService::class.java)
     ContextCompat.startForegroundService(context, intent)
+    return MonitorServiceStartResult(started = true)
   }
 
   /**

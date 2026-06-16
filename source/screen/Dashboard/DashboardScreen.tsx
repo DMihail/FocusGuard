@@ -1,7 +1,7 @@
 /** @format */
 
 import React, { useCallback, useMemo } from 'react';
-import { FlatList } from 'react-native';
+import { FlatList, View } from 'react-native';
 
 import { SECTION_SCROLL_FLAT_LIST_PROPS } from '@/list';
 import { useRootNavigation } from '@/navigation';
@@ -18,7 +18,7 @@ import { dashboardStyles } from './styles';
 import { getGreeting } from './utils';
 
 import { DashboardHeader } from './components';
-import { ScreenSafeArea } from '@/components';
+import { ScreenSafeArea, UsageRefreshIndicator } from '@/components';
 
 export const DashboardScreen = () => {
   const navigation = useRootNavigation();
@@ -33,6 +33,8 @@ export const DashboardScreen = () => {
     openConfigureLimits,
     monitoringSubtitle,
     refreshControl,
+    showUsageRefreshIndicator,
+    isPullRefreshing,
   } = useDashboard();
 
   const openSettings = useCallback(() => {
@@ -81,18 +83,24 @@ export const DashboardScreen = () => {
 
   return (
     <ScreenSafeArea style={dashboardStyles.screen} testID={testIds.dashboard.screen} accessibilityLabel="Dashboard">
-      <FlatList
-        testID={testIds.dashboard.scroll}
-        data={DASHBOARD_SECTIONS}
-        renderItem={renderItem}
-        keyExtractor={dashboardSectionKeyExtractor}
-        ListHeaderComponent={listHeader}
-        contentContainerStyle={dashboardStyles.scrollContent}
-        showsVerticalScrollIndicator={false}
-        refreshControl={refreshControl}
-        extraData={sectionContext}
-        {...SECTION_SCROLL_FLAT_LIST_PROPS}
-      />
+      <View style={dashboardStyles.content}>
+        <FlatList
+          testID={testIds.dashboard.scroll}
+          data={DASHBOARD_SECTIONS}
+          renderItem={renderItem}
+          keyExtractor={dashboardSectionKeyExtractor}
+          ListHeaderComponent={listHeader}
+          contentContainerStyle={dashboardStyles.scrollContent}
+          showsVerticalScrollIndicator={false}
+          refreshControl={refreshControl}
+          extraData={sectionContext}
+          {...SECTION_SCROLL_FLAT_LIST_PROPS}
+        />
+        <UsageRefreshIndicator
+          visible={showUsageRefreshIndicator && !isPullRefreshing}
+          testID={testIds.dashboard.usageLoader}
+        />
+      </View>
     </ScreenSafeArea>
   );
 };

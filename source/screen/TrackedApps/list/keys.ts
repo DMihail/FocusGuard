@@ -1,3 +1,3 @@
 /** @format */
 
-export { keyByPackageName as trackedAppKeyExtractor } from '@/list/keys';
+export { keyByManageApp as trackedAppKeyExtractor } from '@/list/keys';

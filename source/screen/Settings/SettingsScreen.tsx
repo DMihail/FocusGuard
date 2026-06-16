@@ -3,9 +3,9 @@
 import React, { useCallback } from 'react';
 import { ScrollView, View } from 'react-native';
 
+import type { LegalDocumentId } from '@/domain/types/legal';
 import { useGoBack } from '@/hooks/useGoBack';
 import { useRootNavigation } from '@/navigation';
-import type { LegalDocumentId } from '@/screen/Legal';
 import { testIds } from '@/testing/testIds';
 
 import { DATA_PRIVACY_LINK, NOTIFICATIONS_TOGGLE } from './data/preferences';

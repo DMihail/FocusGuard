@@ -40,6 +40,13 @@
 }
 
 # ---------------------------------------------------------------------------
+# react-native-screens (fragment restoration + RNScreensFragmentFactory)
+# ---------------------------------------------------------------------------
+-keepnames class com.swmansion.rnscreens.ScreenFragment { *; }
+-keepnames class com.swmansion.rnscreens.ScreenStackFragment { *; }
+-keepnames class com.swmansion.rnscreens.ScreenModalFragment { *; }
+
+# ---------------------------------------------------------------------------
 # Kotlin coroutines (monitor service scope)
 # ---------------------------------------------------------------------------
 -keepnames class kotlinx.coroutines.internal.MainDispatcherFactory {}

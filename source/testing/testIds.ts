@@ -1,12 +1,13 @@
 /** @format */
 
-import type { PermissionId } from '@/screen/EnablePermissions/types';
+import type { PermissionId } from '@/domain/permissions';
 
 const toSegment = (value: string) => value.replace(/[^a-zA-Z0-9-_]/g, '-');
 
 export const testIds = {
   app: {
     loader: 'app-loader',
+    usageLoader: 'app-usage-loader',
   },
   onboarding: {
     screen: 'onboarding-screen',
@@ -41,7 +42,8 @@ export const testIds = {
     viewAllAppsButton: 'dashboard-view-all-apps-button',
     appsList: 'dashboard-apps-list',
     appsEmpty: 'dashboard-apps-empty',
-    appRow: (packageName: string) => `dashboard-app-row-${toSegment(packageName)}`,
+    usageLoader: 'dashboard-usage-loader',
+    appRow: (appKey: string) => `dashboard-app-row-${toSegment(appKey)}`,
   },
   trackedApps: {
     screen: 'tracked-apps-screen',
@@ -50,7 +52,8 @@ export const testIds = {
     backButton: 'tracked-apps-back-button',
     appCount: 'tracked-apps-count',
     empty: 'tracked-apps-empty',
-    appRow: (packageName: string) => `tracked-apps-row-${toSegment(packageName)}`,
+    usageLoader: 'tracked-apps-usage-loader',
+    appRow: (appKey: string) => `tracked-apps-row-${toSegment(appKey)}`,
   },
   legal: {
     dataPrivacy: {
@@ -87,7 +90,7 @@ export const testIds = {
     scroll: 'configure-limits-scroll',
     header: 'configure-limits-header',
     backButton: 'configure-limits-back-button',
-    appBadge: (packageName: string) => `configure-limits-app-${toSegment(packageName)}`,
+    appBadge: (appKey: string) => `configure-limits-app-${toSegment(appKey)}`,
     warningCard: 'configure-limits-warning-card',
     warningDecrease: 'configure-limits-warning-decrease',
     warningIncrease: 'configure-limits-warning-increase',
@@ -99,7 +102,7 @@ export const testIds = {
     strictModeCard: 'configure-limits-strict-mode-card',
     strictModeToggle: 'configure-limits-strict-mode-toggle',
     saveButton: 'configure-limits-save-button',
-    dailyUsageCard: (packageName: string) => `configure-limits-daily-usage-${toSegment(packageName)}`,
+    dailyUsageCard: (appKey: string) => `configure-limits-daily-usage-${toSegment(appKey)}`,
   },
   manageApps: {
     screen: 'manage-apps-screen',
@@ -113,14 +116,15 @@ export const testIds = {
     categoryFilter: (category: string) => `manage-apps-category-${toSegment(category)}`,
     selectedSection: 'manage-apps-selected-section',
     selectedAppsScroll: 'manage-apps-selected-apps-scroll',
-    selectedChip: (packageName: string) => `manage-apps-selected-chip-${toSegment(packageName)}`,
-    selectedChipPress: (packageName: string) => `manage-apps-selected-chip-press-${toSegment(packageName)}`,
-    selectedChipRemove: (packageName: string) => `manage-apps-selected-chip-remove-${toSegment(packageName)}`,
+    selectedChip: (appKey: string) => `manage-apps-selected-chip-${toSegment(appKey)}`,
+    selectedChipPress: (appKey: string) => `manage-apps-selected-chip-press-${toSegment(appKey)}`,
+    selectedChipRemove: (appKey: string) => `manage-apps-selected-chip-remove-${toSegment(appKey)}`,
     appsList: 'manage-apps-list',
     appsFilterLoader: 'manage-apps-filter-loader',
     appsLoader: 'manage-apps-loader',
     appsEmpty: 'manage-apps-empty',
-    appRow: (packageName: string) => `manage-apps-row-${toSegment(packageName)}`,
-    appSelectionControl: (packageName: string) => `manage-apps-selection-${toSegment(packageName)}`,
+    iosPickAppsButton: 'manage-apps-ios-pick-apps-button',
+    appRow: (appKey: string) => `manage-apps-row-${toSegment(appKey)}`,
+    appSelectionControl: (appKey: string) => `manage-apps-selection-${toSegment(appKey)}`,
   },
 } as const;

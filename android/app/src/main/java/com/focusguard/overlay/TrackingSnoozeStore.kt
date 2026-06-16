@@ -1,15 +1,14 @@
 package com.focusguard.overlay
 
+import com.focusguard.storage.PersistSchema
 import com.tencent.mmkv.MMKV
 
 /** Persists temporary snooze windows after the user taps "5 more minutes" on the block overlay. */
 internal object TrackingSnoozeStore {
-
-    private const val MMKV_INSTANCE_ID = "focus-guard-storage"
     private const val KEY_PREFIX = "block-snooze-"
 
     private val mmkv: MMKV? =
-        MMKV.mmkvWithID(MMKV_INSTANCE_ID, MMKV.MULTI_PROCESS_MODE)
+        MMKV.mmkvWithID(PersistSchema.MMKV_INSTANCE_ID, MMKV.MULTI_PROCESS_MODE)
 
     fun setSnooze(packageName: String, durationMs: Long) {
         val until = System.currentTimeMillis() + durationMs

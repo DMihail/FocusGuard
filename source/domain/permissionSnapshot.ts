@@ -1,8 +1,5 @@
-import type { PermissionId, PermissionStatus } from '@/screen/EnablePermissions/types';
-import {
-  areRequiredPermissionsGranted,
-  readPermissionStatuses,
-} from '@/screen/EnablePermissions/utils/permissionStatus';
+import type { PermissionId, PermissionStatus } from '@/domain/permissions';
+import { areRequiredPermissionsGranted, readPermissionStatuses } from '@/domain/permissions';
 
 let snapshot: Record<PermissionId, PermissionStatus> | null = null;
 

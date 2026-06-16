@@ -5,9 +5,8 @@ import * as NativeSpecs from '@/specs';
 import { createNativeCatalogLoader } from './createNativeCatalogLoader';
 
 const installedAppsCatalog = createNativeCatalogLoader<ManageApp[]>({
-  label: 'installedAppsCatalog',
   fallback: [],
-  read: () => mapInstalledApps(NativeSpecs.getInstalledApplications()),
+  read: async () => mapInstalledApps(await NativeSpecs.getInstalledApplications()),
   onInvalidate: () => NativeSpecs.invalidateNativeCatalogCaches?.(),
 });
 

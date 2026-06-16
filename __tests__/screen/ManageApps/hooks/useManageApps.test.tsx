@@ -28,7 +28,7 @@ const mockStoreState: {
 };
 
 jest.mock('../../../../source/specs', () => ({
-  getInstalledApplications: () => mockGetInstalledApplications(),
+  getInstalledApplications: async () => mockGetInstalledApplications(),
 }));
 
 jest.mock('../../../../source/store', () => ({
@@ -47,7 +47,7 @@ jest.mock('../../../../source/domain/installedAppsCatalog', () => {
 });
 
 import { invalidateInstalledAppsCache } from '@/domain/installedAppsCatalog';
-import { useManageApps } from '@/screen/ManageApps/hooks/useManageApps';
+import { useManageApps } from '@/screen/ManageApps/hooks/useManageApps.android';
 
 type HarnessProps = {
   searchQuery?: string;

@@ -14,12 +14,12 @@ permissions:
 
 env:
   HUSKY: '0'
-  NODE_VERSION: '22'
   CI: 'true'
   NODE_OPTIONS: --max-old-space-size=4096
+  RCT_NEW_ARCH_ENABLED: '1'
 
 jobs:
-  checks:
+  js:
     name: Lint, format, types & tests
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -28,11 +28,90 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: ${{ env.NODE_VERSION }}
+          node-version: 22
           cache: npm
 
-      - name: Install dependencies
-        run: npm ci
+      - run: npm ci
+      - run: npm run check
 
-      - name: Run checks
-        run: npm run check
+  android:
+    name: Android assembleDebug
+    needs: js
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - uses: android-actions/setup-android@v3
+
+      # Pre-install NDK before Gradle configures native modules. Gradle auto-download is flaky on GHA
+      # (corrupted zip: "Archive is not a ZIP archive"). Version must match android/build.gradle.
+      - name: Install Android SDK packages
+        env:
+          ANDROID_NDK_VERSION: '27.1.12297006'
+        run: |
+          install_packages() {
+            sdkmanager --install \
+              "platforms;android-36" \
+              "build-tools;36.0.0" \
+              "ndk;${ANDROID_NDK_VERSION}"
+          }
+
+          for attempt in 1 2 3; do
+            if install_packages; then
+              exit 0
+            fi
+            echo "SDK package install failed (attempt ${attempt}), retrying..."
+            rm -rf "${ANDROID_SDK_ROOT}/ndk/${ANDROID_NDK_VERSION}" || true
+            sleep 10
+          done
+          exit 1
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - run: cp android/app/google-services.ci.json android/app/google-services.json
+
+      - name: Android assembleDebug
+        working-directory: android
+        run: ./gradlew assembleDebug --no-daemon
+
+  ios:
+    name: iOS simulator build
+    needs: js
+    runs-on: macos-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Install CocoaPods
+        run: pod install --project-directory=ios
+
+      - name: Build for iOS Simulator
+        run: |
+          xcodebuild \
+            -workspace ios/FocusGuard.xcworkspace \
+            -scheme FocusGuard \
+            -configuration Debug \
+            -sdk iphonesimulator \
+            -destination 'generic/platform=iOS Simulator' \
+            build \
+            CODE_SIGNING_ALLOWED=NO

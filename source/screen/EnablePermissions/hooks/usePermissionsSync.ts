@@ -1,21 +1,20 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { DeviceEventEmitter } from 'react-native';
 
 import { getAppDisplayName } from '@/constants/appDisplayName';
+import type { PermissionId, PermissionStatus } from '@/domain/permissions';
+import { areRequiredPermissionsGranted, getPermissionIds, requestPermissionById } from '@/domain/permissions';
 import { getPermissionStatuses, invalidatePermissionSnapshot } from '@/domain/permissionSnapshot';
 import { useAppStateOnActive } from '@/hooks/useAppStateOnActive';
-import { PERMISSIONS_CHANGED_EVENT } from '@/utils/permissions/notificationPermissionEvents';
+import { subscribePermissionsChanged } from '@/specs';
 import { scheduleAfterInteractions } from '@/utils/scheduleAfterInteractions';
 
-import { createPermissions, PERMISSION_IDS } from '../data/permissions';
-import type { PermissionId, PermissionStatus } from '../types';
+import { createPermissions } from '../data/permissions';
 import { buildPermissionsWithStatus } from '../utils/buildPermissionsWithStatus';
-import { areRequiredPermissionsGranted, requestPermissionById } from '../utils/permissionStatus';
 
 const hasStatusChanged = (
   previous: Record<PermissionId, PermissionStatus>,
   next: Record<PermissionId, PermissionStatus>,
-): boolean => PERMISSION_IDS.some((id) => previous[id] !== next[id]);
+): boolean => getPermissionIds().some((id) => previous[id] !== next[id]);
 
 export const usePermissionsSync = () => {
   const permissionItems = useMemo(() => createPermissions(getAppDisplayName()), []);
@@ -48,7 +47,7 @@ export const usePermissionsSync = () => {
   useAppStateOnActive(syncOnActive);
 
   useEffect(() => {
-    const subscription = DeviceEventEmitter.addListener(PERMISSIONS_CHANGED_EVENT, () => syncStatuses(true));
+    const subscription = subscribePermissionsChanged(() => syncStatuses(true));
 
     return () => subscription.remove();
   }, [syncStatuses]);

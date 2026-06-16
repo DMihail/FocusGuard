@@ -16,7 +16,7 @@ export type DashboardSectionRenderContext = {
   isMonitoring: boolean;
   hasSelectedApps: boolean;
   monitoringSubtitle: string;
-  onConfigureLimits: (packageName: string) => void;
+  onConfigureLimits: (appKey: string) => void;
   onViewAllPress: () => void;
   onToggleMonitoring: () => void;
   onOpenManageApps: () => void;

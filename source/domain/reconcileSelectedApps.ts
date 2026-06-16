@@ -1,5 +1,7 @@
 import type { ManageApp } from '@/domain/types';
 
+import { getManageAppKey } from './appKey';
+
 const hasSameMetadata = (left: ManageApp, right: ManageApp): boolean =>
   left.appName === right.appName &&
   left.appImage === right.appImage &&
@@ -11,11 +13,11 @@ export const syncSelectedAppsMetadata = (selectedApps: ManageApp[], installedApp
     return null;
   }
 
-  const installedByPackage = new Map(installedApps.map((app) => [app.packageName, app]));
+  const installedByKey = new Map(installedApps.map((app) => [getManageAppKey(app), app]));
   let changed = false;
 
   const nextApps = selectedApps.map((selected) => {
-    const installed = installedByPackage.get(selected.packageName);
+    const installed = installedByKey.get(getManageAppKey(selected));
 
     if (!installed || hasSameMetadata(selected, installed)) {
       return selected;

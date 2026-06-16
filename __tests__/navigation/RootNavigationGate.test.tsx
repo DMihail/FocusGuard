@@ -35,6 +35,15 @@ jest.mock('../../source/domain/permissionSnapshot', () => ({
 
 jest.mock('../../source/store/mmkv', () => ({
   zustandStorage: require('../helpers/mockZustandMmkv').mockZustandStorage,
+  storage: {
+    set: jest.fn(),
+    getString: jest.fn(),
+    remove: jest.fn(),
+  },
+}));
+
+jest.mock('../../source/hooks/useNativeTrackingSnapshotSync', () => ({
+  useNativeTrackingSnapshotSync: jest.fn(),
 }));
 
 jest.mock('../../source/specs', () => ({

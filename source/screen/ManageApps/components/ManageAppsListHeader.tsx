@@ -16,16 +16,19 @@ export const ManageAppsListHeader = ({
   categoryFilters,
   activeCategoryId,
   onCategoryChange,
+  showCategoryFilters = true,
 }: ManageAppsListHeaderProps) => (
   <View style={manageAppsStyles.listHeader}>
     <SelectedAppsSection apps={selectedApps} onAppPress={onSelectedAppPress} onAppRemove={onSelectedAppRemove} />
 
-    <Activity mode={isSearchActive ? 'hidden' : 'visible'}>
-      <CategoryFilters
-        filters={categoryFilters}
-        activeCategoryId={activeCategoryId}
-        onCategoryChange={onCategoryChange}
-      />
-    </Activity>
+    {showCategoryFilters ? (
+      <Activity mode={isSearchActive ? 'hidden' : 'visible'}>
+        <CategoryFilters
+          filters={categoryFilters}
+          activeCategoryId={activeCategoryId}
+          onCategoryChange={onCategoryChange}
+        />
+      </Activity>
+    ) : null}
   </View>
 );

@@ -1,14 +1,12 @@
 /** @format */
 
-import React, { useCallback } from 'react';
-
-import { useFocusEffect } from '@react-navigation/native';
+import React from 'react';
 
 import { useGoBack } from '@/hooks/useGoBack';
 import { useNavigateToConfigureLimits } from '@/navigation/hooks/useNavigateToConfigureLimits';
 import { testIds } from '@/testing/testIds';
 
-import { useManageApps } from './hooks/useManageApps';
+import { useManageAppsScreen } from './hooks/useManageAppsScreen';
 import { manageAppsStyles } from './styles';
 
 import { ManageAppsContent, ManageAppsHeader, ManageAppsSearchToolbar } from './components';
@@ -17,28 +15,7 @@ import { ScreenSafeArea } from '@/components';
 export const ManageAppsScreen = () => {
   const goBack = useGoBack();
   const openConfigureLimits = useNavigateToConfigureLimits();
-  const {
-    apps,
-    isLoadingApps,
-    refreshInstalledApps,
-    isFiltering,
-    selectedApps,
-    setSearchQuery,
-    setSearchInputActive,
-    isSearchActive,
-    categoryFilters,
-    activeCategoryId,
-    setActiveCategory,
-    isSelected,
-    toggleAppSelection,
-    selectedCount,
-  } = useManageApps();
-
-  useFocusEffect(
-    useCallback(() => {
-      refreshInstalledApps().catch(() => undefined);
-    }, [refreshInstalledApps]),
-  );
+  const screen = useManageAppsScreen();
 
   return (
     <ScreenSafeArea
@@ -46,21 +23,29 @@ export const ManageAppsScreen = () => {
       testID={testIds.manageApps.screen}
       accessibilityLabel="Manage apps screen"
     >
-      <ManageAppsHeader selectedCount={selectedCount} onBack={goBack} />
-      <ManageAppsSearchToolbar onQueryChange={setSearchQuery} onQueryActiveChange={setSearchInputActive} />
+      <ManageAppsHeader selectedCount={screen.selectedCount} onBack={goBack} />
+      {screen.showSearchToolbar ? (
+        <ManageAppsSearchToolbar
+          onQueryChange={screen.setSearchQuery}
+          onQueryActiveChange={screen.setSearchInputActive}
+        />
+      ) : null}
       <ManageAppsContent
-        apps={apps}
-        isLoadingApps={isLoadingApps}
-        isFiltering={isFiltering}
-        selectedApps={selectedApps}
-        isSelected={isSelected}
-        onToggle={toggleAppSelection}
+        apps={screen.apps}
+        isLoadingApps={screen.isLoadingApps}
+        isFiltering={screen.isFiltering}
+        selectedApps={screen.selectedApps}
+        isSelected={screen.isSelected}
+        onToggle={screen.toggleAppSelection}
         onSelectedAppPress={openConfigureLimits}
-        onSelectedAppRemove={toggleAppSelection}
-        isSearchActive={isSearchActive}
-        categoryFilters={categoryFilters}
-        activeCategoryId={activeCategoryId}
-        onCategoryChange={setActiveCategory}
+        onSelectedAppRemove={screen.toggleAppSelection}
+        isSearchActive={screen.isSearchActive}
+        categoryFilters={screen.categoryFilters}
+        activeCategoryId={screen.activeCategoryId}
+        onCategoryChange={screen.setActiveCategory}
+        showInstalledAppsList={screen.showInstalledAppsList}
+        onPickApps={screen.onPickApps}
+        isPickingApps={screen.isPickingApps}
       />
     </ScreenSafeArea>
   );

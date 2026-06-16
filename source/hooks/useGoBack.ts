@@ -10,6 +10,11 @@ export const useGoBack = (): (() => void) => {
   const navigation = useNavigation<RootNavigationProp>();
 
   return useCallback(() => {
-    navigation.goBack();
+    if (navigation.canGoBack()) {
+      navigation.goBack();
+      return;
+    }
+
+    navigation.navigate('Dashboard');
   }, [navigation]);
 };
