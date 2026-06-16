@@ -3,7 +3,7 @@ import { useShallow } from 'zustand/react/shallow';
 import { selectedAppsStore } from '@/store';
 
 import { inactiveManageAppsFilters } from './inactiveManageAppsFilters';
-import { useInstalledAppsCatalog } from './useInstalledAppsCatalog.ios';
+import { useInstalledAppsCatalog } from './useInstalledAppsCatalog';
 
 export const useManageApps = () => {
   const { installedApps, isLoadingApps, refreshInstalledApps } = useInstalledAppsCatalog();

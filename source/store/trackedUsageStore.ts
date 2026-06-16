@@ -9,9 +9,14 @@ import { selectedAppsStore } from './selectedAppsStore';
 import type { TrackedUsageStore } from './types/trackedUsageStore';
 
 let hasSeededFromCache = false;
+let refreshInFlightCount = 0;
 
 export const resetTrackedUsageSeedForTests = (): void => {
   hasSeededFromCache = false;
+};
+
+export const resetTrackedUsageRefreshForTests = (): void => {
+  refreshInFlightCount = 0;
 };
 
 const seedUsageFromCache = (): void => {
@@ -54,7 +59,7 @@ const hasUsageChanged = (previous: UsageByPackage, next: UsageByPackage): boolea
   return nextKeys.some((key) => previous[key] !== next[key]);
 };
 
-export const trackedUsageStore = create<TrackedUsageStore>((set, get) => ({
+export const trackedUsageStore = create<TrackedUsageStore>((set) => ({
   usageByPackage: {},
   isRefreshingUsage: false,
 
@@ -62,16 +67,10 @@ export const trackedUsageStore = create<TrackedUsageStore>((set, get) => ({
 
   refreshUsage: async (packageNames, force = false) => {
     if (packageNames.length === 0) {
-      const { usageByPackage } = get();
-
-      if (Object.keys(usageByPackage).length === 0) {
-        return;
-      }
-
-      set({ usageByPackage: {} });
       return;
     }
 
+    refreshInFlightCount += 1;
     set({ isRefreshingUsage: true });
 
     try {
@@ -93,7 +92,12 @@ export const trackedUsageStore = create<TrackedUsageStore>((set, get) => ({
         return hasUsageChanged(state.usageByPackage, mergedUsage) ? { usageByPackage: mergedUsage } : state;
       });
     } finally {
-      set({ isRefreshingUsage: false });
+      refreshInFlightCount -= 1;
+
+      if (refreshInFlightCount <= 0) {
+        refreshInFlightCount = 0;
+        set({ isRefreshingUsage: false });
+      }
     }
   },
 }));

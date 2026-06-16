@@ -66,3 +66,11 @@ export const IOS_FAMILY_ACTIVITY_SELECTION_KEY = 'ios-family-activity-selection-
 
 /** Per-token daily usage milliseconds written by KeeptReport + KeeptMonitor (`IosDailyUsageStore.swift`). */
 export const IOS_DAILY_USAGE_KEY = 'ios-daily-usage-v1';
+
+/**
+ * Native-only ephemeral keys (not Zustand persist). Documented here for cross-platform reference:
+ * - Android `block-snooze-{packageName}` — overlay snooze (`TrackingSnoozeStore.kt`)
+ * - Android daily warning keys — `DailyWarningStore.kt`
+ * - iOS `{IOS_APP_GROUP_ID}/ios-block-snooze-{tokenId}` — `IosTrackingSnoozeStore.swift`
+ * - iOS daily warning keys — `IosDailyWarningStore.swift`
+ */

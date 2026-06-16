@@ -12,9 +12,6 @@ object DeepLinks {
     /** Preferred scheme — see docs/MIGRATION_KEEPT.md. */
     const val SCHEME = "keept"
 
-    /** Legacy scheme kept for backward compatibility. */
-    const val LEGACY_SCHEME = "focusguard"
-
     fun dashboardUri(): Uri =
         Uri.Builder()
             .scheme(SCHEME)

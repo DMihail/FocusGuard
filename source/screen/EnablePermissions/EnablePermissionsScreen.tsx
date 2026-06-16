@@ -22,7 +22,7 @@ export const EnablePermissionsScreen = () => {
 
   useFocusEffect(
     useCallback(() => {
-      syncStatuses();
+      syncStatuses(true);
     }, [syncStatuses]),
   );
 

@@ -2,7 +2,7 @@ import { useShallow } from 'zustand/react/shallow';
 
 import { selectedAppsStore } from '@/store';
 
-import { useInstalledAppsCatalog } from './useInstalledAppsCatalog.android';
+import { useInstalledAppsCatalog } from './useInstalledAppsCatalog';
 import { useManageAppsFilters } from './useManageAppsFilters';
 
 export const useManageApps = () => {

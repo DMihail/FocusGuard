@@ -21,12 +21,13 @@ class BootCompletedReceiver : BroadcastReceiver() {
    * service startup to [MonitorServiceHelper], which performs its own permission checks.
    */
   override fun onReceive(context: Context, intent: Intent?) {
-    if (intent?.action != Intent.ACTION_BOOT_COMPLETED) {
-      return
-    }
-
-    if (MonitoringStateRepository.isMonitoringEnabled()) {
-      MonitorServiceHelper.start(context.applicationContext)
+    when (intent?.action) {
+      Intent.ACTION_BOOT_COMPLETED,
+      Intent.ACTION_MY_PACKAGE_REPLACED -> {
+        if (MonitoringStateRepository.isMonitoringEnabled()) {
+          MonitorServiceHelper.start(context.applicationContext)
+        }
+      }
     }
   }
 }

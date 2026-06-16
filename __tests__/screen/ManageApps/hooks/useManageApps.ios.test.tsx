@@ -19,7 +19,7 @@ const mockInstalledApps: ManageApp[] = [
 
 const mockRefreshInstalledApps = jest.fn().mockResolvedValue(undefined);
 
-jest.mock('@/screen/ManageApps/hooks/useInstalledAppsCatalog.ios', () => ({
+jest.mock('@/screen/ManageApps/hooks/useInstalledAppsCatalog', () => ({
   useInstalledAppsCatalog: () => ({
     installedApps: mockInstalledApps,
     isLoadingApps: false,

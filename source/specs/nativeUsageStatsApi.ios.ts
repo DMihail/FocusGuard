@@ -1,3 +1,5 @@
+import { AppState, type AppStateStatus } from 'react-native';
+
 import type { Spec } from './NativeUsageStats.ios';
 import { getNativeUsageStats } from './nativeUsageStatsClient.ios';
 import type { InstallApp, MonitorServiceStartResult, PackageUsage } from './types';
@@ -62,6 +64,16 @@ export const requestScreenTimeAuthorization = async (): Promise<boolean> =>
 export const presentFamilyActivityPicker = async (): Promise<InstallApp[]> =>
   (await getModule()?.presentFamilyActivityPicker()) ?? [];
 
-export const subscribePermissionsChanged = (_listener: (event: never) => void): { remove: () => void } => ({
-  remove: () => undefined,
-});
+export const subscribePermissionsChanged = (listener: () => void): { remove: () => void } => {
+  const handleAppStateChange = (state: AppStateStatus): void => {
+    if (state === 'active') {
+      listener();
+    }
+  };
+
+  const subscription = AppState.addEventListener('change', handleAppStateChange);
+
+  return {
+    remove: () => subscription.remove(),
+  };
+};

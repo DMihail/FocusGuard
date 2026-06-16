@@ -1,3 +1,4 @@
+import { logDevWarning } from '@/utils/logDevWarning';
 import { scheduleAfterInteractions } from '@/utils/scheduleAfterInteractions';
 
 type CatalogLoaderState<T> = {
@@ -17,7 +18,10 @@ const runDeferred = <T>(task: () => T | Promise<T>, fallback: T): Promise<T> =>
       Promise.resolve()
         .then(task)
         .then(resolve)
-        .catch(() => resolve(fallback));
+        .catch((error) => {
+          logDevWarning(error);
+          resolve(fallback);
+        });
     });
   });
 
@@ -69,7 +73,7 @@ export const createNativeCatalogLoader = <T>(config: {
     invalidate,
     load,
     prefetch: () => {
-      load().catch(() => undefined);
+      load().catch(logDevWarning);
     },
   };
 };
@@ -143,6 +147,7 @@ export const createNativeKeyedCatalogLoader = <T extends Record<string, number>>
 
     if (force) {
       state.cached = null;
+      config.onInvalidate?.();
     }
 
     if (!force && state.cached && hasAllKeys(state.cached, keys)) {
@@ -161,7 +166,7 @@ export const createNativeKeyedCatalogLoader = <T extends Record<string, number>>
     invalidate,
     loadForKeys,
     prefetch: (keys) => {
-      loadForKeys(keys).catch(() => undefined);
+      loadForKeys(keys).catch(logDevWarning);
     },
   };
 };

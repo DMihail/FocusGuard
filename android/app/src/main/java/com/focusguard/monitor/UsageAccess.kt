@@ -15,21 +15,24 @@ import com.focusguard.permissions.ActivityIntents
  *
  * Uses a two-stage detection strategy:
  * 1. [AppOpsManager] check — the standard AOSP path.
- * 2. Trial [UsageStatsManager.queryUsageStats] — workaround for MIUI devices that
+ * 2. Trial [UsageStatsManager.queryEvents] — workaround for OEMs (e.g. MIUI) that
  *    report `MODE_DEFAULT` via AppOps even when access is actually granted.
+ *
+ * Unlike [UsageStatsManager.queryUsageStats], an empty event stream still means access was granted.
  */
 internal object UsageAccess {
 
   /**
    * @return `true` if the app can read usage statistics,
-   * accounting for both standard AOSP and MIUI-specific quirks.
+   * accounting for both standard AOSP and OEM-specific quirks.
    */
   fun hasAccess(context: Context): Boolean {
-    if (isAllowedByAppOps(context)) {
-      return true
+    when (getUsageAppOpMode(context)) {
+      AppOpsManager.MODE_ALLOWED -> return true
+      AppOpsManager.MODE_DEFAULT -> return canQueryUsageEvents(context)
+      null -> return canQueryUsageEvents(context)
+      else -> return false
     }
-
-    return canQueryUsageStats(context)
   }
 
   /**
@@ -75,49 +78,37 @@ internal object UsageAccess {
     ActivityIntents.startFirstAvailable(context, intents)
   }
 
-  /**
-   * Checks the `GET_USAGE_STATS` app-op via [AppOpsManager].
-   * @return `true` only if the mode is explicitly [AppOpsManager.MODE_ALLOWED].
-   */
-  private fun isAllowedByAppOps(context: Context): Boolean {
-    val appOps = context.getSystemService(AppOpsManager::class.java) ?: return false
-    val mode =
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-          appOps.unsafeCheckOpNoThrow(
-              AppOpsManager.OPSTR_GET_USAGE_STATS,
-              Process.myUid(),
-              context.packageName,
-          )
-        } else {
-          @Suppress("DEPRECATION")
-          appOps.checkOpNoThrow(
-              AppOpsManager.OPSTR_GET_USAGE_STATS,
-              Process.myUid(),
-              context.packageName,
-          )
-        }
-    return mode == AppOpsManager.MODE_ALLOWED
+  private fun getUsageAppOpMode(context: Context): Int? {
+    val appOps = context.getSystemService(AppOpsManager::class.java) ?: return null
+
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+      appOps.unsafeCheckOpNoThrow(
+          AppOpsManager.OPSTR_GET_USAGE_STATS,
+          Process.myUid(),
+          context.packageName,
+      )
+    } else {
+      @Suppress("DEPRECATION")
+      appOps.checkOpNoThrow(
+          AppOpsManager.OPSTR_GET_USAGE_STATS,
+          Process.myUid(),
+          context.packageName,
+      )
+    }
   }
 
   /**
-   * Fallback check for MIUI: attempts a real query over the last 24 hours.
-   * MIUI sometimes reports `MODE_DEFAULT` via AppOps even when access is granted,
-   * so a successful query with actual results confirms availability.
-   *
-   * @return `true` if the query returns a **non-empty** list without throwing [SecurityException].
+   * Fallback check for OEM quirks: if [UsageStatsManager.queryEvents] completes without
+   * [SecurityException], usage access is granted even when AppOps still reports `MODE_DEFAULT`.
    */
-  private fun canQueryUsageStats(context: Context): Boolean {
+  private fun canQueryUsageEvents(context: Context): Boolean {
     val usageStatsManager =
         context.getSystemService(Context.USAGE_STATS_SERVICE) as? UsageStatsManager ?: return false
     val endTime = System.currentTimeMillis()
 
     return try {
-      val stats = usageStatsManager.queryUsageStats(
-          UsageStatsManager.INTERVAL_DAILY,
-          endTime - 24 * 60 * 60 * 1000L,
-          endTime,
-      )
-      !stats.isNullOrEmpty()
+      usageStatsManager.queryEvents(endTime - 60_000L, endTime)
+      true
     } catch (_: SecurityException) {
       false
     }
