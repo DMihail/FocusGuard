@@ -1,7 +1,7 @@
 /** @format */
 
 import React from 'react';
-import { AppState, LayoutAnimation } from 'react-native';
+import { AppState, LayoutAnimation, Platform } from 'react-native';
 
 import ReactTestRenderer from 'react-test-renderer';
 
@@ -29,6 +29,13 @@ jest.mock('@/domain/permissions', () => {
 });
 
 let triggerPermissionsChanged: (() => void) | undefined;
+
+jest.mock('@react-navigation/native', () => ({
+  useFocusEffect: (callback: () => void | (() => void)) => {
+    const { useEffect } = require('react');
+    useEffect(() => callback(), [callback]);
+  },
+}));
 
 jest.mock('@/specs', () => ({
   subscribePermissionsChanged: (listener: () => void) => {
@@ -70,6 +77,7 @@ describe('usePermissionsSync', () => {
     triggerPermissionsChanged = undefined;
     appStateListener = undefined;
     mockGetPermissionStatuses.mockReturnValue(pendingStatuses);
+    jest.replaceProperty(Platform, 'OS', 'android');
 
     jest.spyOn(AppState, 'addEventListener').mockImplementation((_, listener) => {
       appStateListener = listener as (state: string) => void;
@@ -182,6 +190,37 @@ describe('usePermissionsSync', () => {
     });
 
     expect(configureNextSpy).not.toHaveBeenCalled();
+  });
+
+  it('keeps usage-access granted in UI after a transient native false read', () => {
+    let hook: ReturnType<typeof usePermissionsSync> | undefined;
+
+    ReactTestRenderer.act(() => {
+      ReactTestRenderer.create(
+        <PermissionsProbe
+          onReady={(value) => {
+            hook = value;
+          }}
+        />,
+      );
+    });
+
+    mockGetPermissionStatuses.mockReturnValue(grantedStatuses);
+
+    ReactTestRenderer.act(() => {
+      appStateListener?.('active');
+    });
+
+    mockGetPermissionStatuses.mockReturnValue({
+      ...grantedStatuses,
+      'usage-access': 'pending',
+    });
+
+    ReactTestRenderer.act(() => {
+      appStateListener?.('active');
+    });
+
+    expect(hook!.permissions.find((item) => item.id === 'usage-access')?.status).toBe('granted');
   });
 
   it('syncs statuses when native permissions changed event is emitted', () => {

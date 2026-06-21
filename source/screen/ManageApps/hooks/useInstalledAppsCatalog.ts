@@ -1,21 +1,29 @@
 import { useCallback, useState } from 'react';
+import { Platform } from 'react-native';
 
-import { loadSyncedInstalledApps, readInstalledAppsCache } from '@/domain/loadSyncedInstalledApps';
+import { getCachedInstalledApps, invalidateInstalledAppsCache, loadInstalledApps } from '@/domain/installedAppsCatalog';
 import type { ManageApp } from '@/domain/types';
+import { selectedAppsStore } from '@/store';
 
-import { trackCatalogLoading } from './trackCatalogLoading';
+const trackCatalogLoading = Platform.OS === 'android';
 
 export const useInstalledAppsCatalog = () => {
-  const [installedApps, setInstalledApps] = useState<ManageApp[]>(() => readInstalledAppsCache() ?? []);
-  const [isLoadingApps, setIsLoadingApps] = useState(() => trackCatalogLoading && readInstalledAppsCache() === null);
+  const [installedApps, setInstalledApps] = useState<ManageApp[]>(() => getCachedInstalledApps() ?? []);
+  const [isLoadingApps, setIsLoadingApps] = useState(() => trackCatalogLoading && getCachedInstalledApps() === null);
 
   const refreshInstalledApps = useCallback(async (force = false) => {
-    if (trackCatalogLoading && readInstalledAppsCache() === null) {
+    if (trackCatalogLoading && getCachedInstalledApps() === null) {
       setIsLoadingApps(true);
     }
 
     try {
-      setInstalledApps(await loadSyncedInstalledApps(force));
+      if (force) {
+        invalidateInstalledAppsCache();
+      }
+
+      const apps = await loadInstalledApps(force);
+      selectedAppsStore.getState().syncSelectedAppsMetadata(apps);
+      setInstalledApps(apps);
     } finally {
       if (trackCatalogLoading) {
         setIsLoadingApps(false);

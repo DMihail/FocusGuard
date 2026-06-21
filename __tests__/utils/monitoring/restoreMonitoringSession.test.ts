@@ -5,15 +5,15 @@ const mockStartMonitorService = jest.fn(() => ({ started: true })) as jest.Mock<
   []
 >;
 const mockIsMonitorServiceRunning = jest.fn(() => false);
-const mockCanStartMonitoring = jest.fn(() => true);
+const mockAreAllPermissionsGranted = jest.fn(() => true);
+
+jest.mock('@/domain/permissionSnapshot', () => ({
+  areAllPermissionsGranted: () => mockAreAllPermissionsGranted(),
+}));
 
 jest.mock('@/specs', () => ({
   isMonitorServiceRunning: () => mockIsMonitorServiceRunning(),
   startMonitorService: () => mockStartMonitorService(),
-}));
-
-jest.mock('@/utils/monitoring/canStartMonitoring', () => ({
-  canStartMonitoring: () => mockCanStartMonitoring(),
 }));
 
 import { monitoringStore, restoreMonitoringSession } from '@/store/monitoringStore';
@@ -23,7 +23,7 @@ describe('restoreMonitoringSession', () => {
     jest.clearAllMocks();
     mockStartMonitorService.mockReturnValue({ started: true });
     mockIsMonitorServiceRunning.mockReturnValue(false);
-    mockCanStartMonitoring.mockReturnValue(true);
+    mockAreAllPermissionsGranted.mockReturnValue(true);
     monitoringStore.setState({ isMonitoring: false });
   });
 
@@ -38,7 +38,7 @@ describe('restoreMonitoringSession', () => {
 
   it('clears monitoring when required permissions are missing', () => {
     monitoringStore.setState({ isMonitoring: true });
-    mockCanStartMonitoring.mockReturnValue(false);
+    mockAreAllPermissionsGranted.mockReturnValue(false);
 
     restoreMonitoringSession();
 

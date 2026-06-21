@@ -22,4 +22,7 @@ object PersistSchema {
 
     const val NATIVE_TRACKING_SNAPSHOT_KEY = "native-tracking-snapshot-v1"
     const val NATIVE_TRACKING_SNAPSHOT_VERSION = 2
+
+    /** Set by native after Usage Stats is confirmed (`UsageAccessGrantStore.kt`). */
+    const val USAGE_ACCESS_GRANTED_KEY = "usage-access-granted-v1"
 }

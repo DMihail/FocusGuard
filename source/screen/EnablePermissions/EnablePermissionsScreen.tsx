@@ -3,8 +3,6 @@
 import React, { useCallback, useMemo } from 'react';
 import { FlatList, View } from 'react-native';
 
-import { useFocusEffect } from '@react-navigation/native';
-
 import { APP_LIST_FLAT_LIST_PROPS } from '@/list';
 import { useRootNavigation } from '@/navigation';
 import { testIds } from '@/testing/testIds';
@@ -18,13 +16,7 @@ import { ScreenSafeArea } from '@/components';
 
 export const EnablePermissionsScreen = () => {
   const navigation = useRootNavigation();
-  const { permissions, canContinue, handleGrant, syncStatuses } = usePermissionsSync();
-
-  useFocusEffect(
-    useCallback(() => {
-      syncStatuses(true);
-    }, [syncStatuses]),
-  );
+  const { permissions, canContinue, handleGrant } = usePermissionsSync();
 
   const handleContinue = useCallback(() => {
     if (!canContinue) {

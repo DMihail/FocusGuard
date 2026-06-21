@@ -2,6 +2,7 @@ package com.focusguard
 
 import android.app.NotificationManager
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Handler
@@ -9,11 +10,13 @@ import android.os.Looper
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.focusguard.monitor.MonitorPermissions
+import com.focusguard.monitor.NotificationPermissions
 import com.focusguard.navigation.DeepLinks
 import com.focusguard.notification.KeeptNotifications
 import com.focusguard.overlay.BlockOverlayManager
 import com.focusguard.overlay.DailyWarningStore
 import com.focusguard.overlay.TrackingSnoozeStore
+import com.focusguard.service.FocusGuardMonitorService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -78,6 +81,11 @@ class TrackingEngine(
     }
 
     private fun monitorForegroundApp() {
+        if (!MonitorPermissions.canRunMonitorService(context)) {
+            context.stopService(Intent(context, FocusGuardMonitorService::class.java))
+            return
+        }
+
         val previousStable = stableForeground
         val foregroundApp = resolveStableForeground(detector.getForegroundApp())
 
@@ -217,7 +225,7 @@ class TrackingEngine(
             return
         }
 
-        if (!MonitorPermissions.canPostNotifications(context)) {
+        if (!NotificationPermissions.hasPostNotificationsPermission(context)) {
             logDebug("Skipping warning notification — POST_NOTIFICATIONS not granted")
             return
         }

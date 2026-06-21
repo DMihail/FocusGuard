@@ -4,7 +4,7 @@ import type { Spec } from './NativeUsageStats.ios';
 import { getNativeUsageStats } from './nativeUsageStatsClient.ios';
 import type { InstallApp, MonitorServiceStartResult, PackageUsage } from './types';
 
-export type { InstallApp, MonitorServiceFailureReason, MonitorServiceStartResult, PackageUsage } from './types';
+export type { InstallApp, MonitorServiceStartResult, PackageUsage } from './types';
 
 const getModule = (): Spec | null => getNativeUsageStats();
 
@@ -57,9 +57,6 @@ export const invalidateNativeCatalogCaches = (): void => {
 export const syncTrackingConfig = (snapshotJson: string): void => {
   getModule()?.syncTrackingConfig(snapshotJson);
 };
-
-export const requestScreenTimeAuthorization = async (): Promise<boolean> =>
-  (await getModule()?.requestScreenTimeAuthorization()) ?? false;
 
 export const presentFamilyActivityPicker = async (): Promise<InstallApp[]> =>
   (await getModule()?.presentFamilyActivityPicker()) ?? [];

@@ -1,18 +1,17 @@
 package com.focusguard.monitor
 
+import com.focusguard.storage.KeeptMmkv
 import com.focusguard.storage.PersistSchema
 import com.focusguard.storage.ZustandPersistReader
-import com.tencent.mmkv.MMKV
 
 /** Reads [monitoringStore] persisted state from the shared MMKV instance. */
 internal object MonitoringStateRepository {
 
-    private val mmkv: MMKV? =
-        MMKV.mmkvWithID(PersistSchema.MMKV_INSTANCE_ID, MMKV.MULTI_PROCESS_MODE)
+    private val mmkv get() = KeeptMmkv.instance
 
     /** @return `true` when the user last enabled Focus Mode in JS. */
     fun isMonitoringEnabled(): Boolean {
-        val raw = mmkv?.decodeString(PersistSchema.MONITORING_STORAGE_KEY) ?: return false
+        val raw = mmkv.decodeString(PersistSchema.MONITORING_STORAGE_KEY) ?: return false
 
         return try {
             val state =

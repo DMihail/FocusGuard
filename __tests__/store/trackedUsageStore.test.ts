@@ -9,11 +9,6 @@ jest.mock('@/domain/usageStatsCatalog', () => ({
   loadUsageByPackage: jest.fn(),
 }));
 
-jest.mock('@/domain/installedAppsCatalog', () => ({
-  invalidateInstalledAppsCache: jest.fn(),
-  loadInstalledApps: jest.fn(),
-}));
-
 const mockedLoadUsageByPackage = loadUsageByPackage as jest.MockedFunction<typeof loadUsageByPackage>;
 
 describe('trackedUsageStore.refreshUsage', () => {

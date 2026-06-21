@@ -1,17 +1,16 @@
 package com.focusguard
 
+import com.focusguard.storage.KeeptMmkv
 import com.focusguard.storage.PersistSchema
 import com.focusguard.storage.ZustandPersistReader
-import com.tencent.mmkv.MMKV
 
 /** Reads user settings persisted by JS [settingsStore]. */
 class SettingsRepository {
 
-    private val mmkv: MMKV? =
-        MMKV.mmkvWithID(PersistSchema.MMKV_INSTANCE_ID, MMKV.MULTI_PROCESS_MODE)
+    private val mmkv get() = KeeptMmkv.instance
 
     fun areNotificationsEnabled(): Boolean {
-        val raw = mmkv?.decodeString(PersistSchema.SETTINGS_STORAGE_KEY) ?: return true
+        val raw = mmkv.decodeString(PersistSchema.SETTINGS_STORAGE_KEY) ?: return true
 
         return try {
             val state =

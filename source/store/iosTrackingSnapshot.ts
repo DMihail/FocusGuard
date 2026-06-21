@@ -71,3 +71,6 @@ export const buildIosTrackingSnapshot = (): IosTrackingSnapshot => {
     ),
   };
 };
+
+export const platformTrackingSnapshotKey = IOS_TRACKING_SNAPSHOT_KEY;
+export const buildPlatformTrackingSnapshot = buildIosTrackingSnapshot;

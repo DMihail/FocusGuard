@@ -1941,7 +1941,7 @@ PODS:
     - React-utils (= 0.86.0)
     - ReactNativeDependencies
   - ReactNativeDependencies (0.86.0)
-  - RNGestureHandler (3.0.1):
+  - RNGestureHandler (3.0.2):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -2540,7 +2540,7 @@ SPEC CHECKSUMS:
   ReactCodegen: ccd679db5cfeb7cdf7d40545a55e261407be5887
   ReactCommon: d5c1bb4427bf51c443de5926aac332c89ddd9363
   ReactNativeDependencies: fa0a54b3f5319ae0e3b9aff32bfee7a424b88e66
-  RNGestureHandler: 1fac5cb6e78ca6836f4c0b9beba31b10490c70ce
+  RNGestureHandler: 953af68599a35f425ea962dda2ee15ee4e3ca719
   RNReanimated: 80a8d6e0854c9dddedc054efbce746294a8d3a3b
   RNScreens: 991cc417cd396602a6cf59a42139e5a9d91462a9
   RNSVG: 6cae8d4082913be2eb43eaec2a456222c42195ed

@@ -1,14 +1,14 @@
 /** @format */
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import type { NavigationContainerRef } from '@react-navigation/native';
 import Animated from 'react-native-reanimated';
 
-import { useNativeTrackingSnapshotSync } from '@/hooks/useNativeTrackingSnapshotSync';
 import { usePrefetchNativeCatalogs } from '@/hooks/usePrefetchNativeCatalogs';
 import { onboardingStore } from '@/store';
+import { startNativeTrackingSnapshotSync } from '@/store/nativeTrackingSnapshot';
 
 import { useAppPermissionGuard } from './hooks/useAppPermissionGuard';
 import { useMonitoringServiceSync } from './hooks/useMonitoringServiceSync';
@@ -22,21 +22,20 @@ import { SplashBranding } from '@/components';
 export const RootNavigationGate = () => {
   const hasHydrated = onboardingStore((state) => state.hasHydrated);
   const navigationRef = useRef<NavigationContainerRef<RootStackParamList>>(null);
-  const [initialRoute, setInitialRoute] = useState<keyof RootStackParamList | null>(null);
-
-  useEffect(() => {
-    if (!hasHydrated || initialRoute !== null) {
-      return;
-    }
-
-    setInitialRoute(resolveEntryRoute(onboardingStore.getState().isConfirm));
-  }, [hasHydrated, initialRoute]);
-
-  const isNavigationReady = hasHydrated && initialRoute !== null;
+  const initialRoute = hasHydrated ? resolveEntryRoute(onboardingStore.getState().isConfirm) : null;
+  const isNavigationReady = initialRoute !== null;
   const { showSplashOverlay, splashOverlayStyle } = useSplashHandoff(isNavigationReady);
 
   usePrefetchNativeCatalogs();
-  useNativeTrackingSnapshotSync(isNavigationReady);
+
+  useEffect(() => {
+    if (!isNavigationReady) {
+      return;
+    }
+
+    return startNativeTrackingSnapshotSync();
+  }, [isNavigationReady]);
+
   useAppPermissionGuard(navigationRef, isNavigationReady);
   useMonitoringServiceSync(isNavigationReady);
 

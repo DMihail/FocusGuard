@@ -6,34 +6,48 @@ import UIKit
 @MainActor
 enum KeeptUsageReportCollector {
   private static var hostController: UIHostingController<KeeptUsageReportHostView>?
+  private static var refreshTask: Task<Void, Never>?
 
   static func refresh() async {
-    guard AuthorizationCenter.shared.authorizationStatus == .approved else {
+    if let refreshTask {
+      await refreshTask.value
       return
     }
 
-    let selection = IosFamilyActivitySelectionStore.load()
-    guard !selection.applicationTokens.isEmpty else {
-      return
+    let task = Task { @MainActor in
+      guard AuthorizationCenter.shared.authorizationStatus == .approved else {
+        return
+      }
+
+      let selection = IosFamilyActivitySelectionStore.load()
+      guard !selection.applicationTokens.isEmpty else {
+        return
+      }
+
+      guard let interval = Calendar.current.dateInterval(of: .day, for: Date()) else {
+        return
+      }
+
+      let filter = DeviceActivityFilter(
+        segment: .daily(during: interval),
+        users: .all,
+        devices: .init([.iPhone, .iPad]),
+        applications: selection.applicationTokens
+      )
+
+      mountReport(filter: filter)
+      try? await Task.sleep(nanoseconds: 1_500_000_000)
+      unmountReport()
     }
 
-    guard let interval = Calendar.current.dateInterval(of: .day, for: Date()) else {
-      return
-    }
-
-    let filter = DeviceActivityFilter(
-      segment: .daily(during: interval),
-      users: .all,
-      devices: .init([.iPhone, .iPad]),
-      applications: selection.applicationTokens
-    )
-
-    mountReport(filter: filter)
-    try? await Task.sleep(nanoseconds: 1_500_000_000)
-    unmountReport()
+    refreshTask = task
+    await task.value
+    refreshTask = nil
   }
 
   private static func mountReport(filter: DeviceActivityFilter) {
+    unmountReport()
+
     guard let window = keyWindow() else {
       return
     }

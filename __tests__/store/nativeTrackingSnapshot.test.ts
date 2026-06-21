@@ -14,7 +14,7 @@ jest.mock('@/specs/nativeUsageStatsClient', () => ({
   getNativeUsageStats: jest.fn(),
 }));
 
-jest.mock('@/store/trackingSnapshotPayload', () => jest.requireActual('@/store/trackingSnapshotPayload.android'));
+jest.mock('@/store/platformTrackingSnapshot', () => jest.requireActual('@/store/platformTrackingSnapshot.android'));
 
 import { getNativeUsageStats } from '@/specs/nativeUsageStatsClient';
 import { buildAndroidTrackingSnapshot } from '@/store/androidTrackingSnapshot';

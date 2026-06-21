@@ -14,6 +14,7 @@ class DailyUsageRepository(
     private val usageStatsManager =
         context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
 
+    private val cacheLock = Any()
     private var cachedStats: List<UsageStats>? = null
     private var cachedDayStartMs: Long = 0L
 
@@ -34,32 +35,37 @@ class DailyUsageRepository(
 
     private fun queryTodayStats(): List<UsageStats>? {
         val dayStartMs = startOfLocalDayMs()
-        cachedStats?.let { cached ->
-            if (cachedDayStartMs == dayStartMs) {
-                return cached
+
+        synchronized(cacheLock) {
+            cachedStats?.let { cached ->
+                if (cachedDayStartMs == dayStartMs) {
+                    return cached
+                }
             }
+
+            val endTime = System.currentTimeMillis()
+            val stats =
+                usageStatsManager.queryUsageStats(
+                    UsageStatsManager.INTERVAL_BEST,
+                    dayStartMs,
+                    endTime,
+                ) ?: usageStatsManager.queryUsageStats(
+                    UsageStatsManager.INTERVAL_DAILY,
+                    dayStartMs,
+                    endTime,
+                )
+
+            val filtered = stats?.filter { it.packageName.isNotEmpty() }
+            cachedStats = filtered
+            cachedDayStartMs = dayStartMs
+            return filtered
         }
-
-        val endTime = System.currentTimeMillis()
-        val stats =
-            usageStatsManager.queryUsageStats(
-                UsageStatsManager.INTERVAL_BEST,
-                dayStartMs,
-                endTime,
-            ) ?: usageStatsManager.queryUsageStats(
-                UsageStatsManager.INTERVAL_DAILY,
-                dayStartMs,
-                endTime,
-            )
-
-        val filtered = stats?.filter { it.packageName.isNotEmpty() }
-        cachedStats = filtered
-        cachedDayStartMs = dayStartMs
-        return filtered
     }
 
     fun invalidateCache() {
-        cachedStats = null
-        cachedDayStartMs = 0L
+        synchronized(cacheLock) {
+            cachedStats = null
+            cachedDayStartMs = 0L
+        }
     }
 }

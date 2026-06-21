@@ -12,7 +12,6 @@ export const useManageAppsScreen = () => {
 
   return {
     ...manageApps,
-    refreshInstalledApps,
     showSearchToolbar: true,
     showInstalledAppsList: true,
     onPickApps: undefined,

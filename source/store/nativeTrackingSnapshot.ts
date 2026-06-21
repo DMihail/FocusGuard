@@ -6,12 +6,8 @@ import { logDevWarning } from '@/utils/logDevWarning';
 
 import { appLimitsStore } from './appLimitsStore';
 import { storage } from './mmkv';
+import { buildPlatformTrackingSnapshot, platformTrackingSnapshotKey } from './platformTrackingSnapshot';
 import { selectedAppsStore } from './selectedAppsStore';
-import { buildPlatformTrackingSnapshot, platformTrackingSnapshotKey } from './trackingSnapshotPayload';
-
-export type { AndroidTrackingSnapshot } from './androidTrackingSnapshot';
-export { buildAndroidTrackingSnapshot } from './androidTrackingSnapshot';
-export { buildIosTrackingSnapshot } from './iosTrackingSnapshot';
 
 export const syncNativeTrackingSnapshot = (): void => {
   const snapshotJson = JSON.stringify(buildPlatformTrackingSnapshot());

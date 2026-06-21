@@ -28,4 +28,5 @@ export interface Spec extends TurboModule {
   presentFamilyActivityPicker(): Promise<InstallApp[]>;
 }
 
-export const NativeUsageStatsModule = TurboModuleRegistry.get<Spec>('NativeUsageStats');
+// Required by React Native codegen — must live in the same file as `Spec`.
+export default TurboModuleRegistry.get<Spec>('NativeUsageStats');

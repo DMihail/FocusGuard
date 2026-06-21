@@ -1,7 +1,6 @@
 import { create } from 'zustand';
 
 import { getManageAppKey } from '@/domain/appKey';
-import { invalidateInstalledAppsCache, loadInstalledApps } from '@/domain/installedAppsCatalog';
 import type { UsageByPackage } from '@/domain/usageStatsCatalog';
 import { getCachedUsageByPackage, invalidateUsageStatsCache, loadUsageByPackage } from '@/domain/usageStatsCatalog';
 
@@ -76,15 +75,9 @@ export const trackedUsageStore = create<TrackedUsageStore>((set) => ({
     try {
       if (force) {
         invalidateUsageStatsCache();
-        invalidateInstalledAppsCache();
       }
 
       const nextUsage = await loadUsageByPackage(packageNames, force);
-
-      if (force) {
-        const installedApps = await loadInstalledApps(true);
-        selectedAppsStore.getState().syncSelectedAppsMetadata(installedApps);
-      }
 
       set((state) => {
         const mergedUsage = { ...state.usageByPackage, ...nextUsage };

@@ -1,6 +1,7 @@
 package com.focusguard.monitor
 
 import android.app.AppOpsManager
+import android.app.usage.UsageEvents
 import android.app.usage.UsageStatsManager
 import android.content.Context
 import android.content.Intent
@@ -9,29 +10,72 @@ import android.os.Build
 import android.os.Process
 import android.provider.Settings
 import com.focusguard.permissions.ActivityIntents
+import com.focusguard.storage.UsageAccessGrantStore
 
 /**
  * Utility for checking and requesting the Usage Stats (`PACKAGE_USAGE_STATS`) permission.
  *
- * Uses a two-stage detection strategy:
- * 1. [AppOpsManager] check — the standard AOSP path.
- * 2. Trial [UsageStatsManager.queryEvents] — workaround for OEMs (e.g. MIUI) that
- *    report `MODE_DEFAULT` via AppOps even when access is actually granted.
- *
- * Unlike [UsageStatsManager.queryUsageStats], an empty event stream still means access was granted.
+ * Fresh installs: only AppOps MODE_ALLOWED or a confirmed grant probe counts as granted.
+ * After a confirmed grant, session + MMKV latches stay true through transient AppOps flicker
+ * when returning from other special-permission settings screens.
  */
 internal object UsageAccess {
 
-  /**
-   * @return `true` if the app can read usage statistics,
-   * accounting for both standard AOSP and OEM-specific quirks.
-   */
+  private val usageProbeWindowsMs =
+      longArrayOf(300_000L, 1_800_000L, 3_600_000L, 86_400_000L)
+
+  @Volatile private var sessionGranted = false
+  @Volatile private var awaitingUsageGrantFromSettings = false
+
+  /** @return `true` when Usage Stats access is available. */
   fun hasAccess(context: Context): Boolean {
-    when (getUsageAppOpMode(context)) {
-      AppOpsManager.MODE_ALLOWED -> return true
-      AppOpsManager.MODE_DEFAULT -> return canQueryUsageEvents(context)
-      null -> return canQueryUsageEvents(context)
-      else -> return false
+    val packageName = context.packageName
+    val appOps = context.getSystemService(AppOpsManager::class.java)
+
+    if (appOps != null && isExplicitlyDenied(appOps, packageName)) {
+      clearGrantState()
+      return false
+    }
+
+    if (hasConfirmedGrant()) {
+      return true
+    }
+
+    if (appOps == null) {
+      return false
+    }
+
+    if (isAppOpExplicitlyAllowed(appOps, packageName)) {
+      return confirmGrant()
+    }
+
+    if (awaitingUsageGrantFromSettings && canObserveOtherAppsUsage(context)) {
+      return confirmGrant()
+    }
+
+    return false
+  }
+
+  /**
+   * Pins a confirmed Usage Stats grant before opening another permission settings screen.
+   *
+   * AppOps can flicker after returning from overlay/battery settings; capturing the grant while
+   * it is still readable prevents the Usage Access card from dropping back to pending.
+   */
+  fun pinGrantBeforeOtherPermissionSettings(context: Context) {
+    if (hasConfirmedGrant()) {
+      return
+    }
+
+    val packageName = context.packageName
+    val appOps = context.getSystemService(AppOpsManager::class.java) ?: return
+
+    if (isExplicitlyDenied(appOps, packageName)) {
+      return
+    }
+
+    if (isAppOpExplicitlyAllowed(appOps, packageName)) {
+      confirmGrant()
     }
   }
 
@@ -50,6 +94,9 @@ internal object UsageAccess {
     if (hasAccess(context)) {
       return
     }
+
+    clearGrantState()
+    awaitingUsageGrantFromSettings = true
 
     val packageName = context.packageName
     val packageUri = Uri.parse("package:$packageName")
@@ -78,39 +125,100 @@ internal object UsageAccess {
     ActivityIntents.startFirstAvailable(context, intents)
   }
 
-  private fun getUsageAppOpMode(context: Context): Int? {
-    val appOps = context.getSystemService(AppOpsManager::class.java) ?: return null
+  private fun hasConfirmedGrant(): Boolean = sessionGranted || UsageAccessGrantStore.isGranted()
 
-    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-      appOps.unsafeCheckOpNoThrow(
-          AppOpsManager.OPSTR_GET_USAGE_STATS,
-          Process.myUid(),
-          context.packageName,
-      )
-    } else {
-      @Suppress("DEPRECATION")
-      appOps.checkOpNoThrow(
-          AppOpsManager.OPSTR_GET_USAGE_STATS,
-          Process.myUid(),
-          context.packageName,
-      )
-    }
+  private fun confirmGrant(): Boolean {
+    sessionGranted = true
+    UsageAccessGrantStore.markGranted()
+    awaitingUsageGrantFromSettings = false
+    return true
   }
 
-  /**
-   * Fallback check for OEM quirks: if [UsageStatsManager.queryEvents] completes without
-   * [SecurityException], usage access is granted even when AppOps still reports `MODE_DEFAULT`.
-   */
-  private fun canQueryUsageEvents(context: Context): Boolean {
+  private fun clearGrantState() {
+    sessionGranted = false
+    UsageAccessGrantStore.clear()
+    awaitingUsageGrantFromSettings = false
+  }
+
+  private fun isExplicitlyDenied(appOps: AppOpsManager, packageName: String): Boolean {
+    val strictMode = readUsageAppOpMode(appOps, packageName, useUnsafeCheck = false)
+    if (strictMode == AppOpsManager.MODE_IGNORED || strictMode == AppOpsManager.MODE_ERRORED) {
+      return true
+    }
+
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+      val unsafeMode = readUsageAppOpMode(appOps, packageName, useUnsafeCheck = true)
+      if (unsafeMode == AppOpsManager.MODE_IGNORED || unsafeMode == AppOpsManager.MODE_ERRORED) {
+        return true
+      }
+    }
+
+    return false
+  }
+
+  private fun isAppOpExplicitlyAllowed(appOps: AppOpsManager, packageName: String): Boolean {
+    if (readUsageAppOpMode(appOps, packageName, useUnsafeCheck = false) ==
+        AppOpsManager.MODE_ALLOWED) {
+      return true
+    }
+
+    return Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q &&
+        readUsageAppOpMode(appOps, packageName, useUnsafeCheck = true) ==
+            AppOpsManager.MODE_ALLOWED
+  }
+
+  private fun canObserveOtherAppsUsage(context: Context): Boolean {
     val usageStatsManager =
         context.getSystemService(Context.USAGE_STATS_SERVICE) as? UsageStatsManager ?: return false
+    val ownPackage = context.packageName
     val endTime = System.currentTimeMillis()
 
-    return try {
-      usageStatsManager.queryEvents(endTime - 60_000L, endTime)
-      true
-    } catch (_: SecurityException) {
-      false
+    for (windowMs in usageProbeWindowsMs) {
+      val startTime = endTime - windowMs
+
+      val stats =
+          usageStatsManager.queryUsageStats(
+              UsageStatsManager.INTERVAL_BEST,
+              startTime,
+              endTime,
+          )
+      if (stats?.any { stat ->
+            stat.packageName != ownPackage &&
+                stat.packageName.isNotEmpty() &&
+                (stat.lastTimeUsed > 0L || stat.totalTimeInForeground > 0L)
+          } == true) {
+        return true
+      }
+
+      val events = usageStatsManager.queryEvents(startTime, endTime)
+      val event = UsageEvents.Event()
+      while (events.hasNextEvent()) {
+        events.getNextEvent(event)
+        if (event.packageName != ownPackage && event.packageName.isNotEmpty()) {
+          return true
+        }
+      }
     }
+
+    return false
   }
+
+  private fun readUsageAppOpMode(
+      appOps: AppOpsManager,
+      packageName: String,
+      useUnsafeCheck: Boolean,
+  ): Int =
+      if (useUnsafeCheck && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        appOps.unsafeCheckOpNoThrow(
+            AppOpsManager.OPSTR_GET_USAGE_STATS,
+            Process.myUid(),
+            packageName,
+        )
+      } else {
+        appOps.checkOpNoThrow(
+            AppOpsManager.OPSTR_GET_USAGE_STATS,
+            Process.myUid(),
+            packageName,
+        )
+      }
 }

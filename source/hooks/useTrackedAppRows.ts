@@ -1,14 +1,32 @@
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 
 import { useIsFocused } from '@react-navigation/native';
 import { useShallow } from 'zustand/react/shallow';
 
 import { getManageAppKey } from '@/domain/appKey';
+import { usePersistHydrated } from '@/hooks/usePersistHydrated';
 import { useRefreshWhenVisible } from '@/hooks/useRefreshWhenVisible';
-import { useSelectedAppsHydrated } from '@/hooks/useSelectedAppsHydrated';
 import { appLimitsStore, selectedAppsStore, trackedUsageStore } from '@/store';
+import type { AppLimits, AppLimitsByAppKey } from '@/store/types/appLimits';
 import { logDevWarning } from '@/utils/logDevWarning';
 import { buildDashboardAppRows, type DashboardAppRow } from '@/utils/usage/dashboardStats';
+
+const pickLimitsForSelectedApps = (
+  limitsByAppKey: AppLimitsByAppKey,
+  selectedAppKeys: readonly string[],
+): Record<string, AppLimits> => {
+  const picked: Record<string, AppLimits> = {};
+
+  for (const appKey of selectedAppKeys) {
+    const limits = limitsByAppKey[appKey];
+
+    if (limits) {
+      picked[appKey] = limits;
+    }
+  }
+
+  return picked;
+};
 
 export const useTrackedAppRows = (): {
   appRows: DashboardAppRow[];
@@ -16,16 +34,7 @@ export const useTrackedAppRows = (): {
   refreshUsage: (force?: boolean) => Promise<void>;
 } => {
   const isFocused = useIsFocused();
-  const hasSelectedAppsHydrated = useSelectedAppsHydrated();
-  const hasSyncedInitialKeysRef = useRef(false);
-
-  useEffect(() => {
-    if (!hasSelectedAppsHydrated) {
-      return;
-    }
-
-    trackedUsageStore.getState().seedUsageFromCache();
-  }, [hasSelectedAppsHydrated]);
+  const hasSelectedAppsHydrated = usePersistHydrated(selectedAppsStore);
 
   const selectedApps = selectedAppsStore((state) => state.apps);
   const selectedAppKeys = useMemo(() => selectedApps.map((app) => getManageAppKey(app)), [selectedApps]);
@@ -36,8 +45,10 @@ export const useTrackedAppRows = (): {
       isRefreshingUsage: state.isRefreshingUsage,
     })),
   );
-  const limitsByAppKey = appLimitsStore(
-    useShallow((state) => Object.fromEntries(selectedAppKeys.map((appKey) => [appKey, state.limitsByAppKey[appKey]]))),
+  const allLimitsByAppKey = appLimitsStore((state) => state.limitsByAppKey);
+  const limitsByAppKey = useMemo(
+    () => pickLimitsForSelectedApps(allLimitsByAppKey, selectedAppKeys),
+    [allLimitsByAppKey, selectedAppKeys],
   );
 
   const refreshUsage = useCallback(
@@ -52,12 +63,13 @@ export const useTrackedAppRows = (): {
   );
 
   useEffect(() => {
-    if (!hasSelectedAppsHydrated || selectedAppKeys.length === 0) {
+    if (!hasSelectedAppsHydrated) {
       return;
     }
 
-    if (!hasSyncedInitialKeysRef.current) {
-      hasSyncedInitialKeysRef.current = true;
+    trackedUsageStore.getState().seedUsageFromCache();
+
+    if (selectedAppKeys.length === 0) {
       return;
     }
 

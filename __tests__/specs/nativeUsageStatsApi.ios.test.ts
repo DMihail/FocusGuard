@@ -25,11 +25,7 @@ jest.mock('@/specs/nativeUsageStatsClient', () => ({
   getNativeUsageStats: jest.fn(() => mockUsageStats),
 }));
 
-import {
-  presentFamilyActivityPicker,
-  requestScreenTimeAuthorization,
-  subscribePermissionsChanged,
-} from '@/specs/nativeUsageStatsApi.ios';
+import { presentFamilyActivityPicker, subscribePermissionsChanged } from '@/specs/nativeUsageStatsApi.ios';
 
 describe('nativeUsageStatsApi.ios', () => {
   beforeEach(() => {
@@ -38,8 +34,7 @@ describe('nativeUsageStatsApi.ios', () => {
     mockUsageStats.requestScreenTimeAuthorization.mockResolvedValue(true);
   });
 
-  it('exposes Screen Time picker APIs', async () => {
-    await expect(requestScreenTimeAuthorization()).resolves.toBe(true);
+  it('exposes the Screen Time picker API', async () => {
     await expect(presentFamilyActivityPicker()).resolves.toEqual([]);
   });
 
