@@ -1,14 +1,13 @@
 /** @format */
 
-import React, { type ReactNode, useEffect, useMemo, useRef } from 'react';
+import React, { type ReactNode, useEffect } from 'react';
 
 import { useSystemColorScheme } from '@/hooks/useSystemColorScheme';
 import { syncNativeUiThemePreference } from '@/specs/keeptUiThemeClient';
 import { settingsStore } from '@/store';
-import { suppressLayoutAnimation } from '@/utils/layoutAnimation';
 
 import { ThemeContext } from './context';
-import { createTheme } from './createTheme';
+import { useThemeTransition } from './useThemeTransition';
 
 type ThemeProviderProps = {
   children: ReactNode;
@@ -17,19 +16,13 @@ type ThemeProviderProps = {
 export const ThemeProvider = ({ children }: ThemeProviderProps) => {
   const preference = settingsStore((state) => state.themePreference);
   const systemScheme = useSystemColorScheme();
-  const themeKeyRef = useRef(`${preference}:${systemScheme}`);
-  const themeKey = `${preference}:${systemScheme}`;
-
-  if (themeKeyRef.current !== themeKey) {
-    suppressLayoutAnimation();
-    themeKeyRef.current = themeKey;
-  }
+  const { theme, isTransitioning } = useThemeTransition(preference, systemScheme);
 
   useEffect(() => {
-    syncNativeUiThemePreference(preference);
-  }, [preference]);
-
-  const theme = useMemo(() => createTheme(preference, systemScheme), [preference, systemScheme]);
+    if (!isTransitioning) {
+      syncNativeUiThemePreference(preference);
+    }
+  }, [preference, isTransitioning]);
 
   return <ThemeContext value={theme}>{children}</ThemeContext>;
 };
