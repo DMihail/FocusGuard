@@ -30,7 +30,6 @@
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>keept</string>
-				<string>focusguard</string>
 			</array>
 		</dict>
 	</array>

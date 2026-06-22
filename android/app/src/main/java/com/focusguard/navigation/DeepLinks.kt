@@ -9,7 +9,6 @@ import android.os.Build
 /** Builds deep-link VIEW intents consumed by React Navigation linking on JS. */
 object DeepLinks {
 
-    /** Preferred scheme — see docs/MIGRATION_KEEPT.md. */
     const val SCHEME = "keept"
 
     fun dashboardUri(): Uri =

@@ -11,8 +11,6 @@ import { zustandStorage } from './mmkv';
 import { MONITORING_PERSIST_VERSION, PERSIST_STORAGE_KEYS } from './persistSchema';
 import type { MonitoringStore } from './types';
 
-type MonitoringPersistedState = Pick<MonitoringStore, 'isMonitoring'>;
-
 /** Persisted focus-mode toggle; starts/stops the native monitor foreground service. */
 export const monitoringStore = create<MonitoringStore>()(
   persist(
@@ -53,7 +51,6 @@ export const monitoringStore = create<MonitoringStore>()(
       version: MONITORING_PERSIST_VERSION,
       storage: createJSONStorage(() => zustandStorage),
       partialize: (state) => ({ isMonitoring: state.isMonitoring }),
-      migrate: (persistedState) => persistedState as MonitoringPersistedState,
       onRehydrateStorage: () => () => {
         scheduleAfterInteractions(restoreMonitoringSession);
       },

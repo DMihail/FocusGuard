@@ -4,13 +4,7 @@ import type { LinkingOptions, NavigationState, PartialState } from '@react-navig
 
 import type { RootStackParamList } from './types';
 
-/** Preferred deep-link scheme for new integrations. */
 export const DEEP_LINK_PREFIX = 'keept://';
-
-/** Legacy scheme kept for backward compatibility — see docs/MIGRATION_KEEPT.md. */
-export const LEGACY_DEEP_LINK_PREFIX = 'focusguard://';
-
-export const DEEP_LINK_PREFIXES = [DEEP_LINK_PREFIX, LEGACY_DEEP_LINK_PREFIX] as const;
 
 export type DeepLinkTarget =
   | { screen: 'Dashboard' }
@@ -47,29 +41,17 @@ export const matchDeepLinkPath = (path: string | null | undefined): DeepLinkTarg
   return null;
 };
 
-const stripDeepLinkPrefix = (url: string): string | null => {
-  for (const prefix of DEEP_LINK_PREFIXES) {
-    if (url.startsWith(prefix)) {
-      return url.slice(prefix.length);
-    }
-  }
-
-  return null;
-};
-
 /** Parses a full deep-link URL emitted by native notification intents. */
 export const parseDeepLinkUrl = (url: string | null | undefined): DeepLinkTarget | null => {
   if (!url) {
     return null;
   }
 
-  const path = stripDeepLinkPrefix(url);
-
-  if (path === null) {
+  if (!url.startsWith(DEEP_LINK_PREFIX)) {
     return null;
   }
 
-  return matchDeepLinkPath(path);
+  return matchDeepLinkPath(url.slice(DEEP_LINK_PREFIX.length));
 };
 
 const rootLinkingConfig: LinkingOptions<RootStackParamList>['config'] = {
@@ -117,7 +99,7 @@ export const buildRootNavigationStateFromPath = (path: string): RootNavigationSt
 };
 
 export const rootLinking: LinkingOptions<RootStackParamList> = {
-  prefixes: [...DEEP_LINK_PREFIXES],
+  prefixes: [DEEP_LINK_PREFIX],
   config: rootLinkingConfig,
   getStateFromPath: buildRootNavigationStateFromPath,
 };
