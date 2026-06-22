@@ -4,10 +4,9 @@ import React from 'react';
 import { Switch, Text, View } from 'react-native';
 
 import { useTheme } from '@/hooks/useTheme';
-import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { testIds } from '@/testing/testIds';
 
-import { createSettingsStyles } from '../styles';
+import { useSettingsStyles } from '../styles';
 import type { SettingsToggleItem } from '../types';
 
 type SettingsToggleRowProps = SettingsToggleItem & {
@@ -25,7 +24,7 @@ export const SettingsToggleRow = ({
   rowTestID = testIds.settings.notificationsRow,
   toggleTestID = testIds.settings.notificationsToggle,
 }: SettingsToggleRowProps) => {
-  const styles = useThemedStyles(createSettingsStyles);
+  const styles = useSettingsStyles();
   const { colors, presets } = useTheme();
 
   return (

@@ -2,6 +2,7 @@
 
 import { StyleSheet } from 'react-native';
 
+import { createStylesHook } from '@/hooks/useThemedStyles';
 import { borderRadius, lineHeight, spacing } from '@/theme';
 import type { Theme } from '@/theme/types';
 
@@ -197,3 +198,5 @@ export const createManageAppsStyles = ({ colors, presets }: Theme) => {
     },
   });
 };
+
+export const useManageAppsStyles = createStylesHook(createManageAppsStyles);

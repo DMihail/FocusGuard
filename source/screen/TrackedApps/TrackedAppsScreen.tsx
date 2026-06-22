@@ -4,7 +4,6 @@ import React, { useCallback, useMemo } from 'react';
 import { FlatList, View } from 'react-native';
 
 import { useGoBack } from '@/hooks/useGoBack';
-import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { useTrackedAppRows } from '@/hooks/useTrackedAppRows';
 import { useTrackedAppsRefresh } from '@/hooks/useTrackedAppsRefresh';
 import { APP_LIST_FLAT_LIST_PROPS } from '@/list';
@@ -12,13 +11,13 @@ import { useNavigateToConfigureLimits } from '@/navigation/hooks/useNavigateToCo
 import { testIds } from '@/testing/testIds';
 
 import { createTrackedAppRenderItem, trackedAppKeyExtractor } from './list';
-import { createTrackedAppsStyles } from './styles';
+import { useTrackedAppsStyles } from './styles';
 
 import { TrackedAppsEmpty, TrackedAppsHeader } from './components';
 import { ScreenSafeArea, UsageRefreshIndicator } from '@/components';
 
 export const TrackedAppsScreen = () => {
-  const styles = useThemedStyles(createTrackedAppsStyles);
+  const styles = useTrackedAppsStyles();
   const goBack = useGoBack();
   const openConfigureLimits = useNavigateToConfigureLimits();
   const { appRows, showUsageRefreshIndicator, refreshUsage } = useTrackedAppRows();

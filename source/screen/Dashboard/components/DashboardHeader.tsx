@@ -5,10 +5,9 @@ import { Pressable, Text, View } from 'react-native';
 
 import { SettingsIcon } from '@/assets/svg/Dashboard';
 import { useTheme } from '@/hooks/useTheme';
-import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { testIds } from '@/testing/testIds';
 
-import { createDashboardStyles } from '../styles';
+import { useDashboardStyles } from '../styles';
 
 type DashboardHeaderProps = {
   greeting: string;
@@ -16,7 +15,7 @@ type DashboardHeaderProps = {
 };
 
 export const DashboardHeader = memo(({ greeting, onSettingsPress }: DashboardHeaderProps) => {
-  const styles = useThemedStyles(createDashboardStyles);
+  const styles = useDashboardStyles();
   const { colors } = useTheme();
 
   return (

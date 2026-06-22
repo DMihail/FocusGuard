@@ -3,12 +3,11 @@
 import React, { memo, useMemo } from 'react';
 import { FlatList } from 'react-native';
 
-import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { CHIP_ROW_FLAT_LIST_PROPS } from '@/list';
 import { testIds } from '@/testing/testIds';
 
 import { categoryFilterKeyExtractor, createCategoryFilterRenderItem } from '../list';
-import { createManageAppsStyles } from '../styles';
+import { useManageAppsStyles } from '../styles';
 import type { CategoryFilterOption } from '../types';
 
 type CategoryFiltersProps = {
@@ -39,7 +38,7 @@ const areCategoryFiltersPropsEqual = (previous: CategoryFiltersProps, next: Cate
 };
 
 export const CategoryFilters = memo(({ filters, activeCategoryId, onCategoryChange }: CategoryFiltersProps) => {
-  const styles = useThemedStyles(createManageAppsStyles);
+  const styles = useManageAppsStyles();
   const renderItem = useMemo(
     () => createCategoryFilterRenderItem(activeCategoryId, onCategoryChange),
     [activeCategoryId, onCategoryChange],

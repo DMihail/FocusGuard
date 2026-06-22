@@ -5,10 +5,9 @@ import { TextInput, View } from 'react-native';
 
 import { SearchIcon } from '@/assets/svg/ManageApps';
 import { useTheme } from '@/hooks/useTheme';
-import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { testIds } from '@/testing/testIds';
 
-import { createManageAppsStyles } from '../styles';
+import { useManageAppsStyles } from '../styles';
 
 type AppSearchFieldProps = {
   value: string;
@@ -16,7 +15,7 @@ type AppSearchFieldProps = {
 };
 
 export const AppSearchField = memo(({ value, onChangeText }: AppSearchFieldProps) => {
-  const styles = useThemedStyles(createManageAppsStyles);
+  const styles = useManageAppsStyles();
   const { colors } = useTheme();
 
   return (

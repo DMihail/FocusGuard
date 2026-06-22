@@ -3,9 +3,9 @@
 import React, { memo, useMemo } from 'react';
 import { Image, type ImageStyle, Text, type TextStyle, View, type ViewStyle } from 'react-native';
 
-import { iconBoxPresets, textPresets } from '@/theme';
+import { useTheme } from '@/hooks/useTheme';
 
-export type AppIconSize = keyof typeof iconBoxPresets;
+export type AppIconSize = 'sm' | 'md' | 'lg';
 
 export type AppIconProps = {
   appName: string;
@@ -33,6 +33,8 @@ const areAppIconPropsEqual = (previous: AppIconProps, next: AppIconProps): boole
   previous.fallbackStyle === next.fallbackStyle;
 
 export const AppIcon = memo(({ appName, appImage, size = 'md', boxStyle, imageStyle, fallbackStyle }: AppIconProps) => {
+  const { presets } = useTheme();
+  const { iconBoxPresets, textPresets } = presets;
   const imageSource = useMemo(() => (appImage ? { uri: appImage } : null), [appImage]);
 
   return (

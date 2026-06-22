@@ -6,14 +6,13 @@ import { ScrollView, View } from 'react-native';
 import type { LegalDocumentId } from '@/domain/types/legal';
 import { useGoBack } from '@/hooks/useGoBack';
 import { useTheme } from '@/hooks/useTheme';
-import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { useRootNavigation } from '@/navigation';
 import { testIds } from '@/testing/testIds';
 
 import { createDarkModeToggle, createDataPrivacyLink, createNotificationsToggle } from './data/preferences';
 import { useNotificationsSetting } from './hooks/useNotificationsSetting';
 import { useThemeSetting } from './hooks/useThemeSetting';
-import { createSettingsStyles } from './styles';
+import { useSettingsStyles } from './styles';
 
 import {
   SettingsFooter,
@@ -26,7 +25,7 @@ import {
 import { ScreenSafeArea } from '@/components';
 
 export const SettingsScreen = () => {
-  const styles = useThemedStyles(createSettingsStyles);
+  const styles = useSettingsStyles();
   const { colors } = useTheme();
   const navigation = useRootNavigation();
   const goBack = useGoBack();

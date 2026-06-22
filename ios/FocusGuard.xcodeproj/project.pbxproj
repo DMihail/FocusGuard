@@ -68,6 +68,7 @@
 		D2E3F6311A680F5B00A75B9A /* KeeptReport.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = D2E3F4011A680F5B00A75B9A /* KeeptReport.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		E7CDC4C2890D475FA557F479 /* Inter-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 48B53B5AA62C4F62ADACAE00 /* Inter-Medium.ttf */; };
 		F1A2B3C42CA45674006654EE /* RCTNativeUsageStats.mm in Sources */ = {isa = PBXBuildFile; fileRef = F1A2B3C32CA45674006654EE /* RCTNativeUsageStats.mm */; };
+		K1E2T3U41CA45674006654EE /* RCTKeeptUiTheme.mm in Sources */ = {isa = PBXBuildFile; fileRef = K1E2T3U31CA45674006654EE /* RCTKeeptUiTheme.mm */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -153,6 +154,7 @@
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		F1A2B3C22CA45674006654EE /* RCTNativeUsageStats.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = RCTNativeUsageStats.h; path = FocusGuard/NativeUsageStats/RCTNativeUsageStats.h; sourceTree = "<group>"; };
 		F1A2B3C32CA45674006654EE /* RCTNativeUsageStats.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = RCTNativeUsageStats.mm; path = FocusGuard/NativeUsageStats/RCTNativeUsageStats.mm; sourceTree = "<group>"; };
+		K1E2T3U31CA45674006654EE /* RCTKeeptUiTheme.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = RCTKeeptUiTheme.mm; path = FocusGuard/KeeptUiTheme/RCTKeeptUiTheme.mm; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -196,6 +198,7 @@
 				761780EC2CA45674006654EE /* AppDelegate.swift */,
 				F1A2B3C22CA45674006654EE /* RCTNativeUsageStats.h */,
 				F1A2B3C32CA45674006654EE /* RCTNativeUsageStats.mm */,
+				K1E2T3U31CA45674006654EE /* RCTKeeptUiTheme.mm */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */,
 				13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */,
@@ -542,6 +545,7 @@
 			files = (
 				761780ED2CA45674006654EE /* AppDelegate.swift in Sources */,
 				F1A2B3C42CA45674006654EE /* RCTNativeUsageStats.mm in Sources */,
+				K1E2T3U41CA45674006654EE /* RCTKeeptUiTheme.mm in Sources */,
 				A1B2C3D4C1A680F5B00A75B9A /* KeeptAppGroup.swift in Sources */,
 				A1B2C3D4F1A680F5B00A75B9A /* IosTrackingSnapshot.swift in Sources */,
 				B1C2D3E421A680F5B00A75B9A /* KeeptScreenTimeAuthorization.swift in Sources */,

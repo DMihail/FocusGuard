@@ -3,13 +3,12 @@
 import React from 'react';
 import { Text, View } from 'react-native';
 
-import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { testIds } from '@/testing/testIds';
 
-import { createPermissionsStyles } from '../styles';
+import { usePermissionsStyles } from '../styles';
 
 export const PermissionsHeader = () => {
-  const styles = useThemedStyles(createPermissionsStyles);
+  const styles = usePermissionsStyles();
 
   return (
     <View style={styles.header} testID={testIds.enablePermissions.header}>

@@ -4,12 +4,11 @@ import React, { Activity, memo } from 'react';
 import { Text, View } from 'react-native';
 
 import { useTheme } from '@/hooks/useTheme';
-import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { testIds } from '@/testing/testIds';
 import { computeUsageMetrics } from '@/utils/usage/computeUsageMetrics';
 import { formatUsagePair } from '@/utils/usage/formatUsage';
 
-import { createConfigureLimitsStyles } from '../styles';
+import { useConfigureLimitsStyles } from '../styles';
 
 import { ProgressBar } from '@/components/ProgressBar';
 
@@ -20,7 +19,7 @@ type DailyUsageCardProps = {
 };
 
 export const DailyUsageCard = memo(({ appKey, usedMs, limitMs }: DailyUsageCardProps) => {
-  const styles = useThemedStyles(createConfigureLimitsStyles);
+  const styles = useConfigureLimitsStyles();
   const { colors } = useTheme();
   const { barProgress, isOverLimit } = computeUsageMetrics(usedMs, limitMs);
   const percent = Math.round(barProgress);

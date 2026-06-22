@@ -3,10 +3,9 @@
 import React, { memo } from 'react';
 import { Pressable, Text } from 'react-native';
 
-import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { testIds } from '@/testing/testIds';
 
-import { createManageAppsStyles } from '../styles';
+import { useManageAppsStyles } from '../styles';
 import type { CategoryFilterOption } from '../types';
 
 export type CategoryFilterChipProps = {
@@ -22,7 +21,7 @@ const areCategoryFilterChipPropsEqual = (previous: CategoryFilterChipProps, next
   previous.onCategoryChange === next.onCategoryChange;
 
 export const CategoryFilterChip = memo(({ category, isActive, onCategoryChange }: CategoryFilterChipProps) => {
-  const styles = useThemedStyles(createManageAppsStyles);
+  const styles = useManageAppsStyles();
 
   return (
     <Pressable

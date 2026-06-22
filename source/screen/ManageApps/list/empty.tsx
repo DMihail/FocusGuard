@@ -3,17 +3,16 @@
 import React from 'react';
 import { Text } from 'react-native';
 
-import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { testIds } from '@/testing/testIds';
 
-import { createManageAppsStyles } from '../styles';
+import { useManageAppsStyles } from '../styles';
 
 type ManageAppsListEmptyProps = {
   isFiltering: boolean;
 };
 
 export const ManageAppsListEmpty = ({ isFiltering }: ManageAppsListEmptyProps) => {
-  const styles = useThemedStyles(createManageAppsStyles);
+  const styles = useManageAppsStyles();
 
   if (isFiltering) {
     return null;

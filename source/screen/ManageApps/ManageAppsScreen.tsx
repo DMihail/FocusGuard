@@ -3,18 +3,17 @@
 import React from 'react';
 
 import { useGoBack } from '@/hooks/useGoBack';
-import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { useNavigateToConfigureLimits } from '@/navigation/hooks/useNavigateToConfigureLimits';
 import { testIds } from '@/testing/testIds';
 
 import { useManageAppsScreen } from './hooks/useManageAppsScreen';
-import { createManageAppsStyles } from './styles';
+import { useManageAppsStyles } from './styles';
 
 import { ManageAppsContent, ManageAppsHeader, ManageAppsSearchToolbar } from './components';
 import { ScreenSafeArea } from '@/components';
 
 export const ManageAppsScreen = () => {
-  const styles = useThemedStyles(createManageAppsStyles);
+  const styles = useManageAppsStyles();
   const goBack = useGoBack();
   const openConfigureLimits = useNavigateToConfigureLimits();
   const screen = useManageAppsScreen();

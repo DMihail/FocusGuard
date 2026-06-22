@@ -5,11 +5,10 @@ import { Pressable, Text, View } from 'react-native';
 
 import { FocusModeSvg } from '@/assets/svg/Dashboard';
 import { ManageAppsSvg } from '@/assets/svg/Dashboard/ManageApps';
-import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { testIds } from '@/testing/testIds';
 import { configureSectionLayoutAnimation } from '@/utils/layoutAnimation';
 
-import { createDashboardStyles } from '../styles';
+import { useDashboardStyles } from '../styles';
 
 type QuickActionsSectionProps = {
   isMonitoring: boolean;
@@ -37,7 +36,7 @@ export const QuickActionsSection = memo(
     onToggleMonitoring,
     onOpenManageApps,
   }: QuickActionsSectionProps) => {
-    const styles = useThemedStyles(createDashboardStyles);
+    const styles = useDashboardStyles();
     const isFocusModeDisabled = !canStartFocusMode && !isMonitoring;
 
     const handleToggle = () => {

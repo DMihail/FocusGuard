@@ -3,20 +3,19 @@
 import React, { useCallback, useMemo } from 'react';
 import { FlatList, View } from 'react-native';
 
-import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { APP_LIST_FLAT_LIST_PROPS } from '@/list';
 import { useRootNavigation } from '@/navigation';
 import { testIds } from '@/testing/testIds';
 
 import { usePermissionsSync } from './hooks/usePermissionsSync';
 import { createPermissionListRenderItem, permissionKeyExtractor } from './list';
-import { createPermissionsStyles } from './styles';
+import { usePermissionsStyles } from './styles';
 
 import { PermissionsFooter, PermissionsHeader, PrivacyNotice } from './components';
 import { ScreenSafeArea } from '@/components';
 
 export const EnablePermissionsScreen = () => {
-  const styles = useThemedStyles(createPermissionsStyles);
+  const styles = usePermissionsStyles();
   const navigation = useRootNavigation();
   const { permissions, canContinue, handleGrant } = usePermissionsSync();
 

@@ -3,11 +3,10 @@
 import React, { useEffect, useState } from 'react';
 import { View } from 'react-native';
 
-import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { testIds } from '@/testing/testIds';
 
 import { MANAGE_APPS_SEARCH_DEBOUNCE_MS } from '../constants';
-import { createManageAppsStyles } from '../styles';
+import { useManageAppsStyles } from '../styles';
 import { AppSearchField } from './AppSearchField';
 
 type ManageAppsSearchToolbarProps = {
@@ -16,7 +15,7 @@ type ManageAppsSearchToolbarProps = {
 };
 
 export const ManageAppsSearchToolbar = ({ onQueryChange, onQueryActiveChange }: ManageAppsSearchToolbarProps) => {
-  const styles = useThemedStyles(createManageAppsStyles);
+  const styles = useManageAppsStyles();
   const [query, setQuery] = useState('');
 
   useEffect(() => {

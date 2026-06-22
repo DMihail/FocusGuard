@@ -2,6 +2,7 @@
 
 import { StyleSheet } from 'react-native';
 
+import { createStylesHook } from '@/hooks/useThemedStyles';
 import { borderRadius, fontSize, spacing, typography } from '@/theme';
 import type { Theme } from '@/theme/types';
 
@@ -227,3 +228,5 @@ export const createConfigureLimitsStyles = ({ colors, presets }: Theme) => {
     },
   });
 };
+
+export const useConfigureLimitsStyles = createStylesHook(createConfigureLimitsStyles);

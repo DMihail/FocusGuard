@@ -4,9 +4,8 @@ import React, { memo } from 'react';
 import { Switch, Text, View } from 'react-native';
 
 import { useTheme } from '@/hooks/useTheme';
-import { useThemedStyles } from '@/hooks/useThemedStyles';
 
-import { createConfigureLimitsStyles } from '../styles';
+import { useConfigureLimitsStyles } from '../styles';
 
 export type StrictModeCardProps = {
   value: boolean;
@@ -16,7 +15,7 @@ export type StrictModeCardProps = {
 };
 
 export const StrictModeCard = memo(({ value, onValueChange, testID, toggleTestID }: StrictModeCardProps) => {
-  const styles = useThemedStyles(createConfigureLimitsStyles);
+  const styles = useConfigureLimitsStyles();
   const { colors, presets } = useTheme();
 
   return (

@@ -4,12 +4,11 @@ import React, { memo } from 'react';
 import { Text, View } from 'react-native';
 
 import { FocusScoreSvg } from '@/assets/svg/Dashboard';
-import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { testIds } from '@/testing/testIds';
 import type { DashboardSummary } from '@/utils/usage/dashboardStats';
 import { formatUsageMinutes } from '@/utils/usage/formatUsage';
 
-import { createDashboardStyles } from '../styles';
+import { useDashboardStyles } from '../styles';
 
 import { ProgressBar } from '@/components/ProgressBar';
 
@@ -24,7 +23,7 @@ const areFocusOverviewCardPropsEqual = (previous: FocusOverviewCardProps, next: 
   previous.summary.remainingMs === next.summary.remainingMs;
 
 export const FocusOverviewCard = memo(({ summary }: FocusOverviewCardProps) => {
-  const styles = useThemedStyles(createDashboardStyles);
+  const styles = useDashboardStyles();
   const usedPercent =
     summary.totalAllowedMs > 0 ? Math.min(100, Math.round((summary.totalUsedMs / summary.totalAllowedMs) * 100)) : 0;
 

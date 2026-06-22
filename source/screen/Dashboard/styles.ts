@@ -2,6 +2,7 @@
 
 import { StyleSheet } from 'react-native';
 
+import { createStylesHook } from '@/hooks/useThemedStyles';
 import { borderRadius, fontSize, lineHeight, spacing, typography } from '@/theme';
 import type { Theme } from '@/theme/types';
 
@@ -231,3 +232,5 @@ export const createDashboardStyles = ({ colors, presets }: Theme) => {
     },
   });
 };
+
+export const useDashboardStyles = createStylesHook(createDashboardStyles);

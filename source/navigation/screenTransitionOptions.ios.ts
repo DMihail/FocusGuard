@@ -2,14 +2,14 @@
 
 import type { NativeStackNavigationOptions } from '@react-navigation/native-stack';
 
-import { colors as defaultColors } from '@/theme';
+import { darkColors } from '@/theme';
 import type { ColorPalette } from '@/theme/types';
 
 const IOS_FADE_MS = 320;
 const IOS_MODAL_MS = 380;
 
 /** Per-route native stack transition presets for `RootStack`. */
-export const createRootScreenTransitionOptions = (colors: ColorPalette = defaultColors) => {
+export const createRootScreenTransitionOptions = (colors: ColorPalette = darkColors) => {
   const baseScreenOptions = {
     headerShown: false,
     contentStyle: { backgroundColor: colors.background },

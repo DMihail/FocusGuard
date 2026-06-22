@@ -6,13 +6,12 @@ import { Text, View } from 'react-native';
 import { LockPrivacyIcon } from '@/assets/svg/Settings';
 import { getSettingsPrivacyBanner } from '@/content/privacy';
 import { useTheme } from '@/hooks/useTheme';
-import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { testIds } from '@/testing/testIds';
 
-import { createSettingsStyles } from '../styles';
+import { useSettingsStyles } from '../styles';
 
 export const SettingsPrivacyBanner = () => {
-  const styles = useThemedStyles(createSettingsStyles);
+  const styles = useSettingsStyles();
   const { colors } = useTheme();
 
   return (

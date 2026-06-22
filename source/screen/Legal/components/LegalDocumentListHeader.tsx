@@ -4,9 +4,8 @@ import React from 'react';
 import { Text } from 'react-native';
 
 import { useGoBack } from '@/hooks/useGoBack';
-import { useThemedStyles } from '@/hooks/useThemedStyles';
 
-import { createLegalStyles } from '../styles';
+import { useLegalStyles } from '../styles';
 import type { LegalDocument } from '../types';
 
 import { ScreenBackHeader } from '@/components';
@@ -18,7 +17,7 @@ type LegalDocumentListHeaderProps = {
 };
 
 export const LegalDocumentListHeader = ({ document, headerTestId, backButtonTestId }: LegalDocumentListHeaderProps) => {
-  const styles = useThemedStyles(createLegalStyles);
+  const styles = useLegalStyles();
   const goBack = useGoBack();
 
   return (

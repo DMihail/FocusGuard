@@ -2,13 +2,12 @@ import React, { useCallback } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 
 import { useGoBack } from '@/hooks/useGoBack';
-import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { LIMIT_SLIDER_BOUNDS } from '@/store';
 import { testIds } from '@/testing/testIds';
 
 import { LIMIT_CARD_COLORS } from './constants';
 import { useConfigureLimits } from './hooks/useConfigureLimits';
-import { createConfigureLimitsStyles } from './styles';
+import { useConfigureLimitsStyles } from './styles';
 import type { ConfigureLimitsScreenProps } from './types';
 
 import { AppLimitsAppBadge } from './components/AppLimitsAppBadge';
@@ -19,7 +18,7 @@ import { StrictModeCard } from './components/StrictModeCard';
 import { ScreenSafeArea } from '@/components';
 
 export const ConfigureLimitsScreen = ({ route }: ConfigureLimitsScreenProps) => {
-  const styles = useThemedStyles(createConfigureLimitsStyles);
+  const styles = useConfigureLimitsStyles();
   const { appKey } = route.params;
   const goBack = useGoBack();
   const {

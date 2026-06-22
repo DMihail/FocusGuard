@@ -7,12 +7,11 @@ import Animated from 'react-native-reanimated';
 
 import { CloseIcon } from '@/assets/svg/ManageApps';
 import { getManageAppKey } from '@/domain/appKey';
-import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { testIds } from '@/testing/testIds';
 
 import { SELECTED_APPS_ACCORDION_SETTLE_MS } from '../constants';
 import { useSelectedAppsAccordion } from '../hooks/useSelectedAppsAccordion';
-import { createManageAppsStyles, selectedAppsSectionExpandedHeight } from '../styles';
+import { selectedAppsSectionExpandedHeight, useManageAppsStyles } from '../styles';
 import type { ManageApp, SelectedAppsSectionProps } from '../types';
 
 type SelectedChipProps = {
@@ -28,7 +27,7 @@ const areSelectedChipPropsEqual = (previous: SelectedChipProps, next: SelectedCh
   previous.onRemove === next.onRemove;
 
 const SelectedChip = memo(({ app, onPress, onRemove }: SelectedChipProps) => {
-  const styles = useThemedStyles(createManageAppsStyles);
+  const styles = useManageAppsStyles();
   const appKey = getManageAppKey(app);
 
   return (
@@ -84,7 +83,7 @@ const areSelectedAppsSectionPropsEqual = (
 };
 
 export const SelectedAppsSection = memo(({ apps, onAppPress, onAppRemove }: SelectedAppsSectionProps) => {
-  const styles = useThemedStyles(createManageAppsStyles);
+  const styles = useManageAppsStyles();
   const isExpanded = apps.length > 0;
   const [displayApps, setDisplayApps] = useState(apps);
 

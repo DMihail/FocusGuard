@@ -3,7 +3,6 @@
 import React, { useCallback, useMemo } from 'react';
 import { FlatList, View } from 'react-native';
 
-import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { SECTION_SCROLL_FLAT_LIST_PROPS } from '@/list';
 import { useRootNavigation } from '@/navigation';
 import { testIds } from '@/testing/testIds';
@@ -15,14 +14,14 @@ import {
   dashboardSectionKeyExtractor,
   type DashboardSectionRenderContext,
 } from './list';
-import { createDashboardStyles } from './styles';
+import { useDashboardStyles } from './styles';
 import { getGreeting } from './utils';
 
 import { DashboardHeader } from './components';
 import { ScreenSafeArea, UsageRefreshIndicator } from '@/components';
 
 export const DashboardScreen = () => {
-  const styles = useThemedStyles(createDashboardStyles);
+  const styles = useDashboardStyles();
   const navigation = useRootNavigation();
   const greeting = useMemo(() => getGreeting(), []);
 

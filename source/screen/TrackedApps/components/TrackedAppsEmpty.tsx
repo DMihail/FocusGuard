@@ -3,13 +3,12 @@
 import React from 'react';
 import { Text } from 'react-native';
 
-import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { testIds } from '@/testing/testIds';
 
-import { createTrackedAppsStyles } from '../styles';
+import { useTrackedAppsStyles } from '../styles';
 
 export const TrackedAppsEmpty = () => {
-  const styles = useThemedStyles(createTrackedAppsStyles);
+  const styles = useTrackedAppsStyles();
 
   return (
     <Text style={styles.emptyText} testID={testIds.trackedApps.empty}>

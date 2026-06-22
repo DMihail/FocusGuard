@@ -1,6 +1,7 @@
 package com.focusguard
 
 import android.content.Intent
+import android.content.res.Configuration
 import android.os.Bundle
 import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
@@ -25,13 +26,22 @@ class MainActivity : ReactActivity() {
     applySystemChromeColors()
   }
 
+  override fun onConfigurationChanged(newConfig: Configuration) {
+    super.onConfigurationChanged(newConfig)
+    applySystemChromeColors()
+  }
+
   private fun applySystemChromeColors() {
     val backgroundColor = ContextCompat.getColor(this, R.color.background)
+    val isDark =
+        (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) ==
+            Configuration.UI_MODE_NIGHT_YES
+
     window.statusBarColor = backgroundColor
     window.navigationBarColor = backgroundColor
     WindowCompat.getInsetsController(window, window.decorView).apply {
-      isAppearanceLightStatusBars = false
-      isAppearanceLightNavigationBars = false
+      isAppearanceLightStatusBars = !isDark
+      isAppearanceLightNavigationBars = !isDark
     }
   }
 

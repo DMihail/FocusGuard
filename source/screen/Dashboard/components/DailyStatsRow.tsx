@@ -4,12 +4,11 @@ import React, { memo } from 'react';
 import { Text, View } from 'react-native';
 
 import { RemainingSvg, UsedSvg } from '@/assets/svg/Dashboard';
-import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { testIds } from '@/testing/testIds';
 import type { DashboardSummary } from '@/utils/usage/dashboardStats';
 import { formatUsageMinutes } from '@/utils/usage/formatUsage';
 
-import { createDashboardStyles } from '../styles';
+import { useDashboardStyles } from '../styles';
 
 type DailyStatsRowProps = {
   summary: DashboardSummary;
@@ -22,7 +21,7 @@ const areDailyStatsRowPropsEqual = (previous: DailyStatsRowProps, next: DailySta
   previous.summary.remainingMs === next.summary.remainingMs;
 
 export const DailyStatsRow = memo(({ summary }: DailyStatsRowProps) => {
-  const styles = useThemedStyles(createDashboardStyles);
+  const styles = useDashboardStyles();
   const usedLabel = `Used today, ${formatUsageMinutes(summary.totalUsedMs)} total`;
   const remainingLabel = `Remaining budget, ${formatUsageMinutes(summary.remainingMs)}`;
 

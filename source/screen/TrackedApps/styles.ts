@@ -2,6 +2,7 @@
 
 import { StyleSheet } from 'react-native';
 
+import { createStylesHook } from '@/hooks/useThemedStyles';
 import { spacing } from '@/theme';
 import type { Theme } from '@/theme/types';
 
@@ -25,3 +26,5 @@ export const createTrackedAppsStyles = ({ presets }: Theme) => {
     },
   });
 };
+
+export const useTrackedAppsStyles = createStylesHook(createTrackedAppsStyles);

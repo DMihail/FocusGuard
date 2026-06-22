@@ -2,10 +2,9 @@ import React, { memo } from 'react';
 import { ActivityIndicator, Pressable, Text, View } from 'react-native';
 
 import { useTheme } from '@/hooks/useTheme';
-import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { testIds } from '@/testing/testIds';
 
-import { createManageAppsStyles } from '../styles';
+import { useManageAppsStyles } from '../styles';
 
 type IosPickAppsButtonProps = {
   isPicking: boolean;
@@ -13,7 +12,7 @@ type IosPickAppsButtonProps = {
 };
 
 export const IosPickAppsButton = memo(({ isPicking, onPress }: IosPickAppsButtonProps) => {
-  const styles = useThemedStyles(createManageAppsStyles);
+  const styles = useManageAppsStyles();
   const { colors } = useTheme();
 
   return (

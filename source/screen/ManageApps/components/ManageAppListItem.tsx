@@ -5,10 +5,9 @@ import { Pressable, Text, View } from 'react-native';
 
 import { CheckIcon } from '@/assets/svg/EnablePermissions';
 import { getManageAppKey } from '@/domain/appKey';
-import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { testIds } from '@/testing/testIds';
 
-import { createManageAppsStyles } from '../styles';
+import { useManageAppsStyles } from '../styles';
 import type { ManageApp } from '../types';
 
 import { AppIcon } from '@/components';
@@ -20,7 +19,7 @@ type ManageAppListItemProps = {
 };
 
 export const ManageAppListItem = memo(({ app, isSelected, onToggle }: ManageAppListItemProps) => {
-  const styles = useThemedStyles(createManageAppsStyles);
+  const styles = useManageAppsStyles();
   const { appName, appImage, categoryLabel } = app;
   const appKey = getManageAppKey(app);
 

@@ -5,10 +5,9 @@ import { Pressable, Text, View } from 'react-native';
 
 import { ChevronRightIcon } from '@/assets/svg/Settings';
 import { useTheme } from '@/hooks/useTheme';
-import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { testIds } from '@/testing/testIds';
 
-import { createSettingsStyles } from '../styles';
+import { useSettingsStyles } from '../styles';
 import type { SettingsLinkItem } from '../types';
 
 type SettingsLinkRowProps = SettingsLinkItem & {
@@ -23,7 +22,7 @@ export const SettingsLinkRow = ({
   iconBackgroundColor,
   onPress,
 }: SettingsLinkRowProps) => {
-  const styles = useThemedStyles(createSettingsStyles);
+  const styles = useSettingsStyles();
   const { colors } = useTheme();
 
   return (

@@ -2,14 +2,13 @@ import React, { memo, useLayoutEffect, useMemo, useRef } from 'react';
 import { Pressable, Text, View } from 'react-native';
 
 import { getManageAppKey } from '@/domain/appKey';
-import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { testIds } from '@/testing/testIds';
 import { spacing } from '@/theme';
 import { configureSectionLayoutAnimation } from '@/utils/layoutAnimation';
 import type { DashboardAppRow } from '@/utils/usage/dashboardStats';
 
 import { DistractingAppsListEmpty } from '../list/empty';
-import { createDashboardStyles } from '../styles';
+import { useDashboardStyles } from '../styles';
 
 import { AppUsageRow } from '@/components';
 
@@ -55,7 +54,7 @@ const areDistractingAppsSectionPropsEqual = (
 
 export const DistractingAppsSection = memo(
   ({ appRows, onConfigureLimits, onViewAllPress }: DistractingAppsSectionProps) => {
-    const styles = useThemedStyles(createDashboardStyles);
+    const styles = useDashboardStyles();
     const visibleApps = useMemo(() => appRows.slice(0, MAX_VISIBLE_APPS), [appRows]);
     const previousAppsCount = useRef(visibleApps.length);
 

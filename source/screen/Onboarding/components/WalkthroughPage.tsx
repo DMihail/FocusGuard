@@ -4,12 +4,11 @@ import React, { memo } from 'react';
 import { View } from 'react-native';
 
 import { useTheme } from '@/hooks/useTheme';
-import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { testIds } from '@/testing/testIds';
 
 import { WALKTHROUGH_ICON_SIZE } from '../constants';
 import type { WalkthroughStepData } from '../data/walkthroughSteps';
-import { createOnboardingStyles } from '../styles';
+import { useOnboardingStyles } from '../styles';
 import { Walkthrough } from './Walkthrough';
 
 type WalkthroughPageProps = {
@@ -18,7 +17,7 @@ type WalkthroughPageProps = {
 };
 
 export const WalkthroughPage = memo(({ item, width }: WalkthroughPageProps) => {
-  const styles = useThemedStyles(createOnboardingStyles);
+  const styles = useOnboardingStyles();
   const { colors } = useTheme();
   const { Icon } = item;
 

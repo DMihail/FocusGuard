@@ -3,10 +3,9 @@
 import React from 'react';
 import { Pressable, Text } from 'react-native';
 
-import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { testIds } from '@/testing/testIds';
 
-import { createPermissionsStyles } from '../styles';
+import { usePermissionsStyles } from '../styles';
 
 type PermissionsFooterProps = {
   canContinue: boolean;
@@ -14,7 +13,7 @@ type PermissionsFooterProps = {
 };
 
 export const PermissionsFooter = ({ canContinue, onContinue }: PermissionsFooterProps) => {
-  const styles = useThemedStyles(createPermissionsStyles);
+  const styles = usePermissionsStyles();
 
   return (
     <Pressable

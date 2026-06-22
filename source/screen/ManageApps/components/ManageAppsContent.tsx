@@ -2,12 +2,11 @@ import React, { Activity, useMemo } from 'react';
 import { ActivityIndicator, FlatList, View } from 'react-native';
 
 import { useTheme } from '@/hooks/useTheme';
-import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { APP_LIST_FLAT_LIST_PROPS } from '@/list';
 import { testIds } from '@/testing/testIds';
 
 import { createManageAppListRenderItem, manageAppKeyExtractor, ManageAppsListEmpty } from '../list';
-import { createManageAppsStyles } from '../styles';
+import { useManageAppsStyles } from '../styles';
 import type { ManageAppsContentProps } from '../types';
 import { IosPickAppsButton } from './IosPickAppsButton';
 import { ManageAppsListHeader } from './ManageAppsListHeader';
@@ -29,7 +28,7 @@ export const ManageAppsContent = ({
   onPickApps,
   isPickingApps = false,
 }: ManageAppsContentProps) => {
-  const styles = useThemedStyles(createManageAppsStyles);
+  const styles = useManageAppsStyles();
   const { colors } = useTheme();
   const renderItem = useMemo(() => createManageAppListRenderItem(isSelected, onToggle), [isSelected, onToggle]);
 

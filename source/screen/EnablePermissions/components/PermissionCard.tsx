@@ -7,11 +7,10 @@ import Animated from 'react-native-reanimated';
 
 import { CheckIcon } from '@/assets/svg/EnablePermissions';
 import { useTheme } from '@/hooks/useTheme';
-import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { testIds } from '@/testing/testIds';
 
 import { usePermissionCardAnimation } from '../hooks/usePermissionCardAnimation';
-import { createPermissionsStyles } from '../styles';
+import { usePermissionsStyles } from '../styles';
 import type { PermissionId, PermissionItem } from '../types';
 
 type PermissionCardProps = PermissionItem & {
@@ -27,7 +26,7 @@ const arePermissionCardPropsEqual = (previous: PermissionCardProps, next: Permis
   previous.onGrant === next.onGrant;
 
 export const PermissionCard = memo(({ id, title, description, status, Icon, onGrant }: PermissionCardProps) => {
-  const styles = useThemedStyles(createPermissionsStyles);
+  const styles = usePermissionsStyles();
   const { colors } = useTheme();
   const cardStyles = useMemo(
     () =>

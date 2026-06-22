@@ -2,6 +2,7 @@
 
 import { StyleSheet } from 'react-native';
 
+import { createStylesHook } from '@/hooks/useThemedStyles';
 import { fontSize, spacing, typography } from '@/theme';
 import type { Theme } from '@/theme/types';
 
@@ -40,3 +41,5 @@ export const createLegalStyles = ({ colors, presets }: Theme) => {
     },
   });
 };
+
+export const useLegalStyles = createStylesHook(createLegalStyles);

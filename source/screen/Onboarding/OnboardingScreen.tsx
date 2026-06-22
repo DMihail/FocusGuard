@@ -3,17 +3,16 @@
 import React, { Activity } from 'react';
 import { View } from 'react-native';
 
-import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { testIds } from '@/testing/testIds';
 
 import { useOnboardingPager } from './hooks/useOnboardingPager';
-import { createOnboardingStyles } from './styles';
+import { useOnboardingStyles } from './styles';
 
 import { OnboardingFooter, OnboardingHeader, WalkthroughPager } from './components';
 import { ScreenSafeArea } from '@/components';
 
 export const OnboardingScreen = () => {
-  const styles = useThemedStyles(createOnboardingStyles);
+  const styles = useOnboardingStyles();
   const pager = useOnboardingPager();
 
   return (

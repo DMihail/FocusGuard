@@ -3,9 +3,7 @@
 import React, { type ReactNode } from 'react';
 import { Text, View } from 'react-native';
 
-import { useThemedStyles } from '@/hooks/useThemedStyles';
-
-import { createSettingsStyles } from '../styles';
+import { useSettingsStyles } from '../styles';
 
 type SettingsSectionProps = {
   title: string;
@@ -14,7 +12,7 @@ type SettingsSectionProps = {
 };
 
 export const SettingsSection = ({ title, testID, children }: SettingsSectionProps) => {
-  const styles = useThemedStyles(createSettingsStyles);
+  const styles = useSettingsStyles();
 
   return (
     <View style={styles.section} testID={testID}>

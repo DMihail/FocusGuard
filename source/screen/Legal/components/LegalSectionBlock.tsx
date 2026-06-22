@@ -3,9 +3,7 @@
 import React, { memo } from 'react';
 import { Text, View } from 'react-native';
 
-import { useThemedStyles } from '@/hooks/useThemedStyles';
-
-import { createLegalStyles } from '../styles';
+import { useLegalStyles } from '../styles';
 import type { LegalSection } from '../types';
 
 type LegalSectionBlockProps = {
@@ -13,7 +11,7 @@ type LegalSectionBlockProps = {
 };
 
 export const LegalSectionBlock = memo(({ section }: LegalSectionBlockProps) => {
-  const styles = useThemedStyles(createLegalStyles);
+  const styles = useLegalStyles();
 
   return (
     <View style={styles.section}>

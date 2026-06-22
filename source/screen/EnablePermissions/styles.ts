@@ -2,6 +2,7 @@
 
 import { StyleSheet } from 'react-native';
 
+import { createStylesHook } from '@/hooks/useThemedStyles';
 import { borderRadius, spacing, typography } from '@/theme';
 import type { Theme } from '@/theme/types';
 
@@ -99,3 +100,5 @@ export const createPermissionsStyles = ({ colors, presets }: Theme) => {
     },
   });
 };
+
+export const usePermissionsStyles = createStylesHook(createPermissionsStyles);

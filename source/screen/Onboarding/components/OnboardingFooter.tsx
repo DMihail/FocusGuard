@@ -3,10 +3,9 @@
 import React from 'react';
 import { Pressable, Text, View } from 'react-native';
 
-import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { testIds } from '@/testing/testIds';
 
-import { createOnboardingStyles } from '../styles';
+import { useOnboardingStyles } from '../styles';
 import type { ScrollIndicatorProps } from '../types';
 import { ScrollIndicator } from './ScrollIndicator';
 
@@ -17,7 +16,7 @@ type OnboardingFooterProps = {
 };
 
 export const OnboardingFooter = ({ isLastStep, indicatorProps, onContinue }: OnboardingFooterProps) => {
-  const styles = useThemedStyles(createOnboardingStyles);
+  const styles = useOnboardingStyles();
 
   return (
     <View style={styles.footer}>

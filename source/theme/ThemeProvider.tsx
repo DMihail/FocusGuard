@@ -8,6 +8,7 @@ import { settingsStore } from '@/store';
 import { createPresets } from './createPresets';
 import { colorsByScheme } from './palettes';
 import { resolveColorScheme } from './resolveColorScheme';
+import { syncNativeUiTheme } from './syncNativeUiTheme';
 import type { Theme } from './types';
 
 export const ThemeContext = createContext<Theme | null>(null);
@@ -27,6 +28,10 @@ export const ThemeProvider = ({ children }: ThemeProviderProps) => {
 
     return () => subscription.remove();
   }, []);
+
+  useEffect(() => {
+    syncNativeUiTheme(preference);
+  }, [preference]);
 
   const theme = useMemo<Theme>(() => {
     const normalizedSystemScheme = systemScheme === 'light' || systemScheme === 'dark' ? systemScheme : undefined;

@@ -2,6 +2,7 @@
 
 import { StyleSheet } from 'react-native';
 
+import { createStylesHook } from '@/hooks/useThemedStyles';
 import { borderRadius, spacing, typography } from '@/theme';
 import type { Theme } from '@/theme/types';
 
@@ -51,3 +52,5 @@ export const createOnboardingStyles = ({ colors, presets }: Theme) => {
     },
   });
 };
+
+export const useOnboardingStyles = createStylesHook(createOnboardingStyles);

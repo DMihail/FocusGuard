@@ -3,11 +3,10 @@
 import React, { useCallback } from 'react';
 import { FlatList, View } from 'react-native';
 
-import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { APP_LIST_FLAT_LIST_PROPS } from '@/list';
 
 import { legalSectionKeyExtractor, renderLegalSectionItem } from '../list';
-import { createLegalStyles } from '../styles';
+import { useLegalStyles } from '../styles';
 import type { LegalDocument } from '../types';
 import { LegalDocumentListHeader } from './LegalDocumentListHeader';
 
@@ -22,7 +21,7 @@ type LegalDocumentLayoutProps = {
 };
 
 const LegalSectionSeparator = () => {
-  const styles = useThemedStyles(createLegalStyles);
+  const styles = useLegalStyles();
 
   return <View style={styles.sectionSeparator} />;
 };
@@ -34,7 +33,7 @@ export const LegalDocumentLayout = ({
   headerTestId,
   backButtonTestId,
 }: LegalDocumentLayoutProps) => {
-  const styles = useThemedStyles(createLegalStyles);
+  const styles = useLegalStyles();
 
   const renderListHeader = useCallback(
     () => (

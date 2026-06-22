@@ -3,9 +3,7 @@
 import React, { Activity } from 'react';
 import { View } from 'react-native';
 
-import { useThemedStyles } from '@/hooks/useThemedStyles';
-
-import { createManageAppsStyles } from '../styles';
+import { useManageAppsStyles } from '../styles';
 import type { ManageAppsListHeaderProps } from '../types';
 import { CategoryFilters } from './CategoryFilters';
 import { SelectedAppsSection } from './SelectedAppsSection';
@@ -20,7 +18,7 @@ export const ManageAppsListHeader = ({
   onCategoryChange,
   showCategoryFilters = true,
 }: ManageAppsListHeaderProps) => {
-  const styles = useThemedStyles(createManageAppsStyles);
+  const styles = useManageAppsStyles();
 
   return (
     <View style={styles.listHeader}>
