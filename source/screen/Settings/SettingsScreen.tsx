@@ -5,12 +5,11 @@ import { ScrollView, View } from 'react-native';
 
 import type { LegalDocumentId } from '@/domain/types/legal';
 import { useGoBack } from '@/hooks/useGoBack';
-import { useTheme } from '@/hooks/useTheme';
 import { useRootNavigation } from '@/navigation';
 import { testIds } from '@/testing/testIds';
 
-import { createDarkModeToggle, createDataPrivacyLink, createNotificationsToggle } from './data/preferences';
 import { useNotificationsSetting } from './hooks/useNotificationsSetting';
+import { useSettingsPreferences } from './hooks/useSettingsPreferences';
 import { useThemeSetting } from './hooks/useThemeSetting';
 import { useSettingsStyles } from './styles';
 
@@ -26,15 +25,11 @@ import { ScreenSafeArea } from '@/components';
 
 export const SettingsScreen = () => {
   const styles = useSettingsStyles();
-  const { colors } = useTheme();
   const navigation = useRootNavigation();
   const goBack = useGoBack();
   const { isEnabled: notificationsEnabled, setEnabled: setNotificationsEnabled } = useNotificationsSetting();
-  const { isDarkModeEnabled, description: themeDescription, setDarkModeEnabled } = useThemeSetting();
-
-  const notificationsToggle = createNotificationsToggle(colors);
-  const darkModeToggle = { ...createDarkModeToggle(colors), description: themeDescription };
-  const dataPrivacyLink = createDataPrivacyLink(colors);
+  const { isDarkModeEnabled, setDarkModeEnabled } = useThemeSetting();
+  const { darkModeToggle, notificationsToggle, dataPrivacyLink } = useSettingsPreferences();
 
   const openLegalDocument = useCallback(
     (documentId: LegalDocumentId) => {

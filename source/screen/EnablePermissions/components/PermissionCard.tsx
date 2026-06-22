@@ -1,7 +1,7 @@
 /** @format */
 
-import React, { memo, useCallback, useMemo } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import React, { memo, useCallback } from 'react';
+import { Pressable, Text, View } from 'react-native';
 
 import Animated from 'react-native-reanimated';
 
@@ -28,38 +28,6 @@ const arePermissionCardPropsEqual = (previous: PermissionCardProps, next: Permis
 export const PermissionCard = memo(({ id, title, description, status, Icon, onGrant }: PermissionCardProps) => {
   const styles = usePermissionsStyles();
   const { colors } = useTheme();
-  const cardStyles = useMemo(
-    () =>
-      StyleSheet.create({
-        cardWrapper: {
-          position: 'relative',
-        },
-        cardPending: {
-          ...(StyleSheet.absoluteFill as object),
-          backgroundColor: colors.card,
-          borderColor: colors.cardBorder,
-        },
-        cardGranted: {
-          ...(StyleSheet.absoluteFill as object),
-          backgroundColor: colors.successMuted,
-          borderColor: colors.successBorder,
-        },
-        cardContent: {
-          padding: 26,
-        },
-        iconBoxWrapper: {
-          position: 'relative',
-        },
-        iconBoxPending: {
-          backgroundColor: colors.accentIconBg,
-        },
-        iconBoxGranted: {
-          ...(StyleSheet.absoluteFill as object),
-          backgroundColor: colors.successIconBg,
-        },
-      }),
-    [colors],
-  );
   const { grantedOverlayStyle, pendingIconStyle, grantedIconStyle, badgeStyle, grantButtonStyle, isGranted } =
     usePermissionCardAnimation(id, status);
 
@@ -68,15 +36,15 @@ export const PermissionCard = memo(({ id, title, description, status, Icon, onGr
   }, [id, onGrant]);
 
   return (
-    <View testID={testIds.enablePermissions.permissionCard(id)} style={cardStyles.cardWrapper}>
-      <View style={[styles.card, cardStyles.cardPending]} />
-      <Animated.View style={[styles.card, cardStyles.cardGranted, grantedOverlayStyle]} />
+    <View testID={testIds.enablePermissions.permissionCard(id)} style={styles.cardOverlayWrapper}>
+      <View style={[styles.card, styles.cardOverlayPending]} />
+      <Animated.View style={[styles.card, styles.cardOverlayGranted, grantedOverlayStyle]} />
 
-      <View style={cardStyles.cardContent}>
+      <View style={styles.cardOverlayPadding}>
         <View style={styles.cardRow}>
-          <View style={cardStyles.iconBoxWrapper}>
-            <View style={[styles.iconBox, cardStyles.iconBoxPending]} />
-            <Animated.View style={[styles.iconBox, cardStyles.iconBoxGranted, grantedOverlayStyle]} />
+          <View style={styles.iconBoxWrapper}>
+            <View style={[styles.iconBox, styles.iconBoxPending]} />
+            <Animated.View style={[styles.iconBox, styles.iconBoxGranted, grantedOverlayStyle]} />
             <Animated.View style={[styles.iconLayer, pendingIconStyle]}>
               <Icon stroke={colors.accent} />
             </Animated.View>

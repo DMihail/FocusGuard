@@ -148,17 +148,10 @@ jest.mock('@/store/mmkv', () => {
 });
 
 jest.mock('@/hooks/useTheme', () => {
-  const { darkColors } = require('./source/theme/palettes');
-  const { createPresets } = require('./source/theme/createPresets');
+  const { createTheme } = require('./source/theme/createTheme');
 
   return {
-    useTheme: () => ({
-      colors: darkColors,
-      presets: createPresets(darkColors),
-      colorScheme: 'dark',
-      isDark: true,
-      preference: 'system',
-    }),
+    useTheme: () => createTheme('system', 'dark'),
   };
 });
 

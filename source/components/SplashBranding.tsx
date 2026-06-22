@@ -9,7 +9,7 @@ import { Shield } from '@/assets/svg/Onboarding';
 import { getAppDisplayName } from '@/constants/appDisplayName';
 import { splashDotPulseMin, useSplashDotPulse } from '@/hooks/useSplashDotPulse';
 import { useTheme } from '@/hooks/useTheme';
-import { useThemedStyles } from '@/hooks/useThemedStyles';
+import { createStylesHook } from '@/hooks/useThemedStyles';
 import { testIds } from '@/testing/testIds';
 import { borderRadius, fontSize, lineHeight, spacing, typography } from '@/theme';
 import type { Theme } from '@/theme/types';
@@ -74,6 +74,8 @@ const createSplashBrandingStyles = ({ colors }: Theme) =>
     },
   });
 
+const useSplashBrandingStyles = createStylesHook(createSplashBrandingStyles);
+
 type SplashPulseDotProps = {
   pulse: SharedValue<number>;
   dotStyle: { width: number; height: number; borderRadius: number; backgroundColor: string };
@@ -94,20 +96,25 @@ const SplashPulseDot = memo(({ pulse, dotStyle }: SplashPulseDotProps) => {
 
 SplashPulseDot.displayName = 'SplashPulseDot';
 
-const SplashLoadingDots = ({ dotStyle }: { dotStyle: SplashPulseDotProps['dotStyle'] }) => {
+type SplashLoadingDotsProps = {
+  dotStyle: SplashPulseDotProps['dotStyle'];
+  dotsRowStyle: { flexDirection: 'row'; alignItems: 'center'; gap: number };
+};
+
+const SplashLoadingDots = ({ dotStyle, dotsRowStyle }: SplashLoadingDotsProps) => {
   const { isReducedMotion, pulseValues } = useSplashDotPulse(SPLASH_DOT_COUNT);
 
   return (
     <View accessible={false}>
       <Activity mode={isReducedMotion ? 'hidden' : 'visible'}>
-        <View style={styles.dotsRow}>
+        <View style={dotsRowStyle}>
           {pulseValues.map((pulse, index) => (
             <SplashPulseDot key={index} pulse={pulse} dotStyle={dotStyle} />
           ))}
         </View>
       </Activity>
       <Activity mode={isReducedMotion ? 'visible' : 'hidden'}>
-        <View style={styles.dotsRow}>
+        <View style={dotsRowStyle}>
           {Array.from({ length: SPLASH_DOT_COUNT }, (_, index) => (
             <View key={index} style={dotStyle} />
           ))}
@@ -117,40 +124,32 @@ const SplashLoadingDots = ({ dotStyle }: { dotStyle: SplashPulseDotProps['dotSty
   );
 };
 
-const styles = StyleSheet.create({
-  dotsRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-  },
-});
-
 export const SplashBranding = memo(() => {
-  const themedStyles = useThemedStyles(createSplashBrandingStyles);
+  const styles = useSplashBrandingStyles();
   const { colors } = useTheme();
   const appDisplayName = getAppDisplayName();
 
   return (
     <View
-      style={themedStyles.container}
+      style={styles.container}
       testID={testIds.app.loader}
       accessible
       accessibilityRole="progressbar"
       accessibilityLabel={`Loading ${appDisplayName}`}
       accessibilityState={{ busy: true }}
     >
-      <View style={themedStyles.content} importantForAccessibility="no-hide-descendants">
-        <View style={themedStyles.iconBox} accessible={false}>
+      <View style={styles.content} importantForAccessibility="no-hide-descendants">
+        <View style={styles.iconBox} accessible={false}>
           <Shield width={82} height={101} stroke={colors.accent} />
         </View>
 
-        <Text style={themedStyles.title} accessibilityRole="header">
+        <Text style={styles.title} accessibilityRole="header">
           {appDisplayName}
         </Text>
-        <Text style={themedStyles.subtitle}>{APP_TAGLINE}</Text>
+        <Text style={styles.subtitle}>{APP_TAGLINE}</Text>
 
-        <View style={themedStyles.dots}>
-          <SplashLoadingDots dotStyle={themedStyles.dot} />
+        <View style={styles.dots}>
+          <SplashLoadingDots dotStyle={styles.dot} dotsRowStyle={styles.dotsRow} />
         </View>
       </View>
     </View>

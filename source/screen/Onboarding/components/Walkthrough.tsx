@@ -3,7 +3,7 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
-import { useThemedStyles } from '@/hooks/useThemedStyles';
+import { createStylesHook } from '@/hooks/useThemedStyles';
 import { borderRadius, spacing, typography } from '@/theme';
 import type { Theme } from '@/theme/types';
 
@@ -49,8 +49,10 @@ const createWalkthroughStyles = ({ colors }: Theme) =>
     },
   });
 
+const useWalkthroughStyles = createStylesHook(createWalkthroughStyles);
+
 export const Walkthrough = ({ title, text, children }: WalkthroughProps) => {
-  const styles = useThemedStyles(createWalkthroughStyles);
+  const styles = useWalkthroughStyles();
 
   return (
     <View style={styles.content}>

@@ -26,6 +26,32 @@ export const createPermissionsStyles = ({ colors, presets }: Theme) => {
       borderWidth: 2,
       padding: 26,
     },
+    cardOverlayWrapper: {
+      position: 'relative',
+    },
+    cardOverlayPending: {
+      ...StyleSheet.absoluteFill,
+      backgroundColor: colors.card,
+      borderColor: colors.cardBorder,
+    },
+    cardOverlayGranted: {
+      ...StyleSheet.absoluteFill,
+      backgroundColor: colors.successMuted,
+      borderColor: colors.successBorder,
+    },
+    cardOverlayPadding: {
+      padding: 26,
+    },
+    iconBoxWrapper: {
+      position: 'relative',
+    },
+    iconBoxPending: {
+      backgroundColor: colors.accentIconBg,
+    },
+    iconBoxGranted: {
+      ...StyleSheet.absoluteFill,
+      backgroundColor: colors.successIconBg,
+    },
     cardRow: {
       ...layoutPresets.rowCenter,
       gap: spacing.lg,

@@ -1,17 +1,13 @@
 /** @format */
 
-import React, { createContext, type ReactNode, useEffect, useMemo, useState } from 'react';
-import { Appearance } from 'react-native';
+import React, { type ReactNode, useEffect, useMemo } from 'react';
 
+import { useSystemColorScheme } from '@/hooks/useSystemColorScheme';
+import { syncNativeUiThemePreference } from '@/specs/keeptUiThemeClient';
 import { settingsStore } from '@/store';
 
-import { createPresets } from './createPresets';
-import { colorsByScheme } from './palettes';
-import { resolveColorScheme } from './resolveColorScheme';
-import { syncNativeUiTheme } from './syncNativeUiTheme';
-import type { Theme } from './types';
-
-export const ThemeContext = createContext<Theme | null>(null);
+import { ThemeContext } from './context';
+import { createTheme } from './createTheme';
 
 type ThemeProviderProps = {
   children: ReactNode;
@@ -19,33 +15,13 @@ type ThemeProviderProps = {
 
 export const ThemeProvider = ({ children }: ThemeProviderProps) => {
   const preference = settingsStore((state) => state.themePreference);
-  const [systemScheme, setSystemScheme] = useState(() => Appearance.getColorScheme());
+  const systemScheme = useSystemColorScheme();
 
   useEffect(() => {
-    const subscription = Appearance.addChangeListener(({ colorScheme }) => {
-      setSystemScheme(colorScheme);
-    });
-
-    return () => subscription.remove();
-  }, []);
-
-  useEffect(() => {
-    syncNativeUiTheme(preference);
+    syncNativeUiThemePreference(preference);
   }, [preference]);
 
-  const theme = useMemo<Theme>(() => {
-    const normalizedSystemScheme = systemScheme === 'light' || systemScheme === 'dark' ? systemScheme : undefined;
-    const colorScheme = resolveColorScheme(preference, normalizedSystemScheme);
-    const colors = colorsByScheme[colorScheme];
+  const theme = useMemo(() => createTheme(preference, systemScheme), [preference, systemScheme]);
 
-    return {
-      colors,
-      presets: createPresets(colors),
-      colorScheme,
-      isDark: colorScheme === 'dark',
-      preference,
-    };
-  }, [preference, systemScheme]);
-
-  return <ThemeContext.Provider value={theme}>{children}</ThemeContext.Provider>;
+  return <ThemeContext value={theme}>{children}</ThemeContext>;
 };

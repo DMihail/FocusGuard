@@ -1,3 +1,3 @@
 /** @format */
 
-export { darkColors as colors, colorsByScheme, darkColors, lightColors } from './palettes';
+export { colorsByScheme, darkColors, lightColors } from './palettes';

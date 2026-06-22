@@ -1,10 +1,15 @@
 /** @format */
 
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 
 import { useTheme } from '@/hooks/useTheme';
 import { settingsStore } from '@/store';
-import type { ThemePreference } from '@/theme/types';
+
+const THEME_DESCRIPTION = {
+  system: 'Matches your device appearance',
+  dark: 'Dark appearance',
+  light: 'Light appearance',
+} as const;
 
 export const useThemeSetting = () => {
   const { isDark, preference } = useTheme();
@@ -17,12 +22,15 @@ export const useThemeSetting = () => {
     [setThemePreference],
   );
 
-  const description =
-    preference === 'system' ? 'Matches your device appearance' : isDark ? 'Dark appearance' : 'Light appearance';
+  const description = useMemo(
+    () =>
+      preference === 'system' ? THEME_DESCRIPTION.system : isDark ? THEME_DESCRIPTION.dark : THEME_DESCRIPTION.light,
+    [isDark, preference],
+  );
 
   return {
     isDarkModeEnabled: isDark,
-    themePreference: preference as ThemePreference,
+    themePreference: preference,
     description,
     setDarkModeEnabled,
   };

@@ -3,7 +3,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { getManageAppKey } from '@/domain/appKey';
 import { useTheme } from '@/hooks/useTheme';
-import { useThemedStyles } from '@/hooks/useThemedStyles';
+import { createStylesHook } from '@/hooks/useThemedStyles';
 import { testIds } from '@/testing/testIds';
 import { fontSize, spacing, typography } from '@/theme';
 import type { Theme } from '@/theme/types';
@@ -63,8 +63,10 @@ const createAppUsageRowStyles = ({ colors, presets }: Theme) => {
   });
 };
 
+const useAppUsageRowStyles = createStylesHook(createAppUsageRowStyles);
+
 export const AppUsageRow = memo(({ onPress, rowTestID, ...app }: AppUsageRowProps) => {
-  const styles = useThemedStyles(createAppUsageRowStyles);
+  const styles = useAppUsageRowStyles();
   const { colors } = useTheme();
   const appKey = getManageAppKey(app);
   const { appImage, appName, usedMs, limitMs, percentUsed, isOverLimit } = app;
