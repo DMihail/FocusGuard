@@ -106,7 +106,7 @@ describe('monitoringStore', () => {
 
   it('restarts monitor service after rehydrate when monitoring was enabled', async () => {
     mockIsMonitorServiceRunning.mockReturnValue(false);
-    mockGetItem.mockReturnValue(JSON.stringify({ state: { isMonitoring: true }, version: 0 }));
+    mockGetItem.mockReturnValue(JSON.stringify({ state: { isMonitoring: true }, version: 1 }));
 
     await act(async () => {
       await monitoringStore.persist.rehydrate();
@@ -119,7 +119,7 @@ describe('monitoringStore', () => {
   it('disables monitoring after rehydrate when permissions are missing', async () => {
     mockIsMonitorServiceRunning.mockReturnValue(false);
     mockAreAllPermissionsGranted.mockReturnValue(false);
-    mockGetItem.mockReturnValue(JSON.stringify({ state: { isMonitoring: true }, version: 0 }));
+    mockGetItem.mockReturnValue(JSON.stringify({ state: { isMonitoring: true }, version: 1 }));
 
     await act(async () => {
       await monitoringStore.persist.rehydrate();

@@ -38,7 +38,7 @@ export const PERSIST_STORAGE_KEYS = {
 export const SELECTED_APPS_PERSIST_VERSION = 1;
 
 /** Bump when `appLimitsStore` persisted `state.limitsByAppKey` shape changes. */
-export const APP_LIMITS_PERSIST_VERSION = 2;
+export const APP_LIMITS_PERSIST_VERSION = 1;
 
 /** Bump when `monitoringStore` persisted `state.isMonitoring` shape changes. */
 export const MONITORING_PERSIST_VERSION = 1;

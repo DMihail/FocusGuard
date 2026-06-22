@@ -7,8 +7,6 @@ import { zustandStorage } from './mmkv';
 import { PERSIST_STORAGE_KEYS, SETTINGS_PERSIST_VERSION } from './persistSchema';
 import type { SettingsStore } from './types';
 
-type SettingsPersistedState = Pick<SettingsStore, 'notificationsEnabled'>;
-
 /** Persisted user preferences (notification toggle). */
 export const settingsStore = create<SettingsStore>()(
   persist(
@@ -21,7 +19,6 @@ export const settingsStore = create<SettingsStore>()(
       version: SETTINGS_PERSIST_VERSION,
       storage: createJSONStorage(() => zustandStorage),
       partialize: (state) => ({ notificationsEnabled: state.notificationsEnabled }),
-      migrate: (persistedState) => persistedState as SettingsPersistedState,
     },
   ),
 );

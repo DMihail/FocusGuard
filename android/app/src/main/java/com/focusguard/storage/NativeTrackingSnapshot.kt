@@ -35,9 +35,7 @@ internal object NativeTrackingSnapshot {
                             apps.optString(index).takeIf { it.isNotEmpty() }
                         }
                     } ?: emptyList()
-                val limitsJson =
-                    root.optJSONObject("limitsByAppKey")
-                        ?: root.optJSONObject("limitsByPackage")
+                val limitsJson = root.optJSONObject("limitsByAppKey")
 
                 Snapshot(trackedApps = trackedApps, limitsJson = limitsJson)
             } catch (_: Exception) {

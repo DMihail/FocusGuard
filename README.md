@@ -6,8 +6,7 @@ approach limits, and block access when limits are reached.
 Built with [React Native](https://reactnative.dev) **0.86** (New Architecture, Turbo Modules) and **React 19**.
 
 > **Repo vs product name:** the repository folder is still `FocusGuard`, while the product, store IDs, and deep links
-> use **Keept**. Legacy Kotlin package `com.focusguard`, Xcode target `FocusGuard`, and scheme `focusguard://` remain
-> for compatibility.
+> use **Keept**. Legacy Kotlin package `com.focusguard` and Xcode target `FocusGuard` remain for build compatibility.
 
 ## Features
 
@@ -44,7 +43,7 @@ authorization on iOS.
 | State          | Zustand 5 + `react-native-mmkv` 4 (Nitro Modules)                           |
 | Android native | Kotlin, foreground service, overlay manager, Turbo Module                   |
 | iOS native     | Swift, Family Controls, DeviceActivity + Report extensions                  |
-| Quality        | ESLint, Prettier, Husky, lint-staged, Jest (**199** tests)                  |
+| Quality        | ESLint, Prettier, Husky, lint-staged, Jest (**198** tests)                  |
 
 **Requirements:** Node **≥ 22.11**, JDK **17** (Android), Xcode **16+** (iOS), CocoaPods.
 
@@ -85,7 +84,6 @@ Platform-specific TypeScript uses Metro / `moduleSuffixes`: `.ios.ts`, `.android
 | Monitor extension             | `com.keept.monitor`                                                      |
 | Report extension              | `com.keept.report`                                                       |
 | Deep links                    | `keept://dashboard`, `keept://tracked-apps`, `keept://configure/:appKey` |
-| Legacy deep links             | `focusguard://…` (still registered)                                      |
 
 ## Getting started
 
@@ -212,7 +210,7 @@ npm run test:ci       # CI (no watchman, forceExit)
 npm run check         # full gate
 ```
 
-**199** unit tests across navigation, screens, stores, permissions, Turbo Module contracts, and native snapshot shapes.
+**198** unit tests across navigation, screens, stores, permissions, Turbo Module contracts, and native snapshot shapes.
 
 Jest defaults to `.ios.ts` resolution; Android-specific modules are imported explicitly in tests (e.g.
 `permissionStatus.android.ts`).
@@ -231,4 +229,4 @@ GitHub Actions (`.github/workflows/ci.yml`), New Architecture enabled:
 - Prefer `syncNativeTrackingSnapshot()` over writing MMKV snapshot keys from JS.
 - Turbo Module spec files in `source/specs/NativeUsageStats*.ts` must keep `TurboModuleRegistry.get` in the same file as
   `Spec` (codegen requirement).
-- Do not rename legacy `com.focusguard` Kotlin package or `FocusGuard` Xcode target without a coordinated migration.
+- Do not rename legacy `com.focusguard` Kotlin package or `FocusGuard` Xcode target without a coordinated rename.
