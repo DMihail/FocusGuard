@@ -9,14 +9,16 @@ import { useThemeSetting } from './useThemeSetting';
 
 export const useSettingsPreferences = () => {
   const { colors } = useTheme();
-  const { description: themeDescription } = useThemeSetting();
+  const { description: themeDescription, isDarkModeEnabled, setDarkModeEnabled } = useThemeSetting();
 
   return useMemo(
     () => ({
+      isDarkModeEnabled,
+      setDarkModeEnabled,
       notificationsToggle: createNotificationsToggle(colors),
       darkModeToggle: { ...createDarkModeToggle(colors), description: themeDescription },
       dataPrivacyLink: createDataPrivacyLink(colors),
     }),
-    [colors, themeDescription],
+    [colors, isDarkModeEnabled, setDarkModeEnabled, themeDescription],
   );
 };

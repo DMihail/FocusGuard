@@ -4,8 +4,18 @@ import type { ColorSchemeName } from 'react-native';
 
 import { createPresets } from './createPresets';
 import { colorsByScheme } from './palettes';
-import { resolveColorScheme } from './resolveColorScheme';
-import type { Theme, ThemePreference } from './types';
+import type { ResolvedColorScheme, Theme, ThemePreference } from './types';
+
+const resolveColorScheme = (
+  preference: ThemePreference,
+  systemScheme: ColorSchemeName | null | undefined,
+): ResolvedColorScheme => {
+  if (preference === 'light' || preference === 'dark') {
+    return preference;
+  }
+
+  return systemScheme === 'light' ? 'light' : 'dark';
+};
 
 export const createTheme = (preference: ThemePreference, systemScheme: ColorSchemeName | null | undefined): Theme => {
   const colorScheme = resolveColorScheme(preference, systemScheme);

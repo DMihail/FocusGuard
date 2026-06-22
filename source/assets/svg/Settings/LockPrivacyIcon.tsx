@@ -5,8 +5,10 @@ import * as React from 'react';
 import type { SvgProps } from 'react-native-svg';
 import Svg, { Path } from 'react-native-svg';
 
-export const LockPrivacyIcon = ({ stroke = '#4CAF50', ...props }: SvgProps) => (
-  <Svg width={20} height={20} viewBox="0 0 17 11" fill="none" {...props}>
+import { darkColors } from '@/theme/palettes';
+
+export const LockPrivacyIcon = ({ stroke = darkColors.success, ...props }: SvgProps) => (
+  <Svg width={20} height={20} viewBox="0 -3 17 17" fill="none" {...props}>
     <Path
       d="M14.166.833H2.5A1.667 1.667 0 0 0 .833 2.5v5.833c0 .92.746 1.666 1.667 1.666h11.666c.92 0 1.666-.746 1.666-1.666V2.5A1.667 1.667 0 0 0 14.166.833Z"
       stroke={stroke}

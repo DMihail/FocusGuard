@@ -2,11 +2,11 @@
 
 import { interpolateColor } from 'react-native-reanimated';
 
-import { areColorPalettesEqual } from './areColorPalettesEqual';
-import { darkColors } from './palettes';
+import { COLOR_PALETTE_KEYS } from './palettes';
 import type { ColorPalette } from './types';
 
-const paletteKeys = Object.keys(darkColors) as (keyof ColorPalette)[];
+export const areColorPalettesEqual = (left: ColorPalette, right: ColorPalette): boolean =>
+  COLOR_PALETTE_KEYS.every((key) => left[key] === right[key]);
 
 export const interpolateColorPalette = (from: ColorPalette, to: ColorPalette, progress: number): ColorPalette => {
   if (progress <= 0) {
@@ -19,7 +19,7 @@ export const interpolateColorPalette = (from: ColorPalette, to: ColorPalette, pr
 
   const colors = {} as ColorPalette;
 
-  for (const key of paletteKeys) {
+  for (const key of COLOR_PALETTE_KEYS) {
     colors[key] = interpolateColor(progress, [0, 1], [from[key], to[key]]);
   }
 

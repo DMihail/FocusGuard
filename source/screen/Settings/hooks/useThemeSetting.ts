@@ -2,7 +2,7 @@
 
 import { useCallback, useMemo } from 'react';
 
-import { useTheme } from '@/hooks/useTheme';
+import { useSystemColorScheme } from '@/hooks/useSystemColorScheme';
 import { settingsStore } from '@/store';
 
 const THEME_DESCRIPTION = {
@@ -11,9 +11,27 @@ const THEME_DESCRIPTION = {
   light: 'Light appearance',
 } as const;
 
+const resolveIsDark = (
+  preference: 'system' | 'light' | 'dark',
+  systemScheme: ReturnType<typeof useSystemColorScheme>,
+) => {
+  if (preference === 'light') {
+    return false;
+  }
+
+  if (preference === 'dark') {
+    return true;
+  }
+
+  return systemScheme !== 'light';
+};
+
 export const useThemeSetting = () => {
-  const { isDark, preference } = useTheme();
+  const preference = settingsStore((state) => state.themePreference);
+  const systemScheme = useSystemColorScheme();
   const setThemePreference = settingsStore((state) => state.setThemePreference);
+
+  const isDarkModeEnabled = useMemo(() => resolveIsDark(preference, systemScheme), [preference, systemScheme]);
 
   const setDarkModeEnabled = useCallback(
     (enabled: boolean) => {
@@ -24,12 +42,16 @@ export const useThemeSetting = () => {
 
   const description = useMemo(
     () =>
-      preference === 'system' ? THEME_DESCRIPTION.system : isDark ? THEME_DESCRIPTION.dark : THEME_DESCRIPTION.light,
-    [isDark, preference],
+      preference === 'system'
+        ? THEME_DESCRIPTION.system
+        : isDarkModeEnabled
+        ? THEME_DESCRIPTION.dark
+        : THEME_DESCRIPTION.light,
+    [isDarkModeEnabled, preference],
   );
 
   return {
-    isDarkModeEnabled: isDark,
+    isDarkModeEnabled,
     themePreference: preference,
     description,
     setDarkModeEnabled,

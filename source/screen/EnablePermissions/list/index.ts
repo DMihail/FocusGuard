@@ -1,4 +1,4 @@
 /** @format */
 
-export { permissionKeyExtractor } from './keys';
 export { createPermissionListRenderItem } from './renderers';
+export { keyById as permissionKeyExtractor } from '@/list/keys';

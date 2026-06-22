@@ -20,6 +20,7 @@ export const SettingsLinkRow = ({
   description,
   Icon,
   iconBackgroundColor,
+  iconStrokeColor,
   onPress,
 }: SettingsLinkRowProps) => {
   const styles = useSettingsStyles();
@@ -35,7 +36,7 @@ export const SettingsLinkRow = ({
     >
       <View style={styles.rowLeading}>
         <View style={[styles.iconBox, { backgroundColor: iconBackgroundColor }]}>
-          <Icon stroke={colors.accentOnContainer} />
+          <Icon stroke={iconStrokeColor} />
         </View>
         <View style={styles.rowText}>
           <Text style={styles.rowTitle}>{title}</Text>

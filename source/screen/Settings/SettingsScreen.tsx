@@ -10,7 +10,6 @@ import { testIds } from '@/testing/testIds';
 
 import { useNotificationsSetting } from './hooks/useNotificationsSetting';
 import { useSettingsPreferences } from './hooks/useSettingsPreferences';
-import { useThemeSetting } from './hooks/useThemeSetting';
 import { useSettingsStyles } from './styles';
 
 import {
@@ -28,8 +27,8 @@ export const SettingsScreen = () => {
   const navigation = useRootNavigation();
   const goBack = useGoBack();
   const { isEnabled: notificationsEnabled, setEnabled: setNotificationsEnabled } = useNotificationsSetting();
-  const { isDarkModeEnabled, setDarkModeEnabled } = useThemeSetting();
-  const { darkModeToggle, notificationsToggle, dataPrivacyLink } = useSettingsPreferences();
+  const { isDarkModeEnabled, setDarkModeEnabled, darkModeToggle, notificationsToggle, dataPrivacyLink } =
+    useSettingsPreferences();
 
   const openLegalDocument = useCallback(
     (documentId: LegalDocumentId) => {

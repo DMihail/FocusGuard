@@ -3,10 +3,10 @@
 import React, { type ReactNode, useEffect } from 'react';
 
 import { useSystemColorScheme } from '@/hooks/useSystemColorScheme';
+import { ThemeContext } from '@/hooks/useTheme';
 import { syncNativeUiThemePreference } from '@/specs/keeptUiThemeClient';
 import { settingsStore } from '@/store';
 
-import { ThemeContext } from './context';
 import { useThemeTransition } from './useThemeTransition';
 
 type ThemeProviderProps = {

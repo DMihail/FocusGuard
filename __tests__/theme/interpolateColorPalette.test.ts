@@ -1,7 +1,6 @@
 /** @format */
 
-import { areColorPalettesEqual } from '@/theme/areColorPalettesEqual';
-import { interpolateColorPalette } from '@/theme/interpolateColorPalette';
+import { areColorPalettesEqual, interpolateColorPalette } from '@/theme/interpolateColorPalette';
 import { darkColors, lightColors } from '@/theme/palettes';
 
 describe('interpolateColorPalette', () => {

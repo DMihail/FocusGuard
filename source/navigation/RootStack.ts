@@ -13,13 +13,11 @@ import {
   TrackedAppsScreen,
 } from '@/screen';
 
-import { createRootScreenTransitionOptions } from './screenTransitionOptions';
+import { rootScreenTransitionOptions } from './screenTransitionOptions';
 import type { RootStackParamList } from './types';
 
-const createRootScreens = () => {
-  const rootScreenTransitionOptions = createRootScreenTransitionOptions();
-
-  return {
+const createRootScreens = () =>
+  ({
     Onboarding: {
       screen: OnboardingScreen,
       options: rootScreenTransitionOptions.onboarding,
@@ -52,8 +50,7 @@ const createRootScreens = () => {
       screen: LegalDocumentScreen,
       options: rootScreenTransitionOptions.legalDocument,
     },
-  } as const;
-};
+  } as const);
 
 export const createRootStack = (initialRouteName: keyof RootStackParamList) =>
   createNativeStackNavigator({

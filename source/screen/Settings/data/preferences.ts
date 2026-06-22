@@ -28,4 +28,5 @@ export const createDataPrivacyLink = (colors: ColorPalette): SettingsLinkItem =>
   description: 'All data stored locally',
   Icon: LockPrivacyIcon,
   iconBackgroundColor: colors.successIconBg,
+  iconStrokeColor: colors.success,
 });

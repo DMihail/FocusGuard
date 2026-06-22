@@ -6,14 +6,11 @@ import type { Theme } from '@/theme/types';
 
 import { useTheme } from './useTheme';
 
-export const useThemedStyles = <T>(factory: (theme: Theme) => T): T => {
-  const theme = useTheme();
-
-  return useMemo(() => factory(theme), [factory, theme]);
-};
-
-/** Binds a screen style factory to the current theme (avoids repeating useThemedStyles in every component). */
+/** Binds a screen style factory to the current theme. */
 export const createStylesHook =
   <T>(factory: (theme: Theme) => T): (() => T) =>
-  () =>
-    useThemedStyles(factory);
+  () => {
+    const theme = useTheme();
+
+    return useMemo(() => factory(theme), [theme]);
+  };

@@ -1,4 +1,4 @@
 /** @format */
 
-export { walkthroughStepKeyExtractor } from './keys';
 export { createWalkthroughPageRenderItem } from './renderers';
+export { keyById as walkthroughStepKeyExtractor } from '@/list/keys';

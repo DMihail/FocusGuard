@@ -90,3 +90,5 @@ export const colorsByScheme = {
   light: lightColors,
   dark: darkColors,
 } as const;
+
+export const COLOR_PALETTE_KEYS = Object.keys(darkColors) as (keyof ColorPalette)[];

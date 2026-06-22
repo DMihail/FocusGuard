@@ -1,9 +1,10 @@
 /** @format */
 
-import { use } from 'react';
+import { createContext, use } from 'react';
 
-import { ThemeContext } from '@/theme/context';
 import type { Theme } from '@/theme/types';
+
+export const ThemeContext = createContext<Theme | undefined>(undefined);
 
 export const useTheme = (): Theme => {
   const theme = use(ThemeContext);

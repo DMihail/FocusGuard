@@ -19,39 +19,8 @@ env:
   RCT_NEW_ARCH_ENABLED: '1'
 
 jobs:
-  lint:
-    name: Lint & format
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: npm
-
-      - run: npm ci
-      - run: npm run lint
-      - run: npm run format:check
-
-  typecheck:
-    name: Typecheck
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: npm
-
-      - run: npm ci
-      - run: npm run typecheck
-
-  test:
-    name: Tests
+  js:
+    name: Lint, types & tests
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -62,21 +31,12 @@ jobs:
           node-version: 22
           cache: npm
 
-      - uses: actions/cache@v4
-        with:
-          path: .jest-cache
-          key:
-            jest-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-${{ hashFiles('**/*.test.{ts,tsx}',
-            'jest.setup.js', 'jest.config.js') }}
-          restore-keys: |
-            jest-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-
-
       - run: npm ci
-      - run: npm run test:ci
+      - run: npm run check
 
   android:
     name: Android assembleDebug
-    needs: [lint, typecheck, test]
+    needs: js
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -96,8 +56,6 @@ jobs:
 
       - uses: android-actions/setup-android@v3
 
-      # Pre-install NDK before Gradle configures native modules. Gradle auto-download is flaky on GHA
-      # (corrupted zip: "Archive is not a ZIP archive"). Version must match android/build.gradle.
       - name: Install Android SDK packages
         env:
           ANDROID_NDK_VERSION: '27.1.12297006'
@@ -129,7 +87,7 @@ jobs:
 
   ios:
     name: iOS simulator build
-    needs: [lint, typecheck, test]
+    needs: js
     runs-on: macos-latest
     timeout-minutes: 45
     steps:

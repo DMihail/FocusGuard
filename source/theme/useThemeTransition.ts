@@ -14,13 +14,13 @@ import {
 
 import { suppressLayoutAnimation } from '@/utils/layoutAnimation';
 
-import { areColorPalettesEqual } from './areColorPalettesEqual';
 import { createPresets } from './createPresets';
 import { createTheme } from './createTheme';
+import { areColorPalettesEqual } from './interpolateColorPalette';
 import { interpolateColorPalette } from './interpolateColorPalette';
 import type { Theme, ThemePreference } from './types';
 
-export const THEME_TRANSITION_MS = 380;
+const THEME_TRANSITION_MS = 380;
 
 type ThemeTransitionResult = {
   theme: Theme;
@@ -52,16 +52,24 @@ export const useThemeTransition = (
   }, []);
 
   const applyBlendedTheme = useCallback((progressValue: number) => {
+    if (progressValue <= 0) {
+      return;
+    }
+
     const from = fromThemeRef.current;
     const to = targetThemeRef.current;
     const colors = interpolateColorPalette(from.colors, to.colors, progressValue);
-    const colorScheme = progressValue >= 0.5 ? to.colorScheme : from.colorScheme;
+    const blendedPresets = createPresets(colors);
     const nextTheme: Theme = {
       ...to,
       colors,
-      presets: createPresets(colors),
-      colorScheme,
-      isDark: colorScheme === 'dark',
+      presets: {
+        ...blendedPresets,
+        switchTrackColors: to.presets.switchTrackColors,
+        switchThumbColor: to.presets.switchThumbColor,
+      },
+      colorScheme: to.colorScheme,
+      isDark: to.isDark,
     };
 
     displayThemeRef.current = nextTheme;
@@ -107,6 +115,20 @@ export const useThemeTransition = (
     suppressLayoutAnimation();
     fromThemeRef.current = currentTheme;
     setIsTransitioning(true);
+
+    const semanticTheme: Theme = {
+      ...currentTheme,
+      colorScheme: targetTheme.colorScheme,
+      isDark: targetTheme.isDark,
+      preference: targetTheme.preference,
+      presets: {
+        ...currentTheme.presets,
+        switchTrackColors: targetTheme.presets.switchTrackColors,
+        switchThumbColor: targetTheme.presets.switchThumbColor,
+      },
+    };
+    displayThemeRef.current = semanticTheme;
+    setDisplayTheme(semanticTheme);
 
     if (reduceMotion) {
       progress.value = 1;
