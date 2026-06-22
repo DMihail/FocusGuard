@@ -1,7 +1,7 @@
 /** @format */
 
 export type { AppLimits } from './appLimits';
-export type { AppLimitsStore, LimitSliderBound, LimitSliderBounds } from './appLimitsStore';
+export type { AppLimitsStore, LimitSliderBounds } from './appLimitsStore';
 export type { MonitoringStore } from './monitoringStore';
 export type { OnboardingStore } from './onboardingStore';
 export type { SelectedAppsStore } from './selectedAppsStore';

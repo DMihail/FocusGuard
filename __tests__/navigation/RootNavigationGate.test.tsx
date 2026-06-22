@@ -42,8 +42,8 @@ jest.mock('../../source/store/mmkv', () => ({
   },
 }));
 
-jest.mock('../../source/hooks/useNativeTrackingSnapshotSync', () => ({
-  useNativeTrackingSnapshotSync: jest.fn(),
+jest.mock('../../source/store/nativeTrackingSnapshot', () => ({
+  startNativeTrackingSnapshotSync: jest.fn(() => jest.fn()),
 }));
 
 jest.mock('../../source/specs', () => ({

@@ -1,5 +1,7 @@
 /** @format */
 
+import { mockMmkvStorage } from '../../helpers/mockMmkvStorage';
+
 const mockCheckForPermission = jest.fn();
 const mockCheckForSystemAlertWindowPermission = jest.fn();
 const mockCheckForNotificationsPermission = jest.fn();
@@ -28,6 +30,7 @@ import {
   areRequiredPermissionsGranted,
   readPermissionStatuses,
   requestPermissionById,
+  resetUsageAccessUiLatchForTests,
 } from '@/domain/permissions/permissionStatus.android';
 
 const allPending = {
@@ -58,6 +61,8 @@ const grantAllCardChecks = () => {
 describe('permissionStatus.android', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockMmkvStorage.clear();
+    resetUsageAccessUiLatchForTests();
     mockCheckForPermission.mockReturnValue(false);
     mockCheckForSystemAlertWindowPermission.mockReturnValue(false);
     mockCheckForNotificationsPermission.mockReturnValue(false);
@@ -91,6 +96,39 @@ describe('permissionStatus.android', () => {
   it('reads granted statuses when visible checks pass', () => {
     grantAllCardChecks();
     expect(readPermissionStatuses()).toEqual(allGranted);
+  });
+
+  it('keeps usage-access granted after a transient native false read', () => {
+    grantAllCardChecks();
+    expect(readPermissionStatuses()['usage-access']).toBe('granted');
+    expect(mockMmkvStorage.getBoolean('usage-access-granted-v1')).toBe(true);
+
+    mockCheckForPermission.mockReturnValue(false);
+
+    expect(readPermissionStatuses()['usage-access']).toBe('granted');
+  });
+
+  it('pins usage-access latch before opening another permission settings screen', () => {
+    grantAllCardChecks();
+    readPermissionStatuses();
+
+    mockCheckForPermission.mockReturnValue(false);
+    requestPermissionById('battery-optimization');
+
+    expect(mockCheckForPermission).toHaveBeenCalled();
+    expect(readPermissionStatuses()['usage-access']).toBe('granted');
+    expect(mockRequestIgnoreBatteryOptimizationsPermission).toHaveBeenCalledTimes(1);
+  });
+
+  it('clears the usage-access latch when the user re-opens usage settings', () => {
+    grantAllCardChecks();
+    readPermissionStatuses();
+
+    mockCheckForPermission.mockReturnValue(false);
+    requestPermissionById('usage-access');
+
+    expect(readPermissionStatuses()['usage-access']).toBe('pending');
+    expect(mockRequestUsageStatsPermission).toHaveBeenCalledTimes(1);
   });
 
   it('requests battery optimization settings for battery-optimization', () => {

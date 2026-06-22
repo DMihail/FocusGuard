@@ -1,7 +1,7 @@
 import { getManageAppKey } from '@/domain/appKey';
 
 import { appLimitsStore, DEFAULT_APP_LIMITS } from './appLimitsStore';
-import { NATIVE_TRACKING_SNAPSHOT_VERSION } from './persistSchema';
+import { NATIVE_TRACKING_SNAPSHOT_KEY, NATIVE_TRACKING_SNAPSHOT_VERSION } from './persistSchema';
 import { selectedAppsStore } from './selectedAppsStore';
 import type { AppLimits } from './types';
 
@@ -26,3 +26,6 @@ export const buildAndroidTrackingSnapshot = (): AndroidTrackingSnapshot => {
     ),
   };
 };
+
+export const platformTrackingSnapshotKey = NATIVE_TRACKING_SNAPSHOT_KEY;
+export const buildPlatformTrackingSnapshot = buildAndroidTrackingSnapshot;

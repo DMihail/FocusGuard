@@ -3,8 +3,8 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
+import { areAllPermissionsGranted } from '@/domain/permissionSnapshot';
 import { isMonitorServiceRunning, startMonitorService, stopMonitorService } from '@/specs';
-import { canStartMonitoring } from '@/utils/monitoring/canStartMonitoring';
 import { scheduleAfterInteractions } from '@/utils/scheduleAfterInteractions';
 
 import { zustandStorage } from './mmkv';
@@ -23,7 +23,7 @@ export const monitoringStore = create<MonitoringStore>()(
         const next = !get().isMonitoring;
 
         if (next) {
-          if (!canStartMonitoring()) {
+          if (!areAllPermissionsGranted()) {
             return;
           }
 
@@ -71,7 +71,7 @@ export const restoreMonitoringSession = (): void => {
     return;
   }
 
-  if (!canStartMonitoring()) {
+  if (!areAllPermissionsGranted()) {
     monitoringStore.setState({ isMonitoring: false });
     return;
   }

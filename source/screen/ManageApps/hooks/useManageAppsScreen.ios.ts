@@ -2,7 +2,7 @@
 
 import { useCallback } from 'react';
 
-import { useRefreshOnFocus } from '@/hooks/useRefreshOnFocus';
+import { useRefreshWhenVisible } from '@/hooks/useRefreshWhenVisible';
 import { logDevWarning } from '@/utils/logDevWarning';
 
 import { useFamilyActivityPicker } from './useFamilyActivityPicker.ios';
@@ -19,7 +19,7 @@ export const useManageAppsScreen = () => {
       .catch(logDevWarning);
   }, [pickApps, refreshInstalledApps]);
 
-  useRefreshOnFocus(refreshInstalledApps);
+  useRefreshWhenVisible(refreshInstalledApps, { onAppActive: false });
 
   return {
     ...manageApps,

@@ -8,10 +8,10 @@ const mockStartMonitorService = jest.fn(() => ({ started: true })) as jest.Mock<
 >;
 const mockStopMonitorService = jest.fn();
 const mockIsMonitorServiceRunning = jest.fn(() => false);
-const mockCanStartMonitoring = jest.fn(() => true);
+const mockAreAllPermissionsGranted = jest.fn(() => true);
 
-jest.mock('@/utils/monitoring/canStartMonitoring', () => ({
-  canStartMonitoring: () => mockCanStartMonitoring(),
+jest.mock('@/domain/permissionSnapshot', () => ({
+  areAllPermissionsGranted: () => mockAreAllPermissionsGranted(),
 }));
 
 jest.mock('@/specs', () => ({
@@ -35,7 +35,7 @@ import { monitoringStore } from '@/store/monitoringStore';
 describe('monitoringStore', () => {
   beforeEach(async () => {
     jest.clearAllMocks();
-    mockCanStartMonitoring.mockReturnValue(true);
+    mockAreAllPermissionsGranted.mockReturnValue(true);
     mockStartMonitorService.mockReturnValue({ started: true });
     mockIsMonitorServiceRunning.mockReturnValue(true);
     mockGetItem.mockReturnValue(null);
@@ -84,7 +84,7 @@ describe('monitoringStore', () => {
   });
 
   it('does not enable monitoring when required permissions are missing', () => {
-    mockCanStartMonitoring.mockReturnValue(false);
+    mockAreAllPermissionsGranted.mockReturnValue(false);
 
     monitoringStore.getState().toggle();
 
@@ -118,7 +118,7 @@ describe('monitoringStore', () => {
 
   it('disables monitoring after rehydrate when permissions are missing', async () => {
     mockIsMonitorServiceRunning.mockReturnValue(false);
-    mockCanStartMonitoring.mockReturnValue(false);
+    mockAreAllPermissionsGranted.mockReturnValue(false);
     mockGetItem.mockReturnValue(JSON.stringify({ state: { isMonitoring: true }, version: 0 }));
 
     await act(async () => {

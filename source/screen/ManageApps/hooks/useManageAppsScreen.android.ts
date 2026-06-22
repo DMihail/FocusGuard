@@ -1,6 +1,6 @@
 /** @format */
 
-import { useRefreshOnFocus } from '@/hooks/useRefreshOnFocus';
+import { useRefreshWhenVisible } from '@/hooks/useRefreshWhenVisible';
 
 import { useManageApps } from './useManageApps.android';
 
@@ -8,11 +8,10 @@ import { useManageApps } from './useManageApps.android';
 export const useManageAppsScreen = () => {
   const { refreshInstalledApps, ...manageApps } = useManageApps();
 
-  useRefreshOnFocus(refreshInstalledApps);
+  useRefreshWhenVisible(refreshInstalledApps, { onAppActive: false });
 
   return {
     ...manageApps,
-    refreshInstalledApps,
     showSearchToolbar: true,
     showInstalledAppsList: true,
     onPickApps: undefined,

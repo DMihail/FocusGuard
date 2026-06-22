@@ -1,6 +1,6 @@
 /** @format */
 
-import { useCallback, useEffect, useMemo, useState, useTransition } from 'react';
+import { useCallback, useMemo, useState, useTransition } from 'react';
 
 import type { ManageApp } from '@/domain/types';
 import { configureSectionLayoutAnimation } from '@/utils/layoutAnimation';
@@ -21,6 +21,14 @@ export const useManageAppsFilters = ({ installedApps }: UseManageAppsFiltersPara
   const [activeCategory, setActiveCategory] = useState<CategoryFilterOption>(ALL_CATEGORY_FILTER);
   const [isCategoryPending, startCategoryTransition] = useTransition();
 
+  const effectiveCategory = useMemo(() => {
+    if (categoryFilters.some((filter) => filter.id === activeCategory.id)) {
+      return activeCategory;
+    }
+
+    return ALL_CATEGORY_FILTER;
+  }, [activeCategory, categoryFilters]);
+
   const handleSearchActiveChange = useCallback((isActive: boolean) => {
     setIsSearchInputActive((previous) => {
       if (previous !== isActive) {
@@ -35,14 +43,6 @@ export const useManageAppsFilters = ({ installedApps }: UseManageAppsFiltersPara
   const isSearchActive = isSearchInputActive || normalizedSearchQuery.length > 0;
   const isFiltering = !isSearchActive && isCategoryPending;
 
-  useEffect(() => {
-    const isActiveFilterAvailable = categoryFilters.some((filter) => filter.id === activeCategory.id);
-
-    if (!isActiveFilterAvailable) {
-      setActiveCategory(ALL_CATEGORY_FILTER);
-    }
-  }, [activeCategory.id, categoryFilters]);
-
   const filteredApps = useMemo(() => {
     return installedApps.filter((app) => {
       if (normalizedSearchQuery.length > 0) {
@@ -52,9 +52,9 @@ export const useManageAppsFilters = ({ installedApps }: UseManageAppsFiltersPara
         );
       }
 
-      return matchesCategoryFilter(app, activeCategory);
+      return matchesCategoryFilter(app, effectiveCategory);
     });
-  }, [activeCategory, installedApps, normalizedSearchQuery]);
+  }, [effectiveCategory, installedApps, normalizedSearchQuery]);
 
   const handleCategoryChange = useCallback(
     (filterId: string) => {
@@ -80,7 +80,7 @@ export const useManageAppsFilters = ({ installedApps }: UseManageAppsFiltersPara
     setSearchQuery,
     setSearchInputActive: handleSearchActiveChange,
     categoryFilters,
-    activeCategoryId: activeCategory.id,
+    activeCategoryId: effectiveCategory.id,
     setActiveCategory: handleCategoryChange,
   };
 };

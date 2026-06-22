@@ -1,21 +1,26 @@
 package com.nativeusagestats
 
 import com.facebook.react.bridge.Arguments
+import com.facebook.react.bridge.LifecycleEventListener
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReadableArray
 import com.facebook.react.bridge.WritableMap
+import android.os.Handler
+import android.os.Looper
 import com.focusguard.DailyUsageRepository
 import com.focusguard.apps.InstalledAppsRepository
 import com.focusguard.monitor.MonitorPermissions
 import com.focusguard.monitor.MonitorServiceHelper
-import com.focusguard.permissions.PermissionChecker
+import com.focusguard.monitor.NotificationPermissions
+import com.focusguard.monitor.OverlayAccess
+import com.focusguard.monitor.UsageAccess
+import com.focusguard.permissions.BatteryOptimizationAccess
 import com.focusguard.permissions.PermissionRequester
 import com.focusguard.platform.AppInfo
 import com.focusguard.react.PermissionsChangedDispatcher
-import com.focusguard.react.PermissionsLifecycleBinding
 import com.focusguard.react.ReactNativeMappers
-import com.focusguard.storage.TrackingSnapshotWriter
+import com.focusguard.storage.NativeTrackingSnapshot
 import java.util.concurrent.Executors
 
 /** Codegen Turbo Module — thin bridge over the FocusGuard Android domain layer. */
@@ -29,33 +34,60 @@ class NativeUsageStatsModule(
   private val installedAppsRepository = InstalledAppsRepository(appContext)
   private val dailyUsageRepository = DailyUsageRepository(appContext)
   private val ioExecutor = Executors.newSingleThreadExecutor()
+  private val mainHandler = Handler(Looper.getMainLooper())
+  private val permissionsRecheckDelaysMs = longArrayOf(0L, 400L, 1_200L)
+  private var permissionsRecheckGeneration = 0
 
   private val emitPermissionsChangedCallback = { emitPermissionsChanged() }
-  private val permissionsLifecycleBinding =
-      PermissionsLifecycleBinding(emitPermissionsChangedCallback)
+  private val permissionsLifecycleListener =
+      object : LifecycleEventListener {
+        override fun onHostResume() {
+          val generation = ++permissionsRecheckGeneration
+
+          for (delayMs in permissionsRecheckDelaysMs) {
+            mainHandler.postDelayed(
+                {
+                  if (generation == permissionsRecheckGeneration) {
+                    emitPermissionsChanged()
+                  }
+                },
+                delayMs,
+              )
+          }
+        }
+
+        override fun onHostPause() {
+          permissionsRecheckGeneration += 1
+        }
+
+        override fun onHostDestroy() {
+          permissionsRecheckGeneration += 1
+        }
+      }
 
   init {
     PermissionsChangedDispatcher.register(emitPermissionsChangedCallback)
-    reactApplicationContext.addLifecycleEventListener(permissionsLifecycleBinding)
+    reactApplicationContext.addLifecycleEventListener(permissionsLifecycleListener)
   }
 
   override fun invalidate() {
+    permissionsRecheckGeneration += 1
+    mainHandler.removeCallbacksAndMessages(null)
     PermissionsChangedDispatcher.unregister(emitPermissionsChangedCallback)
-    reactApplicationContext.removeLifecycleEventListener(permissionsLifecycleBinding)
+    reactApplicationContext.removeLifecycleEventListener(permissionsLifecycleListener)
     ioExecutor.shutdown()
     super.invalidate()
   }
 
-  override fun checkForPermission(): Boolean = PermissionChecker.hasUsageAccess(appContext)
+  override fun checkForPermission(): Boolean = UsageAccess.hasAccess(appContext)
 
-  override fun checkForSystemAlertWindowPermission(): Boolean =
-      PermissionChecker.hasOverlayAccess(appContext)
+  override fun checkForSystemAlertWindowPermission(): Boolean = OverlayAccess.hasAccess(appContext)
 
   override fun checkForNotificationsPermission(): Boolean =
-      PermissionChecker.hasNotificationsPermission(appContext)
+      NotificationPermissions.hasPostNotificationsPermission(appContext)
 
   override fun checkForIgnoreBatteryOptimizationsPermission(): Boolean =
-      PermissionChecker.hasBatteryOptimizationExemption(appContext)
+      BatteryOptimizationAccess.isExempt(appContext)
 
   override fun checkForManifestMonitorPermissions(): Boolean =
       MonitorPermissions.hasManifestMonitorPermissions(appContext)
@@ -128,7 +160,7 @@ class NativeUsageStatsModule(
   }
 
   override fun syncTrackingConfig(snapshotJson: String) {
-    TrackingSnapshotWriter.write(snapshotJson)
+    NativeTrackingSnapshot.write(snapshotJson)
   }
 
   override fun requestScreenTimeAuthorization(promise: Promise) {

@@ -7,7 +7,7 @@ import { SECTION_SCROLL_FLAT_LIST_PROPS } from '@/list';
 import { useRootNavigation } from '@/navigation';
 import { testIds } from '@/testing/testIds';
 
-import { useDashboard } from './hooks';
+import { useDashboard } from './hooks/useDashboard';
 import {
   createDashboardSectionRenderItem,
   DASHBOARD_SECTIONS,

@@ -3,25 +3,39 @@ import UIKit
 import UserNotifications
 
 enum KeeptNotificationAuthorization {
-  static var isAuthorized: Bool {
-    var granted = false
-    let semaphore = DispatchSemaphore(value: 0)
+  private static let lock = NSLock()
+  private static var cachedAuthorized = false
 
-    UNUserNotificationCenter.current().getNotificationSettings { settings in
-      granted = settings.authorizationStatus == .authorized || settings.authorizationStatus == .provisional
-      semaphore.signal()
+  static var isAuthorized: Bool {
+    if Thread.isMainThread {
+      return readCachedAuthorized()
     }
 
-    semaphore.wait()
-    return granted
+    return fetchAuthorizedSynchronously()
+  }
+
+  static func refreshCachedAuthorization() {
+    UNUserNotificationCenter.current().getNotificationSettings { settings in
+      lock.lock()
+      cachedAuthorized =
+        settings.authorizationStatus == .authorized || settings.authorizationStatus == .provisional
+      lock.unlock()
+    }
   }
 
   static func request() async -> Bool {
-    await withCheckedContinuation { continuation in
-      UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, _ in
+    let granted = await withCheckedContinuation { continuation in
+      UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) {
+        granted,
+        _ in
         continuation.resume(returning: granted)
       }
     }
+
+    lock.lock()
+    cachedAuthorized = granted
+    lock.unlock()
+    return granted
   }
 
   static func openSettings() {
@@ -32,5 +46,28 @@ enum KeeptNotificationAuthorization {
     DispatchQueue.main.async {
       UIApplication.shared.open(url)
     }
+  }
+
+  private static func readCachedAuthorized() -> Bool {
+    lock.lock()
+    defer { lock.unlock() }
+    return cachedAuthorized
+  }
+
+  private static func fetchAuthorizedSynchronously() -> Bool {
+    var granted = false
+    let semaphore = DispatchSemaphore(value: 0)
+
+    UNUserNotificationCenter.current().getNotificationSettings { settings in
+      granted =
+        settings.authorizationStatus == .authorized || settings.authorizationStatus == .provisional
+      lock.lock()
+      cachedAuthorized = granted
+      lock.unlock()
+      semaphore.signal()
+    }
+
+    semaphore.wait()
+    return granted
   }
 }

@@ -1,9 +1,9 @@
 package com.focusguard
 
+import com.focusguard.storage.KeeptMmkv
 import com.focusguard.storage.NativeTrackingSnapshot
 import com.focusguard.storage.PersistSchema
 import com.focusguard.storage.ZustandPersistReader
-import com.tencent.mmkv.MMKV
 import org.json.JSONObject
 
 /**
@@ -11,8 +11,7 @@ import org.json.JSONObject
  */
 class TrackingConfigRepository {
 
-    private val mmkv: MMKV? =
-        MMKV.mmkvWithID(PersistSchema.MMKV_INSTANCE_ID, MMKV.MULTI_PROCESS_MODE)
+    private val mmkv get() = KeeptMmkv.instance
 
     private var cachedSelectedAppsRaw: String? = null
     private var cachedTrackedApps: List<String>? = null
@@ -22,7 +21,7 @@ class TrackingConfigRepository {
     fun getTrackedApps(): List<String> {
         NativeTrackingSnapshot.read()?.trackedApps?.let { return it }
 
-        val raw = mmkv?.decodeString(PersistSchema.SELECTED_APPS_STORAGE_KEY) ?: return emptyList()
+        val raw = mmkv.decodeString(PersistSchema.SELECTED_APPS_STORAGE_KEY) ?: return emptyList()
 
         if (raw == cachedSelectedAppsRaw && cachedTrackedApps != null) {
             return cachedTrackedApps!!
@@ -71,7 +70,7 @@ class TrackingConfigRepository {
     private fun loadLimitsJson(): JSONObject? {
         NativeTrackingSnapshot.read()?.limitsJson?.let { return it }
 
-        val raw = mmkv?.decodeString(PersistSchema.APP_LIMITS_STORAGE_KEY) ?: return null
+        val raw = mmkv.decodeString(PersistSchema.APP_LIMITS_STORAGE_KEY) ?: return null
 
         if (raw == cachedLimitsRaw) {
             return cachedLimitsJson

@@ -31,14 +31,16 @@ export const usePermissionCardAnimation = (permissionId: PermissionId, status: P
 
     cancelAnimation(progress);
 
+    if (isGranted) {
+      progress.value = 1;
+      return;
+    }
+
     if (progress.value === target) {
       return;
     }
 
-    progress.value = withTiming(
-      target,
-      isGranted ? cardTiming(Easing.out(Easing.cubic)) : cardTiming(Easing.in(Easing.cubic)),
-    );
+    progress.value = withTiming(target, cardTiming(Easing.in(Easing.cubic)));
   }, [isGranted, permissionId, progress]);
 
   const grantedOverlayStyle = useAnimatedStyle(() => ({

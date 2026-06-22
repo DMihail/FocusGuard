@@ -57,6 +57,7 @@ jest.mock('@react-navigation/native', () => {
         return typeof cleanup === 'function' ? cleanup : undefined;
       }, [callback]);
     },
+    useIsFocused: () => true,
   };
 });
 

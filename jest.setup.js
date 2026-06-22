@@ -137,9 +137,15 @@ jest.mock('react-native-gesture-handler', () => {
   };
 });
 
-jest.mock('@/store/mmkv', () => ({
-  zustandStorage: require('./__tests__/helpers/mockZustandMmkv').mockZustandStorage,
-}));
+jest.mock('@/store/mmkv', () => {
+  const { mockZustandStorage } = require('./__tests__/helpers/mockZustandMmkv');
+  const { mockMmkvStorage } = require('./__tests__/helpers/mockMmkvStorage');
+
+  return {
+    zustandStorage: mockZustandStorage,
+    storage: mockMmkvStorage,
+  };
+});
 
 const mockPermissionsChangedSubscription = { remove: jest.fn() };
 

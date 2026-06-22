@@ -12,20 +12,6 @@ import com.focusguard.monitor.NotificationPermissions
 import com.focusguard.monitor.OverlayAccess
 import com.focusguard.monitor.UsageAccess
 
-/** Facade for permission checks exposed to the React Native Turbo Module. */
-internal object PermissionChecker {
-
-    fun hasUsageAccess(context: Context): Boolean = UsageAccess.hasAccess(context)
-
-    fun hasOverlayAccess(context: Context): Boolean = OverlayAccess.hasAccess(context)
-
-    fun hasNotificationsPermission(context: Context): Boolean =
-        NotificationPermissions.hasPostNotificationsPermission(context)
-
-    fun hasBatteryOptimizationExemption(context: Context): Boolean =
-        BatteryOptimizationAccess.isExempt(context)
-}
-
 /** Opens system screens and runtime dialogs for granting permissions. */
 internal class PermissionRequester(
     private val context: Context,
@@ -37,11 +23,14 @@ internal class PermissionRequester(
     }
 
     fun requestOverlayAccess() {
+        UsageAccess.pinGrantBeforeOtherPermissionSettings(context)
         OverlayAccess.openSettings(context, activityProvider())
     }
 
     fun requestNotifications() {
-        if (PermissionChecker.hasNotificationsPermission(context)) {
+        UsageAccess.pinGrantBeforeOtherPermissionSettings(context)
+
+        if (NotificationPermissions.hasPostNotificationsPermission(context)) {
             return
         }
 
@@ -69,6 +58,8 @@ internal class PermissionRequester(
     }
 
     fun requestBatteryOptimizationExemption() {
+        UsageAccess.pinGrantBeforeOtherPermissionSettings(context)
+
         if (BatteryOptimizationAccess.isExempt(context)) {
             return
         }

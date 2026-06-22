@@ -1,12 +1,11 @@
 /** @format */
 
-import { useCallback, useEffect } from 'react';
+import { useCallback } from 'react';
 
 import { useAppStateOnActive } from '@/hooks/useAppStateOnActive';
 import { monitoringStore, restoreMonitoringSession } from '@/store/monitoringStore';
-import { scheduleAfterInteractions } from '@/utils/scheduleAfterInteractions';
 
-/** Restores or reconciles the persisted focus session after hydration and app resume. */
+/** Reconciles the persisted focus session when the app returns to the foreground. */
 export const useMonitoringServiceSync = (isEnabled: boolean): void => {
   const sync = useCallback(() => {
     if (!isEnabled || !monitoringStore.persist.hasHydrated()) {
@@ -15,17 +14,6 @@ export const useMonitoringServiceSync = (isEnabled: boolean): void => {
 
     restoreMonitoringSession();
   }, [isEnabled]);
-
-  useEffect(() => {
-    if (!isEnabled) {
-      return;
-    }
-
-    const unsubscribeHydration = monitoringStore.persist.onFinishHydration(sync);
-    scheduleAfterInteractions(sync);
-
-    return unsubscribeHydration;
-  }, [isEnabled, sync]);
 
   useAppStateOnActive(sync);
 };

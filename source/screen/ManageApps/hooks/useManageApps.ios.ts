@@ -2,8 +2,8 @@ import { useShallow } from 'zustand/react/shallow';
 
 import { selectedAppsStore } from '@/store';
 
-import { inactiveManageAppsFilters } from './inactiveManageAppsFilters';
-import { useInstalledAppsCatalog } from './useInstalledAppsCatalog.ios';
+import { ALL_CATEGORY_FILTER } from '../utils/buildCategoryFilters';
+import { useInstalledAppsCatalog } from './useInstalledAppsCatalog';
 
 export const useManageApps = () => {
   const { installedApps, isLoadingApps, refreshInstalledApps } = useInstalledAppsCatalog();
@@ -20,7 +20,13 @@ export const useManageApps = () => {
     apps: installedApps,
     isLoadingApps,
     refreshInstalledApps,
-    ...inactiveManageAppsFilters,
+    isFiltering: false,
+    isSearchActive: false,
+    setSearchQuery: () => undefined,
+    setSearchInputActive: () => undefined,
+    categoryFilters: [ALL_CATEGORY_FILTER],
+    activeCategoryId: ALL_CATEGORY_FILTER.id,
+    setActiveCategory: () => undefined,
     ...selection,
   };
 };

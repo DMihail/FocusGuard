@@ -74,30 +74,17 @@ describe('nativeUsageStatsApi.android', () => {
     expect(mockUsageStats.stopMonitorService).toHaveBeenCalledTimes(1);
   });
 
-  it('returns safe defaults when native module is unavailable', async () => {
+  it('throws when the turbo module is unavailable', () => {
     jest.resetModules();
     jest.unmock('@/specs/nativeUsageStatsClient.android');
     jest.mock('@/specs/nativeUsageStatsClient.android', () => ({
-      getNativeUsageStats: jest.fn(() => null),
+      getNativeUsageStats: jest.fn(() => {
+        throw new Error('NativeUsageStats not found');
+      }),
     }));
     const specs = require('@/specs/nativeUsageStatsApi.android') as NativeUsageStatsApi;
 
-    expect(specs.checkForPermission()).toBe(false);
-    expect(specs.checkForSystemAlertWindowPermission()).toBe(false);
-    expect(specs.checkForIgnoreBatteryOptimizationsPermission()).toBe(false);
-    expect(specs.checkForManifestMonitorPermissions()).toBe(false);
-    expect(specs.checkForNotificationsPermission()).toBe(false);
-    await expect(specs.getPackagesUsageToday(['com.example.app'])).resolves.toEqual([]);
-    await expect(specs.getInstalledApplications()).resolves.toEqual([]);
-    expect(specs.isMonitorServiceRunning()).toBe(false);
-    expect(specs.startMonitorService()).toEqual({
-      started: false,
-      reason: 'manifest_permissions_missing',
-    });
-    expect(specs.getAppDisplayName()).toBe('');
-    expect(specs.getAppVersion()).toBe('');
-    expect(() => specs.requestUsageStatsPermission()).not.toThrow();
-    expect(() => specs.stopMonitorService()).not.toThrow();
+    expect(() => specs.checkForPermission()).toThrow('NativeUsageStats not found');
   });
 
   it('subscribes to onPermissionsChanged events', () => {

@@ -5,11 +5,12 @@ enum IosTrackingSnoozeStore {
 
   static func setSnooze(tokenId: String) {
     let untilMs = Int64(Date().timeIntervalSince1970 * 1_000) + snoozeDurationMs
-    KeeptAppGroup.defaults?.set(untilMs, forKey: storageKey(for: tokenId))
+    KeeptAppGroup.defaults?.set(NSNumber(value: untilMs), forKey: storageKey(for: tokenId))
   }
 
   static func isSnoozed(tokenId: String) -> Bool {
-    let untilMs = KeeptAppGroup.defaults?.object(forKey: storageKey(for: tokenId)) as? Int64 ?? 0
+    let untilMs =
+      (KeeptAppGroup.defaults?.object(forKey: storageKey(for: tokenId)) as? NSNumber)?.int64Value ?? 0
     let nowMs = Int64(Date().timeIntervalSince1970 * 1_000)
 
     if untilMs <= nowMs {

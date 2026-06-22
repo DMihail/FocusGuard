@@ -30,9 +30,3 @@ export type MonitorServiceStartResult = {
   started: boolean;
   reason?: string;
 };
-
-export type MonitorServiceFailureReason =
-  | 'manifest_permissions_missing'
-  | 'usage_access_missing'
-  | 'overlay_access_missing'
-  | 'battery_optimization_missing';

@@ -4,12 +4,10 @@ import { getAppDisplayName } from '@/constants/appDisplayName';
 import type { PermissionId, PermissionStatus } from '@/domain/permissions';
 import { areRequiredPermissionsGranted, getPermissionIds, requestPermissionById } from '@/domain/permissions';
 import { getPermissionStatuses, invalidatePermissionSnapshot } from '@/domain/permissionSnapshot';
-import { useAppStateOnActive } from '@/hooks/useAppStateOnActive';
+import { useRunOnFocusAndActive } from '@/hooks/useRunOnFocusAndActive';
 import { subscribePermissionsChanged } from '@/specs';
-import { scheduleAfterInteractions } from '@/utils/scheduleAfterInteractions';
 
 import { createPermissions } from '../data/permissions';
-import { buildPermissionsWithStatus } from '../utils/buildPermissionsWithStatus';
 
 const hasStatusChanged = (
   previous: Record<PermissionId, PermissionStatus>,
@@ -20,13 +18,9 @@ export const usePermissionsSync = () => {
   const permissionItems = useMemo(() => createPermissions(getAppDisplayName()), []);
   const [statusById, setStatusById] = useState<Record<PermissionId, PermissionStatus>>(() => getPermissionStatuses());
 
-  const syncStatuses = useCallback((force = false) => {
-    if (force) {
-      invalidatePermissionSnapshot();
-    }
-
+  const applyStatuses = useCallback(() => {
     setStatusById((previous) => {
-      const next = getPermissionStatuses(force);
+      const next = getPermissionStatuses(true);
 
       if (!hasStatusChanged(previous, next)) {
         return previous;
@@ -36,24 +30,25 @@ export const usePermissionsSync = () => {
     });
   }, []);
 
-  useEffect(() => {
-    scheduleAfterInteractions(() => syncStatuses(true));
-  }, [syncStatuses]);
+  const syncStatuses = useCallback(() => {
+    invalidatePermissionSnapshot();
+    applyStatuses();
+  }, [applyStatuses]);
 
-  const syncOnActive = useCallback(() => {
-    syncStatuses(true);
-  }, [syncStatuses]);
-
-  useAppStateOnActive(syncOnActive);
+  useRunOnFocusAndActive(syncStatuses);
 
   useEffect(() => {
-    const subscription = subscribePermissionsChanged(() => syncStatuses(true));
+    const subscription = subscribePermissionsChanged(() => syncStatuses());
 
     return () => subscription.remove();
   }, [syncStatuses]);
 
   const permissions = useMemo(
-    () => buildPermissionsWithStatus(permissionItems, statusById),
+    () =>
+      permissionItems.map((item) => ({
+        ...item,
+        status: statusById[item.id] ?? item.status,
+      })),
     [permissionItems, statusById],
   );
   const canContinue = areRequiredPermissionsGranted(statusById);
@@ -62,5 +57,5 @@ export const usePermissionsSync = () => {
     requestPermissionById(id);
   }, []);
 
-  return { permissions, canContinue, handleGrant, syncStatuses };
+  return { permissions, canContinue, handleGrant };
 };

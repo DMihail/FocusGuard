@@ -24,5 +24,5 @@ export const useTrackedAppsRefresh = (refreshUsage: (force?: boolean) => Promise
     [onRefresh, refreshing],
   );
 
-  return { refreshing, onRefresh, refreshControl };
+  return { refreshing, refreshControl };
 };

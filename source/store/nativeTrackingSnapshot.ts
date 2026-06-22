@@ -1,26 +1,27 @@
 /** @format */
 
+import { syncTrackingConfig } from '@/specs/nativeUsageStatsApi';
 import { getNativeUsageStats } from '@/specs/nativeUsageStatsClient';
+import { logDevWarning } from '@/utils/logDevWarning';
 
 import { appLimitsStore } from './appLimitsStore';
 import { storage } from './mmkv';
+import { buildPlatformTrackingSnapshot, platformTrackingSnapshotKey } from './platformTrackingSnapshot';
 import { selectedAppsStore } from './selectedAppsStore';
-import { buildPlatformTrackingSnapshot, platformTrackingSnapshotKey } from './trackingSnapshotPayload';
-
-export type { AndroidTrackingSnapshot } from './androidTrackingSnapshot';
-export { buildAndroidTrackingSnapshot } from './androidTrackingSnapshot';
-export { buildIosTrackingSnapshot } from './iosTrackingSnapshot';
 
 export const syncNativeTrackingSnapshot = (): void => {
   const snapshotJson = JSON.stringify(buildPlatformTrackingSnapshot());
   const nativeModule = getNativeUsageStats();
 
   if (nativeModule) {
-    nativeModule.syncTrackingConfig(snapshotJson);
+    syncTrackingConfig(snapshotJson);
     return;
   }
 
   storage.set(platformTrackingSnapshotKey, snapshotJson);
+  logDevWarning(
+    '[syncNativeTrackingSnapshot] Native module unavailable; MMKV updated without native cache invalidation.',
+  );
 };
 
 let unsubscribeSelectedApps: (() => void) | null = null;

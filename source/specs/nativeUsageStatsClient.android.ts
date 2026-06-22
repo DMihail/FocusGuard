@@ -2,4 +2,4 @@ import { TurboModuleRegistry } from 'react-native';
 
 import type { Spec } from './NativeUsageStats.android';
 
-export const getNativeUsageStats = (): Spec | null => TurboModuleRegistry.getEnforcing<Spec>('NativeUsageStats');
+export const getNativeUsageStats = (): Spec => TurboModuleRegistry.getEnforcing<Spec>('NativeUsageStats');
