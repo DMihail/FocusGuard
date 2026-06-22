@@ -1,5 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Platform } from 'react-native';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { getAppDisplayName } from '@/constants/appDisplayName';
 import type { PermissionId, PermissionStatus } from '@/domain/permissions';
@@ -15,31 +14,13 @@ const hasStatusChanged = (
   next: Record<PermissionId, PermissionStatus>,
 ): boolean => getPermissionIds().some((id) => previous[id] !== next[id]);
 
-const keepUsageAccessGranted = (
-  next: Record<PermissionId, PermissionStatus>,
-  usageAccessWasGranted: boolean,
-): Record<PermissionId, PermissionStatus> => {
-  if (Platform.OS !== 'android' || !usageAccessWasGranted || next['usage-access'] === 'granted') {
-    return next;
-  }
-
-  return { ...next, 'usage-access': 'granted' };
-};
-
 export const usePermissionsSync = () => {
   const permissionItems = useMemo(() => createPermissions(getAppDisplayName()), []);
   const [statusById, setStatusById] = useState<Record<PermissionId, PermissionStatus>>(() => getPermissionStatuses());
-  const usageAccessGrantedRef = useRef(statusById['usage-access'] === 'granted');
 
   const applyStatuses = useCallback(() => {
     setStatusById((previous) => {
-      const nativeStatuses = getPermissionStatuses(true);
-
-      if (nativeStatuses['usage-access'] === 'granted') {
-        usageAccessGrantedRef.current = true;
-      }
-
-      const next = keepUsageAccessGranted(nativeStatuses, usageAccessGrantedRef.current);
+      const next = getPermissionStatuses(true);
 
       if (!hasStatusChanged(previous, next)) {
         return previous;
@@ -73,10 +54,6 @@ export const usePermissionsSync = () => {
   const canContinue = areRequiredPermissionsGranted(statusById);
 
   const handleGrant = useCallback((id: PermissionId) => {
-    if (id === 'usage-access') {
-      usageAccessGrantedRef.current = false;
-    }
-
     requestPermissionById(id);
   }, []);
 

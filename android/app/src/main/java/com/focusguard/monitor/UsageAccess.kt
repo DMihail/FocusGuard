@@ -29,16 +29,16 @@ internal object UsageAccess {
 
   /** @return `true` when Usage Stats access is available. */
   fun hasAccess(context: Context): Boolean {
+    if (hasConfirmedGrant()) {
+      return true
+    }
+
     val packageName = context.packageName
     val appOps = context.getSystemService(AppOpsManager::class.java)
 
     if (appOps != null && isExplicitlyDenied(appOps, packageName)) {
       clearGrantState()
       return false
-    }
-
-    if (hasConfirmedGrant()) {
-      return true
     }
 
     if (appOps == null) {
