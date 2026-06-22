@@ -4,6 +4,7 @@ import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { BackIcon } from '@/assets/svg/ManageApps';
+import { useTheme } from '@/hooks/useTheme';
 import { createStylesHook } from '@/hooks/useThemedStyles';
 import { borderRadius, fontSize, spacing, typography } from '@/theme';
 import type { Theme } from '@/theme/types';
@@ -64,6 +65,7 @@ export const ScreenBackHeader = ({
   subtitleTestID,
 }: ScreenBackHeaderProps) => {
   const styles = useScreenBackHeaderStyles();
+  const { colors } = useTheme();
 
   return (
     <View style={styles.header} testID={testID}>
@@ -74,7 +76,7 @@ export const ScreenBackHeader = ({
         style={styles.backButton}
         onPress={onBack}
       >
-        <BackIcon />
+        <BackIcon stroke={colors.textPrimary} />
       </Pressable>
 
       <View style={styles.headerText}>

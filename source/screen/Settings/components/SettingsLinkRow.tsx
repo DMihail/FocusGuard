@@ -35,7 +35,7 @@ export const SettingsLinkRow = ({
     >
       <View style={styles.rowLeading}>
         <View style={[styles.iconBox, { backgroundColor: iconBackgroundColor }]}>
-          <Icon stroke={colors.accent} />
+          <Icon stroke={colors.accentOnContainer} />
         </View>
         <View style={styles.rowText}>
           <Text style={styles.rowTitle}>{title}</Text>

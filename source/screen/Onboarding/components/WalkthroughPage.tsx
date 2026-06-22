@@ -24,7 +24,7 @@ export const WalkthroughPage = memo(({ item, width }: WalkthroughPageProps) => {
   return (
     <View style={[styles.page, { width }]} testID={testIds.onboarding.walkthroughStep(item.id)}>
       <Walkthrough title={item.title} text={item.text}>
-        <Icon stroke={colors.accent} width={WALKTHROUGH_ICON_SIZE} height={WALKTHROUGH_ICON_SIZE} />
+        <Icon stroke={colors.onPrimary} width={WALKTHROUGH_ICON_SIZE} height={WALKTHROUGH_ICON_SIZE} />
       </Walkthrough>
     </View>
   );

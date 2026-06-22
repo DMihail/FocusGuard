@@ -31,7 +31,7 @@ export const SettingsToggleRow = ({
     <View style={styles.row} testID={rowTestID}>
       <View style={styles.rowLeading}>
         <View style={[styles.iconBox, { backgroundColor: iconBackgroundColor }]}>
-          <Icon stroke={colors.accent} />
+          <Icon stroke={colors.accentOnContainer} />
         </View>
         <View style={styles.rowText}>
           <Text style={styles.rowTitle}>{title}</Text>
@@ -46,7 +46,7 @@ export const SettingsToggleRow = ({
         value={value}
         onValueChange={onValueChange}
         trackColor={presets.switchTrackColors}
-        thumbColor={colors.textPrimary}
+        thumbColor={presets.switchThumbColor}
       />
     </View>
   );

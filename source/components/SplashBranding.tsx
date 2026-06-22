@@ -140,7 +140,7 @@ export const SplashBranding = memo(() => {
     >
       <View style={styles.content} importantForAccessibility="no-hide-descendants">
         <View style={styles.iconBox} accessible={false}>
-          <Shield width={82} height={101} stroke={colors.accent} />
+          <Shield width={82} height={101} stroke={colors.onPrimary} />
         </View>
 
         <Text style={styles.title} accessibilityRole="header">

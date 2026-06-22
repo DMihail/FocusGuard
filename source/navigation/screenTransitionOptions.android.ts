@@ -2,14 +2,11 @@
 
 import type { NativeStackNavigationOptions } from '@react-navigation/native-stack';
 
-import { darkColors } from '@/theme';
-import type { ColorPalette } from '@/theme/types';
-
 /** Per-route native stack transition presets for `RootStack`. */
-export const createRootScreenTransitionOptions = (colors: ColorPalette = darkColors) => {
+export const createRootScreenTransitionOptions = () => {
   const baseScreenOptions = {
     headerShown: false,
-    contentStyle: { backgroundColor: colors.background },
+    contentStyle: { backgroundColor: 'transparent' },
     freezeOnBlur: true,
     gestureEnabled: true,
     fullScreenGestureEnabled: false,

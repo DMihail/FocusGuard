@@ -224,7 +224,7 @@ export const createConfigureLimitsStyles = ({ colors, presets }: Theme) => {
     },
     saveButtonLabel: {
       ...typography.sectionTitle,
-      color: colors.onSurface,
+      color: colors.onPrimary,
     },
   });
 };

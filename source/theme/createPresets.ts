@@ -126,10 +126,13 @@ export const createPresets = (colors: ColorPalette): ThemePresets => {
     true: colors.accent,
   } as const;
 
+  const switchThumbColor = colors.switchThumb;
+
   return {
     layoutPresets,
     textPresets,
     iconBoxPresets,
     switchTrackColors,
+    switchThumbColor,
   };
 };

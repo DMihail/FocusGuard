@@ -209,7 +209,7 @@ export const createDashboardStyles = ({ colors, presets }: Theme) => {
     },
     quickActionTitle: {
       ...typography.sectionTitle,
-      color: colors.onSurface,
+      color: colors.accent,
       minHeight: lineHeight.md * 2,
     },
     quickActionTitleMuted: {
@@ -219,8 +219,7 @@ export const createDashboardStyles = ({ colors, presets }: Theme) => {
     },
     quickActionSubtitle: {
       ...typography.caption,
-      color: colors.onSurface,
-      opacity: 0.8,
+      color: colors.textSecondary,
       fontSize: fontSize.xs,
       lineHeight: 16,
     },

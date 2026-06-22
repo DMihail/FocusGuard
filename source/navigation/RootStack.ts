@@ -12,14 +12,12 @@ import {
   SettingsScreen,
   TrackedAppsScreen,
 } from '@/screen';
-import { darkColors } from '@/theme';
-import type { ColorPalette } from '@/theme/types';
 
 import { createRootScreenTransitionOptions } from './screenTransitionOptions';
 import type { RootStackParamList } from './types';
 
-const createRootScreens = (colors: ColorPalette) => {
-  const rootScreenTransitionOptions = createRootScreenTransitionOptions(colors);
+const createRootScreens = () => {
+  const rootScreenTransitionOptions = createRootScreenTransitionOptions();
 
   return {
     Onboarding: {
@@ -57,10 +55,10 @@ const createRootScreens = (colors: ColorPalette) => {
   } as const;
 };
 
-export const createRootStack = (initialRouteName: keyof RootStackParamList, colors: ColorPalette = darkColors) =>
+export const createRootStack = (initialRouteName: keyof RootStackParamList) =>
   createNativeStackNavigator({
     initialRouteName,
-    screens: createRootScreens(colors),
+    screens: createRootScreens(),
   });
 
 export const RootStack = createRootStack('Onboarding');

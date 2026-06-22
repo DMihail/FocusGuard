@@ -5,6 +5,7 @@ import { Pressable, Text, View } from 'react-native';
 
 import { FocusModeSvg } from '@/assets/svg/Dashboard';
 import { ManageAppsSvg } from '@/assets/svg/Dashboard/ManageApps';
+import { useTheme } from '@/hooks/useTheme';
 import { testIds } from '@/testing/testIds';
 import { configureSectionLayoutAnimation } from '@/utils/layoutAnimation';
 
@@ -37,6 +38,7 @@ export const QuickActionsSection = memo(
     onOpenManageApps,
   }: QuickActionsSectionProps) => {
     const styles = useDashboardStyles();
+    const { colors } = useTheme();
     const isFocusModeDisabled = !canStartFocusMode && !isMonitoring;
 
     const handleToggle = () => {
@@ -64,7 +66,7 @@ export const QuickActionsSection = memo(
           testID={testIds.dashboard.focusModeButton}
         >
           <View style={styles.quickActionIconBadge}>
-            <FocusModeSvg />
+            <FocusModeSvg stroke={colors.accentOnContainer} />
           </View>
           <Text style={styles.quickActionTitle} numberOfLines={2}>
             {isMonitoring ? 'Stop Focus Mode' : 'Focus Mode'}
@@ -80,7 +82,7 @@ export const QuickActionsSection = memo(
           testID={testIds.dashboard.manageAppsButton}
         >
           <View style={[styles.quickActionIconBadge, styles.quickActionIconMuted]}>
-            <ManageAppsSvg />
+            <ManageAppsSvg stroke={colors.accentOnContainer} />
           </View>
           <Text style={styles.quickActionTitleMuted} numberOfLines={2}>
             Manage Apps

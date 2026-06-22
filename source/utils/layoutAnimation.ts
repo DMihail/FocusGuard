@@ -17,6 +17,11 @@ const configureNext = (config: LayoutAnimationConfig): void => {
   LayoutAnimation.configureNext(config);
 };
 
+/** Skips the next layout pass animation (e.g. instant theme color swap). */
+export const suppressLayoutAnimation = (): void => {
+  configureNext({ duration: 0, update: { type: LayoutAnimation.Types.linear } });
+};
+
 /** Section show/hide: category filters, dashboard blocks. */
 export const configureSectionLayoutAnimation = (): void => {
   configureNext({

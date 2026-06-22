@@ -161,13 +161,13 @@ export const createManageAppsStyles = ({ colors, presets }: Theme) => {
       height: 28,
       borderRadius: borderRadius.icon,
       borderWidth: 2,
-      borderColor: colors.cardBorder,
+      borderColor: colors.selectionBorder,
       alignItems: 'center',
       justifyContent: 'center',
     },
     selectionControlSelected: {
-      backgroundColor: colors.success,
-      borderColor: colors.success,
+      backgroundColor: colors.accent,
+      borderColor: colors.accent,
     },
     emptyText: {
       ...textPresets.empty,

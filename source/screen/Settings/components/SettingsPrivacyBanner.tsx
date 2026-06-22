@@ -17,7 +17,7 @@ export const SettingsPrivacyBanner = () => {
   return (
     <View style={styles.privacyBanner} testID={testIds.settings.privacyBanner}>
       <View style={styles.privacyIconBox}>
-        <LockPrivacyIcon stroke={colors.accent} />
+        <LockPrivacyIcon stroke={colors.accentOnContainer} />
       </View>
       <View style={styles.privacyTextBlock}>
         <Text style={styles.privacyTitle}>Your Privacy Matters</Text>

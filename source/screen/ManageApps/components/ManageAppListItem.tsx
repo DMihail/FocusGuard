@@ -5,6 +5,7 @@ import { Pressable, Text, View } from 'react-native';
 
 import { CheckIcon } from '@/assets/svg/EnablePermissions';
 import { getManageAppKey } from '@/domain/appKey';
+import { useTheme } from '@/hooks/useTheme';
 import { testIds } from '@/testing/testIds';
 
 import { useManageAppsStyles } from '../styles';
@@ -20,6 +21,7 @@ type ManageAppListItemProps = {
 
 export const ManageAppListItem = memo(({ app, isSelected, onToggle }: ManageAppListItemProps) => {
   const styles = useManageAppsStyles();
+  const { colors } = useTheme();
   const { appName, appImage, categoryLabel } = app;
   const appKey = getManageAppKey(app);
 
@@ -52,7 +54,7 @@ export const ManageAppListItem = memo(({ app, isSelected, onToggle }: ManageAppL
         testID={testIds.manageApps.appSelectionControl(appKey)}
         style={[styles.selectionControl, isSelected && styles.selectionControlSelected]}
       >
-        {isSelected ? <CheckIcon /> : null}
+        {isSelected ? <CheckIcon stroke={colors.onPrimary} /> : null}
       </View>
     </Pressable>
   );

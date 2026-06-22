@@ -5,7 +5,15 @@ export type ColorPalette = {
   surfaceDark: string;
   surface: string;
   accent: string;
+  /** Text and icons on filled primary (`surface`) buttons. */
+  onPrimary: string;
   onSurface: string;
+  /** Icons on tinted accent containers (settings rows, permission cards). */
+  accentOnContainer: string;
+  /** Switch thumb and similar circular controls. */
+  switchThumb: string;
+  /** Unselected checkbox / selection ring border. */
+  selectionBorder: string;
   textPrimary: string;
   textSecondary: string;
   textMuted: string;
@@ -82,6 +90,7 @@ export type ThemePresets = {
     false: string;
     true: string;
   };
+  switchThumbColor: string;
 };
 
 export type Theme = {

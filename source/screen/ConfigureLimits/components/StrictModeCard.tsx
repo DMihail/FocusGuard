@@ -16,7 +16,7 @@ export type StrictModeCardProps = {
 
 export const StrictModeCard = memo(({ value, onValueChange, testID, toggleTestID }: StrictModeCardProps) => {
   const styles = useConfigureLimitsStyles();
-  const { colors, presets } = useTheme();
+  const { presets } = useTheme();
 
   return (
     <View style={styles.strictCard} testID={testID}>
@@ -31,7 +31,7 @@ export const StrictModeCard = memo(({ value, onValueChange, testID, toggleTestID
         value={value}
         onValueChange={onValueChange}
         trackColor={presets.switchTrackColors}
-        thumbColor={colors.textPrimary}
+        thumbColor={presets.switchThumbColor}
       />
     </View>
   );

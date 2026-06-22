@@ -48,7 +48,7 @@ export const createOnboardingStyles = ({ colors, presets }: Theme) => {
     },
     continueText: {
       ...typography.button,
-      color: colors.onSurface,
+      color: colors.onPrimary,
     },
   });
 };

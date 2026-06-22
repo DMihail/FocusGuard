@@ -122,7 +122,7 @@ export const createPermissionsStyles = ({ colors, presets }: Theme) => {
       color: colors.textDisabled,
     },
     continueTextEnabled: {
-      color: colors.onSurface,
+      color: colors.onPrimary,
     },
   });
 };

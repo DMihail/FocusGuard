@@ -46,7 +46,7 @@ export const PermissionCard = memo(({ id, title, description, status, Icon, onGr
             <View style={[styles.iconBox, styles.iconBoxPending]} />
             <Animated.View style={[styles.iconBox, styles.iconBoxGranted, grantedOverlayStyle]} />
             <Animated.View style={[styles.iconLayer, pendingIconStyle]}>
-              <Icon stroke={colors.accent} />
+              <Icon stroke={colors.accentOnContainer} />
             </Animated.View>
             <Animated.View style={[styles.iconLayer, grantedIconStyle]}>
               <Icon stroke={colors.success} />

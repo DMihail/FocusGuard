@@ -4,6 +4,7 @@ import React, { memo } from 'react';
 import { Text, View } from 'react-native';
 
 import { FocusScoreSvg } from '@/assets/svg/Dashboard';
+import { useTheme } from '@/hooks/useTheme';
 import { testIds } from '@/testing/testIds';
 import type { DashboardSummary } from '@/utils/usage/dashboardStats';
 import { formatUsageMinutes } from '@/utils/usage/formatUsage';
@@ -24,6 +25,7 @@ const areFocusOverviewCardPropsEqual = (previous: FocusOverviewCardProps, next: 
 
 export const FocusOverviewCard = memo(({ summary }: FocusOverviewCardProps) => {
   const styles = useDashboardStyles();
+  const { colors } = useTheme();
   const usedPercent =
     summary.totalAllowedMs > 0 ? Math.min(100, Math.round((summary.totalUsedMs / summary.totalAllowedMs) * 100)) : 0;
 
@@ -41,7 +43,7 @@ export const FocusOverviewCard = memo(({ summary }: FocusOverviewCardProps) => {
     >
       <View style={styles.focusCardHeader}>
         <View style={styles.focusIconBadge} importantForAccessibility="no-hide-descendants">
-          <FocusScoreSvg />
+          <FocusScoreSvg stroke={colors.onSurface} />
         </View>
         <Text style={styles.focusCardLabel} accessibilityRole="header">
           Focus Score
