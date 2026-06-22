@@ -3,11 +3,12 @@
 import React, { memo, useMemo } from 'react';
 import { FlatList } from 'react-native';
 
+import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { CHIP_ROW_FLAT_LIST_PROPS } from '@/list';
 import { testIds } from '@/testing/testIds';
 
 import { categoryFilterKeyExtractor, createCategoryFilterRenderItem } from '../list';
-import { manageAppsStyles } from '../styles';
+import { createManageAppsStyles } from '../styles';
 import type { CategoryFilterOption } from '../types';
 
 type CategoryFiltersProps = {
@@ -38,6 +39,7 @@ const areCategoryFiltersPropsEqual = (previous: CategoryFiltersProps, next: Cate
 };
 
 export const CategoryFilters = memo(({ filters, activeCategoryId, onCategoryChange }: CategoryFiltersProps) => {
+  const styles = useThemedStyles(createManageAppsStyles);
   const renderItem = useMemo(
     () => createCategoryFilterRenderItem(activeCategoryId, onCategoryChange),
     [activeCategoryId, onCategoryChange],
@@ -50,8 +52,8 @@ export const CategoryFilters = memo(({ filters, activeCategoryId, onCategoryChan
       renderItem={renderItem}
       keyExtractor={categoryFilterKeyExtractor}
       showsHorizontalScrollIndicator={false}
-      style={manageAppsStyles.filters}
-      contentContainerStyle={manageAppsStyles.filtersContent}
+      style={styles.filters}
+      contentContainerStyle={styles.filtersContent}
       testID={testIds.manageApps.categoryFilters}
       accessibilityRole="list"
       accessibilityLabel="App category filters"

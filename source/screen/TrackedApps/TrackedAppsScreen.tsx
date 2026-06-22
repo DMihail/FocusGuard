@@ -4,6 +4,7 @@ import React, { useCallback, useMemo } from 'react';
 import { FlatList, View } from 'react-native';
 
 import { useGoBack } from '@/hooks/useGoBack';
+import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { useTrackedAppRows } from '@/hooks/useTrackedAppRows';
 import { useTrackedAppsRefresh } from '@/hooks/useTrackedAppsRefresh';
 import { APP_LIST_FLAT_LIST_PROPS } from '@/list';
@@ -11,12 +12,13 @@ import { useNavigateToConfigureLimits } from '@/navigation/hooks/useNavigateToCo
 import { testIds } from '@/testing/testIds';
 
 import { createTrackedAppRenderItem, trackedAppKeyExtractor } from './list';
-import { trackedAppsStyles } from './styles';
+import { createTrackedAppsStyles } from './styles';
 
 import { TrackedAppsEmpty, TrackedAppsHeader } from './components';
 import { ScreenSafeArea, UsageRefreshIndicator } from '@/components';
 
 export const TrackedAppsScreen = () => {
+  const styles = useThemedStyles(createTrackedAppsStyles);
   const goBack = useGoBack();
   const openConfigureLimits = useNavigateToConfigureLimits();
   const { appRows, showUsageRefreshIndicator, refreshUsage } = useTrackedAppRows();
@@ -33,12 +35,8 @@ export const TrackedAppsScreen = () => {
   );
 
   return (
-    <ScreenSafeArea
-      style={trackedAppsStyles.screen}
-      testID={testIds.trackedApps.screen}
-      accessibilityLabel="Tracked apps"
-    >
-      <View style={trackedAppsStyles.content}>
+    <ScreenSafeArea style={styles.screen} testID={testIds.trackedApps.screen} accessibilityLabel="Tracked apps">
+      <View style={styles.content}>
         <FlatList
           testID={testIds.trackedApps.list}
           data={appRows}
@@ -47,7 +45,7 @@ export const TrackedAppsScreen = () => {
           keyExtractor={trackedAppKeyExtractor}
           ListHeaderComponent={renderListHeader}
           ListEmptyComponent={TrackedAppsEmpty}
-          contentContainerStyle={trackedAppsStyles.scrollContent}
+          contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
           accessibilityRole="list"
           accessibilityLabel="Monitored apps with daily usage"

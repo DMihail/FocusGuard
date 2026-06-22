@@ -4,9 +4,11 @@ import React, { memo } from 'react';
 import { Pressable, Text, View } from 'react-native';
 
 import { SettingsIcon } from '@/assets/svg/Dashboard';
+import { useTheme } from '@/hooks/useTheme';
+import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { testIds } from '@/testing/testIds';
 
-import { dashboardStyles } from '../styles';
+import { createDashboardStyles } from '../styles';
 
 type DashboardHeaderProps = {
   greeting: string;
@@ -14,13 +16,16 @@ type DashboardHeaderProps = {
 };
 
 export const DashboardHeader = memo(({ greeting, onSettingsPress }: DashboardHeaderProps) => {
+  const styles = useThemedStyles(createDashboardStyles);
+  const { colors } = useTheme();
+
   return (
-    <View style={dashboardStyles.header} testID={testIds.dashboard.header}>
-      <View style={dashboardStyles.headerText}>
-        <Text style={dashboardStyles.greeting} testID={testIds.dashboard.greeting} accessibilityRole="header">
+    <View style={styles.header} testID={testIds.dashboard.header}>
+      <View style={styles.headerText}>
+        <Text style={styles.greeting} testID={testIds.dashboard.greeting} accessibilityRole="header">
           {greeting}
         </Text>
-        <Text style={dashboardStyles.subtitle} accessibilityRole="text">
+        <Text style={styles.subtitle} accessibilityRole="text">
           Let's review your focus today
         </Text>
       </View>
@@ -29,10 +34,10 @@ export const DashboardHeader = memo(({ greeting, onSettingsPress }: DashboardHea
         testID={testIds.dashboard.settingsButton}
         accessibilityRole="button"
         accessibilityLabel="Open settings"
-        style={dashboardStyles.settingsButton}
+        style={styles.settingsButton}
         onPress={onSettingsPress}
       >
-        <SettingsIcon />
+        <SettingsIcon stroke={colors.textPrimary} />
       </Pressable>
     </View>
   );

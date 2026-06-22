@@ -1,16 +1,17 @@
 /** @format */
 
-import React, { memo, useCallback } from 'react';
+import React, { memo, useCallback, useMemo } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import Animated from 'react-native-reanimated';
 
 import { CheckIcon } from '@/assets/svg/EnablePermissions';
+import { useTheme } from '@/hooks/useTheme';
+import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { testIds } from '@/testing/testIds';
-import { colors } from '@/theme';
 
 import { usePermissionCardAnimation } from '../hooks/usePermissionCardAnimation';
-import { permissionsStyles } from '../styles';
+import { createPermissionsStyles } from '../styles';
 import type { PermissionId, PermissionItem } from '../types';
 
 type PermissionCardProps = PermissionItem & {
@@ -26,6 +27,40 @@ const arePermissionCardPropsEqual = (previous: PermissionCardProps, next: Permis
   previous.onGrant === next.onGrant;
 
 export const PermissionCard = memo(({ id, title, description, status, Icon, onGrant }: PermissionCardProps) => {
+  const styles = useThemedStyles(createPermissionsStyles);
+  const { colors } = useTheme();
+  const cardStyles = useMemo(
+    () =>
+      StyleSheet.create({
+        cardWrapper: {
+          position: 'relative',
+        },
+        cardPending: {
+          ...(StyleSheet.absoluteFill as object),
+          backgroundColor: colors.card,
+          borderColor: colors.cardBorder,
+        },
+        cardGranted: {
+          ...(StyleSheet.absoluteFill as object),
+          backgroundColor: colors.successMuted,
+          borderColor: colors.successBorder,
+        },
+        cardContent: {
+          padding: 26,
+        },
+        iconBoxWrapper: {
+          position: 'relative',
+        },
+        iconBoxPending: {
+          backgroundColor: colors.accentIconBg,
+        },
+        iconBoxGranted: {
+          ...(StyleSheet.absoluteFill as object),
+          backgroundColor: colors.successIconBg,
+        },
+      }),
+    [colors],
+  );
   const { grantedOverlayStyle, pendingIconStyle, grantedIconStyle, badgeStyle, grantButtonStyle, isGranted } =
     usePermissionCardAnimation(id, status);
 
@@ -34,40 +69,40 @@ export const PermissionCard = memo(({ id, title, description, status, Icon, onGr
   }, [id, onGrant]);
 
   return (
-    <View testID={testIds.enablePermissions.permissionCard(id)} style={styles.cardWrapper}>
-      <View style={[permissionsStyles.card, styles.cardPending]} />
-      <Animated.View style={[permissionsStyles.card, styles.cardGranted, grantedOverlayStyle]} />
+    <View testID={testIds.enablePermissions.permissionCard(id)} style={cardStyles.cardWrapper}>
+      <View style={[styles.card, cardStyles.cardPending]} />
+      <Animated.View style={[styles.card, cardStyles.cardGranted, grantedOverlayStyle]} />
 
-      <View style={styles.cardContent}>
-        <View style={permissionsStyles.cardRow}>
-          <View style={styles.iconBoxWrapper}>
-            <View style={[permissionsStyles.iconBox, styles.iconBoxPending]} />
-            <Animated.View style={[permissionsStyles.iconBox, styles.iconBoxGranted, grantedOverlayStyle]} />
-            <Animated.View style={[permissionsStyles.iconLayer, pendingIconStyle]}>
+      <View style={cardStyles.cardContent}>
+        <View style={styles.cardRow}>
+          <View style={cardStyles.iconBoxWrapper}>
+            <View style={[styles.iconBox, cardStyles.iconBoxPending]} />
+            <Animated.View style={[styles.iconBox, cardStyles.iconBoxGranted, grantedOverlayStyle]} />
+            <Animated.View style={[styles.iconLayer, pendingIconStyle]}>
               <Icon stroke={colors.accent} />
             </Animated.View>
-            <Animated.View style={[permissionsStyles.iconLayer, grantedIconStyle]}>
+            <Animated.View style={[styles.iconLayer, grantedIconStyle]}>
               <Icon stroke={colors.success} />
             </Animated.View>
           </View>
 
-          <View style={permissionsStyles.cardContent}>
-            <View style={permissionsStyles.cardTitleRow}>
-              <Text style={permissionsStyles.cardTitle}>{title}</Text>
+          <View style={styles.cardContent}>
+            <View style={styles.cardTitleRow}>
+              <Text style={styles.cardTitle}>{title}</Text>
               <Animated.View
                 testID={testIds.enablePermissions.grantedBadge(id)}
-                style={[permissionsStyles.grantedBadge, badgeStyle]}
+                style={[styles.grantedBadge, badgeStyle]}
                 pointerEvents={isGranted ? 'auto' : 'none'}
               >
                 <CheckIcon />
               </Animated.View>
             </View>
 
-            <Text style={permissionsStyles.cardDescription}>{description}</Text>
+            <Text style={styles.cardDescription}>{description}</Text>
 
             {onGrant ? (
               <Animated.View
-                style={[permissionsStyles.grantButtonContainer, grantButtonStyle]}
+                style={[styles.grantButtonContainer, grantButtonStyle]}
                 pointerEvents={isGranted ? 'none' : 'auto'}
               >
                 <Pressable
@@ -75,10 +110,10 @@ export const PermissionCard = memo(({ id, title, description, status, Icon, onGr
                   accessibilityRole="button"
                   accessibilityLabel={`Grant ${title}`}
                   disabled={isGranted}
-                  style={permissionsStyles.grantButton}
+                  style={styles.grantButton}
                   onPress={handleGrant}
                 >
-                  <Text style={permissionsStyles.grantButtonText}>Grant Permission</Text>
+                  <Text style={styles.grantButtonText}>Grant Permission</Text>
                 </Pressable>
               </Animated.View>
             ) : null}
@@ -90,32 +125,3 @@ export const PermissionCard = memo(({ id, title, description, status, Icon, onGr
 }, arePermissionCardPropsEqual);
 
 PermissionCard.displayName = 'PermissionCard';
-
-const styles = StyleSheet.create({
-  cardWrapper: {
-    position: 'relative',
-  },
-  cardPending: {
-    ...(StyleSheet.absoluteFill as object),
-    backgroundColor: colors.card,
-    borderColor: colors.cardBorder,
-  },
-  cardGranted: {
-    ...(StyleSheet.absoluteFill as object),
-    backgroundColor: colors.successMuted,
-    borderColor: colors.successBorder,
-  },
-  cardContent: {
-    padding: 26,
-  },
-  iconBoxWrapper: {
-    position: 'relative',
-  },
-  iconBoxPending: {
-    backgroundColor: colors.accentIconBg,
-  },
-  iconBoxGranted: {
-    ...(StyleSheet.absoluteFill as object),
-    backgroundColor: colors.successIconBg,
-  },
-});

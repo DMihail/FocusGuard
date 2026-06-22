@@ -3,6 +3,7 @@
 import React, { useCallback, useMemo } from 'react';
 import { FlatList, View } from 'react-native';
 
+import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { SECTION_SCROLL_FLAT_LIST_PROPS } from '@/list';
 import { useRootNavigation } from '@/navigation';
 import { testIds } from '@/testing/testIds';
@@ -14,13 +15,14 @@ import {
   dashboardSectionKeyExtractor,
   type DashboardSectionRenderContext,
 } from './list';
-import { dashboardStyles } from './styles';
+import { createDashboardStyles } from './styles';
 import { getGreeting } from './utils';
 
 import { DashboardHeader } from './components';
 import { ScreenSafeArea, UsageRefreshIndicator } from '@/components';
 
 export const DashboardScreen = () => {
+  const styles = useThemedStyles(createDashboardStyles);
   const navigation = useRootNavigation();
   const greeting = useMemo(() => getGreeting(), []);
 
@@ -82,15 +84,15 @@ export const DashboardScreen = () => {
   );
 
   return (
-    <ScreenSafeArea style={dashboardStyles.screen} testID={testIds.dashboard.screen} accessibilityLabel="Dashboard">
-      <View style={dashboardStyles.content}>
+    <ScreenSafeArea style={styles.screen} testID={testIds.dashboard.screen} accessibilityLabel="Dashboard">
+      <View style={styles.content}>
         <FlatList
           testID={testIds.dashboard.scroll}
           data={DASHBOARD_SECTIONS}
           renderItem={renderItem}
           keyExtractor={dashboardSectionKeyExtractor}
           ListHeaderComponent={listHeader}
-          contentContainerStyle={dashboardStyles.scrollContent}
+          contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
           refreshControl={refreshControl}
           extraData={sectionContext}

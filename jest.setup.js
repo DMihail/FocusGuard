@@ -147,6 +147,21 @@ jest.mock('@/store/mmkv', () => {
   };
 });
 
+jest.mock('@/hooks/useTheme', () => {
+  const { darkColors } = require('./source/theme/palettes');
+  const { createPresets } = require('./source/theme/createPresets');
+
+  return {
+    useTheme: () => ({
+      colors: darkColors,
+      presets: createPresets(darkColors),
+      colorScheme: 'dark',
+      isDark: true,
+      preference: 'system',
+    }),
+  };
+});
+
 const mockPermissionsChangedSubscription = { remove: jest.fn() };
 
 jest.mock('@/specs/nativeUsageStatsClient', () => ({

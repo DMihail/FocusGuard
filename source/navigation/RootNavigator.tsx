@@ -1,9 +1,12 @@
 /** @format */
 
-import React, { type RefObject } from 'react';
+import React, { type RefObject, useMemo } from 'react';
 
 import type { LinkingOptions, NavigationContainerRef } from '@react-navigation/native';
 import { createStaticNavigation } from '@react-navigation/native';
+
+import { useTheme } from '@/hooks/useTheme';
+import type { ColorPalette } from '@/theme/types';
 
 import { rootLinking } from './linking';
 import { createRootStack } from './RootStack';
@@ -14,14 +17,15 @@ type RootStaticNavigation = React.ComponentType<{
   linking?: LinkingOptions<RootStackParamList>;
 }>;
 
-const navigationByInitialRoute = new Map<keyof RootStackParamList, RootStaticNavigation>();
+const navigationByKey = new Map<string, RootStaticNavigation>();
 
-const getStaticNavigation = (initialRoute: keyof RootStackParamList) => {
-  let navigation = navigationByInitialRoute.get(initialRoute);
+const getStaticNavigation = (initialRoute: keyof RootStackParamList, colors: ColorPalette) => {
+  const cacheKey = `${initialRoute}:${colors.background}`;
+  let navigation = navigationByKey.get(cacheKey);
 
   if (!navigation) {
-    navigation = createStaticNavigation(createRootStack(initialRoute)) as RootStaticNavigation;
-    navigationByInitialRoute.set(initialRoute, navigation);
+    navigation = createStaticNavigation(createRootStack(initialRoute, colors)) as RootStaticNavigation;
+    navigationByKey.set(cacheKey, navigation);
   }
 
   return navigation;
@@ -33,7 +37,8 @@ type RootNavigatorProps = {
 };
 
 export const RootNavigator = ({ initialRoute, navigationRef }: RootNavigatorProps) => {
-  const Navigation = getStaticNavigation(initialRoute);
+  const { colors } = useTheme();
+  const Navigation = useMemo(() => getStaticNavigation(initialRoute, colors), [colors, initialRoute]);
 
   return <Navigation ref={navigationRef} linking={rootLinking} />;
 };

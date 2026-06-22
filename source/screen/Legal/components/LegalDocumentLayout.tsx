@@ -3,10 +3,11 @@
 import React, { useCallback } from 'react';
 import { FlatList, View } from 'react-native';
 
+import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { APP_LIST_FLAT_LIST_PROPS } from '@/list';
 
 import { legalSectionKeyExtractor, renderLegalSectionItem } from '../list';
-import { legalStyles } from '../styles';
+import { createLegalStyles } from '../styles';
 import type { LegalDocument } from '../types';
 import { LegalDocumentListHeader } from './LegalDocumentListHeader';
 
@@ -20,7 +21,11 @@ type LegalDocumentLayoutProps = {
   backButtonTestId: string;
 };
 
-const LegalSectionSeparator = () => <View style={legalStyles.sectionSeparator} />;
+const LegalSectionSeparator = () => {
+  const styles = useThemedStyles(createLegalStyles);
+
+  return <View style={styles.sectionSeparator} />;
+};
 
 export const LegalDocumentLayout = ({
   document,
@@ -29,6 +34,8 @@ export const LegalDocumentLayout = ({
   headerTestId,
   backButtonTestId,
 }: LegalDocumentLayoutProps) => {
+  const styles = useThemedStyles(createLegalStyles);
+
   const renderListHeader = useCallback(
     () => (
       <LegalDocumentListHeader document={document} headerTestId={headerTestId} backButtonTestId={backButtonTestId} />
@@ -37,14 +44,14 @@ export const LegalDocumentLayout = ({
   );
 
   return (
-    <ScreenSafeArea style={legalStyles.screen} testID={screenTestId}>
+    <ScreenSafeArea style={styles.screen} testID={screenTestId}>
       <FlatList
         testID={scrollTestId}
         data={document.sections}
         renderItem={renderLegalSectionItem}
         keyExtractor={legalSectionKeyExtractor}
         ListHeaderComponent={renderListHeader}
-        contentContainerStyle={legalStyles.scrollContent}
+        contentContainerStyle={styles.scrollContent}
         ItemSeparatorComponent={LegalSectionSeparator}
         showsVerticalScrollIndicator={false}
         accessibilityRole="list"

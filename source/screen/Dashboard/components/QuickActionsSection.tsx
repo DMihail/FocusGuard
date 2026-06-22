@@ -5,10 +5,11 @@ import { Pressable, Text, View } from 'react-native';
 
 import { FocusModeSvg } from '@/assets/svg/Dashboard';
 import { ManageAppsSvg } from '@/assets/svg/Dashboard/ManageApps';
+import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { testIds } from '@/testing/testIds';
 import { configureSectionLayoutAnimation } from '@/utils/layoutAnimation';
 
-import { dashboardStyles } from '../styles';
+import { createDashboardStyles } from '../styles';
 
 type QuickActionsSectionProps = {
   isMonitoring: boolean;
@@ -36,6 +37,7 @@ export const QuickActionsSection = memo(
     onToggleMonitoring,
     onOpenManageApps,
   }: QuickActionsSectionProps) => {
+    const styles = useThemedStyles(createDashboardStyles);
     const isFocusModeDisabled = !canStartFocusMode && !isMonitoring;
 
     const handleToggle = () => {
@@ -48,43 +50,43 @@ export const QuickActionsSection = memo(
     };
 
     return (
-      <View style={dashboardStyles.quickActions} testID={testIds.dashboard.quickActions}>
+      <View style={styles.quickActions} testID={testIds.dashboard.quickActions}>
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={isMonitoring ? 'Stop focus monitoring' : 'Start focus monitoring'}
           accessibilityState={{ disabled: isFocusModeDisabled }}
           style={[
-            dashboardStyles.quickActionCard,
-            isMonitoring && dashboardStyles.quickActionCardActive,
-            isFocusModeDisabled && dashboardStyles.quickActionCardDisabled,
+            styles.quickActionCard,
+            isMonitoring && styles.quickActionCardActive,
+            isFocusModeDisabled && styles.quickActionCardDisabled,
           ]}
           onPress={handleToggle}
           disabled={isFocusModeDisabled}
           testID={testIds.dashboard.focusModeButton}
         >
-          <View style={dashboardStyles.quickActionIconBadge}>
+          <View style={styles.quickActionIconBadge}>
             <FocusModeSvg />
           </View>
-          <Text style={dashboardStyles.quickActionTitle} numberOfLines={2}>
+          <Text style={styles.quickActionTitle} numberOfLines={2}>
             {isMonitoring ? 'Stop Focus Mode' : 'Focus Mode'}
           </Text>
-          <Text style={dashboardStyles.quickActionSubtitle}>{monitoringSubtitle}</Text>
+          <Text style={styles.quickActionSubtitle}>{monitoringSubtitle}</Text>
         </Pressable>
 
         <Pressable
           accessibilityRole="button"
           accessibilityLabel="Manage apps"
           onPress={onOpenManageApps}
-          style={dashboardStyles.quickActionCard}
+          style={styles.quickActionCard}
           testID={testIds.dashboard.manageAppsButton}
         >
-          <View style={[dashboardStyles.quickActionIconBadge, dashboardStyles.quickActionIconMuted]}>
+          <View style={[styles.quickActionIconBadge, styles.quickActionIconMuted]}>
             <ManageAppsSvg />
           </View>
-          <Text style={dashboardStyles.quickActionTitleMuted} numberOfLines={2}>
+          <Text style={styles.quickActionTitleMuted} numberOfLines={2}>
             Manage Apps
           </Text>
-          <Text style={dashboardStyles.quickActionSubtitleMuted}>Set limits</Text>
+          <Text style={styles.quickActionSubtitleMuted}>Set limits</Text>
         </Pressable>
       </View>
     );

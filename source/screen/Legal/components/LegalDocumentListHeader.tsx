@@ -4,8 +4,9 @@ import React from 'react';
 import { Text } from 'react-native';
 
 import { useGoBack } from '@/hooks/useGoBack';
+import { useThemedStyles } from '@/hooks/useThemedStyles';
 
-import { legalStyles } from '../styles';
+import { createLegalStyles } from '../styles';
 import type { LegalDocument } from '../types';
 
 import { ScreenBackHeader } from '@/components';
@@ -17,6 +18,7 @@ type LegalDocumentListHeaderProps = {
 };
 
 export const LegalDocumentListHeader = ({ document, headerTestId, backButtonTestId }: LegalDocumentListHeaderProps) => {
+  const styles = useThemedStyles(createLegalStyles);
   const goBack = useGoBack();
 
   return (
@@ -29,7 +31,7 @@ export const LegalDocumentListHeader = ({ document, headerTestId, backButtonTest
         backButtonTestID={backButtonTestId}
       />
 
-      <Text style={legalStyles.meta}>{`Last updated: ${document.lastUpdated}`}</Text>
+      <Text style={styles.meta}>{`Last updated: ${document.lastUpdated}`}</Text>
     </>
   );
 };

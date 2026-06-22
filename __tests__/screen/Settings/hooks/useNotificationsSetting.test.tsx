@@ -19,9 +19,11 @@ const mockSyncFromSystem = jest.fn();
 
 const mockStoreState = {
   notificationsEnabled: true,
+  themePreference: 'system' as const,
   setNotificationsEnabled: jest.fn((value: boolean) => {
     mockStoreState.notificationsEnabled = value;
   }),
+  setThemePreference: jest.fn(),
 };
 
 jest.mock('@/specs/nativeUsageStatsApi.android', () => ({

@@ -3,12 +3,13 @@
 import React, { memo } from 'react';
 import { View } from 'react-native';
 
+import { useTheme } from '@/hooks/useTheme';
+import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { testIds } from '@/testing/testIds';
-import { colors } from '@/theme';
 
 import { WALKTHROUGH_ICON_SIZE } from '../constants';
 import type { WalkthroughStepData } from '../data/walkthroughSteps';
-import { onboardingStyles } from '../styles';
+import { createOnboardingStyles } from '../styles';
 import { Walkthrough } from './Walkthrough';
 
 type WalkthroughPageProps = {
@@ -17,10 +18,12 @@ type WalkthroughPageProps = {
 };
 
 export const WalkthroughPage = memo(({ item, width }: WalkthroughPageProps) => {
+  const styles = useThemedStyles(createOnboardingStyles);
+  const { colors } = useTheme();
   const { Icon } = item;
 
   return (
-    <View style={[onboardingStyles.page, { width }]} testID={testIds.onboarding.walkthroughStep(item.id)}>
+    <View style={[styles.page, { width }]} testID={testIds.onboarding.walkthroughStep(item.id)}>
       <Walkthrough title={item.title} text={item.text}>
         <Icon stroke={colors.accent} width={WALKTHROUGH_ICON_SIZE} height={WALKTHROUGH_ICON_SIZE} />
       </Walkthrough>

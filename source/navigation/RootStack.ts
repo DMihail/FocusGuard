@@ -12,49 +12,55 @@ import {
   SettingsScreen,
   TrackedAppsScreen,
 } from '@/screen';
+import { colors as defaultColors } from '@/theme';
+import type { ColorPalette } from '@/theme/types';
 
-import { rootScreenTransitionOptions } from './screenTransitionOptions';
+import { createRootScreenTransitionOptions } from './screenTransitionOptions';
 import type { RootStackParamList } from './types';
 
-const rootScreens = {
-  Onboarding: {
-    screen: OnboardingScreen,
-    options: rootScreenTransitionOptions.onboarding,
-  },
-  EnablePermissions: {
-    screen: EnablePermissionsScreen,
-    options: rootScreenTransitionOptions.enablePermissions,
-  },
-  Dashboard: {
-    screen: DashboardScreen,
-    options: rootScreenTransitionOptions.dashboard,
-  },
-  ManageApps: {
-    screen: ManageAppsScreen,
-    options: rootScreenTransitionOptions.manageApps,
-  },
-  TrackedApps: {
-    screen: TrackedAppsScreen,
-    options: rootScreenTransitionOptions.trackedApps,
-  },
-  ConfigureLimits: {
-    screen: ConfigureLimitsScreen,
-    options: rootScreenTransitionOptions.configureLimits,
-  },
-  Settings: {
-    screen: SettingsScreen,
-    options: rootScreenTransitionOptions.settings,
-  },
-  LegalDocument: {
-    screen: LegalDocumentScreen,
-    options: rootScreenTransitionOptions.legalDocument,
-  },
-} as const;
+const createRootScreens = (colors: ColorPalette) => {
+  const rootScreenTransitionOptions = createRootScreenTransitionOptions(colors);
 
-export const createRootStack = (initialRouteName: keyof RootStackParamList) =>
+  return {
+    Onboarding: {
+      screen: OnboardingScreen,
+      options: rootScreenTransitionOptions.onboarding,
+    },
+    EnablePermissions: {
+      screen: EnablePermissionsScreen,
+      options: rootScreenTransitionOptions.enablePermissions,
+    },
+    Dashboard: {
+      screen: DashboardScreen,
+      options: rootScreenTransitionOptions.dashboard,
+    },
+    ManageApps: {
+      screen: ManageAppsScreen,
+      options: rootScreenTransitionOptions.manageApps,
+    },
+    TrackedApps: {
+      screen: TrackedAppsScreen,
+      options: rootScreenTransitionOptions.trackedApps,
+    },
+    ConfigureLimits: {
+      screen: ConfigureLimitsScreen,
+      options: rootScreenTransitionOptions.configureLimits,
+    },
+    Settings: {
+      screen: SettingsScreen,
+      options: rootScreenTransitionOptions.settings,
+    },
+    LegalDocument: {
+      screen: LegalDocumentScreen,
+      options: rootScreenTransitionOptions.legalDocument,
+    },
+  } as const;
+};
+
+export const createRootStack = (initialRouteName: keyof RootStackParamList, colors: ColorPalette = defaultColors) =>
   createNativeStackNavigator({
     initialRouteName,
-    screens: rootScreens,
+    screens: createRootScreens(colors),
   });
 
 export const RootStack = createRootStack('Onboarding');

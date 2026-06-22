@@ -3,9 +3,10 @@
 import React from 'react';
 import { Pressable, Text, View } from 'react-native';
 
+import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { testIds } from '@/testing/testIds';
 
-import { onboardingStyles } from '../styles';
+import { createOnboardingStyles } from '../styles';
 import type { ScrollIndicatorProps } from '../types';
 import { ScrollIndicator } from './ScrollIndicator';
 
@@ -14,19 +15,23 @@ type OnboardingHeaderProps = {
   onSkip?: () => void;
 };
 
-export const OnboardingHeader = ({ indicatorProps, onSkip }: OnboardingHeaderProps) => (
-  <View style={onboardingStyles.header}>
-    {indicatorProps ? <ScrollIndicator {...indicatorProps} variant="progress" /> : null}
+export const OnboardingHeader = ({ indicatorProps, onSkip }: OnboardingHeaderProps) => {
+  const styles = useThemedStyles(createOnboardingStyles);
 
-    <Pressable
-      testID={testIds.onboarding.skipButton}
-      accessibilityRole="button"
-      accessibilityLabel="Skip onboarding"
-      hitSlop={8}
-      style={onboardingStyles.skipButton}
-      onPress={onSkip}
-    >
-      <Text style={onboardingStyles.skipText}>Skip</Text>
-    </Pressable>
-  </View>
-);
+  return (
+    <View style={styles.header}>
+      {indicatorProps ? <ScrollIndicator {...indicatorProps} variant="progress" /> : null}
+
+      <Pressable
+        testID={testIds.onboarding.skipButton}
+        accessibilityRole="button"
+        accessibilityLabel="Skip onboarding"
+        hitSlop={8}
+        style={styles.skipButton}
+        onPress={onSkip}
+      >
+        <Text style={styles.skipText}>Skip</Text>
+      </Pressable>
+    </View>
+  );
+};

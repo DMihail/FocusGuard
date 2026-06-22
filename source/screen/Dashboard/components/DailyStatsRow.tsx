@@ -4,11 +4,12 @@ import React, { memo } from 'react';
 import { Text, View } from 'react-native';
 
 import { RemainingSvg, UsedSvg } from '@/assets/svg/Dashboard';
+import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { testIds } from '@/testing/testIds';
 import type { DashboardSummary } from '@/utils/usage/dashboardStats';
 import { formatUsageMinutes } from '@/utils/usage/formatUsage';
 
-import { dashboardStyles } from '../styles';
+import { createDashboardStyles } from '../styles';
 
 type DailyStatsRowProps = {
   summary: DashboardSummary;
@@ -21,34 +22,35 @@ const areDailyStatsRowPropsEqual = (previous: DailyStatsRowProps, next: DailySta
   previous.summary.remainingMs === next.summary.remainingMs;
 
 export const DailyStatsRow = memo(({ summary }: DailyStatsRowProps) => {
+  const styles = useThemedStyles(createDashboardStyles);
   const usedLabel = `Used today, ${formatUsageMinutes(summary.totalUsedMs)} total`;
   const remainingLabel = `Remaining budget, ${formatUsageMinutes(summary.remainingMs)}`;
 
   return (
-    <View style={dashboardStyles.statsRow} testID={testIds.dashboard.dailyStats}>
-      <View style={dashboardStyles.statCard} accessible accessibilityRole="summary" accessibilityLabel={usedLabel}>
-        <View style={[dashboardStyles.statIconBadge, dashboardStyles.statIconUsed]} importantForAccessibility="no">
+    <View style={styles.statsRow} testID={testIds.dashboard.dailyStats}>
+      <View style={styles.statCard} accessible accessibilityRole="summary" accessibilityLabel={usedLabel}>
+        <View style={[styles.statIconBadge, styles.statIconUsed]} importantForAccessibility="no">
           <UsedSvg />
         </View>
-        <Text style={dashboardStyles.statLabel}>Used today</Text>
-        <View style={dashboardStyles.statValueBlock}>
-          <Text style={dashboardStyles.statValueMain} numberOfLines={1}>
+        <Text style={styles.statLabel}>Used today</Text>
+        <View style={styles.statValueBlock}>
+          <Text style={styles.statValueMain} numberOfLines={1}>
             {formatUsageMinutes(summary.totalUsedMs)}
           </Text>
-          <Text style={dashboardStyles.statValueUnit}>total</Text>
+          <Text style={styles.statValueUnit}>total</Text>
         </View>
       </View>
 
-      <View style={dashboardStyles.statCard} accessible accessibilityRole="summary" accessibilityLabel={remainingLabel}>
-        <View style={[dashboardStyles.statIconBadge, dashboardStyles.statIconRemaining]} importantForAccessibility="no">
+      <View style={styles.statCard} accessible accessibilityRole="summary" accessibilityLabel={remainingLabel}>
+        <View style={[styles.statIconBadge, styles.statIconRemaining]} importantForAccessibility="no">
           <RemainingSvg />
         </View>
-        <Text style={dashboardStyles.statLabel}>Remaining</Text>
-        <View style={dashboardStyles.statValueBlock}>
-          <Text style={dashboardStyles.statValueMain} numberOfLines={1}>
+        <Text style={styles.statLabel}>Remaining</Text>
+        <View style={styles.statValueBlock}>
+          <Text style={styles.statValueMain} numberOfLines={1}>
             {formatUsageMinutes(summary.remainingMs)}
           </Text>
-          <Text style={dashboardStyles.statValueUnit}>budget</Text>
+          <Text style={styles.statValueUnit}>budget</Text>
         </View>
       </View>
     </View>

@@ -4,9 +4,11 @@ import React from 'react';
 import { Pressable, Text, View } from 'react-native';
 
 import { ChevronRightIcon } from '@/assets/svg/Settings';
+import { useTheme } from '@/hooks/useTheme';
+import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { testIds } from '@/testing/testIds';
 
-import { settingsStyles } from '../styles';
+import { createSettingsStyles } from '../styles';
 import type { SettingsLinkItem } from '../types';
 
 type SettingsLinkRowProps = SettingsLinkItem & {
@@ -20,24 +22,29 @@ export const SettingsLinkRow = ({
   Icon,
   iconBackgroundColor,
   onPress,
-}: SettingsLinkRowProps) => (
-  <Pressable
-    testID={testIds.settings.linkRow(id)}
-    accessibilityRole="button"
-    accessibilityLabel={title}
-    style={settingsStyles.row}
-    onPress={onPress}
-  >
-    <View style={settingsStyles.rowLeading}>
-      <View style={[settingsStyles.iconBox, { backgroundColor: iconBackgroundColor }]}>
-        <Icon />
-      </View>
-      <View style={settingsStyles.rowText}>
-        <Text style={settingsStyles.rowTitle}>{title}</Text>
-        <Text style={settingsStyles.rowDescription}>{description}</Text>
-      </View>
-    </View>
+}: SettingsLinkRowProps) => {
+  const styles = useThemedStyles(createSettingsStyles);
+  const { colors } = useTheme();
 
-    <ChevronRightIcon />
-  </Pressable>
-);
+  return (
+    <Pressable
+      testID={testIds.settings.linkRow(id)}
+      accessibilityRole="button"
+      accessibilityLabel={title}
+      style={styles.row}
+      onPress={onPress}
+    >
+      <View style={styles.rowLeading}>
+        <View style={[styles.iconBox, { backgroundColor: iconBackgroundColor }]}>
+          <Icon stroke={colors.accent} />
+        </View>
+        <View style={styles.rowText}>
+          <Text style={styles.rowTitle}>{title}</Text>
+          <Text style={styles.rowDescription}>{description}</Text>
+        </View>
+      </View>
+
+      <ChevronRightIcon stroke={colors.textMuted} />
+    </Pressable>
+  );
+};

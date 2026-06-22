@@ -4,11 +4,12 @@ import React, { memo } from 'react';
 import { Text, View } from 'react-native';
 
 import { FocusScoreSvg } from '@/assets/svg/Dashboard';
+import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { testIds } from '@/testing/testIds';
 import type { DashboardSummary } from '@/utils/usage/dashboardStats';
 import { formatUsageMinutes } from '@/utils/usage/formatUsage';
 
-import { dashboardStyles } from '../styles';
+import { createDashboardStyles } from '../styles';
 
 import { ProgressBar } from '@/components/ProgressBar';
 
@@ -23,6 +24,7 @@ const areFocusOverviewCardPropsEqual = (previous: FocusOverviewCardProps, next: 
   previous.summary.remainingMs === next.summary.remainingMs;
 
 export const FocusOverviewCard = memo(({ summary }: FocusOverviewCardProps) => {
+  const styles = useThemedStyles(createDashboardStyles);
   const usedPercent =
     summary.totalAllowedMs > 0 ? Math.min(100, Math.round((summary.totalUsedMs / summary.totalAllowedMs) * 100)) : 0;
 
@@ -32,24 +34,24 @@ export const FocusOverviewCard = memo(({ summary }: FocusOverviewCardProps) => {
 
   return (
     <View
-      style={dashboardStyles.focusCard}
+      style={styles.focusCard}
       testID={testIds.dashboard.focusOverview}
       accessible
       accessibilityRole="summary"
       accessibilityLabel={accessibilityLabel}
     >
-      <View style={dashboardStyles.focusCardHeader}>
-        <View style={dashboardStyles.focusIconBadge} importantForAccessibility="no-hide-descendants">
+      <View style={styles.focusCardHeader}>
+        <View style={styles.focusIconBadge} importantForAccessibility="no-hide-descendants">
           <FocusScoreSvg />
         </View>
-        <Text style={dashboardStyles.focusCardLabel} accessibilityRole="header">
+        <Text style={styles.focusCardLabel} accessibilityRole="header">
           Focus Score
         </Text>
       </View>
 
       <ProgressBar
         progress={usedPercent}
-        style={dashboardStyles.focusProgress}
+        style={styles.focusProgress}
         height={8}
         accessibilityRole="progressbar"
         accessibilityLabel="Daily budget used"

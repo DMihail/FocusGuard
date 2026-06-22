@@ -3,7 +3,9 @@
 import React, { Activity } from 'react';
 import { View } from 'react-native';
 
-import { manageAppsStyles } from '../styles';
+import { useThemedStyles } from '@/hooks/useThemedStyles';
+
+import { createManageAppsStyles } from '../styles';
 import type { ManageAppsListHeaderProps } from '../types';
 import { CategoryFilters } from './CategoryFilters';
 import { SelectedAppsSection } from './SelectedAppsSection';
@@ -17,18 +19,22 @@ export const ManageAppsListHeader = ({
   activeCategoryId,
   onCategoryChange,
   showCategoryFilters = true,
-}: ManageAppsListHeaderProps) => (
-  <View style={manageAppsStyles.listHeader}>
-    <SelectedAppsSection apps={selectedApps} onAppPress={onSelectedAppPress} onAppRemove={onSelectedAppRemove} />
+}: ManageAppsListHeaderProps) => {
+  const styles = useThemedStyles(createManageAppsStyles);
 
-    {showCategoryFilters ? (
-      <Activity mode={isSearchActive ? 'hidden' : 'visible'}>
-        <CategoryFilters
-          filters={categoryFilters}
-          activeCategoryId={activeCategoryId}
-          onCategoryChange={onCategoryChange}
-        />
-      </Activity>
-    ) : null}
-  </View>
-);
+  return (
+    <View style={styles.listHeader}>
+      <SelectedAppsSection apps={selectedApps} onAppPress={onSelectedAppPress} onAppRemove={onSelectedAppRemove} />
+
+      {showCategoryFilters ? (
+        <Activity mode={isSearchActive ? 'hidden' : 'visible'}>
+          <CategoryFilters
+            filters={categoryFilters}
+            activeCategoryId={activeCategoryId}
+            onCategoryChange={onCategoryChange}
+          />
+        </Activity>
+      ) : null}
+    </View>
+  );
+};

@@ -7,11 +7,12 @@ import Animated from 'react-native-reanimated';
 
 import { CloseIcon } from '@/assets/svg/ManageApps';
 import { getManageAppKey } from '@/domain/appKey';
+import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { testIds } from '@/testing/testIds';
 
 import { SELECTED_APPS_ACCORDION_SETTLE_MS } from '../constants';
 import { useSelectedAppsAccordion } from '../hooks/useSelectedAppsAccordion';
-import { manageAppsStyles, selectedAppsSectionExpandedHeight } from '../styles';
+import { createManageAppsStyles, selectedAppsSectionExpandedHeight } from '../styles';
 import type { ManageApp, SelectedAppsSectionProps } from '../types';
 
 type SelectedChipProps = {
@@ -27,18 +28,19 @@ const areSelectedChipPropsEqual = (previous: SelectedChipProps, next: SelectedCh
   previous.onRemove === next.onRemove;
 
 const SelectedChip = memo(({ app, onPress, onRemove }: SelectedChipProps) => {
+  const styles = useThemedStyles(createManageAppsStyles);
   const appKey = getManageAppKey(app);
 
   return (
-    <View style={manageAppsStyles.selectedChip} testID={testIds.manageApps.selectedChip(appKey)}>
+    <View style={styles.selectedChip} testID={testIds.manageApps.selectedChip(appKey)}>
       <Pressable
         accessibilityRole="button"
         accessibilityLabel={`Configure limits for ${app.appName}`}
         onPress={() => onPress(appKey)}
-        style={manageAppsStyles.selectedChipBody}
+        style={styles.selectedChipBody}
         testID={testIds.manageApps.selectedChipPress(appKey)}
       >
-        <Text style={manageAppsStyles.selectedChipLabel} numberOfLines={1}>
+        <Text style={styles.selectedChipLabel} numberOfLines={1}>
           {app.appName}
         </Text>
       </Pressable>
@@ -47,7 +49,7 @@ const SelectedChip = memo(({ app, onPress, onRemove }: SelectedChipProps) => {
         accessibilityRole="button"
         accessibilityLabel={`Remove ${app.appName} from selected apps`}
         onPress={() => onRemove(app)}
-        style={manageAppsStyles.selectedChipRemove}
+        style={styles.selectedChipRemove}
         hitSlop={8}
         testID={testIds.manageApps.selectedChipRemove(appKey)}
       >
@@ -82,6 +84,7 @@ const areSelectedAppsSectionPropsEqual = (
 };
 
 export const SelectedAppsSection = memo(({ apps, onAppPress, onAppRemove }: SelectedAppsSectionProps) => {
+  const styles = useThemedStyles(createManageAppsStyles);
   const isExpanded = apps.length > 0;
   const [displayApps, setDisplayApps] = useState(apps);
 
@@ -110,14 +113,14 @@ export const SelectedAppsSection = memo(({ apps, onAppPress, onAppRemove }: Sele
 
   return (
     <Animated.View
-      style={[manageAppsStyles.selectedAppsSectionOuter, containerStyle]}
+      style={[styles.selectedAppsSectionOuter, containerStyle]}
       testID={testIds.manageApps.selectedSection}
       pointerEvents={isExpanded ? 'auto' : 'none'}
       collapsable={false}
     >
       {showContent ? (
-        <View style={manageAppsStyles.section}>
-          <Text accessibilityRole="header" style={manageAppsStyles.sectionTitle}>
+        <View style={styles.section}>
+          <Text accessibilityRole="header" style={styles.sectionTitle}>
             Selected Apps
           </Text>
 
@@ -125,10 +128,10 @@ export const SelectedAppsSection = memo(({ apps, onAppPress, onAppRemove }: Sele
             horizontal
             nestedScrollEnabled
             showsHorizontalScrollIndicator={false}
-            style={manageAppsStyles.selectedAppsScroll}
+            style={styles.selectedAppsScroll}
             testID={testIds.manageApps.selectedAppsScroll}
           >
-            <View style={manageAppsStyles.selectedAppsRows}>
+            <View style={styles.selectedAppsRows}>
               {displayApps.map((app) => (
                 <SelectedChip key={getManageAppKey(app)} app={app} onPress={onAppPress} onRemove={onAppRemove} />
               ))}

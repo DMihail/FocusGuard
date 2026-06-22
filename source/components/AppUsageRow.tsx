@@ -2,8 +2,11 @@ import React, { memo } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { getManageAppKey } from '@/domain/appKey';
+import { useTheme } from '@/hooks/useTheme';
+import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { testIds } from '@/testing/testIds';
-import { colors, fontSize, iconBoxPresets, layoutPresets, spacing, textPresets, typography } from '@/theme';
+import { fontSize, spacing, typography } from '@/theme';
+import type { Theme } from '@/theme/types';
 import { computeUsageMetrics } from '@/utils/usage/computeUsageMetrics';
 import type { DashboardAppRow } from '@/utils/usage/dashboardStats';
 import { formatUsagePair } from '@/utils/usage/formatUsage';
@@ -16,7 +19,53 @@ export type AppUsageRowProps = DashboardAppRow & {
   rowTestID?: string;
 };
 
+const createAppUsageRowStyles = ({ colors, presets }: Theme) => {
+  const { layoutPresets, textPresets, iconBoxPresets } = presets;
+
+  return StyleSheet.create({
+    item: {
+      gap: spacing.sm,
+    },
+    row: {
+      ...layoutPresets.rowCenter,
+      gap: spacing.md,
+      minWidth: 0,
+    },
+    iconBox: iconBoxPresets.sm,
+    icon: {
+      width: 40,
+      height: 40,
+    },
+    iconFallback: textPresets.label,
+    info: {
+      flex: 1,
+      minWidth: 0,
+      gap: spacing.xs / 2,
+    },
+    name: textPresets.label,
+    usage: {
+      ...typography.caption,
+      color: colors.textSecondary,
+      fontSize: fontSize.xs,
+    },
+    percent: {
+      ...typography.caption,
+      color: colors.textSecondary,
+      fontWeight: '500',
+      letterSpacing: 0.5,
+      flexShrink: 0,
+      minWidth: 36,
+      textAlign: 'right',
+    },
+    percentOver: {
+      color: colors.overLimit,
+    },
+  });
+};
+
 export const AppUsageRow = memo(({ onPress, rowTestID, ...app }: AppUsageRowProps) => {
+  const styles = useThemedStyles(createAppUsageRowStyles);
+  const { colors } = useTheme();
   const appKey = getManageAppKey(app);
   const { appImage, appName, usedMs, limitMs, percentUsed, isOverLimit } = app;
   const { barProgress } = computeUsageMetrics(usedMs, limitMs);
@@ -61,44 +110,4 @@ export const AppUsageRow = memo(({ onPress, rowTestID, ...app }: AppUsageRowProp
       />
     </Pressable>
   );
-});
-
-const styles = StyleSheet.create({
-  item: {
-    gap: spacing.sm,
-  },
-  row: {
-    ...layoutPresets.rowCenter,
-    gap: spacing.md,
-    minWidth: 0,
-  },
-  iconBox: iconBoxPresets.sm,
-  icon: {
-    width: 40,
-    height: 40,
-  },
-  iconFallback: textPresets.label,
-  info: {
-    flex: 1,
-    minWidth: 0,
-    gap: spacing.xs / 2,
-  },
-  name: textPresets.label,
-  usage: {
-    ...typography.caption,
-    color: colors.textSecondary,
-    fontSize: fontSize.xs,
-  },
-  percent: {
-    ...typography.caption,
-    color: colors.textSecondary,
-    fontWeight: '500',
-    letterSpacing: 0.5,
-    flexShrink: 0,
-    minWidth: 36,
-    textAlign: 'right',
-  },
-  percentOver: {
-    color: colors.overLimit,
-  },
 });

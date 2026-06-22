@@ -3,21 +3,24 @@
 import React from 'react';
 import { Text } from 'react-native';
 
+import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { testIds } from '@/testing/testIds';
 
-import { manageAppsStyles } from '../styles';
+import { createManageAppsStyles } from '../styles';
 
 type ManageAppsListEmptyProps = {
   isFiltering: boolean;
 };
 
 export const ManageAppsListEmpty = ({ isFiltering }: ManageAppsListEmptyProps) => {
+  const styles = useThemedStyles(createManageAppsStyles);
+
   if (isFiltering) {
     return null;
   }
 
   return (
-    <Text style={manageAppsStyles.emptyText} testID={testIds.manageApps.appsEmpty}>
+    <Text style={styles.emptyText} testID={testIds.manageApps.appsEmpty}>
       No apps found
     </Text>
   );

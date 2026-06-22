@@ -1,12 +1,13 @@
 import React, { Activity, useMemo } from 'react';
 import { ActivityIndicator, FlatList, View } from 'react-native';
 
+import { useTheme } from '@/hooks/useTheme';
+import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { APP_LIST_FLAT_LIST_PROPS } from '@/list';
 import { testIds } from '@/testing/testIds';
-import { colors } from '@/theme';
 
 import { createManageAppListRenderItem, manageAppKeyExtractor, ManageAppsListEmpty } from '../list';
-import { manageAppsStyles } from '../styles';
+import { createManageAppsStyles } from '../styles';
 import type { ManageAppsContentProps } from '../types';
 import { IosPickAppsButton } from './IosPickAppsButton';
 import { ManageAppsListHeader } from './ManageAppsListHeader';
@@ -28,6 +29,8 @@ export const ManageAppsContent = ({
   onPickApps,
   isPickingApps = false,
 }: ManageAppsContentProps) => {
+  const styles = useThemedStyles(createManageAppsStyles);
+  const { colors } = useTheme();
   const renderItem = useMemo(() => createManageAppListRenderItem(isSelected, onToggle), [isSelected, onToggle]);
 
   const listHeader = useMemo(
@@ -64,20 +67,20 @@ export const ManageAppsContent = ({
 
   if (!showInstalledAppsList) {
     return (
-      <View style={manageAppsStyles.content} testID={testIds.manageApps.appsList}>
+      <View style={styles.content} testID={testIds.manageApps.appsList}>
         {listHeader}
       </View>
     );
   }
 
   return (
-    <View style={manageAppsStyles.content} testID={testIds.manageApps.appsList}>
+    <View style={styles.content} testID={testIds.manageApps.appsList}>
       <View
-        style={[manageAppsStyles.listWrapper, (isFiltering || isLoadingApps) && manageAppsStyles.contentDimmed]}
+        style={[styles.listWrapper, (isFiltering || isLoadingApps) && styles.contentDimmed]}
         accessibilityState={isFiltering || isLoadingApps ? { busy: true } : undefined}
       >
         <Activity mode={isFiltering || isLoadingApps ? 'visible' : 'hidden'}>
-          <View style={manageAppsStyles.filterLoader} pointerEvents="none">
+          <View style={styles.filterLoader} pointerEvents="none">
             <ActivityIndicator
               size="small"
               color={colors.accent}
@@ -88,7 +91,7 @@ export const ManageAppsContent = ({
         </Activity>
 
         <FlatList
-          style={manageAppsStyles.flatList}
+          style={styles.flatList}
           testID={testIds.manageApps.scroll}
           data={apps}
           extraData={selectedApps}
@@ -96,7 +99,7 @@ export const ManageAppsContent = ({
           keyExtractor={manageAppKeyExtractor}
           ListHeaderComponent={listHeader}
           ListEmptyComponent={listEmpty}
-          contentContainerStyle={manageAppsStyles.scrollContent}
+          contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
           keyboardDismissMode="none"
           accessibilityRole="list"
