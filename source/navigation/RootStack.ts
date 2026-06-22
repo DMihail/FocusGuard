@@ -16,45 +16,46 @@ import {
 import { rootScreenTransitionOptions } from './screenTransitionOptions';
 import type { RootStackParamList } from './types';
 
-const rootScreens = {
-  Onboarding: {
-    screen: OnboardingScreen,
-    options: rootScreenTransitionOptions.onboarding,
-  },
-  EnablePermissions: {
-    screen: EnablePermissionsScreen,
-    options: rootScreenTransitionOptions.enablePermissions,
-  },
-  Dashboard: {
-    screen: DashboardScreen,
-    options: rootScreenTransitionOptions.dashboard,
-  },
-  ManageApps: {
-    screen: ManageAppsScreen,
-    options: rootScreenTransitionOptions.manageApps,
-  },
-  TrackedApps: {
-    screen: TrackedAppsScreen,
-    options: rootScreenTransitionOptions.trackedApps,
-  },
-  ConfigureLimits: {
-    screen: ConfigureLimitsScreen,
-    options: rootScreenTransitionOptions.configureLimits,
-  },
-  Settings: {
-    screen: SettingsScreen,
-    options: rootScreenTransitionOptions.settings,
-  },
-  LegalDocument: {
-    screen: LegalDocumentScreen,
-    options: rootScreenTransitionOptions.legalDocument,
-  },
-} as const;
+const createRootScreens = () =>
+  ({
+    Onboarding: {
+      screen: OnboardingScreen,
+      options: rootScreenTransitionOptions.onboarding,
+    },
+    EnablePermissions: {
+      screen: EnablePermissionsScreen,
+      options: rootScreenTransitionOptions.enablePermissions,
+    },
+    Dashboard: {
+      screen: DashboardScreen,
+      options: rootScreenTransitionOptions.dashboard,
+    },
+    ManageApps: {
+      screen: ManageAppsScreen,
+      options: rootScreenTransitionOptions.manageApps,
+    },
+    TrackedApps: {
+      screen: TrackedAppsScreen,
+      options: rootScreenTransitionOptions.trackedApps,
+    },
+    ConfigureLimits: {
+      screen: ConfigureLimitsScreen,
+      options: rootScreenTransitionOptions.configureLimits,
+    },
+    Settings: {
+      screen: SettingsScreen,
+      options: rootScreenTransitionOptions.settings,
+    },
+    LegalDocument: {
+      screen: LegalDocumentScreen,
+      options: rootScreenTransitionOptions.legalDocument,
+    },
+  } as const);
 
 export const createRootStack = (initialRouteName: keyof RootStackParamList) =>
   createNativeStackNavigator({
     initialRouteName,
-    screens: rootScreens,
+    screens: createRootScreens(),
   });
 
 export const RootStack = createRootStack('Onboarding');

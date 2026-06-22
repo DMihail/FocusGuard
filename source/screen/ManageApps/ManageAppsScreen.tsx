@@ -7,22 +7,19 @@ import { useNavigateToConfigureLimits } from '@/navigation/hooks/useNavigateToCo
 import { testIds } from '@/testing/testIds';
 
 import { useManageAppsScreen } from './hooks/useManageAppsScreen';
-import { manageAppsStyles } from './styles';
+import { useManageAppsStyles } from './styles';
 
 import { ManageAppsContent, ManageAppsHeader, ManageAppsSearchToolbar } from './components';
 import { ScreenSafeArea } from '@/components';
 
 export const ManageAppsScreen = () => {
+  const styles = useManageAppsStyles();
   const goBack = useGoBack();
   const openConfigureLimits = useNavigateToConfigureLimits();
   const screen = useManageAppsScreen();
 
   return (
-    <ScreenSafeArea
-      style={manageAppsStyles.screen}
-      testID={testIds.manageApps.screen}
-      accessibilityLabel="Manage apps screen"
-    >
+    <ScreenSafeArea style={styles.screen} testID={testIds.manageApps.screen} accessibilityLabel="Manage apps screen">
       <ManageAppsHeader selectedCount={screen.selectedCount} onBack={goBack} />
       {screen.showSearchToolbar ? (
         <ManageAppsSearchToolbar

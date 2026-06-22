@@ -1,6 +1,6 @@
 /** @format */
 
-import React, { type RefObject } from 'react';
+import React, { type RefObject, useMemo } from 'react';
 
 import type { LinkingOptions, NavigationContainerRef } from '@react-navigation/native';
 import { createStaticNavigation } from '@react-navigation/native';
@@ -14,14 +14,14 @@ type RootStaticNavigation = React.ComponentType<{
   linking?: LinkingOptions<RootStackParamList>;
 }>;
 
-const navigationByInitialRoute = new Map<keyof RootStackParamList, RootStaticNavigation>();
+const navigationByKey = new Map<string, RootStaticNavigation>();
 
 const getStaticNavigation = (initialRoute: keyof RootStackParamList) => {
-  let navigation = navigationByInitialRoute.get(initialRoute);
+  let navigation = navigationByKey.get(initialRoute);
 
   if (!navigation) {
     navigation = createStaticNavigation(createRootStack(initialRoute)) as RootStaticNavigation;
-    navigationByInitialRoute.set(initialRoute, navigation);
+    navigationByKey.set(initialRoute, navigation);
   }
 
   return navigation;
@@ -33,7 +33,7 @@ type RootNavigatorProps = {
 };
 
 export const RootNavigator = ({ initialRoute, navigationRef }: RootNavigatorProps) => {
-  const Navigation = getStaticNavigation(initialRoute);
+  const Navigation = useMemo(() => getStaticNavigation(initialRoute), [initialRoute]);
 
   return <Navigation ref={navigationRef} linking={rootLinking} />;
 };

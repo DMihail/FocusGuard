@@ -18,6 +18,9 @@ jest.mock('react-native-reanimated', () => {
     useSharedValue: (initial) => ({ value: initial }),
     useAnimatedStyle: (factory) => factory(),
     useDerivedValue: (factory) => ({ value: factory() }),
+    useAnimatedReaction: (prepare, react) => {
+      react(prepare(), null);
+    },
     useAnimatedScrollHandler: (handlers) => handlers.onScroll ?? noop,
     withTiming: (toValue) => toValue,
     withSpring: (toValue) => toValue,
@@ -42,6 +45,17 @@ jest.mock('react-native-reanimated', () => {
       const progress = Math.min(1, Math.max(0, (value - inMin) / range));
 
       return outMin + (outMax - outMin) * progress;
+    },
+    interpolateColor: (value, _inputRange, outputRange) => {
+      if (value <= 0) {
+        return outputRange[0];
+      }
+
+      if (value >= 1) {
+        return outputRange[1];
+      }
+
+      return outputRange[1];
     },
     Extrapolation: { CLAMP: 'clamp' },
     Easing: {
@@ -144,6 +158,14 @@ jest.mock('@/store/mmkv', () => {
   return {
     zustandStorage: mockZustandStorage,
     storage: mockMmkvStorage,
+  };
+});
+
+jest.mock('@/hooks/useTheme', () => {
+  const { createTheme } = require('./source/theme/createTheme');
+
+  return {
+    useTheme: () => createTheme('system', 'dark'),
   };
 });
 

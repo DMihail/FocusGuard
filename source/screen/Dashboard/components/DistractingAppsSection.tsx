@@ -8,7 +8,7 @@ import { configureSectionLayoutAnimation } from '@/utils/layoutAnimation';
 import type { DashboardAppRow } from '@/utils/usage/dashboardStats';
 
 import { DistractingAppsListEmpty } from '../list/empty';
-import { dashboardStyles } from '../styles';
+import { useDashboardStyles } from '../styles';
 
 import { AppUsageRow } from '@/components';
 
@@ -54,6 +54,7 @@ const areDistractingAppsSectionPropsEqual = (
 
 export const DistractingAppsSection = memo(
   ({ appRows, onConfigureLimits, onViewAllPress }: DistractingAppsSectionProps) => {
+    const styles = useDashboardStyles();
     const visibleApps = useMemo(() => appRows.slice(0, MAX_VISIBLE_APPS), [appRows]);
     const previousAppsCount = useRef(visibleApps.length);
 
@@ -65,9 +66,9 @@ export const DistractingAppsSection = memo(
     }, [visibleApps.length]);
 
     return (
-      <View style={dashboardStyles.section} testID={testIds.dashboard.distractingAppsSection}>
-        <View style={dashboardStyles.sectionHeader}>
-          <Text style={dashboardStyles.sectionTitle} accessibilityRole="header" numberOfLines={1}>
+      <View style={styles.section} testID={testIds.dashboard.distractingAppsSection}>
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle} accessibilityRole="header" numberOfLines={1}>
             Top Distracting Apps
           </Text>
           {appRows.length > MAX_VISIBLE_APPS ? (
@@ -75,16 +76,16 @@ export const DistractingAppsSection = memo(
               accessibilityRole="button"
               accessibilityLabel="View all tracked apps"
               onPress={onViewAllPress}
-              style={dashboardStyles.viewAllButton}
+              style={styles.viewAllButton}
               testID={testIds.dashboard.viewAllAppsButton}
             >
-              <Text style={dashboardStyles.viewAllText}>View All</Text>
+              <Text style={styles.viewAllText}>View All</Text>
             </Pressable>
           ) : null}
         </View>
 
         <View
-          style={[dashboardStyles.appsList, { gap: spacing.md }]}
+          style={[styles.appsList, { gap: spacing.md }]}
           testID={testIds.dashboard.appsList}
           accessibilityRole="list"
         >

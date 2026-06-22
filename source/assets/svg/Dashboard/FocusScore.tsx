@@ -3,12 +3,14 @@ import * as React from 'react';
 import type { SvgProps } from 'react-native-svg';
 import Svg, { ClipPath, Defs, G, Path } from 'react-native-svg';
 
-export const FocusScoreSvg = (props: SvgProps) => {
+import { darkColors } from '@/theme/palettes';
+
+export const FocusScoreSvg = ({ stroke = darkColors.accentOnContainer, ...props }: SvgProps) => {
   return (
     <Svg width={20} height={20} viewBox="0 0 20 20" fill="none" {...props}>
       <G
         clipPath="url(#clip0_3_638)"
-        stroke="#D0BCFF"
+        stroke={stroke}
         strokeWidth={1.66653}
         strokeLinecap="round"
         strokeLinejoin="round"

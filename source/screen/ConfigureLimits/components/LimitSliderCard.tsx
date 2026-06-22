@@ -8,7 +8,7 @@ import { GestureDetector } from 'react-native-gesture-handler';
 import { formatDurationMinutes } from '@/utils/usage/formatUsage';
 
 import { useSliderTrackGesture } from '../hooks/useSliderTrackGesture';
-import { configureLimitsStyles as styles } from '../styles';
+import { useConfigureLimitsStyles } from '../styles';
 import type { LimitSliderCardProps } from '../types';
 import { getSliderLayout } from '../utils/sliderLayout';
 
@@ -48,6 +48,7 @@ export const LimitSliderCard = memo(
     increaseTestID,
     trackTestID,
   }: LimitSliderCardProps) => {
+    const styles = useConfigureLimitsStyles();
     const progressMin = progressMinMinutes ?? minMinutes;
     const { progress, progressPercent, inactivePercent, showInactiveZone } = getSliderLayout(
       valueMinutes,

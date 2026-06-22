@@ -5,7 +5,7 @@ import { Pressable, Text } from 'react-native';
 
 import { testIds } from '@/testing/testIds';
 
-import { manageAppsStyles } from '../styles';
+import { useManageAppsStyles } from '../styles';
 import type { CategoryFilterOption } from '../types';
 
 export type CategoryFilterChipProps = {
@@ -21,18 +21,18 @@ const areCategoryFilterChipPropsEqual = (previous: CategoryFilterChipProps, next
   previous.onCategoryChange === next.onCategoryChange;
 
 export const CategoryFilterChip = memo(({ category, isActive, onCategoryChange }: CategoryFilterChipProps) => {
+  const styles = useManageAppsStyles();
+
   return (
     <Pressable
       testID={testIds.manageApps.categoryFilter(category.id)}
       accessibilityRole="button"
       accessibilityLabel={`Category filter ${category.label}`}
       accessibilityState={{ selected: isActive }}
-      style={[manageAppsStyles.filterChip, isActive && manageAppsStyles.filterChipActive]}
+      style={[styles.filterChip, isActive && styles.filterChipActive]}
       onPress={() => onCategoryChange(category.id)}
     >
-      <Text style={[manageAppsStyles.filterChipText, isActive && manageAppsStyles.filterChipTextActive]}>
-        {category.label}
-      </Text>
+      <Text style={[styles.filterChipText, isActive && styles.filterChipTextActive]}>{category.label}</Text>
     </Pressable>
   );
 }, areCategoryFilterChipPropsEqual);

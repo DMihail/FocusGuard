@@ -2,14 +2,12 @@
 
 import type { NativeStackNavigationOptions } from '@react-navigation/native-stack';
 
-import { colors } from '@/theme';
-
 const IOS_FADE_MS = 320;
 const IOS_MODAL_MS = 380;
 
 const baseScreenOptions = {
   headerShown: false,
-  contentStyle: { backgroundColor: colors.background },
+  contentStyle: { backgroundColor: 'transparent' },
   freezeOnBlur: true,
   gestureEnabled: true,
   fullScreenGestureEnabled: true,

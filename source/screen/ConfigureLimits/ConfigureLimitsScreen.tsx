@@ -7,7 +7,7 @@ import { testIds } from '@/testing/testIds';
 
 import { LIMIT_CARD_COLORS } from './constants';
 import { useConfigureLimits } from './hooks/useConfigureLimits';
-import { configureLimitsStyles as styles } from './styles';
+import { useConfigureLimitsStyles } from './styles';
 import type { ConfigureLimitsScreenProps } from './types';
 
 import { AppLimitsAppBadge } from './components/AppLimitsAppBadge';
@@ -18,6 +18,7 @@ import { StrictModeCard } from './components/StrictModeCard';
 import { ScreenSafeArea } from '@/components';
 
 export const ConfigureLimitsScreen = ({ route }: ConfigureLimitsScreenProps) => {
+  const styles = useConfigureLimitsStyles();
   const { appKey } = route.params;
   const goBack = useGoBack();
   const {

@@ -4,7 +4,10 @@ import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { BackIcon } from '@/assets/svg/ManageApps';
-import { borderRadius, colors, fontSize, layoutPresets, spacing, typography } from '@/theme';
+import { useTheme } from '@/hooks/useTheme';
+import { createStylesHook } from '@/hooks/useThemedStyles';
+import { borderRadius, fontSize, spacing, typography } from '@/theme';
+import type { Theme } from '@/theme/types';
 
 export type ScreenBackHeaderProps = {
   title: string;
@@ -15,37 +18,43 @@ export type ScreenBackHeaderProps = {
   subtitleTestID?: string;
 };
 
-export const screenBackHeaderStyles = StyleSheet.create({
-  header: {
-    ...layoutPresets.rowCenter,
-    gap: spacing.lg,
-    paddingBottom: spacing.lg,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: colors.divider,
-  },
-  backButton: {
-    width: 44,
-    height: 44,
-    borderRadius: borderRadius.pill,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  headerText: {
-    flex: 1,
-    gap: spacing.xs,
-  },
-  title: {
-    ...typography.display,
-    fontSize: fontSize.xxl,
-    lineHeight: 32,
-    color: colors.textPrimary,
-  },
-  subtitle: {
-    ...typography.body,
-    fontSize: fontSize.sm,
-    color: colors.textMuted,
-  },
-});
+const createScreenBackHeaderStyles = ({ colors, presets }: Theme) => {
+  const { layoutPresets } = presets;
+
+  return StyleSheet.create({
+    header: {
+      ...layoutPresets.rowCenter,
+      gap: spacing.lg,
+      paddingBottom: spacing.lg,
+      borderBottomWidth: StyleSheet.hairlineWidth,
+      borderBottomColor: colors.divider,
+    },
+    backButton: {
+      width: 44,
+      height: 44,
+      borderRadius: borderRadius.pill,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    headerText: {
+      flex: 1,
+      gap: spacing.xs,
+    },
+    title: {
+      ...typography.display,
+      fontSize: fontSize.xxl,
+      lineHeight: 32,
+      color: colors.textPrimary,
+    },
+    subtitle: {
+      ...typography.body,
+      fontSize: fontSize.sm,
+      color: colors.textMuted,
+    },
+  });
+};
+
+const useScreenBackHeaderStyles = createStylesHook(createScreenBackHeaderStyles);
 
 export const ScreenBackHeader = ({
   title,
@@ -54,27 +63,32 @@ export const ScreenBackHeader = ({
   testID,
   backButtonTestID,
   subtitleTestID,
-}: ScreenBackHeaderProps) => (
-  <View style={screenBackHeaderStyles.header} testID={testID}>
-    <Pressable
-      testID={backButtonTestID}
-      accessibilityRole="button"
-      accessibilityLabel="Go back"
-      style={screenBackHeaderStyles.backButton}
-      onPress={onBack}
-    >
-      <BackIcon />
-    </Pressable>
+}: ScreenBackHeaderProps) => {
+  const styles = useScreenBackHeaderStyles();
+  const { colors } = useTheme();
 
-    <View style={screenBackHeaderStyles.headerText}>
-      <Text accessibilityRole="header" style={screenBackHeaderStyles.title}>
-        {title}
-      </Text>
-      {subtitle ? (
-        <Text style={screenBackHeaderStyles.subtitle} testID={subtitleTestID} numberOfLines={1}>
-          {subtitle}
+  return (
+    <View style={styles.header} testID={testID}>
+      <Pressable
+        testID={backButtonTestID}
+        accessibilityRole="button"
+        accessibilityLabel="Go back"
+        style={styles.backButton}
+        onPress={onBack}
+      >
+        <BackIcon stroke={colors.textPrimary} />
+      </Pressable>
+
+      <View style={styles.headerText}>
+        <Text accessibilityRole="header" style={styles.title}>
+          {title}
         </Text>
-      ) : null}
+        {subtitle ? (
+          <Text style={styles.subtitle} testID={subtitleTestID} numberOfLines={1}>
+            {subtitle}
+          </Text>
+        ) : null}
+      </View>
     </View>
-  </View>
-);
+  );
+};

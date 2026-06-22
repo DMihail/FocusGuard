@@ -3,7 +3,7 @@
 import React, { type ReactNode } from 'react';
 import { Text, View } from 'react-native';
 
-import { settingsStyles } from '../styles';
+import { useSettingsStyles } from '../styles';
 
 type SettingsSectionProps = {
   title: string;
@@ -11,9 +11,13 @@ type SettingsSectionProps = {
   children: ReactNode;
 };
 
-export const SettingsSection = ({ title, testID, children }: SettingsSectionProps) => (
-  <View style={settingsStyles.section} testID={testID}>
-    <Text style={settingsStyles.sectionLabel}>{title}</Text>
-    <View style={settingsStyles.card}>{children}</View>
-  </View>
-);
+export const SettingsSection = ({ title, testID, children }: SettingsSectionProps) => {
+  const styles = useSettingsStyles();
+
+  return (
+    <View style={styles.section} testID={testID}>
+      <Text style={styles.sectionLabel}>{title}</Text>
+      <View style={styles.card}>{children}</View>
+    </View>
+  );
+};

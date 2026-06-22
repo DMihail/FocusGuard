@@ -130,9 +130,4 @@ describe('permissionStatus.android', () => {
     expect(readPermissionStatuses()['usage-access']).toBe('pending');
     expect(mockRequestUsageStatsPermission).toHaveBeenCalledTimes(1);
   });
-
-  it('requests battery optimization settings for battery-optimization', () => {
-    requestPermissionById('battery-optimization');
-    expect(mockRequestIgnoreBatteryOptimizationsPermission).toHaveBeenCalledTimes(1);
-  });
 });

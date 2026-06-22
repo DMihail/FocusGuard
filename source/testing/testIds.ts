@@ -82,6 +82,8 @@ export const testIds = {
     termsButton: 'settings-terms-button',
     notificationsRow: 'settings-notifications-row',
     notificationsToggle: 'settings-notifications-toggle',
+    darkModeRow: 'settings-dark-mode-row',
+    darkModeToggle: 'settings-dark-mode-toggle',
     linkRow: (id: string) => `settings-link-row-${toSegment(id)}`,
   },
   configureLimits: {

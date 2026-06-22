@@ -1,4 +1,4 @@
 /** @format */
 
-export { legalSectionKeyExtractor } from './keys';
 export { renderLegalSectionItem } from './renderers';
+export { keyByTitle as legalSectionKeyExtractor } from '@/list/keys';

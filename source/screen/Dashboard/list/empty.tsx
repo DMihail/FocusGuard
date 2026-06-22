@@ -5,10 +5,14 @@ import { Text } from 'react-native';
 
 import { testIds } from '@/testing/testIds';
 
-import { dashboardStyles } from '../styles';
+import { useDashboardStyles } from '../styles';
 
-export const DistractingAppsListEmpty = () => (
-  <Text style={dashboardStyles.emptyText} testID={testIds.dashboard.appsEmpty}>
-    No apps selected yet
-  </Text>
-);
+export const DistractingAppsListEmpty = () => {
+  const styles = useDashboardStyles();
+
+  return (
+    <Text style={styles.emptyText} testID={testIds.dashboard.appsEmpty}>
+      No apps selected yet
+    </Text>
+  );
+};

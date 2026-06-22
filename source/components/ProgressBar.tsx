@@ -11,7 +11,8 @@ import {
   type ViewStyle,
 } from 'react-native';
 
-import { borderRadius, colors } from '@/theme';
+import { useTheme } from '@/hooks/useTheme';
+import { borderRadius } from '@/theme';
 
 type ProgressBarProps = {
   progress: number;
@@ -42,8 +43,8 @@ const areProgressBarPropsEqual = (previous: ProgressBarProps, next: ProgressBarP
 export const ProgressBar = memo(
   ({
     progress,
-    fillColor = colors.accent,
-    trackColor = colors.progressTrack,
+    fillColor,
+    trackColor,
     style,
     height = 6,
     accessibilityRole,
@@ -52,6 +53,9 @@ export const ProgressBar = memo(
     accessible,
     importantForAccessibility,
   }: ProgressBarProps) => {
+    const { colors } = useTheme();
+    const resolvedFillColor = fillColor ?? colors.accent;
+    const resolvedTrackColor = trackColor ?? colors.progressTrack;
     const clamped = Math.max(0, Math.min(100, progress));
     const fillFlex = clamped > 0 ? clamped : 0;
     const emptyFlex = 100 - fillFlex;
@@ -63,7 +67,7 @@ export const ProgressBar = memo(
         accessibilityLabel={accessibilityLabel}
         accessibilityValue={accessibilityValue}
         importantForAccessibility={importantForAccessibility}
-        style={[styles.track, { height, backgroundColor: trackColor }, style]}
+        style={[styles.track, { height, backgroundColor: resolvedTrackColor }, style]}
       >
         <View style={styles.row}>
           {fillFlex > 0 ? (
@@ -71,7 +75,7 @@ export const ProgressBar = memo(
               style={{
                 flex: fillFlex,
                 height,
-                backgroundColor: fillColor,
+                backgroundColor: resolvedFillColor,
                 borderRadius: borderRadius.pill,
               }}
             />

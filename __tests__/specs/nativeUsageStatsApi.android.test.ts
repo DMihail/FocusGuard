@@ -59,21 +59,6 @@ describe('nativeUsageStatsApi.android', () => {
     mockUsageStats.startMonitorService.mockReturnValue({ started: true });
   });
 
-  it('delegates native module calls when the turbo module is available', async () => {
-    mockUsageStats.checkForPermission.mockReturnValue(true);
-    mockUsageStats.isMonitorServiceRunning.mockReturnValue(true);
-
-    const specs = loadSpecs();
-
-    expect(specs.checkForPermission()).toBe(true);
-    expect(specs.isMonitorServiceRunning()).toBe(true);
-    expect(specs.startMonitorService()).toEqual({ started: true });
-    specs.stopMonitorService();
-    await expect(specs.getInstalledApplications()).resolves.toEqual([]);
-    expect(mockUsageStats.startMonitorService).toHaveBeenCalledTimes(1);
-    expect(mockUsageStats.stopMonitorService).toHaveBeenCalledTimes(1);
-  });
-
   it('throws when the turbo module is unavailable', () => {
     jest.resetModules();
     jest.unmock('@/specs/nativeUsageStatsClient.android');

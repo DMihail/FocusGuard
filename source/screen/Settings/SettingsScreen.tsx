@@ -8,9 +8,9 @@ import { useGoBack } from '@/hooks/useGoBack';
 import { useRootNavigation } from '@/navigation';
 import { testIds } from '@/testing/testIds';
 
-import { DATA_PRIVACY_LINK, NOTIFICATIONS_TOGGLE } from './data/preferences';
 import { useNotificationsSetting } from './hooks/useNotificationsSetting';
-import { settingsStyles } from './styles';
+import { useSettingsPreferences } from './hooks/useSettingsPreferences';
+import { useSettingsStyles } from './styles';
 
 import {
   SettingsFooter,
@@ -23,9 +23,12 @@ import {
 import { ScreenSafeArea } from '@/components';
 
 export const SettingsScreen = () => {
+  const styles = useSettingsStyles();
   const navigation = useRootNavigation();
   const goBack = useGoBack();
   const { isEnabled: notificationsEnabled, setEnabled: setNotificationsEnabled } = useNotificationsSetting();
+  const { isDarkModeEnabled, setDarkModeEnabled, darkModeToggle, notificationsToggle, dataPrivacyLink } =
+    useSettingsPreferences();
 
   const openLegalDocument = useCallback(
     (documentId: LegalDocumentId) => {
@@ -35,25 +38,27 @@ export const SettingsScreen = () => {
   );
 
   return (
-    <ScreenSafeArea style={settingsStyles.screen} testID={testIds.settings.screen} accessibilityLabel="Settings">
+    <ScreenSafeArea style={styles.screen} testID={testIds.settings.screen} accessibilityLabel="Settings">
       <ScrollView
         testID={testIds.settings.scroll}
-        contentContainerStyle={settingsStyles.scrollContent}
+        contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
         <SettingsHeader onBack={goBack} />
 
-        <View style={settingsStyles.sections}>
+        <View style={styles.sections}>
           <SettingsSection title="Preferences" testID={testIds.settings.preferencesSection}>
+            <SettingsToggleRow {...darkModeToggle} value={isDarkModeEnabled} onValueChange={setDarkModeEnabled} />
+            <View style={styles.rowDivider} />
             <SettingsToggleRow
-              {...NOTIFICATIONS_TOGGLE}
+              {...notificationsToggle}
               value={notificationsEnabled}
               onValueChange={setNotificationsEnabled}
             />
           </SettingsSection>
 
           <SettingsSection title="Privacy & Security" testID={testIds.settings.privacySection}>
-            <SettingsLinkRow {...DATA_PRIVACY_LINK} onPress={() => openLegalDocument('dataPrivacy')} />
+            <SettingsLinkRow {...dataPrivacyLink} onPress={() => openLegalDocument('dataPrivacy')} />
           </SettingsSection>
 
           <SettingsPrivacyBanner />

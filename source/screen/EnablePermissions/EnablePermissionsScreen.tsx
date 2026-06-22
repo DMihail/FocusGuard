@@ -9,12 +9,13 @@ import { testIds } from '@/testing/testIds';
 
 import { usePermissionsSync } from './hooks/usePermissionsSync';
 import { createPermissionListRenderItem, permissionKeyExtractor } from './list';
-import { permissionsStyles } from './styles';
+import { usePermissionsStyles } from './styles';
 
 import { PermissionsFooter, PermissionsHeader, PrivacyNotice } from './components';
 import { ScreenSafeArea } from '@/components';
 
 export const EnablePermissionsScreen = () => {
+  const styles = usePermissionsStyles();
   const navigation = useRootNavigation();
   const { permissions, canContinue, handleGrant } = usePermissionsSync();
 
@@ -29,7 +30,7 @@ export const EnablePermissionsScreen = () => {
 
   return (
     <ScreenSafeArea
-      style={permissionsStyles.screen}
+      style={styles.screen}
       testID={testIds.enablePermissions.screen}
       accessibilityLabel="Enable permissions"
     >
@@ -39,7 +40,7 @@ export const EnablePermissionsScreen = () => {
         renderItem={renderItem}
         keyExtractor={permissionKeyExtractor}
         ListHeaderComponent={PermissionsHeader}
-        contentContainerStyle={permissionsStyles.scrollContent}
+        contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
         accessibilityRole="list"
         accessibilityLabel="Required permissions"
@@ -47,7 +48,7 @@ export const EnablePermissionsScreen = () => {
         {...APP_LIST_FLAT_LIST_PROPS}
       />
 
-      <View style={permissionsStyles.footer}>
+      <View style={styles.footer}>
         <PrivacyNotice />
         <PermissionsFooter canContinue={canContinue} onContinue={handleContinue} />
       </View>
