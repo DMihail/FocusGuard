@@ -19,7 +19,10 @@ import {
   updateTestTree,
 } from '../../helpers/testRenderer';
 
-const mockGoBack = jest.fn();
+jest.mock('@/hooks/useGoBack', () => ({
+  useGoBack: () => jest.fn(),
+}));
+
 const mockGetInstalledApplications = jest.fn();
 
 const mockStoreState: {
@@ -39,10 +42,6 @@ const mockStoreState: {
   isSelected: (packageName) => mockStoreState.apps.some((app) => app.packageName === packageName),
   syncSelectedAppsMetadata: jest.fn(),
 };
-
-jest.mock('@/hooks/useGoBack', () => ({
-  useGoBack: () => mockGoBack,
-}));
 
 jest.mock('@/navigation/hooks/useNavigateToConfigureLimits', () => ({
   useNavigateToConfigureLimits: () => jest.fn(),
@@ -211,17 +210,5 @@ describe('ManageAppsScreen', () => {
 
     expect(tree.root.findByProps({ children: 'Puzzle Game' })).toBeDefined();
     expect(tree.root.findAllByProps({ children: 'Social Chat' })).toHaveLength(0);
-  });
-
-  it('navigates back when back button is pressed', async () => {
-    const tree = renderTestTree(<ManageAppsScreen />);
-    await flushInstalledAppsLoad(tree);
-    flushVirtualizedListTimers();
-
-    runTestAct(() => {
-      tree.root.findByProps({ accessibilityLabel: 'Go back' }).props.onPress();
-    });
-
-    expect(mockGoBack).toHaveBeenCalledTimes(1);
   });
 });

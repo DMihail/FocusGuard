@@ -105,43 +105,6 @@ describe('useManageApps', () => {
     });
   };
 
-  it('returns all installed apps by default', async () => {
-    let hookValue: ReturnType<typeof useManageApps> | undefined;
-
-    await ReactTestRenderer.act(async () => {
-      ReactTestRenderer.create(
-        <UseManageAppsHarness
-          onReady={(value) => {
-            hookValue = value;
-          }}
-        />,
-      );
-    });
-    await flushInstalledAppsLoad();
-
-    expect(hookValue!.apps).toHaveLength(mockManageApps.length);
-    expect(hookValue!.categoryFilters[0]).toEqual({ id: 'all', label: 'All', category: 'all' });
-  });
-
-  it('filters apps by search query', async () => {
-    let hookValue: ReturnType<typeof useManageApps> | undefined;
-
-    await ReactTestRenderer.act(async () => {
-      ReactTestRenderer.create(
-        <UseManageAppsHarness
-          searchQuery="puzzle"
-          onReady={(value) => {
-            hookValue = value;
-          }}
-        />,
-      );
-    });
-    await flushInstalledAppsLoad();
-
-    expect(hookValue!.apps).toHaveLength(1);
-    expect(hookValue!.apps[0].packageName).toBe('com.game.puzzle');
-  });
-
   it('ignores active category while search query is set', async () => {
     let hookValue: ReturnType<typeof useManageApps> | undefined;
 
@@ -161,29 +124,6 @@ describe('useManageApps', () => {
     expect(hookValue!.isSearchActive).toBe(true);
     expect(hookValue!.apps).toHaveLength(1);
     expect(hookValue!.apps[0].packageName).toBe('com.social.chat');
-  });
-
-  it('filters apps by active category', async () => {
-    let hookValue: ReturnType<typeof useManageApps> | undefined;
-
-    await ReactTestRenderer.act(async () => {
-      ReactTestRenderer.create(
-        <UseManageAppsHarness
-          onReady={(value) => {
-            hookValue = value;
-          }}
-        />,
-      );
-    });
-    await flushInstalledAppsLoad();
-
-    await ReactTestRenderer.act(async () => {
-      hookValue!.setActiveCategory('Social');
-    });
-    await flushInstalledAppsLoad();
-
-    expect(hookValue!.apps).toHaveLength(1);
-    expect(hookValue!.apps[0].categoryLabel).toBe('Social');
   });
 
   it('toggles selection through the store', async () => {

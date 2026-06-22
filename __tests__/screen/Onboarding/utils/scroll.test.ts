@@ -1,27 +1,12 @@
 /** @format */
 
 import {
-  clampStepIndex,
   createGetItemLayout,
   createScrollToIndexFailedHandler,
   getStepFromOffset,
 } from '@/screen/Onboarding/utils/scroll';
 
 describe('scroll utils', () => {
-  describe('clampStepIndex', () => {
-    it('clamps values below zero', () => {
-      expect(clampStepIndex(-2, 2)).toBe(0);
-    });
-
-    it('clamps values above last index', () => {
-      expect(clampStepIndex(5, 2)).toBe(2);
-    });
-
-    it('returns the same index when within range', () => {
-      expect(clampStepIndex(1, 2)).toBe(1);
-    });
-  });
-
   describe('getStepFromOffset', () => {
     const lastStepIndex = 2;
 

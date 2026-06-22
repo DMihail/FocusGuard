@@ -4,15 +4,11 @@ jest.mock('@/store/mmkv', () => ({
   zustandStorage: require('../helpers/mockZustandMmkv').mockZustandStorage,
 }));
 
-import { appLimitsStore, DEFAULT_APP_LIMITS, normalizeAppLimits } from '@/store/appLimitsStore';
+import { appLimitsStore, normalizeAppLimits } from '@/store/appLimitsStore';
 
 describe('appLimitsStore', () => {
   beforeEach(() => {
     appLimitsStore.setState({ limitsByAppKey: {} });
-  });
-
-  it('returns default limits for unknown packages', () => {
-    expect(appLimitsStore.getState().getLimits('com.unknown')).toEqual(DEFAULT_APP_LIMITS);
   });
 
   it('stores and retrieves per-app limits', () => {

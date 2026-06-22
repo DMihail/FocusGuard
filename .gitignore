@@ -39,6 +39,7 @@ pnpm-debug.log*
 
 # --- Testing ---
 coverage/
+.jest-cache/
 junit.xml
 test-results/
 # --- IDE (never commit machine-local IDE state) ---
