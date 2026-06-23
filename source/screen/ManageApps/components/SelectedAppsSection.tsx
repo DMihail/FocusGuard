@@ -1,6 +1,4 @@
-/** @format */
-
-import React, { memo, useCallback, useEffect, useLayoutEffect, useState } from 'react';
+import React, { memo, useMemo } from 'react';
 import { Pressable, ScrollView, Text, useWindowDimensions, View } from 'react-native';
 
 import Animated from 'react-native-reanimated';
@@ -10,11 +8,12 @@ import { getManageAppKey } from '@/domain/appKey';
 import { useTranslation } from '@/i18n';
 import { testIds } from '@/testing/testIds';
 
-import { SELECTED_APPS_ACCORDION_SETTLE_MS } from '../constants';
 import { useSelectedAppsAccordion } from '../hooks/useSelectedAppsAccordion';
+import { useSelectedAppsCollapse } from '../hooks/useSelectedAppsCollapse';
 import { getSelectedAppsLayout } from '../selectedAppsLayout';
 import { useManageAppsStyles } from '../styles';
 import type { ManageApp, SelectedAppsSectionProps } from '../types';
+import { areManageAppListsEqual, isSameManageAppForDisplay } from '../utils/areManageAppListsEqual';
 
 type SelectedChipProps = {
   app: ManageApp;
@@ -23,8 +22,7 @@ type SelectedChipProps = {
 };
 
 const areSelectedChipPropsEqual = (previous: SelectedChipProps, next: SelectedChipProps): boolean =>
-  getManageAppKey(previous.app) === getManageAppKey(next.app) &&
-  previous.app.appName === next.app.appName &&
+  isSameManageAppForDisplay(previous.app, next.app) &&
   previous.onPress === next.onPress &&
   previous.onRemove === next.onRemove;
 
@@ -33,12 +31,15 @@ const SelectedChip = memo(({ app, onPress, onRemove }: SelectedChipProps) => {
   const { t } = useTranslation();
   const appKey = getManageAppKey(app);
 
+  const handlePress = () => onPress(appKey);
+  const handleRemove = () => onRemove(app);
+
   return (
     <View style={styles.selectedChip} testID={testIds.manageApps.selectedChip(appKey)}>
       <Pressable
         accessibilityRole="button"
         accessibilityLabel={t('manageApps.configureLimitsA11y', { appName: app.appName })}
-        onPress={() => onPress(appKey)}
+        onPress={handlePress}
         style={styles.selectedChipBody}
         testID={testIds.manageApps.selectedChipPress(appKey)}
       >
@@ -50,7 +51,7 @@ const SelectedChip = memo(({ app, onPress, onRemove }: SelectedChipProps) => {
       <Pressable
         accessibilityRole="button"
         accessibilityLabel={t('manageApps.removeAppA11y', { appName: app.appName })}
-        onPress={() => onRemove(app)}
+        onPress={handleRemove}
         style={styles.selectedChipRemove}
         hitSlop={8}
         testID={testIds.manageApps.selectedChipRemove(appKey)}
@@ -64,66 +65,33 @@ const SelectedChip = memo(({ app, onPress, onRemove }: SelectedChipProps) => {
 const areSelectedAppsSectionPropsEqual = (
   previous: SelectedAppsSectionProps,
   next: SelectedAppsSectionProps,
-): boolean => {
-  if (previous.onAppPress !== next.onAppPress || previous.onAppRemove !== next.onAppRemove) {
-    return false;
-  }
-
-  if (previous.apps.length !== next.apps.length) {
-    return false;
-  }
-
-  for (let index = 0; index < previous.apps.length; index += 1) {
-    const left = previous.apps[index];
-    const right = next.apps[index];
-
-    if (!left || !right || getManageAppKey(left) !== getManageAppKey(right) || left.appName !== right.appName) {
-      return false;
-    }
-  }
-
-  return true;
-};
+): boolean =>
+  previous.onAppPress === next.onAppPress &&
+  previous.onAppRemove === next.onAppRemove &&
+  areManageAppListsEqual(previous.apps, next.apps);
 
 export const SelectedAppsSection = memo(({ apps, onAppPress, onAppRemove }: SelectedAppsSectionProps) => {
   const styles = useManageAppsStyles();
   const { t } = useTranslation();
   const { width: windowWidth } = useWindowDimensions();
-  const isExpanded = apps.length > 0;
-  const [retainedApps, setRetainedApps] = useState<ManageApp[]>([]);
-  const visibleApps = isExpanded ? apps : retainedApps;
-  const showContent = visibleApps.length > 0;
-  const layout = getSelectedAppsLayout(windowWidth, visibleApps.length);
+  const { visibleApps, showContent, isExpanded, handleCollapseEnd } = useSelectedAppsCollapse(apps);
+
+  const layout = useMemo(
+    () => getSelectedAppsLayout(windowWidth, visibleApps.length),
+    [visibleApps.length, windowWidth],
+  );
   const expandedHeight = showContent ? layout.expandedHeight : 0;
-
-  const handleCollapseEnd = useCallback(() => {
-    setRetainedApps([]);
-  }, []);
-
   const containerStyle = useSelectedAppsAccordion(isExpanded, expandedHeight, handleCollapseEnd);
 
-  useLayoutEffect(() => {
-    if (!isExpanded) {
-      return;
-    }
+  const chipElements = useMemo(
+    () =>
+      visibleApps.map((app) => (
+        <SelectedChip key={getManageAppKey(app)} app={app} onPress={onAppPress} onRemove={onAppRemove} />
+      )),
+    [onAppPress, onAppRemove, visibleApps],
+  );
 
-    setRetainedApps(apps);
-  }, [apps, isExpanded]);
-
-  useEffect(() => {
-    if (isExpanded || retainedApps.length === 0) {
-      return undefined;
-    }
-
-    const timer = setTimeout(handleCollapseEnd, SELECTED_APPS_ACCORDION_SETTLE_MS);
-
-    return () => clearTimeout(timer);
-  }, [handleCollapseEnd, isExpanded, retainedApps.length]);
-
-  const renderChips = () =>
-    visibleApps.map((app) => (
-      <SelectedChip key={getManageAppKey(app)} app={app} onPress={onAppPress} onRemove={onAppRemove} />
-    ));
+  const selectedAppsLabel = t('manageApps.selectedApps');
 
   const chipList = layout.usesColumnScroll ? (
     <ScrollView
@@ -131,16 +99,20 @@ export const SelectedAppsSection = memo(({ apps, onAppPress, onAppRemove }: Sele
       nestedScrollEnabled
       showsHorizontalScrollIndicator={false}
       style={styles.selectedAppsScroll}
+      accessibilityRole="list"
+      accessibilityLabel={selectedAppsLabel}
       testID={testIds.manageApps.selectedAppsScroll}
     >
-      <View style={[styles.selectedAppsChipColumnStrip, { height: layout.columnStripHeight }]}>{renderChips()}</View>
+      <View style={[styles.selectedAppsChipColumnStrip, { height: layout.columnStripHeight }]}>{chipElements}</View>
     </ScrollView>
   ) : (
     <View
       style={[styles.selectedAppsChipRowWrap, { width: layout.stripWidth }]}
+      accessibilityRole="list"
+      accessibilityLabel={selectedAppsLabel}
       testID={testIds.manageApps.selectedAppsScroll}
     >
-      {renderChips()}
+      {chipElements}
     </View>
   );
 
@@ -154,7 +126,7 @@ export const SelectedAppsSection = memo(({ apps, onAppPress, onAppRemove }: Sele
       {showContent ? (
         <View style={styles.section}>
           <Text accessibilityRole="header" style={styles.sectionTitle}>
-            {t('manageApps.selectedApps')}
+            {selectedAppsLabel}
           </Text>
           {chipList}
         </View>

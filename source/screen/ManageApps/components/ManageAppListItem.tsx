@@ -11,6 +11,7 @@ import { testIds } from '@/testing/testIds';
 
 import { useManageAppsStyles } from '../styles';
 import type { ManageApp } from '../types';
+import { isSameManageAppForDisplay } from '../utils/areManageAppListsEqual';
 
 import { AppIcon } from '@/components';
 
@@ -65,10 +66,7 @@ export const ManageAppListItem = memo(({ app, isSelected, onToggle }: ManageAppL
 function areManageAppListItemPropsEqual(previous: ManageAppListItemProps, next: ManageAppListItemProps): boolean {
   return (
     previous.isSelected === next.isSelected &&
-    getManageAppKey(previous.app) === getManageAppKey(next.app) &&
-    previous.app.appName === next.app.appName &&
-    previous.app.appImage === next.app.appImage &&
-    previous.app.categoryLabel === next.app.categoryLabel &&
+    isSameManageAppForDisplay(previous.app, next.app) &&
     previous.onToggle === next.onToggle
   );
 }

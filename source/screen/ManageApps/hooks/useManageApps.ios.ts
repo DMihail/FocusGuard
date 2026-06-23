@@ -8,6 +8,14 @@ import { selectedAppsStore } from '@/store';
 import { createAllCategoryFilter } from '../utils/buildCategoryFilters';
 import { useInstalledAppsCatalog } from './useInstalledAppsCatalog';
 
+const noop = (): undefined => undefined;
+
+const IOS_SEARCH_STUBS = {
+  setSearchQuery: noop,
+  setSearchInputActive: noop,
+  setActiveCategory: noop,
+} as const;
+
 export const useManageApps = () => {
   const { t } = useTranslation();
   const allCategoryFilter = useMemo(() => createAllCategoryFilter(t), [t]);
@@ -27,11 +35,9 @@ export const useManageApps = () => {
     refreshInstalledApps,
     isFiltering: false,
     isSearchActive: false,
-    setSearchQuery: () => undefined,
-    setSearchInputActive: () => undefined,
+    ...IOS_SEARCH_STUBS,
     categoryFilters: [allCategoryFilter],
     activeCategoryId: allCategoryFilter.id,
-    setActiveCategory: () => undefined,
     ...selection,
   };
 };

@@ -25,6 +25,3 @@ export const SELECTED_APPS_ACCORDION_OPEN_SPRING = {
   mass: 0.9,
   overshootClamping: true,
 } as const;
-
-/** Upper bound for accordion settle — used by tests and collapse fallback timer. */
-export const SELECTED_APPS_ACCORDION_SETTLE_MS = 1200;
