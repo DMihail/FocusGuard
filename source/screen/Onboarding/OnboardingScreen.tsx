@@ -3,6 +3,7 @@
 import React, { Activity } from 'react';
 import { View } from 'react-native';
 
+import { useTranslation } from '@/i18n';
 import { testIds } from '@/testing/testIds';
 
 import { useOnboardingPager } from './hooks/useOnboardingPager';
@@ -13,10 +14,15 @@ import { ScreenSafeArea } from '@/components';
 
 export const OnboardingScreen = () => {
   const styles = useOnboardingStyles();
+  const { t } = useTranslation();
   const pager = useOnboardingPager();
 
   return (
-    <ScreenSafeArea style={styles.screen} testID={testIds.onboarding.screen} accessibilityLabel="Onboarding">
+    <ScreenSafeArea
+      style={styles.screen}
+      testID={testIds.onboarding.screen}
+      accessibilityLabel={t('onboarding.screenLabel')}
+    >
       <OnboardingHeader indicatorProps={pager.indicatorProps} onSkip={pager.onSkip} />
 
       <View style={styles.pagerContainer} onLayout={pager.handlePagerContainerLayout}>

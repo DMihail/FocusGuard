@@ -3,6 +3,7 @@
 import React from 'react';
 import { Pressable, Text, View } from 'react-native';
 
+import { useTranslation } from '@/i18n';
 import { testIds } from '@/testing/testIds';
 
 import { useOnboardingStyles } from '../styles';
@@ -16,6 +17,7 @@ type OnboardingHeaderProps = {
 
 export const OnboardingHeader = ({ indicatorProps, onSkip }: OnboardingHeaderProps) => {
   const styles = useOnboardingStyles();
+  const { t } = useTranslation();
 
   return (
     <View style={styles.header}>
@@ -24,12 +26,12 @@ export const OnboardingHeader = ({ indicatorProps, onSkip }: OnboardingHeaderPro
       <Pressable
         testID={testIds.onboarding.skipButton}
         accessibilityRole="button"
-        accessibilityLabel="Skip onboarding"
+        accessibilityLabel={t('onboarding.skipA11y')}
         hitSlop={8}
         style={styles.skipButton}
         onPress={onSkip}
       >
-        <Text style={styles.skipText}>Skip</Text>
+        <Text style={styles.skipText}>{t('common.skip')}</Text>
       </Pressable>
     </View>
   );

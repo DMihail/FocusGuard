@@ -4,6 +4,7 @@ import React from 'react';
 import { Text } from 'react-native';
 
 import { useGoBack } from '@/hooks/useGoBack';
+import { useTranslation } from '@/i18n';
 
 import { useLegalStyles } from '../styles';
 import type { LegalDocument } from '../types';
@@ -19,6 +20,7 @@ type LegalDocumentListHeaderProps = {
 export const LegalDocumentListHeader = ({ document, headerTestId, backButtonTestId }: LegalDocumentListHeaderProps) => {
   const styles = useLegalStyles();
   const goBack = useGoBack();
+  const { t } = useTranslation();
 
   return (
     <>
@@ -30,7 +32,7 @@ export const LegalDocumentListHeader = ({ document, headerTestId, backButtonTest
         backButtonTestID={backButtonTestId}
       />
 
-      <Text style={styles.meta}>{`Last updated: ${document.lastUpdated}`}</Text>
+      <Text style={styles.meta}>{t('common.lastUpdated', { date: document.lastUpdated })}</Text>
     </>
   );
 };

@@ -6,12 +6,14 @@ import { useShallow } from 'zustand/react/shallow';
 
 import { useTrackedAppRows } from '@/hooks/useTrackedAppRows';
 import { useTrackedAppsRefresh } from '@/hooks/useTrackedAppsRefresh';
+import { useTranslation } from '@/i18n';
 import { useNavigateToConfigureLimits } from '@/navigation/hooks/useNavigateToConfigureLimits';
 import { monitoringStore } from '@/store';
 import { buildDashboardSummary } from '@/utils/usage/dashboardStats';
 
 /** Dashboard screen state: tracked rows, summary stats, monitoring toggle, pull-to-refresh. */
 export const useDashboard = () => {
+  const { t } = useTranslation();
   const { appRows, showUsageRefreshIndicator, refreshUsage } = useTrackedAppRows();
   const { isMonitoring, toggleMonitoring } = monitoringStore(
     useShallow((state) => ({
@@ -28,11 +30,11 @@ export const useDashboard = () => {
 
   const monitoringSubtitle = useMemo(() => {
     if (!hasSelectedApps) {
-      return 'Select apps first';
+      return t('dashboard.focusModeSubtitle.selectApps');
     }
 
-    return isMonitoring ? 'Monitoring is on' : 'Start a session';
-  }, [hasSelectedApps, isMonitoring]);
+    return isMonitoring ? t('dashboard.focusModeSubtitle.monitoring') : t('dashboard.focusModeSubtitle.start');
+  }, [hasSelectedApps, isMonitoring, t]);
 
   return {
     appRows,

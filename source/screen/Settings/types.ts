@@ -15,7 +15,7 @@ export type SettingsToggleItem = {
 };
 
 export type SettingsLinkItem = {
-  id: LegalDocumentId;
+  id: LegalDocumentId | 'language';
   title: string;
   description: string;
   Icon: ComponentType<SvgProps>;

@@ -3,10 +3,11 @@
 import { useCallback, useMemo, useState, useTransition } from 'react';
 
 import type { ManageApp } from '@/domain/types';
+import { useTranslation } from '@/i18n';
 import { configureSectionLayoutAnimation } from '@/utils/layoutAnimation';
 
 import type { CategoryFilterOption } from '../types';
-import { ALL_CATEGORY_FILTER, buildCategoryFilters } from '../utils/buildCategoryFilters';
+import { buildCategoryFilters, createAllCategoryFilter } from '../utils/buildCategoryFilters';
 import { matchesCategoryFilter } from '../utils/matchesCategoryFilter';
 
 type UseManageAppsFiltersParams = {
@@ -15,19 +16,23 @@ type UseManageAppsFiltersParams = {
 
 /** Search and category filtering for the Manage Apps list. */
 export const useManageAppsFilters = ({ installedApps }: UseManageAppsFiltersParams) => {
-  const categoryFilters = useMemo(() => buildCategoryFilters(installedApps), [installedApps]);
+  const { t } = useTranslation();
+  const allCategoryFilter = useMemo(() => createAllCategoryFilter(t), [t]);
+  const categoryFilters = useMemo(() => buildCategoryFilters(installedApps, t), [installedApps, t]);
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchInputActive, setIsSearchInputActive] = useState(false);
-  const [activeCategory, setActiveCategory] = useState<CategoryFilterOption>(ALL_CATEGORY_FILTER);
+  const [activeCategory, setActiveCategory] = useState<CategoryFilterOption | null>(null);
   const [isCategoryPending, startCategoryTransition] = useTransition();
 
   const effectiveCategory = useMemo(() => {
-    if (categoryFilters.some((filter) => filter.id === activeCategory.id)) {
-      return activeCategory;
+    const current = activeCategory ?? allCategoryFilter;
+
+    if (categoryFilters.some((filter) => filter.id === current.id)) {
+      return current;
     }
 
-    return ALL_CATEGORY_FILTER;
-  }, [activeCategory, categoryFilters]);
+    return allCategoryFilter;
+  }, [activeCategory, allCategoryFilter, categoryFilters]);
 
   const handleSearchActiveChange = useCallback((isActive: boolean) => {
     setIsSearchInputActive((previous) => {
@@ -64,13 +69,13 @@ export const useManageAppsFilters = ({ installedApps }: UseManageAppsFiltersPara
 
       const nextFilter = categoryFilters.find((filter) => filter.id === filterId);
 
-      if (nextFilter && nextFilter.id !== activeCategory.id) {
+      if (nextFilter && nextFilter.id !== effectiveCategory.id) {
         startCategoryTransition(() => {
           setActiveCategory(nextFilter);
         });
       }
     },
-    [activeCategory.id, categoryFilters, isSearchActive],
+    [categoryFilters, effectiveCategory.id, isSearchActive],
   );
 
   return {

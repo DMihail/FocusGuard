@@ -2,6 +2,7 @@ import React, { memo } from 'react';
 import { ActivityIndicator, Pressable, Text, View } from 'react-native';
 
 import { useTheme } from '@/hooks/useTheme';
+import { useTranslation } from '@/i18n';
 import { testIds } from '@/testing/testIds';
 
 import { useManageAppsStyles } from '../styles';
@@ -14,12 +15,13 @@ type IosPickAppsButtonProps = {
 export const IosPickAppsButton = memo(({ isPicking, onPress }: IosPickAppsButtonProps) => {
   const styles = useManageAppsStyles();
   const { colors } = useTheme();
+  const { t } = useTranslation();
 
   return (
     <View style={styles.iosPickAppsContainer}>
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel="Choose apps with Screen Time"
+        accessibilityLabel={t('manageApps.iosPickAppsA11y')}
         accessibilityState={{ busy: isPicking, disabled: isPicking }}
         disabled={isPicking}
         onPress={onPress}
@@ -29,10 +31,10 @@ export const IosPickAppsButton = memo(({ isPicking, onPress }: IosPickAppsButton
         {isPicking ? (
           <ActivityIndicator color={colors.accent} />
         ) : (
-          <Text style={styles.iosPickAppsButtonText}>Choose Apps</Text>
+          <Text style={styles.iosPickAppsButtonText}>{t('manageApps.iosPickApps')}</Text>
         )}
       </Pressable>
-      <Text style={styles.iosPickAppsHint}>Screen Time lets you pick which apps Keept should track.</Text>
+      <Text style={styles.iosPickAppsHint}>{t('manageApps.iosPickAppsHint')}</Text>
     </View>
   );
 });

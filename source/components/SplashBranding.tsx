@@ -7,15 +7,15 @@ import Animated, { interpolate, type SharedValue, useAnimatedStyle } from 'react
 
 import { Shield } from '@/assets/svg/Onboarding';
 import { getAppDisplayName } from '@/constants/appDisplayName';
+import { createStylesHook } from '@/hooks/createStylesHook';
 import { splashDotPulseMin, useSplashDotPulse } from '@/hooks/useSplashDotPulse';
 import { useTheme } from '@/hooks/useTheme';
-import { createStylesHook } from '@/hooks/useThemedStyles';
+import { useTranslation } from '@/i18n';
 import { testIds } from '@/testing/testIds';
 import { borderRadius, fontSize, lineHeight, spacing, typography } from '@/theme';
 import type { Theme } from '@/theme/types';
 
 const SPLASH_DOT_COUNT = 3;
-const APP_TAGLINE = 'Reclaim your time, restore your focus';
 
 const createSplashBrandingStyles = ({ colors }: Theme) =>
   StyleSheet.create({
@@ -127,6 +127,7 @@ const SplashLoadingDots = ({ dotStyle, dotsRowStyle }: SplashLoadingDotsProps) =
 export const SplashBranding = memo(() => {
   const styles = useSplashBrandingStyles();
   const { colors } = useTheme();
+  const { t } = useTranslation();
   const appDisplayName = getAppDisplayName();
 
   return (
@@ -135,7 +136,7 @@ export const SplashBranding = memo(() => {
       testID={testIds.app.loader}
       accessible
       accessibilityRole="progressbar"
-      accessibilityLabel={`Loading ${appDisplayName}`}
+      accessibilityLabel={t('common.loading', { appName: appDisplayName })}
       accessibilityState={{ busy: true }}
     >
       <View style={styles.content} importantForAccessibility="no-hide-descendants">
@@ -146,7 +147,7 @@ export const SplashBranding = memo(() => {
         <Text style={styles.title} accessibilityRole="header">
           {appDisplayName}
         </Text>
-        <Text style={styles.subtitle}>{APP_TAGLINE}</Text>
+        <Text style={styles.subtitle}>{t('branding.tagline')}</Text>
 
         <View style={styles.dots}>
           <SplashLoadingDots dotStyle={styles.dot} dotsRowStyle={styles.dotsRow} />

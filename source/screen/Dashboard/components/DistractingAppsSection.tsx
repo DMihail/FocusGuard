@@ -2,6 +2,7 @@ import React, { memo, useLayoutEffect, useMemo, useRef } from 'react';
 import { Pressable, Text, View } from 'react-native';
 
 import { getManageAppKey } from '@/domain/appKey';
+import { useTranslation } from '@/i18n';
 import { testIds } from '@/testing/testIds';
 import { spacing } from '@/theme';
 import { configureSectionLayoutAnimation } from '@/utils/layoutAnimation';
@@ -55,6 +56,7 @@ const areDistractingAppsSectionPropsEqual = (
 export const DistractingAppsSection = memo(
   ({ appRows, onConfigureLimits, onViewAllPress }: DistractingAppsSectionProps) => {
     const styles = useDashboardStyles();
+    const { t } = useTranslation();
     const visibleApps = useMemo(() => appRows.slice(0, MAX_VISIBLE_APPS), [appRows]);
     const previousAppsCount = useRef(visibleApps.length);
 
@@ -69,17 +71,17 @@ export const DistractingAppsSection = memo(
       <View style={styles.section} testID={testIds.dashboard.distractingAppsSection}>
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle} accessibilityRole="header" numberOfLines={1}>
-            Top Distracting Apps
+            {t('dashboard.distractingApps')}
           </Text>
           {appRows.length > MAX_VISIBLE_APPS ? (
             <Pressable
               accessibilityRole="button"
-              accessibilityLabel="View all tracked apps"
+              accessibilityLabel={t('dashboard.viewAllAppsA11y')}
               onPress={onViewAllPress}
               style={styles.viewAllButton}
               testID={testIds.dashboard.viewAllAppsButton}
             >
-              <Text style={styles.viewAllText}>View All</Text>
+              <Text style={styles.viewAllText}>{t('common.viewAll')}</Text>
             </Pressable>
           ) : null}
         </View>

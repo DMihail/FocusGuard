@@ -5,10 +5,10 @@ import { useCallback, useMemo } from 'react';
 import { useSystemColorScheme } from '@/hooks/useSystemColorScheme';
 import { settingsStore } from '@/store';
 
-const THEME_DESCRIPTION = {
-  system: 'Matches your device appearance',
-  dark: 'Dark appearance',
-  light: 'Light appearance',
+const THEME_DESCRIPTION_KEY = {
+  system: 'settings.darkMode.descriptionSystem',
+  dark: 'settings.darkMode.descriptionDark',
+  light: 'settings.darkMode.descriptionLight',
 } as const;
 
 const resolveIsDark = (
@@ -40,20 +40,15 @@ export const useThemeSetting = () => {
     [setThemePreference],
   );
 
-  const description = useMemo(
-    () =>
-      preference === 'system'
-        ? THEME_DESCRIPTION.system
-        : isDarkModeEnabled
-        ? THEME_DESCRIPTION.dark
-        : THEME_DESCRIPTION.light,
-    [isDarkModeEnabled, preference],
-  );
-
   return {
     isDarkModeEnabled,
     themePreference: preference,
-    description,
+    descriptionKey:
+      preference === 'system'
+        ? THEME_DESCRIPTION_KEY.system
+        : isDarkModeEnabled
+        ? THEME_DESCRIPTION_KEY.dark
+        : THEME_DESCRIPTION_KEY.light,
     setDarkModeEnabled,
   };
 };

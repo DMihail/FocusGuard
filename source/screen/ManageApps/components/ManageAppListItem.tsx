@@ -6,6 +6,7 @@ import { Pressable, Text, View } from 'react-native';
 import { CheckIcon } from '@/assets/svg/EnablePermissions';
 import { getManageAppKey } from '@/domain/appKey';
 import { useTheme } from '@/hooks/useTheme';
+import { useTranslation } from '@/i18n';
 import { testIds } from '@/testing/testIds';
 
 import { useManageAppsStyles } from '../styles';
@@ -22,6 +23,7 @@ type ManageAppListItemProps = {
 export const ManageAppListItem = memo(({ app, isSelected, onToggle }: ManageAppListItemProps) => {
   const styles = useManageAppsStyles();
   const { colors } = useTheme();
+  const { t } = useTranslation();
   const { appName, appImage, categoryLabel } = app;
   const appKey = getManageAppKey(app);
 
@@ -30,7 +32,7 @@ export const ManageAppListItem = memo(({ app, isSelected, onToggle }: ManageAppL
       testID={testIds.manageApps.appRow(appKey)}
       accessibilityRole="button"
       accessibilityState={{ selected: isSelected }}
-      accessibilityLabel={`${appName}, ${categoryLabel}`}
+      accessibilityLabel={t('manageApps.appRowA11y', { appName, category: categoryLabel })}
       style={styles.appItem}
       onPress={() => onToggle(app)}
     >

@@ -6,6 +6,7 @@ import { Pressable, Text, View } from 'react-native';
 import { FocusModeSvg } from '@/assets/svg/Dashboard';
 import { ManageAppsSvg } from '@/assets/svg/Dashboard/ManageApps';
 import { useTheme } from '@/hooks/useTheme';
+import { useTranslation } from '@/i18n';
 import { testIds } from '@/testing/testIds';
 import { configureSectionLayoutAnimation } from '@/utils/layoutAnimation';
 
@@ -39,6 +40,7 @@ export const QuickActionsSection = memo(
   }: QuickActionsSectionProps) => {
     const styles = useDashboardStyles();
     const { colors } = useTheme();
+    const { t } = useTranslation();
     const isFocusModeDisabled = !canStartFocusMode && !isMonitoring;
 
     const handleToggle = () => {
@@ -54,7 +56,7 @@ export const QuickActionsSection = memo(
       <View style={styles.quickActions} testID={testIds.dashboard.quickActions}>
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel={isMonitoring ? 'Stop focus monitoring' : 'Start focus monitoring'}
+          accessibilityLabel={isMonitoring ? t('dashboard.focusModeStopA11y') : t('dashboard.focusModeStartA11y')}
           accessibilityState={{ disabled: isFocusModeDisabled }}
           style={[
             styles.quickActionCard,
@@ -69,14 +71,14 @@ export const QuickActionsSection = memo(
             <FocusModeSvg stroke={colors.accentOnContainer} />
           </View>
           <Text style={styles.quickActionTitle} numberOfLines={2}>
-            {isMonitoring ? 'Stop Focus Mode' : 'Focus Mode'}
+            {isMonitoring ? t('dashboard.stopFocusMode') : t('dashboard.focusMode')}
           </Text>
           <Text style={styles.quickActionSubtitle}>{monitoringSubtitle}</Text>
         </Pressable>
 
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel="Manage apps"
+          accessibilityLabel={t('dashboard.manageAppsA11y')}
           onPress={onOpenManageApps}
           style={styles.quickActionCard}
           testID={testIds.dashboard.manageAppsButton}
@@ -85,9 +87,9 @@ export const QuickActionsSection = memo(
             <ManageAppsSvg stroke={colors.accentOnContainer} />
           </View>
           <Text style={styles.quickActionTitleMuted} numberOfLines={2}>
-            Manage Apps
+            {t('dashboard.manageApps')}
           </Text>
-          <Text style={styles.quickActionSubtitleMuted}>Set limits</Text>
+          <Text style={styles.quickActionSubtitleMuted}>{t('dashboard.manageAppsSubtitle')}</Text>
         </Pressable>
       </View>
     );

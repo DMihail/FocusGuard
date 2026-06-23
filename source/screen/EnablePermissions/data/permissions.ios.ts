@@ -2,21 +2,22 @@
 
 import { NotificationsIcon, UsageAccess } from '@/assets/svg/EnablePermissions';
 import { getPermissionIds } from '@/domain/permissions/permissionIds.ios';
+import type { TranslateFn } from '@/i18n';
 
 import type { PermissionItem } from '../types';
 
-export const createPermissions = (appDisplayName: string): PermissionItem[] => [
+export const createPermissions = (appName: string, t: TranslateFn): PermissionItem[] => [
   {
     id: 'usage-access',
-    title: 'Screen Time',
-    description: `Allow ${appDisplayName} to manage your app limits with Screen Time.`,
+    title: t('permissions.ios.screenTime.title'),
+    description: t('permissions.ios.screenTime.description', { appName }),
     status: 'pending',
     Icon: UsageAccess,
   },
   {
     id: 'notifications',
-    title: 'Notifications',
-    description: 'Optional — send reminders and limit warnings. You can enable this later in Settings.',
+    title: t('permissions.ios.notifications.title'),
+    description: t('permissions.ios.notifications.description'),
     status: 'pending',
     Icon: NotificationsIcon,
   },

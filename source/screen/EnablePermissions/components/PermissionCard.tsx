@@ -7,6 +7,7 @@ import Animated from 'react-native-reanimated';
 
 import { CheckIcon } from '@/assets/svg/EnablePermissions';
 import { useTheme } from '@/hooks/useTheme';
+import { useTranslation } from '@/i18n';
 import { testIds } from '@/testing/testIds';
 
 import { usePermissionCardAnimation } from '../hooks/usePermissionCardAnimation';
@@ -28,6 +29,7 @@ const arePermissionCardPropsEqual = (previous: PermissionCardProps, next: Permis
 export const PermissionCard = memo(({ id, title, description, status, Icon, onGrant }: PermissionCardProps) => {
   const styles = usePermissionsStyles();
   const { colors } = useTheme();
+  const { t } = useTranslation();
   const { grantedOverlayStyle, pendingIconStyle, grantedIconStyle, badgeStyle, grantButtonStyle, isGranted } =
     usePermissionCardAnimation(id, status);
 
@@ -75,12 +77,12 @@ export const PermissionCard = memo(({ id, title, description, status, Icon, onGr
                 <Pressable
                   testID={testIds.enablePermissions.grantButton(id)}
                   accessibilityRole="button"
-                  accessibilityLabel={`Grant ${title}`}
+                  accessibilityLabel={t('permissions.grantA11y', { title })}
                   disabled={isGranted}
                   style={styles.grantButton}
                   onPress={handleGrant}
                 >
-                  <Text style={styles.grantButtonText}>Grant Permission</Text>
+                  <Text style={styles.grantButtonText}>{t('common.grantPermission')}</Text>
                 </Pressable>
               </Animated.View>
             ) : null}
