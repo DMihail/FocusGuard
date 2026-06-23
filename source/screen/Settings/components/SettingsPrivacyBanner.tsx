@@ -5,7 +5,6 @@ import { Text, View } from 'react-native';
 
 import { LockPrivacyIcon } from '@/assets/svg/Settings';
 import { getAppDisplayName } from '@/constants/appDisplayName';
-import { getSettingsPrivacyBanner } from '@/content/privacy';
 import { useTheme } from '@/hooks/useTheme';
 import { useTranslation } from '@/i18n';
 import { testIds } from '@/testing/testIds';
@@ -24,7 +23,7 @@ export const SettingsPrivacyBanner = () => {
       </View>
       <View style={styles.privacyTextBlock}>
         <Text style={styles.privacyTitle}>{t('settings.privacyBannerTitle')}</Text>
-        <Text style={styles.privacyBody}>{getSettingsPrivacyBanner(t, getAppDisplayName())}</Text>
+        <Text style={styles.privacyBody}>{t('content.settingsPrivacyBanner', { appName: getAppDisplayName() })}</Text>
       </View>
     </View>
   );

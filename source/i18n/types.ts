@@ -6,8 +6,6 @@ export type AppLanguage = 'en' | 'ru';
 
 export type LanguagePreference = 'system' | AppLanguage;
 
-export type TranslationParams = Record<string, string | number>;
-
 export type TranslationLeaf = string;
 
 export type TranslationTree = {

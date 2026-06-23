@@ -4,8 +4,8 @@ import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { BackIcon } from '@/assets/svg/ManageApps';
+import { createStylesHook } from '@/hooks/createStylesHook';
 import { useTheme } from '@/hooks/useTheme';
-import { createStylesHook } from '@/hooks/useThemedStyles';
 import { useTranslation } from '@/i18n';
 import { borderRadius, fontSize, spacing, typography } from '@/theme';
 import type { Theme } from '@/theme/types';

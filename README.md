@@ -41,6 +41,7 @@ authorization on iOS.
 | -------------- | --------------------------------------------------------------------------- |
 | UI             | React 19.2, TypeScript 5.8, Reanimated 4, React Navigation 7 (static stack) |
 | State          | Zustand 5 + `react-native-mmkv` 4 (Nitro Modules)                           |
+| i18n           | i18next, react-i18next, react-native-localize (en / ru)                     |
 | Android native | Kotlin, foreground service, overlay manager, Turbo Module                   |
 | iOS native     | Swift, Family Controls, DeviceActivity + Report extensions                  |
 | Quality        | ESLint, Prettier, Husky, lint-staged, Jest                                  |
@@ -51,14 +52,16 @@ authorization on iOS.
 
 ```
 source/                         # TypeScript / React application
+├── App.tsx                     # Root: providers + navigation gate
 ├── components/                 # Shared UI (AppIcon, ScreenSafeArea, …)
 ├── domain/                     # Permissions, catalogs, app keys, usage loaders
 ├── hooks/                      # App state, refresh, catalog prefetch
+├── i18n/                       # i18next init, locales (en/ru), LanguageSync
 ├── navigation/                 # Static stack, deep links, permission guard
 ├── screen/                     # Feature screens (Dashboard, ManageApps, …)
 ├── specs/                      # Turbo Module contract (`NativeUsageStats`)
 ├── store/                      # Zustand stores, MMKV, native snapshot sync
-├── theme/                      # Colors, typography, spacing
+├── theme/                      # Colors, typography, animated theme transitions
 └── assets/                     # Fonts, SVG icons
 
 android/app/src/main/java/com/focusguard/   # Monitor, overlay, permissions (legacy package)
@@ -187,17 +190,17 @@ snapshot sync when navigation becomes ready.
 
 ## npm scripts
 
-| Script                                    | Description                                 |
-| ----------------------------------------- | ------------------------------------------- |
-| `npm start`                               | Metro bundler                               |
-| `npm run android` / `npm run ios`         | Run on device / simulator                   |
-| `npm run check`                           | lint + format + typecheck + tests (CI gate) |
-| `npm run lint` / `npm run lint:fix`       | ESLint                                      |
-| `npm run format` / `npm run format:check` | Prettier                                    |
-| `npm run typecheck`                       | `tsc --noEmit`                              |
-| `npm test` / `npm run test:ci`            | Jest                                        |
-| `npm run android:bundle:release`          | Release AAB                                 |
-| `npm run android:assemble:release`        | Release APK                                 |
+| Script                                    | Description                                    |
+| ----------------------------------------- | ---------------------------------------------- |
+| `npm start`                               | Metro bundler                                  |
+| `npm run android` / `npm run ios`         | Run on device / simulator                      |
+| `npm run check`                           | Full CI gate: lint, format, types, tests       |
+| `npm test`                                | Jest (add `-- --watch` for watch mode locally) |
+| `npm run lint` / `npm run lint:fix`       | ESLint                                         |
+| `npm run format` / `npm run format:check` | Prettier                                       |
+| `npm run typecheck`                       | `tsc --noEmit`                                 |
+| `npm run android:bundle:release`          | Release AAB                                    |
+| `npm run android:assemble:release`        | Release APK                                    |
 
 Pre-commit hooks (Husky + lint-staged) run ESLint, Prettier, and related tests on staged `source/` and `__tests__/`
 files.
@@ -206,27 +209,33 @@ files.
 
 ```sh
 npm test              # local
-npm run test:ci       # CI (no watchman, forceExit)
-npm run check         # full gate
+npm run check         # same gate as CI (js job)
 ```
 
-Unit tests cover navigation, stores, permissions, usage math, and screen flows. Jest defaults to `.ios.ts` resolution;
-Android-specific modules are imported explicitly in tests (e.g. `permissionStatus.android.ts`).
+Tests focus on business logic and integration points that are easy to break:
+
+- **Domain & stores** — permissions, catalogs, MMKV snapshots, usage math
+- **Navigation** — entry route, deep links, bootstrap gate
+- **Hooks & screens** — permission flow, manage-apps selection, dashboard data wiring
+
+Jest defaults to `.ios.ts` resolution; Android-specific modules are imported explicitly in tests (e.g.
+`permissionStatus.android.ts`).
 
 ## Localization
 
-The app supports **English** and **Russian** via `source/i18n/`:
+The app supports **English** and **Russian** via **i18next** (`source/i18n/`):
 
-- `useTranslation()` — `t('key.path', { params })` in components
+- `useTranslation()` from `@/i18n` — `t('key.path', { params })` in components
 - `languagePreference` in settings (`system` | `en` | `ru`), persisted in MMKV
-- Settings → **Language** to pick locale; `system` follows device language (`Intl`)
-- Legal documents have platform-specific Russian copies under `source/i18n/legal/ru/`
+- Settings → **Language**; `system` follows device locale via `react-native-localize`
+- Russian plural rules handled by i18next (`compatibilityJSON: 'v4'`)
+- Legal documents: English builders under `source/screen/Legal/data/`, Russian under `source/i18n/legal/ru/`
 
 ## CI
 
 GitHub Actions (`.github/workflows/ci.yml`), New Architecture enabled:
 
-1. **js** — `npm run check` (lint, format, types, tests) on Node 22
+1. **js** — `npm run check` on Node 22
 2. **android** — `assembleDebug` after SDK/NDK install (API 36)
 3. **ios** — `xcodebuild` for iOS Simulator (no code signing)
 

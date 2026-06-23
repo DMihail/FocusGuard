@@ -8,11 +8,12 @@ import { settingsStore } from '@/store';
 import i18n from './i18n';
 import { resolveLanguage } from './resolveLanguage';
 
-type I18nProviderProps = {
+type LanguageSyncProps = {
   children: ReactNode;
 };
 
-export const I18nProvider = ({ children }: I18nProviderProps) => {
+/** Keeps i18next in sync with settings and system locale changes. */
+export const LanguageSync = ({ children }: LanguageSyncProps) => {
   const languagePreference = settingsStore((state) => state.languagePreference);
 
   useEffect(() => {

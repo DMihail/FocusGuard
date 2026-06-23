@@ -7,9 +7,9 @@ import Animated, { interpolate, type SharedValue, useAnimatedStyle } from 'react
 
 import { Shield } from '@/assets/svg/Onboarding';
 import { getAppDisplayName } from '@/constants/appDisplayName';
+import { createStylesHook } from '@/hooks/createStylesHook';
 import { splashDotPulseMin, useSplashDotPulse } from '@/hooks/useSplashDotPulse';
 import { useTheme } from '@/hooks/useTheme';
-import { createStylesHook } from '@/hooks/useThemedStyles';
 import { useTranslation } from '@/i18n';
 import { testIds } from '@/testing/testIds';
 import { borderRadius, fontSize, lineHeight, spacing, typography } from '@/theme';

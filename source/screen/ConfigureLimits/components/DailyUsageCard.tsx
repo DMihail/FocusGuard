@@ -11,7 +11,7 @@ import { computeUsageMetrics } from '@/utils/usage/computeUsageMetrics';
 
 import { useConfigureLimitsStyles } from '../styles';
 
-import { ProgressBar } from '@/components/ProgressBar';
+import { ProgressBar } from '@/components';
 
 type DailyUsageCardProps = {
   appKey: string;

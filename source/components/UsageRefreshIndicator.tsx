@@ -3,8 +3,8 @@
 import React, { Activity, memo } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
+import { createStylesHook } from '@/hooks/createStylesHook';
 import { useTheme } from '@/hooks/useTheme';
-import { createStylesHook } from '@/hooks/useThemedStyles';
 import { useTranslation } from '@/i18n';
 import { testIds } from '@/testing/testIds';
 import type { Theme } from '@/theme/types';

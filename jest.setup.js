@@ -193,13 +193,12 @@ jest.mock('@/i18n', () => {
   const { useTranslation: useI18nextTranslation } = require('react-i18next');
 
   return {
-    I18nProvider: ({ children }) => children,
+    LanguageSync: ({ children }) => children,
     useTranslation: () => {
       const { t, i18n: instance } = useI18nextTranslation();
 
       return { language: 'en', t, i18n: instance };
     },
-    resolveLanguage: (preference) => (preference === 'ru' ? 'ru' : 'en'),
   };
 });
 

@@ -2,9 +2,9 @@ import React, { memo } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { getManageAppKey } from '@/domain/appKey';
+import { createStylesHook } from '@/hooks/createStylesHook';
 import { useFormatUsage } from '@/hooks/useFormatUsage';
 import { useTheme } from '@/hooks/useTheme';
-import { createStylesHook } from '@/hooks/useThemedStyles';
 import { useTranslation } from '@/i18n';
 import { testIds } from '@/testing/testIds';
 import { fontSize, spacing, typography } from '@/theme';

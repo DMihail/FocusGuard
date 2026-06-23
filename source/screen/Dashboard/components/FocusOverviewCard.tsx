@@ -12,7 +12,7 @@ import type { DashboardSummary } from '@/utils/usage/dashboardStats';
 
 import { useDashboardStyles } from '../styles';
 
-import { ProgressBar } from '@/components/ProgressBar';
+import { ProgressBar } from '@/components';
 
 type FocusOverviewCardProps = {
   summary: DashboardSummary;

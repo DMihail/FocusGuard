@@ -6,8 +6,8 @@ import type { ListRenderItem } from '@/list';
 
 import type { PermissionId, PermissionItem } from '../types';
 
-import { PermissionListRow } from '../components/PermissionListRow';
+import { PermissionCard } from '../components/PermissionCard';
 
 export const createPermissionListRenderItem = (onGrant: (id: PermissionId) => void): ListRenderItem<PermissionItem> => {
-  return ({ item }) => <PermissionListRow item={item} onGrant={onGrant} />;
+  return ({ item }) => <PermissionCard {...item} onGrant={onGrant} />;
 };

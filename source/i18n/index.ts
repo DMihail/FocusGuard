@@ -2,7 +2,6 @@
 
 import './i18n';
 
-export { I18nProvider } from './I18nProvider';
-export { resolveLanguage } from './resolveLanguage';
-export type { AppLanguage, LanguagePreference, TranslateFn, TranslationParams } from './types';
+export { LanguageSync } from './LanguageSync';
+export type { AppLanguage, LanguagePreference, TranslateFn } from './types';
 export { useTranslation } from './useTranslation';

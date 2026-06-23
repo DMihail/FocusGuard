@@ -121,8 +121,8 @@ export const ruUi: TranslationTree = {
     usedTodayA11y: 'Использовано сегодня, всего {{time}}',
     remaining: 'Осталось',
     remainingA11y: 'Осталось из лимита: {{time}}',
-    focusMode: 'Режим фокуса',
-    stopFocusMode: 'Остановить фокус',
+    focusMode: 'Включить мониторинг',
+    stopFocusMode: 'Остановить мониторинг',
     focusModeSubtitle: {
       selectApps: 'Сначала выберите приложения',
       monitoring: 'Мониторинг включён',

@@ -3,7 +3,7 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
-import { createStylesHook } from '@/hooks/useThemedStyles';
+import { createStylesHook } from '@/hooks/createStylesHook';
 import { borderRadius, spacing, typography } from '@/theme';
 import type { Theme } from '@/theme/types';
 
