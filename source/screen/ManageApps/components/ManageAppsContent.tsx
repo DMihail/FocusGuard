@@ -2,6 +2,7 @@ import React, { Activity, useMemo } from 'react';
 import { ActivityIndicator, FlatList, View } from 'react-native';
 
 import { useTheme } from '@/hooks/useTheme';
+import { useTranslation } from '@/i18n';
 import { APP_LIST_FLAT_LIST_PROPS } from '@/list';
 import { testIds } from '@/testing/testIds';
 
@@ -30,6 +31,7 @@ export const ManageAppsContent = ({
 }: ManageAppsContentProps) => {
   const styles = useManageAppsStyles();
   const { colors } = useTheme();
+  const { t } = useTranslation();
   const renderItem = useMemo(() => createManageAppListRenderItem(isSelected, onToggle), [isSelected, onToggle]);
 
   const listHeader = useMemo(
@@ -83,7 +85,7 @@ export const ManageAppsContent = ({
             <ActivityIndicator
               size="small"
               color={colors.accent}
-              accessibilityLabel={isLoadingApps ? 'Loading apps' : 'Filtering apps'}
+              accessibilityLabel={isLoadingApps ? t('manageApps.loadingApps') : t('manageApps.filteringApps')}
               testID={isLoadingApps ? testIds.manageApps.appsLoader : testIds.manageApps.appsFilterLoader}
             />
           </View>
@@ -102,7 +104,7 @@ export const ManageAppsContent = ({
           showsVerticalScrollIndicator={false}
           keyboardDismissMode="none"
           accessibilityRole="list"
-          accessibilityLabel="Installed apps"
+          accessibilityLabel={t('manageApps.installedAppsA11y')}
           {...APP_LIST_FLAT_LIST_PROPS}
         />
       </View>

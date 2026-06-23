@@ -2,7 +2,7 @@
 
 import { StyleSheet } from 'react-native';
 
-import { createStylesHook } from '@/hooks/useThemedStyles';
+import { createStylesHook } from '@/hooks/createStylesHook';
 import { borderRadius, fontSize, lineHeight, spacing, typography } from '@/theme';
 import type { Theme } from '@/theme/types';
 

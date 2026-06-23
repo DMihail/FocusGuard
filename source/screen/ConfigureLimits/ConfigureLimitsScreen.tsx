@@ -2,6 +2,7 @@ import React, { useCallback } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 
 import { useGoBack } from '@/hooks/useGoBack';
+import { useTranslation } from '@/i18n';
 import { LIMIT_SLIDER_BOUNDS } from '@/store';
 import { testIds } from '@/testing/testIds';
 
@@ -19,6 +20,7 @@ import { ScreenSafeArea } from '@/components';
 
 export const ConfigureLimitsScreen = ({ route }: ConfigureLimitsScreenProps) => {
   const styles = useConfigureLimitsStyles();
+  const { t } = useTranslation();
   const { appKey } = route.params;
   const goBack = useGoBack();
   const {
@@ -43,15 +45,19 @@ export const ConfigureLimitsScreen = ({ route }: ConfigureLimitsScreenProps) => 
       <ScreenSafeArea
         style={styles.screen}
         testID={testIds.configureLimits.unknownAppScreen}
-        accessibilityLabel="Configure limits, unknown app"
+        accessibilityLabel={t('configureLimits.screenLabelUnknown')}
       >
-        <ConfigureLimitsHeader appName="Unknown app" onBack={goBack} />
+        <ConfigureLimitsHeader appName={t('common.unknownApp')} onBack={goBack} />
       </ScreenSafeArea>
     );
   }
 
   return (
-    <ScreenSafeArea style={styles.screen} testID={testIds.configureLimits.screen} accessibilityLabel="Configure limits">
+    <ScreenSafeArea
+      style={styles.screen}
+      testID={testIds.configureLimits.screen}
+      accessibilityLabel={t('configureLimits.screenLabel')}
+    >
       <ScrollView
         testID={testIds.configureLimits.scroll}
         contentContainerStyle={styles.scrollContent}
@@ -74,8 +80,8 @@ export const ConfigureLimitsScreen = ({ route }: ConfigureLimitsScreenProps) => 
             decreaseTestID={testIds.configureLimits.warningDecrease}
             increaseTestID={testIds.configureLimits.warningIncrease}
             trackTestID={testIds.configureLimits.warningTrack}
-            title="Daily warning"
-            description="Notification when today's usage reaches this time"
+            title={t('configureLimits.dailyWarningTitle')}
+            description={t('configureLimits.dailyWarningDescription')}
             valueMinutes={draft.warningMinutes}
             minMinutes={LIMIT_SLIDER_BOUNDS.warning.min}
             maxMinutes={LIMIT_SLIDER_BOUNDS.warning.max}
@@ -89,8 +95,8 @@ export const ConfigureLimitsScreen = ({ route }: ConfigureLimitsScreenProps) => 
             decreaseTestID={testIds.configureLimits.hardBlockDecrease}
             increaseTestID={testIds.configureLimits.hardBlockIncrease}
             trackTestID={testIds.configureLimits.hardBlockTrack}
-            title="Daily limit"
-            description="App is blocked immediately when you open it after today's limit is reached"
+            title={t('configureLimits.dailyLimitTitle')}
+            description={t('configureLimits.dailyLimitDescription')}
             valueMinutes={draft.hardBlockMinutes}
             minMinutes={hardBlockMin}
             progressMinMinutes={LIMIT_SLIDER_BOUNDS.hardBlock.min}
@@ -112,11 +118,11 @@ export const ConfigureLimitsScreen = ({ route }: ConfigureLimitsScreenProps) => 
           <Pressable
             testID={testIds.configureLimits.saveButton}
             accessibilityRole="button"
-            accessibilityLabel="Save limits"
+            accessibilityLabel={t('configureLimits.saveA11y')}
             style={styles.saveButton}
             onPress={handleSave}
           >
-            <Text style={styles.saveButtonLabel}>Save Limits</Text>
+            <Text style={styles.saveButtonLabel}>{t('configureLimits.save')}</Text>
           </Pressable>
         </View>
       </ScrollView>

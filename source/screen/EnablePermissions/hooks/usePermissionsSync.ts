@@ -5,6 +5,7 @@ import type { PermissionId, PermissionStatus } from '@/domain/permissions';
 import { areRequiredPermissionsGranted, getPermissionIds, requestPermissionById } from '@/domain/permissions';
 import { getPermissionStatuses, invalidatePermissionSnapshot } from '@/domain/permissionSnapshot';
 import { useRunOnFocusAndActive } from '@/hooks/useRunOnFocusAndActive';
+import { useTranslation } from '@/i18n';
 import { subscribePermissionsChanged } from '@/specs';
 
 import { createPermissions } from '../data/permissions';
@@ -15,7 +16,8 @@ const hasStatusChanged = (
 ): boolean => getPermissionIds().some((id) => previous[id] !== next[id]);
 
 export const usePermissionsSync = () => {
-  const permissionItems = useMemo(() => createPermissions(getAppDisplayName()), []);
+  const { t } = useTranslation();
+  const permissionItems = useMemo(() => createPermissions(getAppDisplayName(), t), [t]);
   const [statusById, setStatusById] = useState<Record<PermissionId, PermissionStatus>>(() => getPermissionStatuses());
 
   const applyStatuses = useCallback(() => {

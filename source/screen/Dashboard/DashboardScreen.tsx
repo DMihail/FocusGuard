@@ -3,6 +3,7 @@
 import React, { useCallback, useMemo } from 'react';
 import { FlatList, View } from 'react-native';
 
+import { useTranslation } from '@/i18n';
 import { SECTION_SCROLL_FLAT_LIST_PROPS } from '@/list';
 import { useRootNavigation } from '@/navigation';
 import { testIds } from '@/testing/testIds';
@@ -23,7 +24,8 @@ import { ScreenSafeArea, UsageRefreshIndicator } from '@/components';
 export const DashboardScreen = () => {
   const styles = useDashboardStyles();
   const navigation = useRootNavigation();
-  const greeting = useMemo(() => getGreeting(), []);
+  const { t } = useTranslation();
+  const greeting = useMemo(() => getGreeting(t), [t]);
 
   const {
     appRows,
@@ -83,7 +85,11 @@ export const DashboardScreen = () => {
   );
 
   return (
-    <ScreenSafeArea style={styles.screen} testID={testIds.dashboard.screen} accessibilityLabel="Dashboard">
+    <ScreenSafeArea
+      style={styles.screen}
+      testID={testIds.dashboard.screen}
+      accessibilityLabel={t('dashboard.screenLabel')}
+    >
       <View style={styles.content}>
         <FlatList
           testID={testIds.dashboard.scroll}

@@ -20,6 +20,7 @@ const mockSyncFromSystem = jest.fn();
 const mockStoreState = {
   notificationsEnabled: true,
   themePreference: 'system' as const,
+  languagePreference: 'system' as const,
   setNotificationsEnabled: jest.fn((value: boolean) => {
     mockStoreState.notificationsEnabled = value;
   }),

@@ -4,10 +4,11 @@ import React, { memo } from 'react';
 import { Text, View } from 'react-native';
 
 import { RemainingSvg, UsedSvg } from '@/assets/svg/Dashboard';
+import { useFormatUsage } from '@/hooks/useFormatUsage';
 import { useTheme } from '@/hooks/useTheme';
+import { useTranslation } from '@/i18n';
 import { testIds } from '@/testing/testIds';
 import type { DashboardSummary } from '@/utils/usage/dashboardStats';
-import { formatUsageMinutes } from '@/utils/usage/formatUsage';
 
 import { useDashboardStyles } from '../styles';
 
@@ -24,8 +25,10 @@ const areDailyStatsRowPropsEqual = (previous: DailyStatsRowProps, next: DailySta
 export const DailyStatsRow = memo(({ summary }: DailyStatsRowProps) => {
   const styles = useDashboardStyles();
   const { colors } = useTheme();
-  const usedLabel = `Used today, ${formatUsageMinutes(summary.totalUsedMs)} total`;
-  const remainingLabel = `Remaining budget, ${formatUsageMinutes(summary.remainingMs)}`;
+  const { t } = useTranslation();
+  const { formatUsageMinutes } = useFormatUsage();
+  const usedLabel = t('dashboard.usedTodayA11y', { time: formatUsageMinutes(summary.totalUsedMs) });
+  const remainingLabel = t('dashboard.remainingA11y', { time: formatUsageMinutes(summary.remainingMs) });
 
   return (
     <View style={styles.statsRow} testID={testIds.dashboard.dailyStats}>
@@ -33,12 +36,12 @@ export const DailyStatsRow = memo(({ summary }: DailyStatsRowProps) => {
         <View style={[styles.statIconBadge, styles.statIconUsed]} importantForAccessibility="no">
           <UsedSvg stroke={colors.success} />
         </View>
-        <Text style={styles.statLabel}>Used today</Text>
+        <Text style={styles.statLabel}>{t('dashboard.usedToday')}</Text>
         <View style={styles.statValueBlock}>
           <Text style={styles.statValueMain} numberOfLines={1}>
             {formatUsageMinutes(summary.totalUsedMs)}
           </Text>
-          <Text style={styles.statValueUnit}>total</Text>
+          <Text style={styles.statValueUnit}>{t('common.total')}</Text>
         </View>
       </View>
 
@@ -46,12 +49,12 @@ export const DailyStatsRow = memo(({ summary }: DailyStatsRowProps) => {
         <View style={[styles.statIconBadge, styles.statIconRemaining]} importantForAccessibility="no">
           <RemainingSvg stroke={colors.warning} />
         </View>
-        <Text style={styles.statLabel}>Remaining</Text>
+        <Text style={styles.statLabel}>{t('dashboard.remaining')}</Text>
         <View style={styles.statValueBlock}>
           <Text style={styles.statValueMain} numberOfLines={1}>
             {formatUsageMinutes(summary.remainingMs)}
           </Text>
-          <Text style={styles.statValueUnit}>budget</Text>
+          <Text style={styles.statValueUnit}>{t('common.budget')}</Text>
         </View>
       </View>
     </View>

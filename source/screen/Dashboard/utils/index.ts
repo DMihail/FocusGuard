@@ -1,15 +1,17 @@
 /** @format */
 
-export const getGreeting = (date = new Date()): string => {
+import type { TranslateFn } from '@/i18n';
+
+export const getGreeting = (t: TranslateFn, date = new Date()): string => {
   const hour = date.getHours();
 
   if (hour < 12) {
-    return 'Good morning';
+    return t('dashboard.greeting.morning');
   }
 
   if (hour < 18) {
-    return 'Good afternoon';
+    return t('dashboard.greeting.afternoon');
   }
 
-  return 'Good evening';
+  return t('dashboard.greeting.evening');
 };

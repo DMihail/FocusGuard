@@ -3,6 +3,7 @@
 import React, { useCallback, useMemo } from 'react';
 import { FlatList, View } from 'react-native';
 
+import { useTranslation } from '@/i18n';
 import { APP_LIST_FLAT_LIST_PROPS } from '@/list';
 import { useRootNavigation } from '@/navigation';
 import { testIds } from '@/testing/testIds';
@@ -17,6 +18,7 @@ import { ScreenSafeArea } from '@/components';
 export const EnablePermissionsScreen = () => {
   const styles = usePermissionsStyles();
   const navigation = useRootNavigation();
+  const { t } = useTranslation();
   const { permissions, canContinue, handleGrant } = usePermissionsSync();
 
   const handleContinue = useCallback(() => {
@@ -32,7 +34,7 @@ export const EnablePermissionsScreen = () => {
     <ScreenSafeArea
       style={styles.screen}
       testID={testIds.enablePermissions.screen}
-      accessibilityLabel="Enable permissions"
+      accessibilityLabel={t('permissions.screenLabel')}
     >
       <FlatList
         testID={testIds.enablePermissions.cards}
@@ -43,7 +45,7 @@ export const EnablePermissionsScreen = () => {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
         accessibilityRole="list"
-        accessibilityLabel="Required permissions"
+        accessibilityLabel={t('permissions.requiredSection')}
         extraData={permissions}
         {...APP_LIST_FLAT_LIST_PROPS}
       />

@@ -1,11 +1,16 @@
+import { useMemo } from 'react';
+
 import { useShallow } from 'zustand/react/shallow';
 
+import { useTranslation } from '@/i18n';
 import { selectedAppsStore } from '@/store';
 
-import { ALL_CATEGORY_FILTER } from '../utils/buildCategoryFilters';
+import { createAllCategoryFilter } from '../utils/buildCategoryFilters';
 import { useInstalledAppsCatalog } from './useInstalledAppsCatalog';
 
 export const useManageApps = () => {
+  const { t } = useTranslation();
+  const allCategoryFilter = useMemo(() => createAllCategoryFilter(t), [t]);
   const { installedApps, isLoadingApps, refreshInstalledApps } = useInstalledAppsCatalog();
   const selection = selectedAppsStore(
     useShallow((state) => ({
@@ -24,8 +29,8 @@ export const useManageApps = () => {
     isSearchActive: false,
     setSearchQuery: () => undefined,
     setSearchInputActive: () => undefined,
-    categoryFilters: [ALL_CATEGORY_FILTER],
-    activeCategoryId: ALL_CATEGORY_FILTER.id,
+    categoryFilters: [allCategoryFilter],
+    activeCategoryId: allCategoryFilter.id,
     setActiveCategory: () => undefined,
     ...selection,
   };

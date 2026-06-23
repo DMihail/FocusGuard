@@ -5,6 +5,7 @@ import { ScrollView, View } from 'react-native';
 
 import type { LegalDocumentId } from '@/domain/types/legal';
 import { useGoBack } from '@/hooks/useGoBack';
+import { useTranslation } from '@/i18n';
 import { useRootNavigation } from '@/navigation';
 import { testIds } from '@/testing/testIds';
 
@@ -26,9 +27,17 @@ export const SettingsScreen = () => {
   const styles = useSettingsStyles();
   const navigation = useRootNavigation();
   const goBack = useGoBack();
+  const { t } = useTranslation();
   const { isEnabled: notificationsEnabled, setEnabled: setNotificationsEnabled } = useNotificationsSetting();
-  const { isDarkModeEnabled, setDarkModeEnabled, darkModeToggle, notificationsToggle, dataPrivacyLink } =
-    useSettingsPreferences();
+  const {
+    isDarkModeEnabled,
+    setDarkModeEnabled,
+    darkModeToggle,
+    notificationsToggle,
+    languageLink,
+    dataPrivacyLink,
+    openLanguagePicker,
+  } = useSettingsPreferences();
 
   const openLegalDocument = useCallback(
     (documentId: LegalDocumentId) => {
@@ -38,7 +47,11 @@ export const SettingsScreen = () => {
   );
 
   return (
-    <ScreenSafeArea style={styles.screen} testID={testIds.settings.screen} accessibilityLabel="Settings">
+    <ScreenSafeArea
+      style={styles.screen}
+      testID={testIds.settings.screen}
+      accessibilityLabel={t('settings.screenLabel')}
+    >
       <ScrollView
         testID={testIds.settings.scroll}
         contentContainerStyle={styles.scrollContent}
@@ -47,7 +60,7 @@ export const SettingsScreen = () => {
         <SettingsHeader onBack={goBack} />
 
         <View style={styles.sections}>
-          <SettingsSection title="Preferences" testID={testIds.settings.preferencesSection}>
+          <SettingsSection title={t('settings.preferences')} testID={testIds.settings.preferencesSection}>
             <SettingsToggleRow {...darkModeToggle} value={isDarkModeEnabled} onValueChange={setDarkModeEnabled} />
             <View style={styles.rowDivider} />
             <SettingsToggleRow
@@ -55,9 +68,11 @@ export const SettingsScreen = () => {
               value={notificationsEnabled}
               onValueChange={setNotificationsEnabled}
             />
+            <View style={styles.rowDivider} />
+            <SettingsLinkRow {...languageLink} onPress={openLanguagePicker} />
           </SettingsSection>
 
-          <SettingsSection title="Privacy & Security" testID={testIds.settings.privacySection}>
+          <SettingsSection title={t('settings.privacySection')} testID={testIds.settings.privacySection}>
             <SettingsLinkRow {...dataPrivacyLink} onPress={() => openLegalDocument('dataPrivacy')} />
           </SettingsSection>
 

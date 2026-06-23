@@ -5,29 +5,23 @@ import { StyleSheet } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
-import { useTheme } from '@/hooks/useTheme';
+import { LanguageSync } from '@/i18n';
 import { ThemeProvider } from '@/theme';
 
-import { Navigation } from './navigation';
+import { RootNavigationGate } from './navigation/RootNavigationGate';
 
 import { SystemChrome } from '@/components';
-
-const AppShell = () => {
-  const { colors } = useTheme();
-
-  return (
-    <GestureHandlerRootView style={[styles.root, { backgroundColor: colors.background }]}>
-      <SystemChrome />
-      <Navigation />
-    </GestureHandlerRootView>
-  );
-};
 
 function App() {
   return (
     <SafeAreaProvider>
       <ThemeProvider>
-        <AppShell />
+        <LanguageSync>
+          <GestureHandlerRootView style={styles.root}>
+            <SystemChrome />
+            <RootNavigationGate />
+          </GestureHandlerRootView>
+        </LanguageSync>
       </ThemeProvider>
     </SafeAreaProvider>
   );
