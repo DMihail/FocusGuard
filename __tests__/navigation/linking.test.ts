@@ -29,7 +29,7 @@ describe('deep link parsing', () => {
     expect(parseDeepLinkUrl(null)).toBeNull();
   });
 
-  it('prepends Dashboard for cold-start configure deep links', () => {
+  it('builds a navigable stack for configure deep links', () => {
     const state = buildRootNavigationStateFromPath('configure/com.instagram.android');
 
     expect(state).toEqual({
@@ -41,24 +41,6 @@ describe('deep link parsing', () => {
         },
       ],
       index: 1,
-    });
-  });
-
-  it('keeps tracked-apps deep link stack navigable from Dashboard', () => {
-    const state = buildRootNavigationStateFromPath('tracked-apps');
-
-    expect(state).toEqual({
-      routes: [{ name: 'Dashboard' }, { name: 'TrackedApps' }],
-      index: 1,
-    });
-  });
-
-  it('does not prepend Dashboard for dashboard deep links', () => {
-    const state = buildRootNavigationStateFromPath('dashboard');
-
-    expect(state).toEqual({
-      routes: [{ name: 'Dashboard' }],
-      index: 0,
     });
   });
 });

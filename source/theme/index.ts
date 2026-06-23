@@ -1,7 +1,7 @@
 /** @format */
 
 export { borderRadius } from './borderRadius';
-export { colors } from './colors';
-export { iconBoxPresets, layoutPresets, switchTrackColors, textPresets } from './presets';
 export { spacing } from './spacing';
+export { ThemeProvider } from './ThemeProvider';
+export type { ColorPalette, Theme, ThemePreference } from './types';
 export { fontSize, lineHeight, typography } from './typography';

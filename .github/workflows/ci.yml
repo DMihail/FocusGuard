@@ -20,7 +20,7 @@ env:
 
 jobs:
   js:
-    name: Lint, format, types & tests
+    name: Lint, types & tests
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -56,8 +56,6 @@ jobs:
 
       - uses: android-actions/setup-android@v3
 
-      # Pre-install NDK before Gradle configures native modules. Gradle auto-download is flaky on GHA
-      # (corrupted zip: "Archive is not a ZIP archive"). Version must match android/build.gradle.
       - name: Install Android SDK packages
         env:
           ANDROID_NDK_VERSION: '27.1.12297006'

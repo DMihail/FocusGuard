@@ -43,7 +43,7 @@ authorization on iOS.
 | State          | Zustand 5 + `react-native-mmkv` 4 (Nitro Modules)                           |
 | Android native | Kotlin, foreground service, overlay manager, Turbo Module                   |
 | iOS native     | Swift, Family Controls, DeviceActivity + Report extensions                  |
-| Quality        | ESLint, Prettier, Husky, lint-staged, Jest (**198** tests)                  |
+| Quality        | ESLint, Prettier, Husky, lint-staged, Jest                                  |
 
 **Requirements:** Node **≥ 22.11**, JDK **17** (Android), Xcode **16+** (iOS), CocoaPods.
 
@@ -210,16 +210,14 @@ npm run test:ci       # CI (no watchman, forceExit)
 npm run check         # full gate
 ```
 
-**198** unit tests across navigation, screens, stores, permissions, Turbo Module contracts, and native snapshot shapes.
-
-Jest defaults to `.ios.ts` resolution; Android-specific modules are imported explicitly in tests (e.g.
-`permissionStatus.android.ts`).
+Unit tests cover navigation, stores, permissions, usage math, and screen flows. Jest defaults to `.ios.ts` resolution;
+Android-specific modules are imported explicitly in tests (e.g. `permissionStatus.android.ts`).
 
 ## CI
 
 GitHub Actions (`.github/workflows/ci.yml`), New Architecture enabled:
 
-1. **js** — `npm run check` on Node 22
+1. **js** — `npm run check` (lint, format, types, tests) on Node 22
 2. **android** — `assembleDebug` after SDK/NDK install (API 36)
 3. **ios** — `xcodebuild` for iOS Simulator (no code signing)
 

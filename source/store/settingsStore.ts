@@ -12,13 +12,18 @@ export const settingsStore = create<SettingsStore>()(
   persist(
     (set) => ({
       notificationsEnabled: true,
+      themePreference: 'system',
       setNotificationsEnabled: (value) => set({ notificationsEnabled: value }),
+      setThemePreference: (value) => set({ themePreference: value }),
     }),
     {
       name: PERSIST_STORAGE_KEYS.settings,
       version: SETTINGS_PERSIST_VERSION,
       storage: createJSONStorage(() => zustandStorage),
-      partialize: (state) => ({ notificationsEnabled: state.notificationsEnabled }),
+      partialize: (state) => ({
+        notificationsEnabled: state.notificationsEnabled,
+        themePreference: state.themePreference,
+      }),
     },
   ),
 );

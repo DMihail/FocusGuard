@@ -5,9 +5,10 @@ import { Pressable, Text, View } from 'react-native';
 
 import { CheckIcon } from '@/assets/svg/EnablePermissions';
 import { getManageAppKey } from '@/domain/appKey';
+import { useTheme } from '@/hooks/useTheme';
 import { testIds } from '@/testing/testIds';
 
-import { manageAppsStyles } from '../styles';
+import { useManageAppsStyles } from '../styles';
 import type { ManageApp } from '../types';
 
 import { AppIcon } from '@/components';
@@ -19,6 +20,8 @@ type ManageAppListItemProps = {
 };
 
 export const ManageAppListItem = memo(({ app, isSelected, onToggle }: ManageAppListItemProps) => {
+  const styles = useManageAppsStyles();
+  const { colors } = useTheme();
   const { appName, appImage, categoryLabel } = app;
   const appKey = getManageAppKey(app);
 
@@ -28,30 +31,30 @@ export const ManageAppListItem = memo(({ app, isSelected, onToggle }: ManageAppL
       accessibilityRole="button"
       accessibilityState={{ selected: isSelected }}
       accessibilityLabel={`${appName}, ${categoryLabel}`}
-      style={manageAppsStyles.appItem}
+      style={styles.appItem}
       onPress={() => onToggle(app)}
     >
       <AppIcon
         appName={appName}
         appImage={appImage}
         size="sm"
-        boxStyle={manageAppsStyles.appIconBox}
-        imageStyle={manageAppsStyles.appIcon}
-        fallbackStyle={manageAppsStyles.appIconFallback}
+        boxStyle={styles.appIconBox}
+        imageStyle={styles.appIcon}
+        fallbackStyle={styles.appIconFallback}
       />
 
-      <View style={manageAppsStyles.appInfo}>
-        <Text style={manageAppsStyles.appName} numberOfLines={1}>
+      <View style={styles.appInfo}>
+        <Text style={styles.appName} numberOfLines={1}>
           {appName}
         </Text>
-        <Text style={manageAppsStyles.appCategory}>{categoryLabel}</Text>
+        <Text style={styles.appCategory}>{categoryLabel}</Text>
       </View>
 
       <View
         testID={testIds.manageApps.appSelectionControl(appKey)}
-        style={[manageAppsStyles.selectionControl, isSelected && manageAppsStyles.selectionControlSelected]}
+        style={[styles.selectionControl, isSelected && styles.selectionControlSelected]}
       >
-        {isSelected ? <CheckIcon /> : null}
+        {isSelected ? <CheckIcon stroke={colors.onPrimary} /> : null}
       </View>
     </Pressable>
   );

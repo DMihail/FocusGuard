@@ -6,7 +6,7 @@ import { View } from 'react-native';
 import { testIds } from '@/testing/testIds';
 
 import { MANAGE_APPS_SEARCH_DEBOUNCE_MS } from '../constants';
-import { manageAppsStyles } from '../styles';
+import { useManageAppsStyles } from '../styles';
 import { AppSearchField } from './AppSearchField';
 
 type ManageAppsSearchToolbarProps = {
@@ -15,6 +15,7 @@ type ManageAppsSearchToolbarProps = {
 };
 
 export const ManageAppsSearchToolbar = ({ onQueryChange, onQueryActiveChange }: ManageAppsSearchToolbarProps) => {
+  const styles = useManageAppsStyles();
   const [query, setQuery] = useState('');
 
   useEffect(() => {
@@ -30,7 +31,7 @@ export const ManageAppsSearchToolbar = ({ onQueryChange, onQueryActiveChange }: 
   }, [onQueryChange, query]);
 
   return (
-    <View style={manageAppsStyles.searchToolbar} testID={testIds.manageApps.searchField}>
+    <View style={styles.searchToolbar} testID={testIds.manageApps.searchField}>
       <AppSearchField value={query} onChangeText={setQuery} />
     </View>
   );

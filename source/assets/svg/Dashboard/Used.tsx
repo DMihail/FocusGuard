@@ -3,12 +3,14 @@ import * as React from 'react';
 import type { SvgProps } from 'react-native-svg';
 import Svg, { ClipPath, Defs, G, Path } from 'react-native-svg';
 
-export const UsedSvg = (props: SvgProps) => {
+import { darkColors } from '@/theme/palettes';
+
+export const UsedSvg = ({ stroke = darkColors.success, ...props }: SvgProps) => {
   return (
     <Svg width={16} height={16} viewBox="0 0 16 16" fill="none" {...props}>
       <G
         clipPath="url(#clip0_3_662)"
-        stroke="#4CAF50"
+        stroke={stroke}
         strokeWidth={1.33322}
         strokeLinecap="round"
         strokeLinejoin="round"

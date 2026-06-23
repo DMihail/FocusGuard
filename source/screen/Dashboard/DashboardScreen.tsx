@@ -14,13 +14,14 @@ import {
   dashboardSectionKeyExtractor,
   type DashboardSectionRenderContext,
 } from './list';
-import { dashboardStyles } from './styles';
+import { useDashboardStyles } from './styles';
 import { getGreeting } from './utils';
 
 import { DashboardHeader } from './components';
 import { ScreenSafeArea, UsageRefreshIndicator } from '@/components';
 
 export const DashboardScreen = () => {
+  const styles = useDashboardStyles();
   const navigation = useRootNavigation();
   const greeting = useMemo(() => getGreeting(), []);
 
@@ -82,15 +83,15 @@ export const DashboardScreen = () => {
   );
 
   return (
-    <ScreenSafeArea style={dashboardStyles.screen} testID={testIds.dashboard.screen} accessibilityLabel="Dashboard">
-      <View style={dashboardStyles.content}>
+    <ScreenSafeArea style={styles.screen} testID={testIds.dashboard.screen} accessibilityLabel="Dashboard">
+      <View style={styles.content}>
         <FlatList
           testID={testIds.dashboard.scroll}
           data={DASHBOARD_SECTIONS}
           renderItem={renderItem}
           keyExtractor={dashboardSectionKeyExtractor}
           ListHeaderComponent={listHeader}
-          contentContainerStyle={dashboardStyles.scrollContent}
+          contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
           refreshControl={refreshControl}
           extraData={sectionContext}

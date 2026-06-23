@@ -1,14 +1,11 @@
 import { useCallback } from 'react';
 
-import { useNavigation } from '@react-navigation/native';
-
 import { getManageAppKey } from '@/domain/appKey';
 import type { ManageApp } from '@/domain/types';
-
-import type { RootNavigationProp } from '../types';
+import { useRootNavigation } from '@/navigation';
 
 export const useNavigateToConfigureLimits = () => {
-  const navigation = useNavigation<RootNavigationProp>();
+  const navigation = useRootNavigation();
 
   return useCallback(
     (appOrKey: ManageApp | string) => {

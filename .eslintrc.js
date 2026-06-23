@@ -63,6 +63,12 @@ module.exports = {
       },
     },
     {
+      files: ['source/specs/**/*Client*.{ts,tsx}'],
+      rules: {
+        'no-restricted-imports': 'off',
+      },
+    },
+    {
       files: ['*.ts', '*.tsx'],
       parser: '@typescript-eslint/parser',
       parserOptions: {

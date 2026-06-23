@@ -11,7 +11,8 @@ import Animated, {
   useDerivedValue,
 } from 'react-native-reanimated';
 
-import { borderRadius, colors } from '@/theme';
+import { useTheme } from '@/hooks/useTheme';
+import { borderRadius } from '@/theme';
 
 export type IndicatorVariant = 'progress' | 'page';
 
@@ -36,6 +37,7 @@ type AnimatedIndicatorDotProps = {
 };
 
 export const AnimatedIndicatorDot = ({ scrollX, index, pageWidth, variant }: AnimatedIndicatorDotProps) => {
+  const { colors } = useTheme();
   const config = VARIANT_CONFIG[variant];
   const minScale = config.inactiveWidth / config.activeWidth;
 

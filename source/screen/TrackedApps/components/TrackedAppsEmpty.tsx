@@ -5,10 +5,14 @@ import { Text } from 'react-native';
 
 import { testIds } from '@/testing/testIds';
 
-import { trackedAppsStyles } from '../styles';
+import { useTrackedAppsStyles } from '../styles';
 
-export const TrackedAppsEmpty = () => (
-  <Text style={trackedAppsStyles.emptyText} testID={testIds.trackedApps.empty}>
-    No apps are being monitored yet
-  </Text>
-);
+export const TrackedAppsEmpty = () => {
+  const styles = useTrackedAppsStyles();
+
+  return (
+    <Text style={styles.emptyText} testID={testIds.trackedApps.empty}>
+      No apps are being monitored yet
+    </Text>
+  );
+};

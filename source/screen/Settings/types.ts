@@ -20,4 +20,5 @@ export type SettingsLinkItem = {
   description: string;
   Icon: ComponentType<SvgProps>;
   iconBackgroundColor: string;
+  iconStrokeColor: string;
 };

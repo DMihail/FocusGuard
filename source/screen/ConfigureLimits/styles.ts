@@ -2,223 +2,231 @@
 
 import { StyleSheet } from 'react-native';
 
-import { borderRadius, colors, fontSize, layoutPresets, spacing, textPresets, typography } from '@/theme';
+import { createStylesHook } from '@/hooks/useThemedStyles';
+import { borderRadius, fontSize, spacing, typography } from '@/theme';
+import type { Theme } from '@/theme/types';
 
-export const configureLimitsStyles = StyleSheet.create({
-  screen: layoutPresets.screen,
-  scrollContent: {
-    ...layoutPresets.scrollContent(spacing.lg),
-    paddingTop: spacing.sm,
-    paddingBottom: spacing.xxxl,
-  },
-  appBadge: {
-    ...layoutPresets.rowCenter,
-    gap: spacing.md,
-    padding: spacing.lg,
-    marginTop: spacing.md,
-  },
-  appIconBox: {
-    width: 48,
-    height: 48,
-    borderRadius: borderRadius.lg,
-    backgroundColor: colors.appIconBackground,
-    alignItems: 'center',
-    justifyContent: 'center',
-    overflow: 'hidden',
-    flexShrink: 0,
-  },
-  appIcon: {
-    width: 48,
-    height: 48,
-  },
-  appName: {
-    ...textPresets.sectionTitle,
-    flex: 1,
-    minWidth: 0,
-  },
-  dailyUsageCard: {
-    ...layoutPresets.cardLg,
-    padding: spacing.lg,
-    gap: spacing.sm,
-    marginTop: spacing.md,
-  },
-  dailyUsageTitle: {
-    ...typography.label,
-    color: colors.textSecondary,
-    letterSpacing: 0.5,
-  },
-  dailyUsageValue: {
-    ...typography.display,
-    fontSize: fontSize.xl,
-    lineHeight: 28,
-    color: colors.textPrimary,
-  },
-  dailyUsageHint: {
-    ...typography.caption,
-    color: colors.textMuted,
-  },
-  dailyUsageOverHint: {
-    ...typography.caption,
-    color: colors.overLimit,
-  },
-  dailyUsageProgress: {
-    marginTop: spacing.sm,
-  },
-  dailyUsagePercent: {
-    ...typography.caption,
-    color: colors.textSecondary,
-    fontWeight: '500',
-  },
-  dailyUsagePercentOver: {
-    color: colors.overLimit,
-  },
-  cards: {
-    gap: spacing.md,
-    marginTop: spacing.lg,
-  },
-  limitCard: {
-    ...layoutPresets.cardLg,
-    padding: spacing.lg,
-    gap: spacing.md,
-  },
-  limitCardHeader: {
-    gap: spacing.xs,
-  },
-  limitCardHeaderTop: {
-    ...layoutPresets.rowBetween,
-    alignItems: 'center',
-    gap: spacing.sm,
-  },
-  limitCardTitle: {
-    ...textPresets.sectionTitle,
-    flex: 1,
-    minWidth: 0,
-  },
-  limitCardValue: {
-    ...typography.sectionTitle,
-    fontSize: fontSize.lg,
-    lineHeight: 28,
-    flexShrink: 0,
-    minWidth: 56,
-    textAlign: 'right',
-  },
-  limitCardDescription: {
-    ...typography.body,
-    fontSize: fontSize.sm,
-    color: colors.textMuted,
-    lineHeight: 20,
-  },
-  sliderRow: {
-    ...layoutPresets.rowCenter,
-    gap: spacing.sm,
-    marginTop: spacing.xs,
-    minWidth: 0,
-  },
-  sliderButton: {
-    width: 40,
-    height: 40,
-    borderRadius: borderRadius.pill,
-    backgroundColor: colors.card,
-    borderWidth: 1,
-    borderColor: colors.cardBorder,
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexShrink: 0,
-  },
-  sliderButtonLabel: {
-    ...typography.sectionTitle,
-    fontSize: fontSize.lg,
-    color: colors.textPrimary,
-  },
-  sliderTrackTouch: {
-    flex: 1,
-    minWidth: 0,
-    height: 40,
-    justifyContent: 'center',
-  },
-  sliderTrack: {
-    height: 8,
-    borderRadius: borderRadius.pill,
-    backgroundColor: colors.switchTrackOff,
-    overflow: 'hidden',
-  },
-  sliderTrackInactive: {
-    position: 'absolute',
-    left: 0,
-    top: 0,
-    bottom: 0,
-    backgroundColor: colors.cardBorder,
-    opacity: 0.45,
-  },
-  sliderFill: {
-    height: '100%',
-    borderRadius: borderRadius.pill,
-  },
-  sliderThumbRail: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    top: 10,
-    height: 20,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  sliderThumbSpacer: {
-    minWidth: 0,
-  },
-  sliderThumb: {
-    width: 20,
-    height: 20,
-    borderRadius: borderRadius.pill,
-    borderWidth: 2,
-    borderColor: colors.textPrimary,
-    flexShrink: 0,
-  },
-  sliderBounds: {
-    ...layoutPresets.rowBetween,
-    marginTop: spacing.xs,
-    gap: spacing.sm,
-  },
-  sliderBoundLabel: {
-    ...typography.label,
-    fontSize: fontSize.xs,
-    color: colors.textDisabled,
-    flexShrink: 1,
-  },
-  strictCard: {
-    ...layoutPresets.cardLg,
-    ...layoutPresets.rowBetween,
-    alignItems: 'flex-start',
-    padding: spacing.lg,
-    gap: spacing.md,
-    marginTop: spacing.md,
-  },
-  strictText: {
-    flex: 1,
-    minWidth: 0,
-    gap: spacing.xs,
-  },
-  strictTitle: {
-    ...textPresets.sectionTitle,
-  },
-  strictDescription: {
-    ...typography.body,
-    fontSize: fontSize.sm,
-    color: colors.textMuted,
-    lineHeight: 20,
-  },
-  footer: {
-    marginTop: spacing.xxl,
-  },
-  saveButton: {
-    backgroundColor: colors.surface,
-    borderRadius: borderRadius.lg,
-    paddingVertical: spacing.lg,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  saveButtonLabel: {
-    ...typography.sectionTitle,
-    color: colors.onSurface,
-  },
-});
+export const createConfigureLimitsStyles = ({ colors, presets }: Theme) => {
+  const { layoutPresets, textPresets } = presets;
+
+  return StyleSheet.create({
+    screen: layoutPresets.screen,
+    scrollContent: {
+      ...layoutPresets.scrollContent(spacing.lg),
+      paddingTop: spacing.sm,
+      paddingBottom: spacing.xxxl,
+    },
+    appBadge: {
+      ...layoutPresets.rowCenter,
+      gap: spacing.md,
+      padding: spacing.lg,
+      marginTop: spacing.md,
+    },
+    appIconBox: {
+      width: 48,
+      height: 48,
+      borderRadius: borderRadius.lg,
+      backgroundColor: colors.appIconBackground,
+      alignItems: 'center',
+      justifyContent: 'center',
+      overflow: 'hidden',
+      flexShrink: 0,
+    },
+    appIcon: {
+      width: 48,
+      height: 48,
+    },
+    appName: {
+      ...textPresets.sectionTitle,
+      flex: 1,
+      minWidth: 0,
+    },
+    dailyUsageCard: {
+      ...layoutPresets.cardLg,
+      padding: spacing.lg,
+      gap: spacing.sm,
+      marginTop: spacing.md,
+    },
+    dailyUsageTitle: {
+      ...typography.label,
+      color: colors.textSecondary,
+      letterSpacing: 0.5,
+    },
+    dailyUsageValue: {
+      ...typography.display,
+      fontSize: fontSize.xl,
+      lineHeight: 28,
+      color: colors.textPrimary,
+    },
+    dailyUsageHint: {
+      ...typography.caption,
+      color: colors.textMuted,
+    },
+    dailyUsageOverHint: {
+      ...typography.caption,
+      color: colors.overLimit,
+    },
+    dailyUsageProgress: {
+      marginTop: spacing.sm,
+    },
+    dailyUsagePercent: {
+      ...typography.caption,
+      color: colors.textSecondary,
+      fontWeight: '500',
+    },
+    dailyUsagePercentOver: {
+      color: colors.overLimit,
+    },
+    cards: {
+      gap: spacing.md,
+      marginTop: spacing.lg,
+    },
+    limitCard: {
+      ...layoutPresets.cardLg,
+      padding: spacing.lg,
+      gap: spacing.md,
+    },
+    limitCardHeader: {
+      gap: spacing.xs,
+    },
+    limitCardHeaderTop: {
+      ...layoutPresets.rowBetween,
+      alignItems: 'center',
+      gap: spacing.sm,
+    },
+    limitCardTitle: {
+      ...textPresets.sectionTitle,
+      flex: 1,
+      minWidth: 0,
+    },
+    limitCardValue: {
+      ...typography.sectionTitle,
+      fontSize: fontSize.lg,
+      lineHeight: 28,
+      flexShrink: 0,
+      minWidth: 56,
+      textAlign: 'right',
+    },
+    limitCardDescription: {
+      ...typography.body,
+      fontSize: fontSize.sm,
+      color: colors.textMuted,
+      lineHeight: 20,
+    },
+    sliderRow: {
+      ...layoutPresets.rowCenter,
+      gap: spacing.sm,
+      marginTop: spacing.xs,
+      minWidth: 0,
+    },
+    sliderButton: {
+      width: 40,
+      height: 40,
+      borderRadius: borderRadius.pill,
+      backgroundColor: colors.card,
+      borderWidth: 1,
+      borderColor: colors.cardBorder,
+      alignItems: 'center',
+      justifyContent: 'center',
+      flexShrink: 0,
+    },
+    sliderButtonLabel: {
+      ...typography.sectionTitle,
+      fontSize: fontSize.lg,
+      color: colors.textPrimary,
+    },
+    sliderTrackTouch: {
+      flex: 1,
+      minWidth: 0,
+      height: 40,
+      justifyContent: 'center',
+    },
+    sliderTrack: {
+      height: 8,
+      borderRadius: borderRadius.pill,
+      backgroundColor: colors.switchTrackOff,
+      overflow: 'hidden',
+    },
+    sliderTrackInactive: {
+      position: 'absolute',
+      left: 0,
+      top: 0,
+      bottom: 0,
+      backgroundColor: colors.cardBorder,
+      opacity: 0.45,
+    },
+    sliderFill: {
+      height: '100%',
+      borderRadius: borderRadius.pill,
+    },
+    sliderThumbRail: {
+      position: 'absolute',
+      left: 0,
+      right: 0,
+      top: 10,
+      height: 20,
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    sliderThumbSpacer: {
+      minWidth: 0,
+    },
+    sliderThumb: {
+      width: 20,
+      height: 20,
+      borderRadius: borderRadius.pill,
+      borderWidth: 2,
+      borderColor: colors.textPrimary,
+      flexShrink: 0,
+    },
+    sliderBounds: {
+      ...layoutPresets.rowBetween,
+      marginTop: spacing.xs,
+      gap: spacing.sm,
+    },
+    sliderBoundLabel: {
+      ...typography.label,
+      fontSize: fontSize.xs,
+      color: colors.textDisabled,
+      flexShrink: 1,
+    },
+    strictCard: {
+      ...layoutPresets.cardLg,
+      ...layoutPresets.rowBetween,
+      alignItems: 'flex-start',
+      padding: spacing.lg,
+      gap: spacing.md,
+      marginTop: spacing.md,
+    },
+    strictText: {
+      flex: 1,
+      minWidth: 0,
+      gap: spacing.xs,
+    },
+    strictTitle: {
+      ...textPresets.sectionTitle,
+    },
+    strictDescription: {
+      ...typography.body,
+      fontSize: fontSize.sm,
+      color: colors.textMuted,
+      lineHeight: 20,
+    },
+    footer: {
+      marginTop: spacing.xxl,
+    },
+    saveButton: {
+      backgroundColor: colors.surface,
+      borderRadius: borderRadius.lg,
+      paddingVertical: spacing.lg,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    saveButtonLabel: {
+      ...typography.sectionTitle,
+      color: colors.onPrimary,
+    },
+  });
+};
+
+export const useConfigureLimitsStyles = createStylesHook(createConfigureLimitsStyles);

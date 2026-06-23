@@ -3,7 +3,7 @@
 import React, { memo } from 'react';
 import { Text, View } from 'react-native';
 
-import { legalStyles } from '../styles';
+import { useLegalStyles } from '../styles';
 import type { LegalSection } from '../types';
 
 type LegalSectionBlockProps = {
@@ -11,13 +11,15 @@ type LegalSectionBlockProps = {
 };
 
 export const LegalSectionBlock = memo(({ section }: LegalSectionBlockProps) => {
+  const styles = useLegalStyles();
+
   return (
-    <View style={legalStyles.section}>
-      <Text style={legalStyles.sectionTitle} accessibilityRole="header">
+    <View style={styles.section}>
+      <Text style={styles.sectionTitle} accessibilityRole="header">
         {section.title}
       </Text>
       {section.paragraphs.map((paragraph, index) => (
-        <Text key={`${section.title}-${index}`} style={legalStyles.paragraph}>
+        <Text key={`${section.title}-${index}`} style={styles.paragraph}>
           {paragraph}
         </Text>
       ))}
