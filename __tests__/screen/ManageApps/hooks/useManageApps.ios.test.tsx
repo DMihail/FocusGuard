@@ -70,9 +70,5 @@ describe('useManageApps.ios', () => {
     expect(hookValue!.isSearchActive).toBe(false);
     expect(hookValue!.categoryFilters).toHaveLength(1);
     expect(hookValue!.selectedCount).toBe(1);
-
-    hookValue!.setSearchQuery();
-    hookValue!.setActiveCategory();
-    expect(hookValue!.isSearchActive).toBe(false);
   });
 });

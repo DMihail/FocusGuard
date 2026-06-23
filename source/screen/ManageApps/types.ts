@@ -2,7 +2,7 @@
 
 import type { AppCategory, ManageApp } from '@/domain/types';
 
-export type { ManageApp } from '@/domain/types';
+export type { ManageApp };
 
 export type CategoryFilterOption = {
   id: string;

@@ -1,12 +1,14 @@
-/** @format */
-
 import { useCallback, useEffect, useRef } from 'react';
 
 import { interpolate, runOnJS, useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 
 import { SELECTED_APPS_ACCORDION_OPEN_SPRING, SELECTED_APPS_ACCORDION_SPRING } from '../constants';
 
-/** Smooth height accordion for the selected-apps strip. */
+/**
+ * Animates selected-apps section height.
+ * - Open/close: progress spring only (content stays opaque).
+ * - Row growth while open: target height springs separately.
+ */
 export const useSelectedAppsAccordion = (isExpanded: boolean, expandedHeight: number, onCollapseEnd?: () => void) => {
   const progress = useSharedValue(isExpanded ? 1 : 0);
   const expandedHeightValue = useSharedValue(expandedHeight);
