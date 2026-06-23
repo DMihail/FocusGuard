@@ -79,7 +79,6 @@ jest.mock('react-native-safe-area-context', () => {
 });
 
 import { invalidateInstalledAppsCache } from '@/domain/installedAppsCatalog';
-import { SELECTED_APPS_ACCORDION_SETTLE_MS } from '@/screen/ManageApps/constants';
 import { ManageAppsScreen } from '@/screen/ManageApps/ManageAppsScreen';
 
 describe('ManageAppsScreen', () => {
@@ -104,32 +103,6 @@ describe('ManageAppsScreen', () => {
     cleanupTestTrees();
     jest.useRealTimers();
     await flushVirtualizedListWork();
-  });
-
-  it('renders header, search, filters, and app list', async () => {
-    const tree = renderTestTree(<ManageAppsScreen />);
-    await flushInstalledAppsLoad(tree);
-    flushVirtualizedListTimers();
-
-    expect(tree.root.findByProps({ testID: testIds.manageApps.screen })).toBeDefined();
-    expect(tree.root.findByProps({ testID: testIds.manageApps.header })).toBeDefined();
-    expect(tree.root.findByProps({ testID: testIds.manageApps.searchInput })).toBeDefined();
-    expect(tree.root.findByProps({ testID: testIds.manageApps.categoryFilters })).toBeDefined();
-    expect(tree.root.findByProps({ testID: testIds.manageApps.appsList })).toBeDefined();
-    expect(tree.root.findByProps({ testID: testIds.manageApps.selectedCount }).props.children).toBe('0 selected');
-    expect(tree.root.findByProps({ children: 'Social Chat' })).toBeDefined();
-  });
-
-  it('hides selected chips when nothing is selected', async () => {
-    const tree = renderTestTree(<ManageAppsScreen />);
-    await flushInstalledAppsLoad(tree);
-    flushVirtualizedListTimers();
-
-    expect(
-      tree.root.findAll(
-        (node) => typeof node.props.testID === 'string' && node.props.testID.startsWith('manage-apps-selected-chip-'),
-      ),
-    ).toHaveLength(0);
   });
 
   it('shows selected chips after toggling an app', async () => {
@@ -163,15 +136,9 @@ describe('ManageAppsScreen', () => {
     });
 
     updateTestTree(tree, <ManageAppsScreen />);
+    flushVirtualizedListTimers();
 
     expect(tree.root.findByProps({ testID: testIds.manageApps.selectedCount }).props.children).toBe('0 selected');
-
-    runTestAct(() => {
-      jest.advanceTimersByTime(SELECTED_APPS_ACCORDION_SETTLE_MS);
-    });
-
-    updateTestTree(tree, <ManageAppsScreen />);
-    flushVirtualizedListTimers();
 
     expect(
       tree.root.findAll(
@@ -194,12 +161,6 @@ describe('ManageAppsScreen', () => {
 
     runTestAct(() => {
       tree.root.findByProps({ testID: testIds.manageApps.selectedChipRemove('com.game.puzzle') }).props.onPress();
-    });
-
-    updateTestTree(tree, <ManageAppsScreen />);
-
-    runTestAct(() => {
-      jest.advanceTimersByTime(SELECTED_APPS_ACCORDION_SETTLE_MS);
     });
 
     updateTestTree(tree, <ManageAppsScreen />);

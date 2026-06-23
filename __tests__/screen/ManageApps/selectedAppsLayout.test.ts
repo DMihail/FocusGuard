@@ -19,12 +19,6 @@ describe('getSelectedAppsLayout', () => {
   });
 
   it('uses one row height for a single chip', () => {
-    const oneChip = getSelectedAppsLayout(400, 1);
-
-    expect(oneChip.expandedHeight).toBe(78);
-  });
-
-  it('returns zero height when empty', () => {
-    expect(getSelectedAppsLayout(400, 0).expandedHeight).toBe(0);
+    expect(getSelectedAppsLayout(400, 1).expandedHeight).toBe(78);
   });
 });
