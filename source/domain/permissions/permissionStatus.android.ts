@@ -33,7 +33,7 @@ const readNativePermissionStatuses = (): Record<PermissionId, PermissionStatus> 
   >;
 
 const pinUsageAccessGrantIfDetected = (): void => {
-  if (checkForPermission()) {
+  if (checkForPermission() || isUsageAccessLatched()) {
     setUsageAccessLatched(true);
   }
 };

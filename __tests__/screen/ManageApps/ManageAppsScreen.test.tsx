@@ -180,6 +180,49 @@ describe('ManageAppsScreen', () => {
     ).toHaveLength(0);
   });
 
+  it('shows selected chips again after clearing and re-selecting an app', async () => {
+    const tree = renderTestTree(<ManageAppsScreen />);
+    await flushInstalledAppsLoad(tree);
+    flushVirtualizedListTimers();
+
+    runTestAct(() => {
+      tree.root.findByProps({ testID: testIds.manageApps.appRow('com.game.puzzle') }).props.onPress();
+    });
+
+    updateTestTree(tree, <ManageAppsScreen />);
+    flushVirtualizedListTimers();
+
+    runTestAct(() => {
+      tree.root.findByProps({ testID: testIds.manageApps.selectedChipRemove('com.game.puzzle') }).props.onPress();
+    });
+
+    updateTestTree(tree, <ManageAppsScreen />);
+
+    runTestAct(() => {
+      jest.advanceTimersByTime(SELECTED_APPS_ACCORDION_SETTLE_MS);
+    });
+
+    updateTestTree(tree, <ManageAppsScreen />);
+    flushVirtualizedListTimers();
+
+    expect(
+      tree.root.findAll(
+        (node) => typeof node.props.testID === 'string' && node.props.testID.startsWith('manage-apps-selected-chip-'),
+      ),
+    ).toHaveLength(0);
+
+    runTestAct(() => {
+      tree.root.findByProps({ testID: testIds.manageApps.appRow('com.game.puzzle') }).props.onPress();
+    });
+
+    updateTestTree(tree, <ManageAppsScreen />);
+    flushVirtualizedListTimers();
+
+    expect(tree.root.findByProps({ testID: testIds.manageApps.selectedSection })).toBeDefined();
+    expect(tree.root.findByProps({ testID: testIds.manageApps.selectedChip('com.game.puzzle') })).toBeDefined();
+    expect(tree.root.findByProps({ testID: testIds.manageApps.selectedCount }).props.children).toBe('1 selected');
+  });
+
   it('filters apps when search query changes', async () => {
     const tree = renderTestTree(<ManageAppsScreen />);
     await flushInstalledAppsLoad(tree);

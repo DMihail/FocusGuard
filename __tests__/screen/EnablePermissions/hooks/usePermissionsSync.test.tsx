@@ -97,7 +97,7 @@ describe('usePermissionsSync', () => {
     expect(mockGetPermissionStatuses).toHaveBeenCalledTimes(callsBefore);
   });
 
-  it('keeps usage-access card status aligned with Continue when native read flickers', () => {
+  it('keeps usage-access granted in UI after a transient native false read', () => {
     let hook: ReturnType<typeof usePermissionsSync> | undefined;
 
     ReactTestRenderer.act(() => {
@@ -116,16 +116,17 @@ describe('usePermissionsSync', () => {
       appStateListener?.('active');
     });
 
-    mockGetPermissionStatuses.mockImplementation((force?: boolean) =>
-      force ? { ...grantedStatuses, 'usage-access': 'pending' } : grantedStatuses,
-    );
+    mockGetPermissionStatuses.mockReturnValue({
+      ...grantedStatuses,
+      'usage-access': 'pending',
+    });
 
     ReactTestRenderer.act(() => {
       appStateListener?.('active');
     });
 
-    expect(hook!.permissions.find((item) => item.id === 'usage-access')?.status).toBe('pending');
-    expect(hook!.canContinue).toBe(false);
+    expect(hook!.permissions.find((item) => item.id === 'usage-access')?.status).toBe('granted');
+    expect(hook!.canContinue).toBe(true);
   });
 
   it('syncs statuses when native permissions changed event is emitted', () => {

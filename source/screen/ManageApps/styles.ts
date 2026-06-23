@@ -3,13 +3,10 @@
 import { StyleSheet } from 'react-native';
 
 import { createStylesHook } from '@/hooks/createStylesHook';
-import { borderRadius, lineHeight, spacing } from '@/theme';
+import { borderRadius, spacing } from '@/theme';
 import type { Theme } from '@/theme/types';
 
-export const SELECTED_APPS_SCROLL_HEIGHT = 96;
-
-/** Title line + section gap + chip scroll area. */
-export const selectedAppsSectionExpandedHeight = lineHeight.md + spacing.md + SELECTED_APPS_SCROLL_HEIGHT;
+import { SELECTED_CHIP_HEIGHT, SELECTED_CHIP_WIDTH } from './constants';
 
 export const createManageAppsStyles = ({ colors, presets }: Theme) => {
   const { layoutPresets, textPresets, iconBoxPresets } = presets;
@@ -97,14 +94,18 @@ export const createManageAppsStyles = ({ colors, presets }: Theme) => {
     selectedAppsScroll: {
       flexGrow: 0,
       flexShrink: 0,
-      height: SELECTED_APPS_SCROLL_HEIGHT,
       overflow: 'hidden',
     },
-    selectedAppsRows: {
+    selectedAppsChipRowWrap: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      alignContent: 'flex-start',
+      gap: spacing.sm,
+    },
+    selectedAppsChipColumnStrip: {
       flexDirection: 'column',
       flexWrap: 'wrap',
       alignContent: 'flex-start',
-      height: SELECTED_APPS_SCROLL_HEIGHT,
       columnGap: spacing.sm,
       rowGap: spacing.sm,
     },
@@ -112,10 +113,10 @@ export const createManageAppsStyles = ({ colors, presets }: Theme) => {
       ...layoutPresets.card,
       ...layoutPresets.rowCenter,
       flexShrink: 0,
-      width: 148,
+      width: SELECTED_CHIP_WIDTH,
+      height: SELECTED_CHIP_HEIGHT,
       paddingLeft: spacing.md,
       paddingRight: spacing.xs,
-      paddingVertical: spacing.sm,
       gap: spacing.xs,
     },
     selectedChipBody: {
