@@ -1,14 +1,16 @@
 /** @format */
 
+import type { TranslateFn } from '@/i18n';
+
 import type { CategoryFilterOption, ManageApp } from '../types';
 
-export const ALL_CATEGORY_FILTER: CategoryFilterOption = {
+export const createAllCategoryFilter = (t: TranslateFn): CategoryFilterOption => ({
   id: 'all',
-  label: 'All',
+  label: t('common.all'),
   category: 'all',
-};
+});
 
-export const buildCategoryFilters = (apps: ManageApp[]): CategoryFilterOption[] => {
+export const buildCategoryFilters = (apps: ManageApp[], t: TranslateFn): CategoryFilterOption[] => {
   const categoriesByLabel = new Map<string, string>();
 
   for (const app of apps) {
@@ -25,5 +27,5 @@ export const buildCategoryFilters = (apps: ManageApp[]): CategoryFilterOption[] 
       category,
     }));
 
-  return [ALL_CATEGORY_FILTER, ...categoryFilters];
+  return [createAllCategoryFilter(t), ...categoryFilters];
 };

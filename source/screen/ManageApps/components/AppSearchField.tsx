@@ -5,6 +5,7 @@ import { TextInput, View } from 'react-native';
 
 import { SearchIcon } from '@/assets/svg/ManageApps';
 import { useTheme } from '@/hooks/useTheme';
+import { useTranslation } from '@/i18n';
 import { testIds } from '@/testing/testIds';
 
 import { useManageAppsStyles } from '../styles';
@@ -17,16 +18,17 @@ type AppSearchFieldProps = {
 export const AppSearchField = memo(({ value, onChangeText }: AppSearchFieldProps) => {
   const styles = useManageAppsStyles();
   const { colors } = useTheme();
+  const { t } = useTranslation();
 
   return (
     <View style={styles.searchField}>
       <SearchIcon />
       <TextInput
         testID={testIds.manageApps.searchInput}
-        accessibilityLabel="Search apps"
+        accessibilityLabel={t('manageApps.searchA11y')}
         value={value}
         onChangeText={onChangeText}
-        placeholder="Search apps..."
+        placeholder={t('manageApps.searchPlaceholder')}
         placeholderTextColor={colors.textDisabled}
         style={styles.searchInput}
         autoCapitalize="none"

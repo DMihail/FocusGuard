@@ -11,10 +11,11 @@ import {
 import type { FlatList } from 'react-native';
 import { useAnimatedScrollHandler, useSharedValue } from 'react-native-reanimated';
 
+import { useTranslation } from '@/i18n';
 import { useRootNavigation } from '@/navigation';
 import { onboardingStore } from '@/store/onboardingStore';
 
-import { WALKTHROUGH_STEPS, type WalkthroughStepData } from '../data/walkthroughSteps';
+import { createWalkthroughSteps, type WalkthroughStepData } from '../data/walkthroughSteps';
 import type { ScrollIndicatorProps } from '../types';
 import {
   clampStepIndex,
@@ -23,30 +24,31 @@ import {
   getStepFromOffset,
 } from '../utils/scroll';
 
-const STEP_COUNT = WALKTHROUGH_STEPS.length;
-const LAST_STEP_INDEX = STEP_COUNT - 1;
-
 export const useOnboardingPager = () => {
+  const { t } = useTranslation();
   const navigation = useRootNavigation();
   const { width: windowWidth } = useWindowDimensions();
   const listRef = useRef<FlatList<WalkthroughStepData>>(null);
   const scrollX = useSharedValue(0);
   const [step, setStep] = useState(0);
   const [pageWidth, setPageWidth] = useState(windowWidth);
+  const steps = useMemo(() => createWalkthroughSteps(t), [t]);
+  const stepCount = steps.length;
+  const lastStepIndex = stepCount - 1;
 
-  const isLastStep = step === LAST_STEP_INDEX;
+  const isLastStep = step === lastStepIndex;
   const isPagerReady = pageWidth > 0;
 
   const indicatorProps = useMemo<ScrollIndicatorProps | null>(
     () =>
       isPagerReady
         ? {
-            count: STEP_COUNT,
+            count: stepCount,
             scrollX,
             pageWidth,
           }
         : null,
-    [isPagerReady, pageWidth, scrollX],
+    [isPagerReady, pageWidth, scrollX, stepCount],
   );
 
   const handleScroll = useAnimatedScrollHandler({
@@ -57,18 +59,21 @@ export const useOnboardingPager = () => {
 
   const handleMomentumScrollEnd = useCallback(
     (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-      const nextStep = getStepFromOffset(event.nativeEvent.contentOffset.x, pageWidth, LAST_STEP_INDEX);
+      const nextStep = getStepFromOffset(event.nativeEvent.contentOffset.x, pageWidth, lastStepIndex);
       setStep(nextStep);
     },
-    [pageWidth],
+    [lastStepIndex, pageWidth],
   );
 
-  const goToStep = useCallback((index: number) => {
-    listRef.current?.scrollToIndex({
-      index: clampStepIndex(index, LAST_STEP_INDEX),
-      animated: true,
-    });
-  }, []);
+  const goToStep = useCallback(
+    (index: number) => {
+      listRef.current?.scrollToIndex({
+        index: clampStepIndex(index, lastStepIndex),
+        animated: true,
+      });
+    },
+    [lastStepIndex],
+  );
 
   const onSkip = useCallback(() => {
     onboardingStore.getState().setIsConfirm(true);
@@ -96,7 +101,7 @@ export const useOnboardingPager = () => {
 
   return {
     listRef,
-    steps: WALKTHROUGH_STEPS,
+    steps,
     step,
     pageWidth,
     isLastStep,

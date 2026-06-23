@@ -3,6 +3,7 @@
 import React from 'react';
 
 import { useGoBack } from '@/hooks/useGoBack';
+import { useTranslation } from '@/i18n';
 import { useNavigateToConfigureLimits } from '@/navigation/hooks/useNavigateToConfigureLimits';
 import { testIds } from '@/testing/testIds';
 
@@ -14,12 +15,17 @@ import { ScreenSafeArea } from '@/components';
 
 export const ManageAppsScreen = () => {
   const styles = useManageAppsStyles();
+  const { t } = useTranslation();
   const goBack = useGoBack();
   const openConfigureLimits = useNavigateToConfigureLimits();
   const screen = useManageAppsScreen();
 
   return (
-    <ScreenSafeArea style={styles.screen} testID={testIds.manageApps.screen} accessibilityLabel="Manage apps screen">
+    <ScreenSafeArea
+      style={styles.screen}
+      testID={testIds.manageApps.screen}
+      accessibilityLabel={t('manageApps.screenLabel')}
+    >
       <ManageAppsHeader selectedCount={screen.selectedCount} onBack={goBack} />
       {screen.showSearchToolbar ? (
         <ManageAppsSearchToolbar

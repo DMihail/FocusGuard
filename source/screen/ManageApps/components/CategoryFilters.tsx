@@ -3,6 +3,7 @@
 import React, { memo, useMemo } from 'react';
 import { FlatList } from 'react-native';
 
+import { useTranslation } from '@/i18n';
 import { CHIP_ROW_FLAT_LIST_PROPS } from '@/list';
 import { testIds } from '@/testing/testIds';
 
@@ -39,6 +40,7 @@ const areCategoryFiltersPropsEqual = (previous: CategoryFiltersProps, next: Cate
 
 export const CategoryFilters = memo(({ filters, activeCategoryId, onCategoryChange }: CategoryFiltersProps) => {
   const styles = useManageAppsStyles();
+  const { t } = useTranslation();
   const renderItem = useMemo(
     () => createCategoryFilterRenderItem(activeCategoryId, onCategoryChange),
     [activeCategoryId, onCategoryChange],
@@ -55,7 +57,7 @@ export const CategoryFilters = memo(({ filters, activeCategoryId, onCategoryChan
       contentContainerStyle={styles.filtersContent}
       testID={testIds.manageApps.categoryFilters}
       accessibilityRole="list"
-      accessibilityLabel="App category filters"
+      accessibilityLabel={t('manageApps.categoryFiltersA11y')}
       extraData={activeCategoryId}
       {...CHIP_ROW_FLAT_LIST_PROPS}
     />

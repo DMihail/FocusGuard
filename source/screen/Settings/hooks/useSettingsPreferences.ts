@@ -3,22 +3,36 @@
 import { useMemo } from 'react';
 
 import { useTheme } from '@/hooks/useTheme';
+import { useTranslation } from '@/i18n';
 
-import { createDarkModeToggle, createDataPrivacyLink, createNotificationsToggle } from '../data/preferences';
+import {
+  createDarkModeToggle,
+  createDataPrivacyLink,
+  createLanguageLink,
+  createNotificationsToggle,
+} from '../data/preferences';
+import { useLanguageSetting } from './useLanguageSetting';
 import { useThemeSetting } from './useThemeSetting';
 
 export const useSettingsPreferences = () => {
   const { colors } = useTheme();
-  const { description: themeDescription, isDarkModeEnabled, setDarkModeEnabled } = useThemeSetting();
+  const { t } = useTranslation();
+  const { descriptionKey, isDarkModeEnabled, setDarkModeEnabled } = useThemeSetting();
+  const { description: languageDescription, openLanguagePicker } = useLanguageSetting();
 
   return useMemo(
     () => ({
       isDarkModeEnabled,
       setDarkModeEnabled,
-      notificationsToggle: createNotificationsToggle(colors),
-      darkModeToggle: { ...createDarkModeToggle(colors), description: themeDescription },
-      dataPrivacyLink: createDataPrivacyLink(colors),
+      openLanguagePicker,
+      notificationsToggle: createNotificationsToggle(colors, t),
+      darkModeToggle: {
+        ...createDarkModeToggle(colors, t),
+        description: t(descriptionKey),
+      },
+      languageLink: createLanguageLink(colors, t, languageDescription),
+      dataPrivacyLink: createDataPrivacyLink(colors, t),
     }),
-    [colors, isDarkModeEnabled, setDarkModeEnabled, themeDescription],
+    [colors, descriptionKey, isDarkModeEnabled, languageDescription, openLanguagePicker, setDarkModeEnabled, t],
   );
 };

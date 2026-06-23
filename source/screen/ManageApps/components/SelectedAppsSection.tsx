@@ -7,6 +7,7 @@ import Animated from 'react-native-reanimated';
 
 import { CloseIcon } from '@/assets/svg/ManageApps';
 import { getManageAppKey } from '@/domain/appKey';
+import { useTranslation } from '@/i18n';
 import { testIds } from '@/testing/testIds';
 
 import { SELECTED_APPS_ACCORDION_SETTLE_MS } from '../constants';
@@ -28,13 +29,14 @@ const areSelectedChipPropsEqual = (previous: SelectedChipProps, next: SelectedCh
 
 const SelectedChip = memo(({ app, onPress, onRemove }: SelectedChipProps) => {
   const styles = useManageAppsStyles();
+  const { t } = useTranslation();
   const appKey = getManageAppKey(app);
 
   return (
     <View style={styles.selectedChip} testID={testIds.manageApps.selectedChip(appKey)}>
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel={`Configure limits for ${app.appName}`}
+        accessibilityLabel={t('manageApps.configureLimitsA11y', { appName: app.appName })}
         onPress={() => onPress(appKey)}
         style={styles.selectedChipBody}
         testID={testIds.manageApps.selectedChipPress(appKey)}
@@ -46,7 +48,7 @@ const SelectedChip = memo(({ app, onPress, onRemove }: SelectedChipProps) => {
 
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel={`Remove ${app.appName} from selected apps`}
+        accessibilityLabel={t('manageApps.removeAppA11y', { appName: app.appName })}
         onPress={() => onRemove(app)}
         style={styles.selectedChipRemove}
         hitSlop={8}
@@ -84,6 +86,7 @@ const areSelectedAppsSectionPropsEqual = (
 
 export const SelectedAppsSection = memo(({ apps, onAppPress, onAppRemove }: SelectedAppsSectionProps) => {
   const styles = useManageAppsStyles();
+  const { t } = useTranslation();
   const isExpanded = apps.length > 0;
   const [displayApps, setDisplayApps] = useState(apps);
 
@@ -120,7 +123,7 @@ export const SelectedAppsSection = memo(({ apps, onAppPress, onAppRemove }: Sele
       {showContent ? (
         <View style={styles.section}>
           <Text accessibilityRole="header" style={styles.sectionTitle}>
-            Selected Apps
+            {t('manageApps.selectedApps')}
           </Text>
 
           <ScrollView

@@ -1,13 +1,10 @@
 /** @format */
 
-import { getAppDisplayName } from '@/constants/appDisplayName';
+import type { TranslateFn } from '@/i18n';
 
 /** Short notice on the permissions screen. */
-export const PERMISSIONS_PRIVACY_NOTICE =
-  'All data stays on your device. We never collect or share your usage information.';
+export const getPermissionsPrivacyNotice = (t: TranslateFn): string => t('content.permissionsPrivacyNotice');
 
 /** Expanded notice on the settings screen. */
-export const getSettingsPrivacyBanner = (): string => {
-  const appDisplayName = getAppDisplayName();
-  return `${appDisplayName} processes all your usage data locally on your device. We never collect, store, or share your information with anyone. Your digital wellbeing journey is completely private.`;
-};
+export const getSettingsPrivacyBanner = (t: TranslateFn, appName: string): string =>
+  t('content.settingsPrivacyBanner', { appName });

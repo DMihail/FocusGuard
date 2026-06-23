@@ -2,14 +2,15 @@ import React, { memo } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { getManageAppKey } from '@/domain/appKey';
+import { useFormatUsage } from '@/hooks/useFormatUsage';
 import { useTheme } from '@/hooks/useTheme';
 import { createStylesHook } from '@/hooks/useThemedStyles';
+import { useTranslation } from '@/i18n';
 import { testIds } from '@/testing/testIds';
 import { fontSize, spacing, typography } from '@/theme';
 import type { Theme } from '@/theme/types';
 import { computeUsageMetrics } from '@/utils/usage/computeUsageMetrics';
 import type { DashboardAppRow } from '@/utils/usage/dashboardStats';
-import { formatUsagePair } from '@/utils/usage/formatUsage';
 
 import { AppIcon } from './AppIcon';
 import { ProgressBar } from './ProgressBar';
@@ -68,6 +69,8 @@ const useAppUsageRowStyles = createStylesHook(createAppUsageRowStyles);
 export const AppUsageRow = memo(({ onPress, rowTestID, ...app }: AppUsageRowProps) => {
   const styles = useAppUsageRowStyles();
   const { colors } = useTheme();
+  const { t } = useTranslation();
+  const { formatUsagePair } = useFormatUsage();
   const appKey = getManageAppKey(app);
   const { appImage, appName, usedMs, limitMs, percentUsed, isOverLimit } = app;
   const { barProgress } = computeUsageMetrics(usedMs, limitMs);
@@ -76,7 +79,7 @@ export const AppUsageRow = memo(({ onPress, rowTestID, ...app }: AppUsageRowProp
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={`Configure limits for ${appName}, ${percentUsed} percent used`}
+      accessibilityLabel={t('appUsage.configureA11y', { appName, percent: percentUsed })}
       onPress={() => onPress(appKey)}
       style={styles.item}
       testID={rowTestID ?? testIds.dashboard.appRow(appKey)}
@@ -99,7 +102,7 @@ export const AppUsageRow = memo(({ onPress, rowTestID, ...app }: AppUsageRowProp
         </View>
 
         <Text style={[styles.percent, isOverLimit && styles.percentOver]} numberOfLines={1}>
-          {percentUsed}%
+          {t('format.percent', { percent: percentUsed })}
         </Text>
       </View>
 
@@ -107,7 +110,7 @@ export const AppUsageRow = memo(({ onPress, rowTestID, ...app }: AppUsageRowProp
         progress={barProgress}
         fillColor={fillColor}
         accessibilityRole="progressbar"
-        accessibilityLabel={`${appName} daily usage`}
+        accessibilityLabel={t('appUsage.usageA11y', { appName })}
         accessibilityValue={{ min: 0, max: 100, now: Math.round(barProgress) }}
       />
     </Pressable>

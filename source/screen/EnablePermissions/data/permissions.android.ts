@@ -2,35 +2,36 @@
 
 import { BatteryOptimization, DisplayOverApps, NotificationsIcon, UsageAccess } from '@/assets/svg/EnablePermissions';
 import { getPermissionIds } from '@/domain/permissions/permissionIds.android';
+import type { TranslateFn } from '@/i18n';
 
 import type { PermissionItem } from '../types';
 
-export const createPermissions = (appDisplayName: string): PermissionItem[] => [
+export const createPermissions = (appName: string, t: TranslateFn): PermissionItem[] => [
   {
     id: 'usage-access',
-    title: 'Usage Access',
-    description: `Enable “Usage access” for ${appDisplayName}. On Xiaomi/Redmi: Settings → Privacy → Special permissions → Usage access, or use Grant to open app permissions.`,
+    title: t('permissions.android.usageAccess.title'),
+    description: t('permissions.android.usageAccess.description', { appName }),
     status: 'pending',
     Icon: UsageAccess,
   },
   {
     id: 'display-over-apps',
-    title: 'Display Over Apps',
-    description: 'Needed to show blocking overlays when limits are reached',
+    title: t('permissions.android.displayOverApps.title'),
+    description: t('permissions.android.displayOverApps.description'),
     status: 'pending',
     Icon: DisplayOverApps,
   },
   {
     id: 'battery-optimization',
-    title: 'Run in Background',
-    description: 'Disable battery limits so monitoring works after you leave the app or reboot',
+    title: t('permissions.android.batteryOptimization.title'),
+    description: t('permissions.android.batteryOptimization.description'),
     status: 'pending',
     Icon: BatteryOptimization,
   },
   {
     id: 'notifications',
-    title: 'Notifications',
-    description: 'Optional — send reminders and limit warnings. You can enable this later in Settings.',
+    title: t('permissions.android.notifications.title'),
+    description: t('permissions.android.notifications.description'),
     status: 'pending',
     Icon: NotificationsIcon,
   },

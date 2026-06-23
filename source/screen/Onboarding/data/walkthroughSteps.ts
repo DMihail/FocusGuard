@@ -4,6 +4,7 @@ import type { ComponentType } from 'react';
 import type { SvgProps } from 'react-native-svg';
 
 import { Clock, Glare, Shield } from '@/assets/svg';
+import type { TranslateFn } from '@/i18n';
 
 export type WalkthroughStepData = {
   id: string;
@@ -12,23 +13,23 @@ export type WalkthroughStepData = {
   Icon: ComponentType<SvgProps>;
 };
 
-export const WALKTHROUGH_STEPS: WalkthroughStepData[] = [
+export const createWalkthroughSteps = (t: TranslateFn): WalkthroughStepData[] => [
   {
     id: 'focus',
-    title: 'Track Your Focus',
-    text: 'Monitor your app usage in real-time and understand where your attention goes throughout the day.',
+    title: t('onboarding.steps.focus.title'),
+    text: t('onboarding.steps.focus.text'),
     Icon: Shield,
   },
   {
     id: 'limits',
-    title: 'Set Smart Limits',
-    text: 'Configure personalized time limits with gentle warnings and hard blocks to help you stay in control.',
+    title: t('onboarding.steps.limits.title'),
+    text: t('onboarding.steps.limits.text'),
     Icon: Clock,
   },
   {
     id: 'habits',
-    title: 'Build Better Habits',
-    text: 'Track your focus score, build streaks, and celebrate your progress toward a more intentional digital life.',
+    title: t('onboarding.steps.habits.title'),
+    text: t('onboarding.steps.habits.text'),
     Icon: Glare,
   },
 ];

@@ -5,6 +5,7 @@ import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
 import { useTheme } from '@/hooks/useTheme';
 import { createStylesHook } from '@/hooks/useThemedStyles';
+import { useTranslation } from '@/i18n';
 import { testIds } from '@/testing/testIds';
 import type { Theme } from '@/theme/types';
 
@@ -29,6 +30,7 @@ const useUsageRefreshIndicatorStyles = createStylesHook(createUsageRefreshIndica
 export const UsageRefreshIndicator = memo(({ visible, testID }: UsageRefreshIndicatorProps) => {
   const styles = useUsageRefreshIndicatorStyles();
   const { colors } = useTheme();
+  const { t } = useTranslation();
 
   return (
     <Activity mode={visible ? 'visible' : 'hidden'}>
@@ -36,7 +38,7 @@ export const UsageRefreshIndicator = memo(({ visible, testID }: UsageRefreshIndi
         <ActivityIndicator
           size="large"
           color={colors.accent}
-          accessibilityLabel="Updating usage data"
+          accessibilityLabel={t('common.updatingUsage')}
           testID={testID ?? testIds.app.usageLoader}
         />
       </View>

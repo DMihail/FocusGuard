@@ -13,8 +13,10 @@ export const settingsStore = create<SettingsStore>()(
     (set) => ({
       notificationsEnabled: true,
       themePreference: 'system',
+      languagePreference: 'system',
       setNotificationsEnabled: (value) => set({ notificationsEnabled: value }),
       setThemePreference: (value) => set({ themePreference: value }),
+      setLanguagePreference: (value) => set({ languagePreference: value }),
     }),
     {
       name: PERSIST_STORAGE_KEYS.settings,
@@ -23,6 +25,7 @@ export const settingsStore = create<SettingsStore>()(
       partialize: (state) => ({
         notificationsEnabled: state.notificationsEnabled,
         themePreference: state.themePreference,
+        languagePreference: state.languagePreference,
       }),
     },
   ),

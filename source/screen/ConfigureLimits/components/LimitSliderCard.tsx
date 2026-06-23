@@ -1,21 +1,17 @@
 /** @format */
 
-import React, { memo, useCallback } from 'react';
+import React, { memo, useCallback, useMemo } from 'react';
 import { Pressable, Text, View } from 'react-native';
 
 import { GestureDetector } from 'react-native-gesture-handler';
 
-import { formatDurationMinutes } from '@/utils/usage/formatUsage';
+import { useFormatUsage } from '@/hooks/useFormatUsage';
+import { useTranslation } from '@/i18n';
 
 import { useSliderTrackGesture } from '../hooks/useSliderTrackGesture';
 import { useConfigureLimitsStyles } from '../styles';
 import type { LimitSliderCardProps } from '../types';
 import { getSliderLayout } from '../utils/sliderLayout';
-
-const SLIDER_ACCESSIBILITY_ACTIONS = [
-  { name: 'increment' as const, label: 'Increase' },
-  { name: 'decrement' as const, label: 'Decrease' },
-];
 
 const areLimitSliderCardPropsEqual = (previous: LimitSliderCardProps, next: LimitSliderCardProps): boolean =>
   previous.title === next.title &&
@@ -49,6 +45,15 @@ export const LimitSliderCard = memo(
     trackTestID,
   }: LimitSliderCardProps) => {
     const styles = useConfigureLimitsStyles();
+    const { t } = useTranslation();
+    const { formatDurationMinutes } = useFormatUsage();
+    const sliderAccessibilityActions = useMemo(
+      () => [
+        { name: 'increment' as const, label: t('common.increase') },
+        { name: 'decrement' as const, label: t('common.decrease') },
+      ],
+      [t],
+    );
     const progressMin = progressMinMinutes ?? minMinutes;
     const { progress, progressPercent, inactivePercent, showInactiveZone } = getSliderLayout(
       valueMinutes,
@@ -103,7 +108,7 @@ export const LimitSliderCard = memo(
         <View style={styles.sliderRow}>
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel={`Decrease ${title}`}
+            accessibilityLabel={t('configureLimits.sliderA11y', { action: t('common.decrease'), title })}
             style={styles.sliderButton}
             onPress={decrease}
             testID={decreaseTestID}
@@ -120,9 +125,9 @@ export const LimitSliderCard = memo(
               testID={trackTestID}
               accessibilityRole="adjustable"
               accessibilityLabel={title}
-              accessibilityHint="Drag horizontally on the track or tap to set the limit"
+              accessibilityHint={t('configureLimits.sliderHint')}
               accessibilityValue={{ text: formatDurationMinutes(valueMinutes) }}
-              accessibilityActions={SLIDER_ACCESSIBILITY_ACTIONS}
+              accessibilityActions={sliderAccessibilityActions}
               onAccessibilityAction={handleAccessibilityAction}
             >
               <View style={styles.sliderTrack}>
@@ -144,7 +149,7 @@ export const LimitSliderCard = memo(
 
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel={`Increase ${title}`}
+            accessibilityLabel={t('configureLimits.sliderA11y', { action: t('common.increase'), title })}
             style={styles.sliderButton}
             onPress={increase}
             testID={increaseTestID}

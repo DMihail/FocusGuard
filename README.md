@@ -213,6 +213,15 @@ npm run check         # full gate
 Unit tests cover navigation, stores, permissions, usage math, and screen flows. Jest defaults to `.ios.ts` resolution;
 Android-specific modules are imported explicitly in tests (e.g. `permissionStatus.android.ts`).
 
+## Localization
+
+The app supports **English** and **Russian** via `source/i18n/`:
+
+- `useTranslation()` — `t('key.path', { params })` in components
+- `languagePreference` in settings (`system` | `en` | `ru`), persisted in MMKV
+- Settings → **Language** to pick locale; `system` follows device language (`Intl`)
+- Legal documents have platform-specific Russian copies under `source/i18n/legal/ru/`
+
 ## CI
 
 GitHub Actions (`.github/workflows/ci.yml`), New Architecture enabled:

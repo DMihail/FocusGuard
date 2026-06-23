@@ -169,6 +169,40 @@ jest.mock('@/hooks/useTheme', () => {
   };
 });
 
+jest.mock('react-native-localize', () => ({
+  getLocales: () => [{ languageCode: 'en' }],
+}));
+
+jest.mock('@/i18n', () => {
+  const i18n = require('i18next');
+  const { initReactI18next } = require('react-i18next');
+  const { enUi } = require('./source/i18n/messages/en/ui');
+
+  i18n
+    .use(initReactI18next)
+    .init({
+      resources: { en: { translation: enUi } },
+      lng: 'en',
+      fallbackLng: 'en',
+      interpolation: { escapeValue: false },
+      compatibilityJSON: 'v4',
+      react: { useSuspense: false },
+    })
+    .catch(() => undefined);
+
+  const { useTranslation: useI18nextTranslation } = require('react-i18next');
+
+  return {
+    I18nProvider: ({ children }) => children,
+    useTranslation: () => {
+      const { t, i18n: instance } = useI18nextTranslation();
+
+      return { language: 'en', t, i18n: instance };
+    },
+    resolveLanguage: (preference) => (preference === 'ru' ? 'ru' : 'en'),
+  };
+});
+
 const mockPermissionsChangedSubscription = { remove: jest.fn() };
 
 jest.mock('@/specs/nativeUsageStatsClient', () => ({
