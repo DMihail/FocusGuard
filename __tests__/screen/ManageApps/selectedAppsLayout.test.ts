@@ -1,41 +1,30 @@
-import {
-  getSelectedAppsColumnStripWidth,
-  getSelectedAppsStripWidth,
-  getSelectedChipsPerRow,
-  getSelectedStripHeight,
-  getSelectedStripRowCount,
-  needsSelectedAppsHorizontalScroll,
-} from '@/screen/ManageApps/selectedAppsLayout';
+import { getSelectedAppsLayout } from '@/screen/ManageApps/selectedAppsLayout';
 
-describe('selectedAppsLayout', () => {
-  it('computes strip width from window width minus horizontal inset', () => {
-    expect(getSelectedAppsStripWidth(400)).toBe(352);
+describe('getSelectedAppsLayout', () => {
+  it('uses row wrap until two rows are full on a typical phone width', () => {
+    const fourChips = getSelectedAppsLayout(400, 4);
+
+    expect(fourChips.stripWidth).toBe(352);
+    expect(fourChips.chipsPerRow).toBe(2);
+    expect(fourChips.usesColumnScroll).toBe(false);
+    expect(fourChips.expandedHeight).toBe(128);
   });
 
-  it('fits two 148px chips per row on a typical phone width', () => {
-    expect(getSelectedChipsPerRow(352)).toBe(2);
-  });
+  it('switches to column scroll once two rows overflow', () => {
+    const fiveChips = getSelectedAppsLayout(400, 5);
 
-  it('uses row layout until two rows are full', () => {
-    expect(needsSelectedAppsHorizontalScroll(4, 2)).toBe(false);
-    expect(needsSelectedAppsHorizontalScroll(5, 2)).toBe(true);
-  });
-
-  it('lays out overflow chips in columns for horizontal scroll', () => {
-    expect(getSelectedAppsColumnStripWidth(5)).toBe(460);
+    expect(fiveChips.usesColumnScroll).toBe(true);
+    expect(fiveChips.expandedHeight).toBe(128);
+    expect(fiveChips.columnStripHeight).toBe(92);
   });
 
   it('uses one row height for a single chip', () => {
-    expect(getSelectedStripRowCount(1, 2)).toBe(1);
-    expect(getSelectedStripHeight(1, 2)).toBe(42);
+    const oneChip = getSelectedAppsLayout(400, 1);
+
+    expect(oneChip.expandedHeight).toBe(78);
   });
 
-  it('uses two row height when chips overflow the first row without scroll', () => {
-    expect(getSelectedStripRowCount(3, 2)).toBe(2);
-    expect(getSelectedStripHeight(3, 2)).toBe(92);
-  });
-
-  it('uses full two-row height when horizontal scroll is active', () => {
-    expect(getSelectedStripHeight(5, 2)).toBe(92);
+  it('returns zero height when empty', () => {
+    expect(getSelectedAppsLayout(400, 0).expandedHeight).toBe(0);
   });
 });

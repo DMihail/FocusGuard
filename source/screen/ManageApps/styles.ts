@@ -96,7 +96,10 @@ export const createManageAppsStyles = ({ colors, presets }: Theme) => {
       flexShrink: 0,
       overflow: 'hidden',
     },
-    selectedAppsChipStrip: {
+    selectedAppsChipRowWrap: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      alignContent: 'flex-start',
       gap: spacing.sm,
     },
     selectedAppsChipColumnStrip: {
@@ -105,10 +108,6 @@ export const createManageAppsStyles = ({ colors, presets }: Theme) => {
       alignContent: 'flex-start',
       columnGap: spacing.sm,
       rowGap: spacing.sm,
-    },
-    selectedAppsChipRow: {
-      flexDirection: 'row',
-      gap: spacing.sm,
     },
     selectedChip: {
       ...layoutPresets.card,

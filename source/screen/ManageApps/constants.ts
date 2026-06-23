@@ -18,5 +18,13 @@ export const SELECTED_APPS_ACCORDION_SPRING = {
   overshootClamping: true,
 } as const;
 
+/** Snappier spring when the section opens (including re-open after full collapse). */
+export const SELECTED_APPS_ACCORDION_OPEN_SPRING = {
+  damping: 26,
+  stiffness: 180,
+  mass: 0.9,
+  overshootClamping: true,
+} as const;
+
 /** Upper bound for accordion settle — used by tests and collapse fallback timer. */
 export const SELECTED_APPS_ACCORDION_SETTLE_MS = 1200;

@@ -12,15 +12,7 @@ import { testIds } from '@/testing/testIds';
 
 import { SELECTED_APPS_ACCORDION_SETTLE_MS } from '../constants';
 import { useSelectedAppsAccordion } from '../hooks/useSelectedAppsAccordion';
-import {
-  chunkIntoRows,
-  getSelectedAppsColumnStripHeight,
-  getSelectedAppsColumnStripWidth,
-  getSelectedAppsSectionExpandedHeight,
-  getSelectedAppsStripWidth,
-  getSelectedChipsPerRow,
-  needsSelectedAppsHorizontalScroll,
-} from '../selectedAppsLayout';
+import { getSelectedAppsLayout } from '../selectedAppsLayout';
 import { useManageAppsStyles } from '../styles';
 import type { ManageApp, SelectedAppsSectionProps } from '../types';
 
@@ -101,13 +93,8 @@ export const SelectedAppsSection = memo(({ apps, onAppPress, onAppRemove }: Sele
   const [retainedApps, setRetainedApps] = useState<ManageApp[]>([]);
   const visibleApps = isExpanded ? apps : retainedApps;
   const showContent = visibleApps.length > 0;
-
-  const stripWidth = getSelectedAppsStripWidth(windowWidth);
-  const chipsPerRow = getSelectedChipsPerRow(stripWidth);
-  const usesColumnScroll = needsSelectedAppsHorizontalScroll(visibleApps.length, chipsPerRow);
-  const columnStripHeight = getSelectedAppsColumnStripHeight();
-  const expandedHeight = showContent ? getSelectedAppsSectionExpandedHeight(visibleApps.length, chipsPerRow) : 0;
-  const canScrollHorizontally = usesColumnScroll && getSelectedAppsColumnStripWidth(visibleApps.length) > stripWidth;
+  const layout = getSelectedAppsLayout(windowWidth, visibleApps.length);
+  const expandedHeight = showContent ? layout.expandedHeight : 0;
 
   const handleCollapseEnd = useCallback(() => {
     setRetainedApps([]);
@@ -116,9 +103,11 @@ export const SelectedAppsSection = memo(({ apps, onAppPress, onAppRemove }: Sele
   const containerStyle = useSelectedAppsAccordion(isExpanded, expandedHeight, handleCollapseEnd);
 
   useLayoutEffect(() => {
-    if (isExpanded) {
-      setRetainedApps(apps);
+    if (!isExpanded) {
+      return;
     }
+
+    setRetainedApps(apps);
   }, [apps, isExpanded]);
 
   useEffect(() => {
@@ -131,30 +120,27 @@ export const SelectedAppsSection = memo(({ apps, onAppPress, onAppRemove }: Sele
     return () => clearTimeout(timer);
   }, [handleCollapseEnd, isExpanded, retainedApps.length]);
 
-  const chipList = usesColumnScroll ? (
+  const renderChips = () =>
+    visibleApps.map((app) => (
+      <SelectedChip key={getManageAppKey(app)} app={app} onPress={onAppPress} onRemove={onAppRemove} />
+    ));
+
+  const chipList = layout.usesColumnScroll ? (
     <ScrollView
       horizontal
       nestedScrollEnabled
-      scrollEnabled={canScrollHorizontally}
       showsHorizontalScrollIndicator={false}
       style={styles.selectedAppsScroll}
       testID={testIds.manageApps.selectedAppsScroll}
     >
-      <View style={[styles.selectedAppsChipColumnStrip, { height: columnStripHeight }]}>
-        {visibleApps.map((app) => (
-          <SelectedChip key={getManageAppKey(app)} app={app} onPress={onAppPress} onRemove={onAppRemove} />
-        ))}
-      </View>
+      <View style={[styles.selectedAppsChipColumnStrip, { height: layout.columnStripHeight }]}>{renderChips()}</View>
     </ScrollView>
   ) : (
-    <View style={[styles.selectedAppsChipStrip, { width: stripWidth }]} testID={testIds.manageApps.selectedAppsScroll}>
-      {chunkIntoRows(visibleApps, chipsPerRow).map((rowApps, rowIndex) => (
-        <View key={rowIndex} style={styles.selectedAppsChipRow}>
-          {rowApps.map((app) => (
-            <SelectedChip key={getManageAppKey(app)} app={app} onPress={onAppPress} onRemove={onAppRemove} />
-          ))}
-        </View>
-      ))}
+    <View
+      style={[styles.selectedAppsChipRowWrap, { width: layout.stripWidth }]}
+      testID={testIds.manageApps.selectedAppsScroll}
+    >
+      {renderChips()}
     </View>
   );
 
