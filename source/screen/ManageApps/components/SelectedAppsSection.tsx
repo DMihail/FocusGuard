@@ -1,7 +1,7 @@
 /** @format */
 
-import React, { memo, useCallback, useEffect, useState } from 'react';
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import React, { memo, useCallback, useEffect, useLayoutEffect, useState } from 'react';
+import { Pressable, ScrollView, Text, useWindowDimensions, View } from 'react-native';
 
 import Animated from 'react-native-reanimated';
 
@@ -12,7 +12,8 @@ import { testIds } from '@/testing/testIds';
 
 import { SELECTED_APPS_ACCORDION_SETTLE_MS } from '../constants';
 import { useSelectedAppsAccordion } from '../hooks/useSelectedAppsAccordion';
-import { selectedAppsSectionExpandedHeight, useManageAppsStyles } from '../styles';
+import { getSelectedAppsLayout } from '../selectedAppsLayout';
+import { useManageAppsStyles } from '../styles';
 import type { ManageApp, SelectedAppsSectionProps } from '../types';
 
 type SelectedChipProps = {
@@ -87,31 +88,61 @@ const areSelectedAppsSectionPropsEqual = (
 export const SelectedAppsSection = memo(({ apps, onAppPress, onAppRemove }: SelectedAppsSectionProps) => {
   const styles = useManageAppsStyles();
   const { t } = useTranslation();
+  const { width: windowWidth } = useWindowDimensions();
   const isExpanded = apps.length > 0;
-  const [displayApps, setDisplayApps] = useState(apps);
+  const [retainedApps, setRetainedApps] = useState<ManageApp[]>([]);
+  const visibleApps = isExpanded ? apps : retainedApps;
+  const showContent = visibleApps.length > 0;
+  const layout = getSelectedAppsLayout(windowWidth, visibleApps.length);
+  const expandedHeight = showContent ? layout.expandedHeight : 0;
 
   const handleCollapseEnd = useCallback(() => {
-    setDisplayApps([]);
+    setRetainedApps([]);
   }, []);
 
-  const containerStyle = useSelectedAppsAccordion(isExpanded, selectedAppsSectionExpandedHeight, handleCollapseEnd);
-  const showContent = isExpanded || displayApps.length > 0;
+  const containerStyle = useSelectedAppsAccordion(isExpanded, expandedHeight, handleCollapseEnd);
 
-  useEffect(() => {
-    if (isExpanded) {
-      setDisplayApps(apps);
+  useLayoutEffect(() => {
+    if (!isExpanded) {
+      return;
     }
+
+    setRetainedApps(apps);
   }, [apps, isExpanded]);
 
   useEffect(() => {
-    if (isExpanded || displayApps.length === 0) {
+    if (isExpanded || retainedApps.length === 0) {
       return undefined;
     }
 
     const timer = setTimeout(handleCollapseEnd, SELECTED_APPS_ACCORDION_SETTLE_MS);
 
     return () => clearTimeout(timer);
-  }, [displayApps.length, handleCollapseEnd, isExpanded]);
+  }, [handleCollapseEnd, isExpanded, retainedApps.length]);
+
+  const renderChips = () =>
+    visibleApps.map((app) => (
+      <SelectedChip key={getManageAppKey(app)} app={app} onPress={onAppPress} onRemove={onAppRemove} />
+    ));
+
+  const chipList = layout.usesColumnScroll ? (
+    <ScrollView
+      horizontal
+      nestedScrollEnabled
+      showsHorizontalScrollIndicator={false}
+      style={styles.selectedAppsScroll}
+      testID={testIds.manageApps.selectedAppsScroll}
+    >
+      <View style={[styles.selectedAppsChipColumnStrip, { height: layout.columnStripHeight }]}>{renderChips()}</View>
+    </ScrollView>
+  ) : (
+    <View
+      style={[styles.selectedAppsChipRowWrap, { width: layout.stripWidth }]}
+      testID={testIds.manageApps.selectedAppsScroll}
+    >
+      {renderChips()}
+    </View>
+  );
 
   return (
     <Animated.View
@@ -125,20 +156,7 @@ export const SelectedAppsSection = memo(({ apps, onAppPress, onAppRemove }: Sele
           <Text accessibilityRole="header" style={styles.sectionTitle}>
             {t('manageApps.selectedApps')}
           </Text>
-
-          <ScrollView
-            horizontal
-            nestedScrollEnabled
-            showsHorizontalScrollIndicator={false}
-            style={styles.selectedAppsScroll}
-            testID={testIds.manageApps.selectedAppsScroll}
-          >
-            <View style={styles.selectedAppsRows}>
-              {displayApps.map((app) => (
-                <SelectedChip key={getManageAppKey(app)} app={app} onPress={onAppPress} onRemove={onAppRemove} />
-              ))}
-            </View>
-          </ScrollView>
+          {chipList}
         </View>
       ) : null}
     </Animated.View>
