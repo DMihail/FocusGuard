@@ -68,6 +68,11 @@ jest.mock('../../../source/store', () => ({
   selectedAppsStore: Object.assign((selector: (state: typeof mockStoreState) => unknown) => selector(mockStoreState), {
     getState: () => mockStoreState,
   }),
+  trackedUsageStore: {
+    getState: () => ({
+      refreshUsage: jest.fn().mockResolvedValue(undefined),
+    }),
+  },
 }));
 
 jest.mock('react-native-safe-area-context', () => {

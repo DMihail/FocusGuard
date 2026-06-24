@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 
 import { findSelectedApp } from '@/domain/findSelectedApp';
+import { useLocalDayChangeRefresh } from '@/hooks/useLocalDayChangeRefresh';
 import { useRefreshWhenVisible } from '@/hooks/useRefreshWhenVisible';
 import {
   appLimitsStore,
@@ -35,6 +36,8 @@ export const useConfigureLimits = (appKey: string): UseConfigureLimitsResult => 
   const refreshUsage = useCallback(() => trackedUsageStore.getState().refreshUsage([appKey], true), [appKey]);
 
   useRefreshWhenVisible(refreshUsage);
+
+  useLocalDayChangeRefresh(refreshUsage);
 
   const hardBlockMin = Math.max(LIMIT_SLIDER_BOUNDS.hardBlock.min, draft.warningMinutes);
 

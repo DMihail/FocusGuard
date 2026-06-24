@@ -4,6 +4,7 @@ import { useIsFocused } from '@react-navigation/native';
 import { useShallow } from 'zustand/react/shallow';
 
 import { getManageAppKey } from '@/domain/appKey';
+import { useLocalDayChangeRefresh } from '@/hooks/useLocalDayChangeRefresh';
 import { usePersistHydrated } from '@/hooks/usePersistHydrated';
 import { useRefreshWhenVisible } from '@/hooks/useRefreshWhenVisible';
 import { appLimitsStore, selectedAppsStore, trackedUsageStore } from '@/store';
@@ -79,6 +80,8 @@ export const useTrackedAppRows = (): {
   const refreshUsageOnVisible = useCallback(() => refreshUsage(true), [refreshUsage]);
 
   useRefreshWhenVisible(refreshUsageOnVisible);
+
+  useLocalDayChangeRefresh(refreshUsageOnVisible);
 
   const appRows = useMemo(
     () => buildDashboardAppRows(selectedApps, limitsByAppKey, usageByPackage),

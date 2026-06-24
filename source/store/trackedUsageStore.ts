@@ -3,22 +3,47 @@ import { create } from 'zustand';
 import { getManageAppKey } from '@/domain/appKey';
 import type { UsageByPackage } from '@/domain/usageStatsCatalog';
 import { getCachedUsageByPackage, invalidateUsageStatsCache, loadUsageByPackage } from '@/domain/usageStatsCatalog';
+import { getLocalDayKey } from '@/utils/usage/localDayKey';
 
 import { selectedAppsStore } from './selectedAppsStore';
 import type { TrackedUsageStore } from './types/trackedUsageStore';
 
 let hasSeededFromCache = false;
 let refreshInFlightCount = 0;
+let usageDayKey: string | null = null;
 
 export const resetTrackedUsageSeedForTests = (): void => {
   hasSeededFromCache = false;
+  usageDayKey = null;
 };
 
 export const resetTrackedUsageRefreshForTests = (): void => {
   refreshInFlightCount = 0;
 };
 
+const resetUsageForNewDay = (): void => {
+  hasSeededFromCache = false;
+  invalidateUsageStatsCache();
+  trackedUsageStore.setState({ usageByPackage: {} });
+};
+
+/** Clears cached usage when the local day changes. Returns true if the day rolled over. */
+export const ensureCurrentUsageDay = (): boolean => {
+  const today = getLocalDayKey();
+
+  if (usageDayKey === today) {
+    return false;
+  }
+
+  usageDayKey = today;
+  resetUsageForNewDay();
+
+  return true;
+};
+
 const seedUsageFromCache = (): void => {
+  ensureCurrentUsageDay();
+
   if (hasSeededFromCache) {
     return;
   }
@@ -58,6 +83,29 @@ const hasUsageChanged = (previous: UsageByPackage, next: UsageByPackage): boolea
   return nextKeys.some((key) => previous[key] !== next[key]);
 };
 
+const mergeUsageForKeys = (
+  previous: UsageByPackage,
+  nextUsage: UsageByPackage,
+  packageNames: readonly string[],
+  force: boolean,
+): UsageByPackage => {
+  if (!force) {
+    return { ...previous, ...nextUsage };
+  }
+
+  const merged: UsageByPackage = {};
+
+  for (const appKey of packageNames) {
+    const usageMs = nextUsage[appKey] ?? previous[appKey];
+
+    if (usageMs !== undefined) {
+      merged[appKey] = usageMs;
+    }
+  }
+
+  return merged;
+};
+
 export const trackedUsageStore = create<TrackedUsageStore>((set) => ({
   usageByPackage: {},
   isRefreshingUsage: false,
@@ -69,18 +117,20 @@ export const trackedUsageStore = create<TrackedUsageStore>((set) => ({
       return;
     }
 
+    const dayChanged = ensureCurrentUsageDay();
+
     refreshInFlightCount += 1;
     set({ isRefreshingUsage: true });
 
     try {
-      if (force) {
+      if (force || dayChanged) {
         invalidateUsageStatsCache();
       }
 
-      const nextUsage = await loadUsageByPackage(packageNames, force);
+      const nextUsage = await loadUsageByPackage(packageNames, force || dayChanged);
 
       set((state) => {
-        const mergedUsage = { ...state.usageByPackage, ...nextUsage };
+        const mergedUsage = mergeUsageForKeys(state.usageByPackage, nextUsage, packageNames, force || dayChanged);
 
         return hasUsageChanged(state.usageByPackage, mergedUsage) ? { usageByPackage: mergedUsage } : state;
       });

@@ -7,6 +7,7 @@ import { logDevWarning } from '@/utils/logDevWarning';
 
 import { useFamilyActivityPicker } from './useFamilyActivityPicker.ios';
 import { useManageApps } from './useManageApps.ios';
+import { useRefreshSelectedAppsUsage } from './useRefreshSelectedAppsUsage';
 
 /** Screen-level state for Manage Apps on iOS (FamilyActivityPicker + selected apps). */
 export const useManageAppsScreen = () => {
@@ -20,6 +21,7 @@ export const useManageAppsScreen = () => {
   }, [pickApps, refreshInstalledApps]);
 
   useRefreshWhenVisible(refreshInstalledApps, { onAppActive: false });
+  useRefreshSelectedAppsUsage();
 
   return {
     ...manageApps,
