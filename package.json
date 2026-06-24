@@ -15,7 +15,6 @@
     "android:bundle:release": "cd android && ./gradlew bundleRelease",
     "android:assemble:release": "cd android && ./gradlew assembleRelease",
     "start": "react-native start",
-    "test": "jest",
     "prepare": "husky"
   },
   "codegenConfig": {
