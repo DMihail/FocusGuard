@@ -57,7 +57,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
             )
-            signingConfig keystorePropertiesFile.exists() ? signingConfigs.release : signingConfigs.debug
+            signingConfig signingConfigs.release
             manifestPlaceholders = [usesCleartextTraffic: "false"]
         }
     }

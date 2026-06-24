@@ -14,6 +14,7 @@
     "check": "npm run lint && npm run format:check && npm run typecheck && jest --watchman=false --ci --forceExit",
     "android:bundle:release": "cd android && ./gradlew bundleRelease",
     "android:assemble:release": "cd android && ./gradlew assembleRelease",
+    "android:release:check": "bash scripts/android-release-check.sh",
     "start": "react-native start",
     "prepare": "husky"
   },
