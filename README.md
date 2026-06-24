@@ -99,18 +99,23 @@ npm run android    # or: npm run ios
 ### Android
 
 1. Device or emulator with API 24+ (target SDK 36).
-2. For local release-style builds that expect Firebase config:
+2. For local builds, copy the CI Firebase stub (release builds need the real file from Firebase Console):
    ```sh
    cp android/app/google-services.ci.json android/app/google-services.json
    ```
 3. Grant special permissions in-app (Usage Access, Display over other apps, battery exemption). Notifications are
    optional.
 
-**Release builds**
+**Release builds (Google Play)**
+
+See **[docs/ANDROID_PLAY_RELEASE.md](docs/ANDROID_PLAY_RELEASE.md)** for the full checklist (signing, Play Console
+forms, privacy policy URL, tester instructions).
 
 ```sh
-npm run android:assemble:release   # APK
-npm run android:bundle:release     # Play Store AAB
+cp android/keystore.properties.example android/keystore.properties   # configure upload key
+npm run android:release:check    # keystore + lint/types/tests
+npm run android:bundle:release   # Play Store AAB
+npm run android:assemble:release # sideload APK
 ```
 
 Or open `android/` in Android Studio (JDK 17, compile SDK 36, NDK 27.1.12297006).
@@ -199,8 +204,9 @@ snapshot sync when navigation becomes ready.
 | `npm run lint` / `npm run lint:fix`       | ESLint                                         |
 | `npm run format` / `npm run format:check` | Prettier                                       |
 | `npm run typecheck`                       | `tsc --noEmit`                                 |
-| `npm run android:bundle:release`          | Release AAB                                    |
-| `npm run android:assemble:release`        | Release APK                                    |
+| `npm run android:bundle:release`          | Release AAB (requires upload keystore)         |
+| `npm run android:assemble:release`        | Release APK (requires upload keystore)         |
+| `npm run android:release:check`           | Preflight: keystore + `npm run check`          |
 
 Pre-commit hooks (Husky + lint-staged) run ESLint, Prettier, and related tests on staged `source/` and `__tests__/`
 files.
