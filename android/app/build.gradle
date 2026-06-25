@@ -64,13 +64,12 @@ android {
             )
             signingConfig signingConfigs.release
             manifestPlaceholders = [usesCleartextTraffic: "false"]
+            firebaseCrashlytics {
+                mappingFileUploadEnabled = !isCiFirebaseStub
+                nativeSymbolUploadEnabled = !isCiFirebaseStub
+            }
         }
     }
-}
-
-firebaseCrashlytics {
-    mappingFileUploadEnabled = !isCiFirebaseStub
-    nativeSymbolUploadEnabled = !isCiFirebaseStub
 }
 
 dependencies {

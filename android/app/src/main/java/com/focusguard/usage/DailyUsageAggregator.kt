@@ -2,7 +2,8 @@ package com.focusguard.usage
 
 import android.app.usage.UsageEvents
 import android.app.usage.UsageStatsManager
-import android.os.Build
+
+import com.focusguard.usage.UsageStatsExtensions.foregroundTimeMs
 
 /**
  * Builds per-package foreground time for the current local calendar day.
@@ -86,25 +87,23 @@ internal object DailyUsageAggregator {
         dayStartMs: Long,
         endMs: Long,
     ): Map<String, Long> {
-        val aggregated =
-            usageStatsManager.queryAndAggregateUsageStats(dayStartMs, endMs)
-                .takeIf { it.isNotEmpty() }
-                ?: run {
-                    val stats =
-                        usageStatsManager.queryUsageStats(
-                            UsageStatsManager.INTERVAL_DAILY,
-                            dayStartMs,
-                            endMs,
-                        ) ?: return emptyMap()
+        val aggregatedStats = usageStatsManager.queryAndAggregateUsageStats(dayStartMs, endMs)
+        if (aggregatedStats.isNotEmpty()) {
+            return aggregatedStats.mapValues { (_, stats) -> stats.foregroundTimeMs() }
+        }
 
-                    stats
-                        .filter { it.packageName.isNotEmpty() }
-                        .groupBy { it.packageName }
-                        .mapValues { (_, packageStats) ->
-                            packageStats.sumOf { stat -> stat.foregroundTimeMs() }
-                        }
-                }
+        val stats =
+            usageStatsManager.queryUsageStats(
+                UsageStatsManager.INTERVAL_DAILY,
+                dayStartMs,
+                endMs,
+            ) ?: return emptyMap()
 
-        return aggregated.mapValues { (_, stats) -> stats.foregroundTimeMs() }
+        return stats
+            .filter { it.packageName.isNotEmpty() }
+            .groupBy { it.packageName }
+            .mapValues { (_, packageStats) ->
+                packageStats.sumOf { stat -> stat.foregroundTimeMs() }
+            }
     }
 }
