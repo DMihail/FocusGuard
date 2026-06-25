@@ -6,8 +6,8 @@ import com.focusguard.usage.DailyUsageAggregator
 import com.focusguard.usage.UsageStatsExtensions.startOfLocalDayMs
 
 /** Reads per-app foreground usage for the current local calendar day. */
-class DailyUsageRepository(
-    private val context: Context,
+class DailyUsageRepository private constructor(
+    context: Context,
 ) {
 
     private val usageStatsManager =
@@ -16,6 +16,24 @@ class DailyUsageRepository(
     private val cacheLock = Any()
     private var cachedUsageByPackage: Map<String, Long>? = null
     private var cachedDayStartMs: Long = 0L
+
+    companion object {
+        @Volatile
+        private var instance: DailyUsageRepository? = null
+
+        fun getInstance(context: Context): DailyUsageRepository =
+            instance
+                ?: synchronized(this) {
+                    instance
+                        ?: DailyUsageRepository(context.applicationContext).also { repository ->
+                            instance = repository
+                        }
+                }
+
+        fun invalidateSharedCache() {
+            instance?.invalidateCache()
+        }
+    }
 
     /** @return foreground milliseconds for [packageName] since local midnight, or 0. */
     fun getTodayForegroundMs(packageName: String): Long =

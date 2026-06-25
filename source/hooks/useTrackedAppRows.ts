@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 
 import { useIsFocused } from '@react-navigation/native';
 import { useShallow } from 'zustand/react/shallow';
@@ -29,6 +29,19 @@ const pickLimitsForSelectedApps = (
   return picked;
 };
 
+const pickUsageForSelectedApps = (
+  usageByPackage: Record<string, number>,
+  selectedAppKeys: readonly string[],
+): Record<string, number> => {
+  const picked: Record<string, number> = {};
+
+  for (const appKey of selectedAppKeys) {
+    picked[appKey] = usageByPackage[appKey] ?? 0;
+  }
+
+  return picked;
+};
+
 export const useTrackedAppRows = (): {
   appRows: DashboardAppRow[];
   showUsageRefreshIndicator: boolean;
@@ -40,27 +53,28 @@ export const useTrackedAppRows = (): {
   const selectedApps = selectedAppsStore((state) => state.apps);
   const selectedAppKeys = useMemo(() => selectedApps.map((app) => getManageAppKey(app)), [selectedApps]);
   const selectedAppKeysKey = selectedAppKeys.join('\0');
-  const { usageByPackage, isRefreshingUsage } = trackedUsageStore(
-    useShallow((state) => ({
-      usageByPackage: state.usageByPackage,
-      isRefreshingUsage: state.isRefreshingUsage,
-    })),
+  const usageByPackage = trackedUsageStore(
+    useShallow((state) => pickUsageForSelectedApps(state.usageByPackage, selectedAppKeys)),
   );
-  const allLimitsByAppKey = appLimitsStore((state) => state.limitsByAppKey);
-  const limitsByAppKey = useMemo(
-    () => pickLimitsForSelectedApps(allLimitsByAppKey, selectedAppKeys),
-    [allLimitsByAppKey, selectedAppKeys],
+  const isRefreshingUsage = trackedUsageStore((state) => state.isRefreshingUsage);
+  const limitsByAppKey = appLimitsStore(
+    useShallow((state) => pickLimitsForSelectedApps(state.limitsByAppKey, selectedAppKeys)),
   );
+
+  const selectedAppKeysRef = useRef(selectedAppKeys);
+  selectedAppKeysRef.current = selectedAppKeys;
 
   const refreshUsage = useCallback(
     (force = false) => {
-      if (!hasSelectedAppsHydrated || selectedAppKeys.length === 0) {
+      const appKeys = selectedAppKeysRef.current;
+
+      if (!hasSelectedAppsHydrated || appKeys.length === 0) {
         return Promise.resolve();
       }
 
-      return trackedUsageStore.getState().refreshUsage(selectedAppKeys, force);
+      return trackedUsageStore.getState().refreshUsage(appKeys, force);
     },
-    [hasSelectedAppsHydrated, selectedAppKeys],
+    [hasSelectedAppsHydrated],
   );
 
   useEffect(() => {
@@ -80,7 +94,6 @@ export const useTrackedAppRows = (): {
   const refreshUsageOnVisible = useCallback(() => refreshUsage(true), [refreshUsage]);
 
   useRefreshWhenVisible(refreshUsageOnVisible);
-
   useLocalDayChangeRefresh(refreshUsageOnVisible);
 
   const appRows = useMemo(

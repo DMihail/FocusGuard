@@ -32,36 +32,24 @@ class NativeUsageStatsModule(
   private val permissionRequester =
       PermissionRequester(appContext) { reactApplicationContext.currentActivity }
   private val installedAppsRepository = InstalledAppsRepository(appContext)
-  private val dailyUsageRepository = DailyUsageRepository(appContext)
+  private val dailyUsageRepository = DailyUsageRepository.getInstance(appContext)
   private val ioExecutor = Executors.newSingleThreadExecutor()
   private val mainHandler = Handler(Looper.getMainLooper())
-  private val permissionsRecheckDelaysMs = longArrayOf(0L, 400L, 1_200L)
-  private var permissionsRecheckGeneration = 0
+  private val emitPermissionsChangedRunnable = Runnable { emitPermissionsChanged() }
 
-  private val emitPermissionsChangedCallback = { emitPermissionsChanged() }
+  private val emitPermissionsChangedCallback = { schedulePermissionsChangedEmit() }
   private val permissionsLifecycleListener =
       object : LifecycleEventListener {
         override fun onHostResume() {
-          val generation = ++permissionsRecheckGeneration
-
-          for (delayMs in permissionsRecheckDelaysMs) {
-            mainHandler.postDelayed(
-                {
-                  if (generation == permissionsRecheckGeneration) {
-                    emitPermissionsChanged()
-                  }
-                },
-                delayMs,
-              )
-          }
+          schedulePermissionsChangedEmit()
         }
 
         override fun onHostPause() {
-          permissionsRecheckGeneration += 1
+          mainHandler.removeCallbacks(emitPermissionsChangedRunnable)
         }
 
         override fun onHostDestroy() {
-          permissionsRecheckGeneration += 1
+          mainHandler.removeCallbacks(emitPermissionsChangedRunnable)
         }
       }
 
@@ -71,8 +59,7 @@ class NativeUsageStatsModule(
   }
 
   override fun invalidate() {
-    permissionsRecheckGeneration += 1
-    mainHandler.removeCallbacksAndMessages(null)
+    mainHandler.removeCallbacks(emitPermissionsChangedRunnable)
     PermissionsChangedDispatcher.unregister(emitPermissionsChangedCallback)
     reactApplicationContext.removeLifecycleEventListener(permissionsLifecycleListener)
     ioExecutor.shutdown()
@@ -171,6 +158,11 @@ class NativeUsageStatsModule(
     promise.resolve(Arguments.createArray())
   }
 
+  private fun schedulePermissionsChangedEmit() {
+    mainHandler.removeCallbacks(emitPermissionsChangedRunnable)
+    mainHandler.postDelayed(emitPermissionsChangedRunnable, PERMISSIONS_CHANGED_DEBOUNCE_MS)
+  }
+
   private fun emitPermissionsChanged() {
     reactApplicationContext.runOnUiQueueThread {
       if (!reactApplicationContext.hasActiveReactInstance()) {
@@ -189,5 +181,6 @@ class NativeUsageStatsModule(
 
   companion object {
     const val NAME = NativeUsageStatsSpec.NAME
+    private const val PERMISSIONS_CHANGED_DEBOUNCE_MS = 300L
   }
 }

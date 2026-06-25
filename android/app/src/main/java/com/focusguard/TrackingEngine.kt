@@ -35,7 +35,7 @@ class TrackingEngine(
 
     private val detector = ForegroundAppDetector(context)
     private val configRepository = TrackingConfigRepository()
-    private val usageRepository = DailyUsageRepository(context)
+    private val usageRepository = DailyUsageRepository.getInstance(context)
     private val liveUsageEstimator = LiveUsageEstimator(usageRepository)
     private val settingsRepository = SettingsRepository()
     private val notificationManager =
@@ -62,8 +62,18 @@ class TrackingEngine(
         monitoringJob = scope.launch {
             while (isActive) {
                 monitorForegroundApp()
-                delay(POLL_INTERVAL_MS)
+                delay(resolvePollIntervalMs())
             }
+        }
+    }
+
+    private fun resolvePollIntervalMs(): Long {
+        val foregroundPackage = stableForeground
+
+        return when {
+            activeBlockPackage != null -> POLL_INTERVAL_ACTIVE_MS
+            foregroundPackage != null && isTrackedApp(foregroundPackage) -> POLL_INTERVAL_ACTIVE_MS
+            else -> POLL_INTERVAL_IDLE_MS
         }
     }
 
@@ -288,7 +298,8 @@ class TrackingEngine(
 
     companion object {
         private const val TAG = "TrackingEngine"
-        private const val POLL_INTERVAL_MS = 1000L
+        private const val POLL_INTERVAL_ACTIVE_MS = 1_000L
+        private const val POLL_INTERVAL_IDLE_MS = 2_500L
         private const val FOREGROUND_STABLE_POLLS = 1
         private const val FOREGROUND_MISS_POLLS = 3
         private const val WARNING_NOTIFICATION_ID_BASE = 2001

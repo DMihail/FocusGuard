@@ -2,12 +2,11 @@
 
 import { useCallback } from 'react';
 
-import { useRefreshWhenVisible } from '@/hooks/useRefreshWhenVisible';
 import { logDevWarning } from '@/utils/logDevWarning';
 
 import { useFamilyActivityPicker } from './useFamilyActivityPicker.ios';
 import { useManageApps } from './useManageApps.ios';
-import { useRefreshSelectedAppsUsage } from './useRefreshSelectedAppsUsage';
+import { useManageAppsFocusRefresh } from './useManageAppsFocusRefresh';
 
 /** Screen-level state for Manage Apps on iOS (FamilyActivityPicker + selected apps). */
 export const useManageAppsScreen = () => {
@@ -20,8 +19,7 @@ export const useManageAppsScreen = () => {
       .catch(logDevWarning);
   }, [pickApps, refreshInstalledApps]);
 
-  useRefreshWhenVisible(refreshInstalledApps, { onAppActive: false });
-  useRefreshSelectedAppsUsage();
+  useManageAppsFocusRefresh(refreshInstalledApps);
 
   return {
     ...manageApps,

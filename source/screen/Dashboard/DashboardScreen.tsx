@@ -100,7 +100,6 @@ export const DashboardScreen = () => {
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
           refreshControl={refreshControl}
-          extraData={sectionContext}
           {...SECTION_SCROLL_FLAT_LIST_PROPS}
         />
         <UsageRefreshIndicator

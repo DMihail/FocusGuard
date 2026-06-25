@@ -16,9 +16,8 @@ import android.os.Build
  * recent `lastTimeUsed` timestamp. Less precise but works on devices/OEMs
  * that restrict event-level access from foreground services.
  *
- * While the user stays inside one app, usage queries often stop returning fresh
- * events. A short-lived sticky cache keeps the last known foreground package so
- * session timers are not reset every poll.
+ * While the user stays inside one app, a short-lived sticky cache avoids
+ * expensive `queryEvents` scans on every monitor poll.
  *
  * Requires the `PACKAGE_USAGE_STATS` permission (Usage Stats access).
  */
@@ -31,21 +30,28 @@ class ForegroundAppDetector(
 
     private var stickyForeground: String? = null
     private var stickyForegroundAt = 0L
+    private var statsFallbackPollCounter = 0
 
     /**
      * Returns the package name of the app that most recently moved to the foreground,
      * or `null` if detection fails and no recent sticky value is available.
      */
     fun getForegroundApp(): String? {
-        val detected = getForegroundAppFromEvents() ?: getForegroundAppFromStats()
+        val now = System.currentTimeMillis()
+        val cached = stickyForeground
+
+        if (cached != null && now - stickyForegroundAt <= STICKY_QUERY_SKIP_MS) {
+            return cached
+        }
+
+        val detected = getForegroundAppFromEvents() ?: getForegroundAppFromStatsThrottled()
         if (detected != null) {
             stickyForeground = detected
-            stickyForegroundAt = System.currentTimeMillis()
+            stickyForegroundAt = now
             return detected
         }
 
-        val cached = stickyForeground
-        if (cached != null && System.currentTimeMillis() - stickyForegroundAt <= STICKY_FOREGROUND_MS) {
+        if (cached != null && now - stickyForegroundAt <= STICKY_FOREGROUND_MS) {
             return cached
         }
 
@@ -74,6 +80,16 @@ class ForegroundAppDetector(
      * Fallback: queries aggregated usage stats and returns the package
      * whose `lastTimeUsed` is closest to now (within [STATS_RECENCY_MS]).
      */
+    private fun getForegroundAppFromStatsThrottled(): String? {
+        statsFallbackPollCounter += 1
+
+        if (statsFallbackPollCounter % STATS_FALLBACK_EVERY_N_POLLS != 0) {
+            return null
+        }
+
+        return getForegroundAppFromStats()
+    }
+
     private fun getForegroundAppFromStats(): String? {
         val endTime = System.currentTimeMillis()
         val startTime = endTime - STATS_WINDOW_MS
@@ -100,10 +116,11 @@ class ForegroundAppDetector(
                 eventType == UsageEvents.Event.ACTIVITY_RESUMED)
 
     companion object {
-        private const val EVENTS_WINDOW_MS = 120_000L
+        private const val EVENTS_WINDOW_MS = 60_000L
         private const val STATS_WINDOW_MS = 60_000L
-        /** Was 5s — too strict; breaks timers after a few seconds in one app. */
         private const val STATS_RECENCY_MS = 30_000L
         private const val STICKY_FOREGROUND_MS = 90_000L
+        private const val STICKY_QUERY_SKIP_MS = 5_000L
+        private const val STATS_FALLBACK_EVERY_N_POLLS = 3
     }
 }

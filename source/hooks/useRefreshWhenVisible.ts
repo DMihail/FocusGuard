@@ -1,6 +1,4 @@
-/** @format */
-
-import { useCallback } from 'react';
+import { useCallback, useRef } from 'react';
 
 import { useFocusEffect, useIsFocused } from '@react-navigation/native';
 
@@ -20,10 +18,12 @@ export const useRefreshWhenVisible = (
   { onFocus = true, onAppActive = true, onlyWhenFocusedOnAppActive = true }: RefreshWhenVisibleOptions = {},
 ): void => {
   const isFocused = useIsFocused();
+  const refreshRef = useRef(refresh);
+  refreshRef.current = refresh;
 
   const run = useCallback(() => {
-    Promise.resolve(refresh()).catch(logDevWarning);
-  }, [refresh]);
+    Promise.resolve(refreshRef.current()).catch(logDevWarning);
+  }, []);
 
   const runWhenFocused = useCallback(() => {
     if (!isFocused) {
