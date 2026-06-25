@@ -99,21 +99,20 @@ npm run android    # or: npm run ios
 ### Android
 
 1. Device or emulator with API 24+ (target SDK 36).
-2. For local builds, copy the CI Firebase stub (release builds need the real file from Firebase Console):
+2. Firebase Crashlytics (release crash reports only — no Firebase Analytics):
    ```sh
-   cp android/app/google-services.ci.json android/app/google-services.json
+   cp android/app/google-services.ci.json android/app/google-services.json   # local / CI stub
    ```
+   For Play Store builds, replace `google-services.json` with the file from
+   [Firebase Console](https://console.firebase.google.com/) for app `com.keept`.
 3. Grant special permissions in-app (Usage Access, Display over other apps, battery exemption). Notifications are
    optional.
 
 **Release builds (Google Play)**
 
-See **[docs/ANDROID_PLAY_RELEASE.md](docs/ANDROID_PLAY_RELEASE.md)** for the full checklist (signing, Play Console
-forms, privacy policy URL, tester instructions).
-
 ```sh
 cp android/keystore.properties.example android/keystore.properties   # configure upload key
-npm run android:release:check    # keystore + lint/types/tests
+npm run check
 npm run android:bundle:release   # Play Store AAB
 npm run android:assemble:release # sideload APK
 ```
@@ -134,6 +133,12 @@ Or open `android/` in Android Studio (JDK 17, compile SDK 36, NDK 27.1.12297006)
 ### iOS
 
 Screen Time integration uses Family Controls (self-control / `.individual` auth mode).
+
+For Firebase Crashlytics, copy the CI stub or your real plist from Firebase Console:
+
+```sh
+cp ios/FocusGuard/GoogleService-Info.ci.plist ios/FocusGuard/GoogleService-Info.plist
+```
 
 | Item                  | Value                              |
 | --------------------- | ---------------------------------- |

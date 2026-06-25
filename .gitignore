@@ -14,6 +14,7 @@ android/keystore.properties
 android/app/google-services.json
 !android/app/google-services.ci.json
 **/GoogleService-Info.plist
+!ios/FocusGuard/GoogleService-Info.ci.plist
 
 # --- Node / JS ---
 node_modules/

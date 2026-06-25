@@ -182,7 +182,6 @@ jest.mock('@/hooks/useTheme', () => {
     useTheme: () => theme,
     ThemeColorsContext: { Provider: ({ children }) => children },
     ThemeShellContext: { Provider: ({ children }) => children },
-    ThemeContext: { Provider: ({ children }) => children },
   };
 });
 
@@ -251,4 +250,17 @@ jest.mock('@/specs/nativeUsageStatsClient', () => ({
 afterEach(() => {
   const { __resetAppForegroundBusForTests } = require('./source/runtime/appForegroundBus');
   __resetAppForegroundBusForTests();
+});
+
+jest.mock('@react-native-firebase/crashlytics', () => {
+  const crashlytics = () => ({
+    setCrashlyticsCollectionEnabled: jest.fn(async () => null),
+    recordError: jest.fn(async () => null),
+    log: jest.fn(),
+  });
+
+  return {
+    __esModule: true,
+    default: crashlytics,
+  };
 });

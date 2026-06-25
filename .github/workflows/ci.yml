@@ -80,6 +80,7 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
 
       - run: cp android/app/google-services.ci.json android/app/google-services.json
+      - run: cp ios/FocusGuard/GoogleService-Info.ci.plist ios/FocusGuard/GoogleService-Info.plist
 
       - name: Android assembleDebug
         working-directory: android
@@ -99,6 +100,8 @@ jobs:
           cache: npm
 
       - run: npm ci
+
+      - run: cp ios/FocusGuard/GoogleService-Info.ci.plist ios/FocusGuard/GoogleService-Info.plist
 
       - name: Install CocoaPods
         run: pod install --project-directory=ios

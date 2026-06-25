@@ -41,6 +41,3 @@ export const useTheme = (): Theme => {
 
   return { colors, ...shell };
 };
-
-// Backward-compatible alias used by ThemeProvider.
-export const ThemeContext = ThemeColorsContext;

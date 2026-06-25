@@ -2,7 +2,6 @@
 
 import React from 'react';
 
-import type { ListRenderItem } from '@/list';
 import type { DashboardSummary } from '@/utils/usage/dashboardStats';
 import type { DashboardAppRow } from '@/utils/usage/dashboardStats';
 
@@ -52,10 +51,4 @@ export const renderDashboardSection = (
     default:
       return null;
   }
-};
-
-export const createDashboardSectionRenderItem = (
-  context: DashboardSectionRenderContext,
-): ListRenderItem<DashboardSectionId> => {
-  return ({ item }) => renderDashboardSection(item, context);
 };

@@ -44,6 +44,13 @@ export const buildDataPrivacyDocument = (appDisplayName: string): LegalDocument 
       ],
     },
     {
+      title: 'Crash reporting',
+      paragraphs: [
+        `To diagnose crashes and improve stability, release builds may send crash reports to Google Firebase Crashlytics. Reports can include stack traces, device model, OS version, and app version. They do not include your usage history, selected apps, or limit settings.`,
+        'Crash reporting is disabled in debug builds. You can opt out by not using release builds from app stores, or contact us if you need more detail about data processed by Crashlytics.',
+      ],
+    },
+    {
       title: 'What we do not do',
       paragraphs: [
         `${appDisplayName} does not:`,
