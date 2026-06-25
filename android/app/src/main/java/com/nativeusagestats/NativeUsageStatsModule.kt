@@ -164,6 +164,7 @@ class NativeUsageStatsModule(
   }
 
   private fun emitPermissionsChanged() {
+    MonitorPermissions.invalidateCache()
     reactApplicationContext.runOnUiQueueThread {
       if (!reactApplicationContext.hasActiveReactInstance()) {
         return@runOnUiQueueThread

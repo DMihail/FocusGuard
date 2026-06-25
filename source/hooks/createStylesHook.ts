@@ -2,7 +2,7 @@
 
 import { useMemo } from 'react';
 
-import { useTheme } from '@/hooks/useTheme';
+import { useThemeColors, useThemeShell } from '@/hooks/useTheme';
 import type { Theme } from '@/theme/types';
 
 type CreateStyles<T> = (theme: Theme) => T;
@@ -10,7 +10,9 @@ type CreateStyles<T> = (theme: Theme) => T;
 export const createStylesHook =
   <T>(createStyles: CreateStyles<T>) =>
   (): T => {
-    const theme = useTheme();
+    const colors = useThemeColors();
+    const shell = useThemeShell();
+    const theme = useMemo<Theme>(() => ({ colors, ...shell }), [colors, shell]);
 
     return useMemo(() => createStyles(theme), [theme]);
   };

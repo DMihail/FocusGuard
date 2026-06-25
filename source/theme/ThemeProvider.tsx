@@ -3,7 +3,7 @@
 import React, { type ReactNode, useEffect } from 'react';
 
 import { useSystemColorScheme } from '@/hooks/useSystemColorScheme';
-import { ThemeContext } from '@/hooks/useTheme';
+import { ThemeColorsContext, ThemeShellContext } from '@/hooks/useTheme';
 import { syncNativeUiThemePreference } from '@/specs/keeptUiThemeClient';
 import { settingsStore } from '@/store';
 
@@ -16,7 +16,7 @@ type ThemeProviderProps = {
 export const ThemeProvider = ({ children }: ThemeProviderProps) => {
   const preference = settingsStore((state) => state.themePreference);
   const systemScheme = useSystemColorScheme();
-  const { theme, isTransitioning } = useThemeTransition(preference, systemScheme);
+  const { colors, shell, isTransitioning } = useThemeTransition(preference, systemScheme);
 
   useEffect(() => {
     if (!isTransitioning) {
@@ -24,5 +24,9 @@ export const ThemeProvider = ({ children }: ThemeProviderProps) => {
     }
   }, [preference, isTransitioning]);
 
-  return <ThemeContext value={theme}>{children}</ThemeContext>;
+  return (
+    <ThemeShellContext value={shell}>
+      <ThemeColorsContext value={colors}>{children}</ThemeColorsContext>
+    </ThemeShellContext>
+  );
 };

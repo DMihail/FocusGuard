@@ -1,18 +1,19 @@
 /** @format */
 
-import { useEffect } from 'react';
-import { AppState, type AppStateStatus } from 'react-native';
+import { useEffect, useRef } from 'react';
+
+import { subscribeAppForeground } from '@/runtime/appForegroundBus';
 
 /** Runs callback when the app returns to the foreground. */
 export const useAppStateOnActive = (onActive: () => void): void => {
-  useEffect(() => {
-    const handleAppStateChange = (nextState: AppStateStatus) => {
-      if (nextState === 'active') {
-        onActive();
-      }
-    };
+  const onActiveRef = useRef(onActive);
+  onActiveRef.current = onActive;
 
-    const subscription = AppState.addEventListener('change', handleAppStateChange);
-    return () => subscription.remove();
-  }, [onActive]);
+  useEffect(
+    () =>
+      subscribeAppForeground(() => {
+        onActiveRef.current();
+      }),
+    [],
+  );
 };

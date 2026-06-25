@@ -13,11 +13,13 @@ class DailyUsageRepository private constructor(
     private val usageStatsManager =
         context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
 
-    private val cacheLock = Any()
-    private var cachedUsageByPackage: Map<String, Long>? = null
-    private var cachedDayStartMs: Long = 0L
+  private val cacheLock = Any()
+  private var cachedUsageByPackage: Map<String, Long>? = null
+  private var cachedDayStartMs: Long = 0L
+  private var cachedAtMs: Long = 0L
 
     companion object {
+        private const val CACHE_TTL_MS = 10 * 60 * 1000L
         @Volatile
         private var instance: DailyUsageRepository? = null
 
@@ -47,10 +49,14 @@ class DailyUsageRepository private constructor(
 
     private fun queryTodayUsageByPackage(): Map<String, Long> {
         val dayStartMs = startOfLocalDayMs()
+        val nowMs = System.currentTimeMillis()
 
         synchronized(cacheLock) {
             cachedUsageByPackage?.let { cached ->
-                if (cachedDayStartMs == dayStartMs) {
+                if (
+                    cachedDayStartMs == dayStartMs &&
+                        nowMs - cachedAtMs < CACHE_TTL_MS
+                ) {
                     return cached
                 }
             }
@@ -59,10 +65,11 @@ class DailyUsageRepository private constructor(
                 DailyUsageAggregator.buildUsageByPackage(
                     usageStatsManager,
                     dayStartMs,
-                    System.currentTimeMillis(),
+                    nowMs,
                 )
             cachedUsageByPackage = usageByPackage
             cachedDayStartMs = dayStartMs
+            cachedAtMs = nowMs
             return usageByPackage
         }
     }
@@ -71,6 +78,7 @@ class DailyUsageRepository private constructor(
         synchronized(cacheLock) {
             cachedUsageByPackage = null
             cachedDayStartMs = 0L
+            cachedAtMs = 0L
         }
     }
 }

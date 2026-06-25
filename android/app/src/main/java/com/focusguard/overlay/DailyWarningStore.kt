@@ -1,8 +1,8 @@
 package com.focusguard.overlay
 
 import com.focusguard.storage.KeeptMmkv
-import com.focusguard.storage.PersistSchema
 import java.util.Calendar
+import java.util.concurrent.ConcurrentHashMap
 
 /** Persists one warning notification per app per local calendar day. */
 internal object DailyWarningStore {
@@ -10,19 +10,52 @@ internal object DailyWarningStore {
 
     private val mmkv get() = KeeptMmkv.instance
 
+    private val warnedTodayCache = ConcurrentHashMap.newKeySet<String>()
+    private var cacheDayKey: String? = null
+
     fun wasWarningShownToday(packageName: String): Boolean {
-        val key = keyForToday(packageName)
-        return mmkv.decodeBool(key, false)
+        ensureDayCache()
+
+        if (warnedTodayCache.contains(packageName)) {
+            return true
+        }
+
+        val shown = mmkv.decodeBool(keyForToday(packageName), false)
+        if (shown) {
+            warnedTodayCache.add(packageName)
+        }
+        return shown
     }
 
     fun markWarningShownToday(packageName: String) {
+        ensureDayCache()
+        warnedTodayCache.add(packageName)
         mmkv.encode(keyForToday(packageName), true)
     }
 
-    private fun keyForToday(packageName: String): String {
-        val calendar = Calendar.getInstance()
-        val dayKey =
-            "${calendar.get(Calendar.YEAR)}-${calendar.get(Calendar.MONTH)}-${calendar.get(Calendar.DAY_OF_MONTH)}"
-        return "$KEY_PREFIX$dayKey-$packageName"
+    /** Drops MMKV keys from previous local calendar days. */
+    fun pruneStaleKeys() {
+        val todayPrefix = "$KEY_PREFIX${dayKey(Calendar.getInstance())}-"
+
+        mmkv.allKeys()?.forEach { key ->
+            if (key.startsWith(KEY_PREFIX) && !key.startsWith(todayPrefix)) {
+                mmkv.removeValueForKey(key)
+            }
+        }
     }
+
+    private fun ensureDayCache() {
+        val dayKey = dayKey(Calendar.getInstance())
+        if (cacheDayKey != dayKey) {
+            warnedTodayCache.clear()
+            cacheDayKey = dayKey
+        }
+    }
+
+    private fun keyForToday(packageName: String): String {
+        return "$KEY_PREFIX${dayKey(Calendar.getInstance())}-$packageName"
+    }
+
+    private fun dayKey(calendar: Calendar): String =
+        "${calendar.get(Calendar.YEAR)}-${calendar.get(Calendar.MONTH)}-${calendar.get(Calendar.DAY_OF_MONTH)}"
 }

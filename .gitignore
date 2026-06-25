@@ -11,7 +11,7 @@ Thumbs.db
 keystore.properties
 android/keystore.properties
 !android/keystore.properties.example
-**/google-services.json
+android/app/google-services.json
 !android/app/google-services.ci.json
 **/GoogleService-Info.plist
 

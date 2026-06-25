@@ -1,20 +1,14 @@
 /** @format */
 
 import React, { useCallback, useMemo } from 'react';
-import { FlatList, View } from 'react-native';
+import { ScrollView, View } from 'react-native';
 
 import { useTranslation } from '@/i18n';
-import { SECTION_SCROLL_FLAT_LIST_PROPS } from '@/list';
 import { useRootNavigation } from '@/navigation';
 import { testIds } from '@/testing/testIds';
 
 import { useDashboard } from './hooks/useDashboard';
-import {
-  createDashboardSectionRenderItem,
-  DASHBOARD_SECTIONS,
-  dashboardSectionKeyExtractor,
-  type DashboardSectionRenderContext,
-} from './list';
+import { DASHBOARD_SECTIONS, type DashboardSectionRenderContext, renderDashboardSection } from './list';
 import { useDashboardStyles } from './styles';
 import { getGreeting } from './utils';
 
@@ -77,13 +71,6 @@ export const DashboardScreen = () => {
     ],
   );
 
-  const renderItem = useMemo(() => createDashboardSectionRenderItem(sectionContext), [sectionContext]);
-
-  const listHeader = useMemo(
-    () => <DashboardHeader greeting={greeting} onSettingsPress={openSettings} />,
-    [greeting, openSettings],
-  );
-
   return (
     <ScreenSafeArea
       style={styles.screen}
@@ -91,17 +78,18 @@ export const DashboardScreen = () => {
       accessibilityLabel={t('dashboard.screenLabel')}
     >
       <View style={styles.content}>
-        <FlatList
+        <ScrollView
           testID={testIds.dashboard.scroll}
-          data={DASHBOARD_SECTIONS}
-          renderItem={renderItem}
-          keyExtractor={dashboardSectionKeyExtractor}
-          ListHeaderComponent={listHeader}
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
           refreshControl={refreshControl}
-          {...SECTION_SCROLL_FLAT_LIST_PROPS}
-        />
+        >
+          <DashboardHeader greeting={greeting} onSettingsPress={openSettings} />
+          {DASHBOARD_SECTIONS.map((sectionId) => (
+            <React.Fragment key={sectionId}>{renderDashboardSection(sectionId, sectionContext)}</React.Fragment>
+          ))}
+        </ScrollView>
         <UsageRefreshIndicator
           visible={showUsageRefreshIndicator && !isPullRefreshing}
           testID={testIds.dashboard.usageLoader}

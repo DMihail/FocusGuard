@@ -45,7 +45,6 @@ export const TrackedAppsScreen = () => {
         <FlatList
           testID={testIds.trackedApps.list}
           data={appRows}
-          extraData={appRows}
           renderItem={renderItem}
           keyExtractor={trackedAppKeyExtractor}
           ListHeaderComponent={renderListHeader}

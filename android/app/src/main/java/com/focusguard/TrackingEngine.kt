@@ -58,6 +58,7 @@ class TrackingEngine(
         if (monitoringJob != null) return
 
         ensureWarningChannel()
+        DailyWarningStore.pruneStaleKeys()
 
         monitoringJob = scope.launch {
             while (isActive) {
