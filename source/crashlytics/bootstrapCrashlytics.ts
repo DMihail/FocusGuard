@@ -7,13 +7,10 @@ export const bootstrapCrashlytics = (): void => {
   }
 
   try {
-    const crashlytics = require('@react-native-firebase/crashlytics').default as () => {
-      setCrashlyticsCollectionEnabled: (enabled: boolean) => Promise<null>;
-    };
+    const { getCrashlytics, setCrashlyticsCollectionEnabled } =
+      require('@react-native-firebase/crashlytics') as typeof import('@react-native-firebase/crashlytics');
 
-    crashlytics()
-      .setCrashlyticsCollectionEnabled(true)
-      .catch(() => undefined);
+    setCrashlyticsCollectionEnabled(getCrashlytics(), true).catch(() => undefined);
   } catch {
     // Firebase not configured on this build target.
   }

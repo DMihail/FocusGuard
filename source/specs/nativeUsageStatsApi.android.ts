@@ -2,7 +2,6 @@ import type { PermissionsChangedEvent, Spec } from './NativeUsageStats.android';
 import { getNativeUsageStats } from './nativeUsageStatsClient.android';
 import type { InstallApp, MonitorServiceStartResult, PackageUsage } from './types';
 
-export type { PermissionsChangedEvent } from './types';
 export type { InstallApp, MonitorServiceStartResult, PackageUsage } from './types';
 
 const getModule = (): Spec => getNativeUsageStats();

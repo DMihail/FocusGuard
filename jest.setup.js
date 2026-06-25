@@ -252,15 +252,9 @@ afterEach(() => {
   __resetAppForegroundBusForTests();
 });
 
-jest.mock('@react-native-firebase/crashlytics', () => {
-  const crashlytics = () => ({
-    setCrashlyticsCollectionEnabled: jest.fn(async () => null),
-    recordError: jest.fn(async () => null),
-    log: jest.fn(),
-  });
-
-  return {
-    __esModule: true,
-    default: crashlytics,
-  };
-});
+jest.mock('@react-native-firebase/crashlytics', () => ({
+  getCrashlytics: jest.fn(() => ({})),
+  setCrashlyticsCollectionEnabled: jest.fn(async () => null),
+  recordError: jest.fn(async () => null),
+  log: jest.fn(),
+}));

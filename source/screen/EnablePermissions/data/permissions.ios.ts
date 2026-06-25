@@ -1,7 +1,6 @@
 /** @format */
 
 import { NotificationsIcon, UsageAccess } from '@/assets/svg/EnablePermissions';
-import { getPermissionIds } from '@/domain/permissions/permissionIds.ios';
 import type { TranslateFn } from '@/i18n';
 
 import type { PermissionItem } from '../types';
@@ -22,5 +21,3 @@ export const createPermissions = (appName: string, t: TranslateFn): PermissionIt
     Icon: NotificationsIcon,
   },
 ];
-
-export { getPermissionIds };

@@ -74,9 +74,6 @@ android {
 
 dependencies {
     implementation("com.facebook.react:react-android")
-    implementation platform('com.google.firebase:firebase-bom:34.14.0')
-    implementation 'com.google.firebase:firebase-crashlytics'
-    implementation 'com.google.firebase:firebase-crashlytics-ndk'
     implementation "androidx.core:core-splashscreen:1.0.1"
     implementation "io.github.zhongwuzw:mmkv:2.4.0"
 

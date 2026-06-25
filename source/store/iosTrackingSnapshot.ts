@@ -3,18 +3,9 @@
 import { getManageAppKey } from '@/domain/appKey';
 
 import { appLimitsStore, DEFAULT_APP_LIMITS } from './appLimitsStore';
-import {
-  IOS_FAMILY_ACTIVITY_SELECTION_KEY,
-  IOS_TRACKING_SNAPSHOT_KEY,
-  IOS_TRACKING_SNAPSHOT_VERSION,
-} from './persistSchema';
+import { IOS_TRACKING_SNAPSHOT_KEY, IOS_TRACKING_SNAPSHOT_VERSION } from './persistSchema';
 import { selectedAppsStore } from './selectedAppsStore';
 import type { AppLimits } from './types';
-
-/** Keept uses Screen Time self-control — the device owner limits their own apps. */
-export const IOS_SCREEN_TIME_AUTH_MODE = 'individual' as const;
-
-export type IosScreenTimeAuthMode = typeof IOS_SCREEN_TIME_AUTH_MODE;
 
 /** Per-app limits keyed by a stable token id generated when the user picks apps on iOS. */
 export type IosAppLimits = AppLimits;
@@ -26,31 +17,9 @@ export type IosAppLimits = AppLimits;
 export type IosTrackingSnapshot = {
   version: typeof IOS_TRACKING_SNAPSHOT_VERSION;
   platform: 'ios';
-  authMode: IosScreenTimeAuthMode;
+  authMode: 'individual';
   trackedAppTokenIds: string[];
   limitsByTokenId: Record<string, IosAppLimits>;
-};
-
-export const IOS_TRACKING_SNAPSHOT_KEYS = {
-  snapshot: IOS_TRACKING_SNAPSHOT_KEY,
-  familyActivitySelection: IOS_FAMILY_ACTIVITY_SELECTION_KEY,
-} as const;
-
-export const isIosTrackingSnapshot = (value: unknown): value is IosTrackingSnapshot => {
-  if (!value || typeof value !== 'object') {
-    return false;
-  }
-
-  const snapshot = value as Partial<IosTrackingSnapshot>;
-
-  return (
-    snapshot.version === IOS_TRACKING_SNAPSHOT_VERSION &&
-    snapshot.platform === 'ios' &&
-    snapshot.authMode === IOS_SCREEN_TIME_AUTH_MODE &&
-    Array.isArray(snapshot.trackedAppTokenIds) &&
-    typeof snapshot.limitsByTokenId === 'object' &&
-    snapshot.limitsByTokenId !== null
-  );
 };
 
 export const buildIosTrackingSnapshot = (): IosTrackingSnapshot => {
@@ -60,7 +29,7 @@ export const buildIosTrackingSnapshot = (): IosTrackingSnapshot => {
   return {
     version: IOS_TRACKING_SNAPSHOT_VERSION,
     platform: 'ios',
-    authMode: IOS_SCREEN_TIME_AUTH_MODE,
+    authMode: 'individual',
     trackedAppTokenIds: apps.map((app) => getManageAppKey(app)),
     limitsByTokenId: Object.fromEntries(
       apps.map((app) => {
