@@ -173,7 +173,11 @@ class NativeUsageStatsModule(
 
   private fun emitPermissionsChanged() {
     reactApplicationContext.runOnUiQueueThread {
-      if (reactApplicationContext.hasActiveReactInstance()) {
+      if (!reactApplicationContext.hasActiveReactInstance()) {
+        return@runOnUiQueueThread
+      }
+
+      runCatching {
         emitOnPermissionsChanged(
             Arguments.createMap().apply {
               putDouble("changedAtMs", System.currentTimeMillis().toDouble())

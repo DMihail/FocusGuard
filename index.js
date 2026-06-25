@@ -5,7 +5,13 @@
 require('@/setup/reanimatedLogger');
 require('react-native-gesture-handler');
 
-const { AppRegistry } = require('react-native');
+const { AppRegistry, Platform } = require('react-native');
+
+if (Platform.OS === 'android') {
+  const { bootstrapPermissionsChangedEvents } = require('@/specs/nativeUsageStatsApi.android');
+  bootstrapPermissionsChangedEvents();
+}
+
 const App = require('@/App').default;
 const { name: appName } = require('./app.json');
 
