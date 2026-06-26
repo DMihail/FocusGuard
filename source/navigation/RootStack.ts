@@ -2,16 +2,14 @@
 
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
-import {
-  ConfigureLimitsScreen,
-  DashboardScreen,
-  EnablePermissionsScreen,
-  LegalDocumentScreen,
-  ManageAppsScreen,
-  OnboardingScreen,
-  SettingsScreen,
-  TrackedAppsScreen,
-} from '@/screen';
+import { ConfigureLimitsScreen } from '@/screen/ConfigureLimits/ConfigureLimitsScreen';
+import { DashboardScreen } from '@/screen/Dashboard/DashboardScreen';
+import { EnablePermissionsScreen } from '@/screen/EnablePermissions/EnablePermissionsScreen';
+import { LegalDocumentScreen } from '@/screen/Legal/LegalDocumentScreen';
+import { ManageAppsScreen } from '@/screen/ManageApps/ManageAppsScreen';
+import { OnboardingScreen } from '@/screen/Onboarding/OnboardingScreen';
+import { SettingsScreen } from '@/screen/Settings/SettingsScreen';
+import { TrackedAppsScreen } from '@/screen/TrackedApps/TrackedAppsScreen';
 
 import { rootScreenTransitionOptions } from './screenTransitionOptions';
 import type { RootStackParamList } from './types';

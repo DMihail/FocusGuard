@@ -27,7 +27,7 @@ export const RootNavigationGate = () => {
   const navigationRef = useRef<NavigationContainerRef<RootStackParamList>>(null);
   const initialRoute = hasCoreStoresHydrated ? resolveEntryRoute(isOnboardingComplete) : null;
   const isNavigationReady = initialRoute !== null;
-  const { showSplashOverlay, splashOverlayStyle } = useSplashHandoff(isNavigationReady);
+  const { isSplashVisible, splashOverlayStyle } = useSplashHandoff(isNavigationReady);
 
   usePrefetchNativeCatalogs();
 
@@ -44,15 +44,13 @@ export const RootNavigationGate = () => {
   useAppPermissionGuard(navigationRef, isNavigationReady);
   useMonitoringServiceSync(isNavigationReady);
 
-  if (!isNavigationReady || initialRoute === null) {
-    return <SplashBranding />;
-  }
-
   return (
     <View style={styles.root}>
-      <RootNavigator initialRoute={initialRoute} navigationRef={navigationRef} />
+      {isNavigationReady && initialRoute ? (
+        <RootNavigator initialRoute={initialRoute} navigationRef={navigationRef} />
+      ) : null}
 
-      {showSplashOverlay ? (
+      {isSplashVisible ? (
         <Animated.View
           pointerEvents="none"
           style={[styles.splashOverlay, splashOverlayStyle]}
