@@ -246,9 +246,10 @@ The app supports **English** and **Russian** via **i18next** (`source/i18n/`):
 
 GitHub Actions (`.github/workflows/ci.yml`), New Architecture enabled:
 
-1. **js** — `npm run check` on Node 22
+1. **js** — `npm run check` (lint, format, types, tests) on Node 22
 2. **android** — `assembleDebug` after SDK/NDK install (API 36)
-3. **ios** — `xcodebuild` for iOS Simulator (no code signing)
+
+The Android job runs only after **js** passes.
 
 ## Contributing notes
 

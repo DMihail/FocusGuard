@@ -122,13 +122,13 @@ describe('EnablePermissionsScreen', () => {
     const tree = renderTestTree(<EnablePermissionsScreen />);
     flushVirtualizedListTimers();
 
-    expect(tree.root.findByProps({ children: 'Enable Permissions' })).toBeDefined();
-    expect(tree.root.findByProps({ children: 'Usage Access' })).toBeDefined();
-    expect(tree.root.findByProps({ children: 'Display Over Apps' })).toBeDefined();
+    expect(tree.root.findByProps({ children: 'Permissions' })).toBeDefined();
+    expect(tree.root.findByProps({ children: 'Usage access' })).toBeDefined();
+    expect(tree.root.findByProps({ children: 'Display over other apps' })).toBeDefined();
     expect(tree.root.findByProps({ children: 'Notifications' })).toBeDefined();
     expect(
       tree.root.findByProps({
-        children: 'All data stays on your device. We never collect or share your usage information.',
+        children: 'Your data stays on this device. We never collect or share your usage stats.',
       }),
     ).toBeDefined();
     expect(tree.root.findByProps({ children: 'Continue' })).toBeDefined();
@@ -146,7 +146,7 @@ describe('EnablePermissionsScreen', () => {
     flushVirtualizedListTimers();
 
     runTestAct(() => {
-      tree.root.findByProps({ accessibilityLabel: 'Grant Display Over Apps' }).props.onPress();
+      tree.root.findByProps({ accessibilityLabel: 'Allow Display over other apps' }).props.onPress();
     });
 
     expect(mockRequestSystemAlertWindowPermission).toHaveBeenCalledTimes(1);
@@ -158,7 +158,7 @@ describe('EnablePermissionsScreen', () => {
     flushVirtualizedListTimers();
 
     runTestAct(() => {
-      tree.root.findByProps({ accessibilityLabel: 'Grant Notifications' }).props.onPress();
+      tree.root.findByProps({ accessibilityLabel: 'Allow Notifications' }).props.onPress();
     });
 
     expect(mockRequestNotificationsPermission).toHaveBeenCalledTimes(1);
@@ -170,7 +170,7 @@ describe('EnablePermissionsScreen', () => {
     flushVirtualizedListTimers();
 
     runTestAct(() => {
-      tree.root.findByProps({ accessibilityLabel: 'Grant Usage Access' }).props.onPress();
+      tree.root.findByProps({ accessibilityLabel: 'Allow Usage access' }).props.onPress();
     });
 
     expect(mockRequestUsageStatsPermission).toHaveBeenCalledTimes(1);
