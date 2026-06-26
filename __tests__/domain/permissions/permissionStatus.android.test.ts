@@ -107,14 +107,24 @@ describe('permissionStatus.android', () => {
     expect(readPermissionStatuses()).toEqual(allGranted);
   });
 
-  it('clears usage-access when native reports revoked', () => {
+  it('shows usage-access pending when native reports revoked and persistence was cleared', () => {
+    grantAllCardChecks();
+    readPermissionStatuses();
+
+    mockCheckForPermission.mockReturnValue(false);
+    mockMmkvStorage.remove('usage-access-granted-v1');
+
+    expect(readPermissionStatuses()['usage-access']).toBe('pending');
+    expect(mockMmkvStorage.getBoolean('usage-access-granted-v1')).toBe(false);
+  });
+
+  it('keeps usage-access granted when native flickers but persistence remains', () => {
     grantAllCardChecks();
     readPermissionStatuses();
 
     mockCheckForPermission.mockReturnValue(false);
 
-    expect(readPermissionStatuses()['usage-access']).toBe('pending');
-    expect(mockMmkvStorage.getBoolean('usage-access-granted-v1')).toBe(false);
+    expect(readPermissionStatuses()['usage-access']).toBe('granted');
   });
 
   it('pins usage-access latch before opening another permission settings screen', () => {

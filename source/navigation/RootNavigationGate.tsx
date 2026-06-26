@@ -6,6 +6,7 @@ import { StyleSheet, View } from 'react-native';
 import type { NavigationContainerRef } from '@react-navigation/native';
 import Animated from 'react-native-reanimated';
 
+import { invalidatePermissionSnapshot } from '@/domain/permissionSnapshot';
 import { useCoreStoresHydrated } from '@/hooks/useCoreStoresHydrated';
 import { usePrefetchNativeCatalogs } from '@/hooks/usePrefetchNativeCatalogs';
 import { onboardingStore } from '@/store';
@@ -22,8 +23,9 @@ import { SplashBranding } from '@/components';
 
 export const RootNavigationGate = () => {
   const hasCoreStoresHydrated = useCoreStoresHydrated();
+  const isOnboardingComplete = onboardingStore((state) => state.isConfirm);
   const navigationRef = useRef<NavigationContainerRef<RootStackParamList>>(null);
-  const initialRoute = hasCoreStoresHydrated ? resolveEntryRoute(onboardingStore.getState().isConfirm) : null;
+  const initialRoute = hasCoreStoresHydrated ? resolveEntryRoute(isOnboardingComplete) : null;
   const isNavigationReady = initialRoute !== null;
   const { showSplashOverlay, splashOverlayStyle } = useSplashHandoff(isNavigationReady);
 
@@ -33,6 +35,8 @@ export const RootNavigationGate = () => {
     if (!isNavigationReady) {
       return;
     }
+
+    invalidatePermissionSnapshot();
 
     return startNativeTrackingSnapshotSync();
   }, [isNavigationReady]);

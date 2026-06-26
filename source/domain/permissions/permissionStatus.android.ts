@@ -20,6 +20,8 @@ const clearUsageAccessSessionLatch = (): void => {
   usageAccessSessionLatch = false;
 };
 
+const readPersistedUsageAccessGrant = (): boolean => storage.getBoolean(USAGE_ACCESS_GRANTED_KEY) === true;
+
 const persistUsageAccessGrant = (): void => {
   storage.set(USAGE_ACCESS_GRANTED_KEY, true);
 };
@@ -35,7 +37,7 @@ const readNativePermissionStatuses = (): Record<PermissionId, PermissionStatus> 
   >;
 
 const pinUsageAccessGrantIfDetected = (): void => {
-  const wasGranted = checkForPermission() || storage.getBoolean(USAGE_ACCESS_GRANTED_KEY) === true;
+  const wasGranted = checkForPermission() || readPersistedUsageAccessGrant();
 
   if (!wasGranted) {
     return;
@@ -48,6 +50,8 @@ const pinUsageAccessGrantIfDetected = (): void => {
   }
 };
 
+const shouldLatchUsageAccess = (): boolean => usageAccessSessionLatch || readPersistedUsageAccessGrant();
+
 /** Reads current native permission statuses for all Enable Permissions cards. */
 export const readPermissionStatuses = (): Record<PermissionId, PermissionStatus> => {
   const statuses = readNativePermissionStatuses();
@@ -58,12 +62,11 @@ export const readPermissionStatuses = (): Record<PermissionId, PermissionStatus>
     return statuses;
   }
 
-  if (usageAccessSessionLatch) {
+  if (shouldLatchUsageAccess()) {
     return { ...statuses, 'usage-access': 'granted' };
   }
 
   clearUsageAccessSessionLatch();
-  clearPersistedUsageAccessGrant();
   return statuses;
 };
 
