@@ -1,8 +1,8 @@
 /** @format */
 
-/** Logs async failures in development without crashing the UI. */
+import { reportError } from '@/crashlytics/reportError';
+
+/** Logs async failures in development and reports them to Crashlytics in release. */
 export const logDevWarning = (error: unknown): void => {
-  if (__DEV__) {
-    console.warn(error);
-  }
+  reportError(error);
 };

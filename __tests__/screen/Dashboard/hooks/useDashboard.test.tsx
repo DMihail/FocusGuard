@@ -49,8 +49,16 @@ jest.mock('@/store', () => {
       { getState: () => mockStoreState },
     ),
     appLimitsStore: (selector: (state: typeof mockStoreState) => unknown) => selector(mockStoreState),
-    monitoringStore: (selector: (state: { isMonitoring: boolean; toggle: jest.Mock }) => unknown) =>
-      selector({ isMonitoring: mockStoreState.isMonitoring, toggle: mockStoreState.toggle }),
+    monitoringStore: Object.assign(
+      (selector: (state: { isMonitoring: boolean; toggle: jest.Mock }) => unknown) =>
+        selector({ isMonitoring: mockStoreState.isMonitoring, toggle: mockStoreState.toggle }),
+      {
+        getState: () => ({
+          isMonitoring: mockStoreState.isMonitoring,
+          toggle: mockStoreState.toggle,
+        }),
+      },
+    ),
   };
 });
 

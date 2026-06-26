@@ -88,12 +88,12 @@
     "{source,__tests__}/**/*.{js,jsx,ts,tsx}": [
       "eslint --fix --max-warnings 0",
       "prettier --write",
-      "jest --bail --findRelatedTests --passWithNoTests"
+      "jest --bail --findRelatedTests --passWithNoTests --watchman=false --forceExit"
     ],
     "index.js": [
       "eslint --fix --max-warnings 0",
       "prettier --write",
-      "jest --bail --findRelatedTests --passWithNoTests"
+      "jest --bail --findRelatedTests --passWithNoTests --watchman=false --forceExit"
     ],
     "*.{json,md,yml,yaml}": [
       "prettier --write"

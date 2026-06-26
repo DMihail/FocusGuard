@@ -9,7 +9,7 @@ import org.json.JSONObject
 /**
  * Reads tracked apps and per-app limits from the same MMKV instance as the JS layer.
  */
-class TrackingConfigRepository {
+internal object TrackingConfigRepository {
 
     private val mmkv get() = KeeptMmkv.instance
 
@@ -17,6 +17,13 @@ class TrackingConfigRepository {
     private var cachedTrackedApps: List<String>? = null
     private var cachedLimitsRaw: String? = null
     private var cachedLimitsJson: JSONObject? = null
+
+    fun invalidateCache() {
+        cachedSelectedAppsRaw = null
+        cachedTrackedApps = null
+        cachedLimitsRaw = null
+        cachedLimitsJson = null
+    }
 
     fun getTrackedApps(): List<String> {
         NativeTrackingSnapshot.read()?.trackedApps?.let { return it }

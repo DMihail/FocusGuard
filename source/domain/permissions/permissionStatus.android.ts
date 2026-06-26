@@ -8,7 +8,7 @@ import { permissionChecks, permissionRequests } from './permissionHandlers.andro
 import { getPermissionIds } from './permissionIds.android';
 import type { PermissionId, PermissionStatus } from './types';
 
-const ANDROID_REQUIRED_PERMISSION_IDS: PermissionId[] = ['usage-access', 'display-over-apps', 'battery-optimization'];
+const ANDROID_REQUIRED_PERMISSION_IDS: PermissionId[] = ['usage-access', 'display-over-apps'];
 
 let usageAccessSessionLatch = false;
 

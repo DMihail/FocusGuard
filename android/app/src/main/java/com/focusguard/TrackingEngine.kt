@@ -34,7 +34,6 @@ class TrackingEngine(
 ) {
 
     private val detector = ForegroundAppDetector(context)
-    private val configRepository = TrackingConfigRepository()
     private val usageRepository = DailyUsageRepository.getInstance(context)
     private val liveUsageEstimator = LiveUsageEstimator(usageRepository)
     private val settingsRepository = SettingsRepository()
@@ -137,7 +136,7 @@ class TrackingEngine(
             return
         }
 
-        val limits = configRepository.getLimitConfig(packageName)
+        val limits = TrackingConfigRepository.getLimitConfig(packageName)
         val usedTodayMs = liveUsageEstimator.getEffectiveUsageMs(packageName)
 
         if (usedTodayMs >= limits.hardBlockThresholdMs) {
@@ -225,7 +224,7 @@ class TrackingEngine(
     }
 
     private fun isTrackedApp(packageName: String): Boolean =
-        configRepository.getTrackedApps().contains(packageName)
+        TrackingConfigRepository.getTrackedApps().contains(packageName)
 
     private fun ensureWarningChannel() {
         KeeptNotifications.ensureWarningChannel(context, notificationManager)

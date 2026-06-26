@@ -3,6 +3,8 @@ package com.focusguard.receiver
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.os.Build
+import com.focusguard.monitor.MonitoringBootResumeStore
 import com.focusguard.monitor.MonitoringStateRepository
 import com.focusguard.monitor.MonitorServiceHelper
 
@@ -22,7 +24,19 @@ class BootCompletedReceiver : BroadcastReceiver() {
    */
   override fun onReceive(context: Context, intent: Intent?) {
     when (intent?.action) {
-      Intent.ACTION_BOOT_COMPLETED,
+      Intent.ACTION_BOOT_COMPLETED -> {
+        if (!MonitoringStateRepository.isMonitoringEnabled()) {
+          return
+        }
+
+        // Android 14+ blocks special-use FGS starts from BOOT_COMPLETED.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+          MonitoringBootResumeStore.markPending()
+          return
+        }
+
+        MonitorServiceHelper.start(context.applicationContext)
+      }
       Intent.ACTION_MY_PACKAGE_REPLACED -> {
         if (MonitoringStateRepository.isMonitoringEnabled()) {
           MonitorServiceHelper.start(context.applicationContext)

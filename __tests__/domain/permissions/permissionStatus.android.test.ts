@@ -93,6 +93,15 @@ describe('permissionStatus.android', () => {
     expect(readPermissionStatuses().notifications).toBe('pending');
   });
 
+  it('does not require battery optimization to continue', () => {
+    grantRequiredChecks();
+    mockCheckForIgnoreBatteryOptimizationsPermission.mockReturnValue(false);
+    mockCheckForManifestMonitorPermissions.mockReturnValue(true);
+
+    expect(areRequiredPermissionsGranted(readPermissionStatuses())).toBe(true);
+    expect(readPermissionStatuses()['battery-optimization']).toBe('pending');
+  });
+
   it('reads granted statuses when visible checks pass', () => {
     grantAllCardChecks();
     expect(readPermissionStatuses()).toEqual(allGranted);

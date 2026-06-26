@@ -1,9 +1,9 @@
 /** @format */
 
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
+import { Alert } from 'react-native';
 
-import { useShallow } from 'zustand/react/shallow';
-
+import { getMonitorStartFailureMessage } from '@/domain/monitorStartFailure';
 import { useTrackedAppRows } from '@/hooks/useTrackedAppRows';
 import { useTrackedAppsRefresh } from '@/hooks/useTrackedAppsRefresh';
 import { useTranslation } from '@/i18n';
@@ -15,12 +15,7 @@ import { buildDashboardSummary } from '@/utils/usage/dashboardStats';
 export const useDashboard = () => {
   const { t } = useTranslation();
   const { appRows, showUsageRefreshIndicator, refreshUsage } = useTrackedAppRows();
-  const { isMonitoring, toggleMonitoring } = monitoringStore(
-    useShallow((state) => ({
-      isMonitoring: state.isMonitoring,
-      toggleMonitoring: state.toggle,
-    })),
-  );
+  const isMonitoring = monitoringStore((state) => state.isMonitoring);
   const openConfigureLimits = useNavigateToConfigureLimits();
   const { refreshControl, refreshing: isPullRefreshing } = useTrackedAppsRefresh(refreshUsage);
 
@@ -35,6 +30,15 @@ export const useDashboard = () => {
 
     return isMonitoring ? t('dashboard.focusModeSubtitle.monitoring') : t('dashboard.focusModeSubtitle.start');
   }, [hasSelectedApps, isMonitoring, t]);
+
+  const toggleMonitoring = useCallback(() => {
+    const result = monitoringStore.getState().toggle();
+
+    if (!result.ok) {
+      const { title, message } = getMonitorStartFailureMessage(t, result);
+      Alert.alert(title, message);
+    }
+  }, [t]);
 
   return {
     appRows,

@@ -9,7 +9,7 @@ import { scheduleAfterInteractions } from '@/utils/scheduleAfterInteractions';
 
 import { zustandStorage } from './mmkv';
 import { MONITORING_PERSIST_VERSION, PERSIST_STORAGE_KEYS } from './persistSchema';
-import type { MonitoringStore } from './types';
+import type { MonitoringStore, MonitoringToggleResult } from './types';
 
 /** Persisted focus-mode toggle; starts/stops the native monitor foreground service. */
 export const monitoringStore = create<MonitoringStore>()(
@@ -17,18 +17,22 @@ export const monitoringStore = create<MonitoringStore>()(
     (set, get) => ({
       isMonitoring: false,
 
-      toggle: () => {
+      toggle: (): MonitoringToggleResult => {
         const next = !get().isMonitoring;
 
         if (next) {
           if (!areAllPermissionsGranted()) {
-            return;
+            return { ok: false, reason: 'permissions_missing' };
           }
 
           const startResult = startMonitorService();
 
           if (!startResult.started) {
-            return;
+            return {
+              ok: false,
+              reason: 'service_start_failed',
+              detail: startResult.reason,
+            };
           }
 
           set({ isMonitoring: true });
@@ -39,11 +43,12 @@ export const monitoringStore = create<MonitoringStore>()(
 
             set({ isMonitoring: false });
           });
-          return;
+          return { ok: true };
         }
 
         stopMonitorService();
         set({ isMonitoring: false });
+        return { ok: true };
       },
     }),
     {

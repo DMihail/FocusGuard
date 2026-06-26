@@ -6,7 +6,6 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.SystemClock
 import androidx.core.content.ContextCompat
-import com.focusguard.permissions.BatteryOptimizationAccess
 
 /**
  * Centralized checks for all manifest-declared permissions required by [FocusGuardMonitorService].
@@ -34,7 +33,6 @@ internal object MonitorPermissions {
             !hasManifestMonitorPermissions(context) -> "manifest_permissions_missing"
             !UsageAccess.hasAccess(context) -> "usage_access_missing"
             !OverlayAccess.hasAccess(context) -> "overlay_access_missing"
-            !BatteryOptimizationAccess.isExempt(context) -> "battery_optimization_missing"
             else -> null
         }
 

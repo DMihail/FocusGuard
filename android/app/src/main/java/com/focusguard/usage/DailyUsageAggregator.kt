@@ -2,6 +2,7 @@ package com.focusguard.usage
 
 import android.app.usage.UsageEvents
 import android.app.usage.UsageStatsManager
+import android.os.Build
 
 import com.focusguard.usage.UsageStatsExtensions.foregroundTimeMs
 
@@ -57,11 +58,11 @@ internal object DailyUsageAggregator {
             events.getNextEvent(event)
             val packageName = event.packageName?.takeIf { it.isNotEmpty() } ?: continue
 
-            when (event.eventType) {
-                UsageEvents.Event.MOVE_TO_FOREGROUND -> {
+            when {
+                isForegroundStartEvent(event.eventType) -> {
                     openSessionStartMs[packageName] = event.timeStamp.coerceAtLeast(dayStartMs)
                 }
-                UsageEvents.Event.MOVE_TO_BACKGROUND -> {
+                isForegroundEndEvent(event.eventType) -> {
                     val sessionStartMs = openSessionStartMs.remove(packageName)
                     val durationMs =
                         if (sessionStartMs != null) {
@@ -87,9 +88,11 @@ internal object DailyUsageAggregator {
         dayStartMs: Long,
         endMs: Long,
     ): Map<String, Long> {
-        val aggregatedStats = usageStatsManager.queryAndAggregateUsageStats(dayStartMs, endMs)
-        if (aggregatedStats.isNotEmpty()) {
-            return aggregatedStats.mapValues { (_, stats) -> stats.foregroundTimeMs() }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            val aggregatedStats = usageStatsManager.queryAndAggregateUsageStats(dayStartMs, endMs)
+            if (aggregatedStats.isNotEmpty()) {
+                return aggregatedStats.mapValues { (_, stats) -> stats.foregroundTimeMs() }
+            }
         }
 
         val stats =
@@ -106,4 +109,16 @@ internal object DailyUsageAggregator {
                 packageStats.sumOf { stat -> stat.foregroundTimeMs() }
             }
     }
+
+    @Suppress("DEPRECATION")
+    private fun isForegroundStartEvent(eventType: Int): Boolean =
+        eventType == UsageEvents.Event.MOVE_TO_FOREGROUND ||
+            (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q &&
+                eventType == UsageEvents.Event.ACTIVITY_RESUMED)
+
+    @Suppress("DEPRECATION")
+    private fun isForegroundEndEvent(eventType: Int): Boolean =
+        eventType == UsageEvents.Event.MOVE_TO_BACKGROUND ||
+            (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q &&
+                eventType == UsageEvents.Event.ACTIVITY_PAUSED)
 }
