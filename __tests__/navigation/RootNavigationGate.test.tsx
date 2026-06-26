@@ -54,6 +54,10 @@ jest.mock('../../source/hooks/useCoreStoresHydrated', () => ({
   useCoreStoresHydrated: () => mockOnboardingState.hasHydrated,
 }));
 
+jest.mock('../../source/hooks/usePrefetchNativeCatalogs', () => ({
+  usePrefetchNativeCatalogs: jest.fn(),
+}));
+
 jest.mock('../../source/store/onboardingStore', () => {
   const onboardingStore = Object.assign(
     (selector: (state: typeof mockOnboardingState) => unknown) => selector(mockOnboardingState),

@@ -1,10 +1,8 @@
 <resources>
-    <string name="app_name">Keept</string>
     <string name="monitor_notification_channel_name">Мониторинг фокуса</string>
     <string name="monitor_notification_channel_description">Keept работает в фоне и следит за лимитами приложений</string>
     <string name="monitor_notification_title">Keept активен</string>
     <string name="monitor_notification_text">Слежение за приложениями в фоне</string>
-    <string name="special_use_fgs_subtype">focus_monitoring</string>
     <string name="warning_notification_channel_name">Предупреждения</string>
     <string name="warning_notification_channel_description">Когда вы слишком долго в отвлекающем приложении</string>
     <string name="warning_notification_title">Пора сделать перерыв</string>

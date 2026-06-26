@@ -78,8 +78,8 @@ android {
 
 dependencies {
     implementation("com.facebook.react:react-android")
-    implementation "androidx.core:core-splashscreen:1.0.1"
-    implementation "io.github.zhongwuzw:mmkv:2.4.0"
+    implementation "androidx.core:core-splashscreen:1.2.0"
+    implementation "io.github.zhongwuzw:mmkv:2.4.1"
     implementation(platform("com.google.firebase:firebase-bom:34.15.0"))
     implementation("com.google.firebase:firebase-crashlytics")
 
