@@ -25,7 +25,7 @@ const runDeferred = <T>(task: () => T | Promise<T>, fallback: T): Promise<T> =>
     });
   });
 
-export type NativeCatalogLoader<T> = {
+type NativeCatalogLoader<T> = {
   getCached: () => T | null;
   invalidate: () => void;
   load: (force?: boolean) => Promise<T>;
@@ -78,7 +78,7 @@ export const createNativeCatalogLoader = <T>(config: {
   };
 };
 
-export type NativeKeyedCatalogLoader<T extends Record<string, number>> = {
+type NativeKeyedCatalogLoader<T extends Record<string, number>> = {
   getCached: () => T | null;
   invalidate: () => void;
   loadForKeys: (keys: readonly string[], force?: boolean) => Promise<T>;

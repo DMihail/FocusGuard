@@ -11,9 +11,8 @@ import {
   withTiming,
 } from 'react-native-reanimated';
 
+import type { PermissionId, PermissionStatus } from '@/domain/permissions';
 import { PERMISSION_CARD_ANIMATION_MS } from '@/utils/layoutAnimation';
-
-import type { PermissionId, PermissionStatus } from '../types';
 
 const cardTiming = (easing: (value: number) => number) =>
   ({

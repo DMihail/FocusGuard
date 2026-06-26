@@ -11,8 +11,6 @@ const ANDROID_FAMILY: Record<InterWeight, string> = {
   bold: 'Inter-Bold',
 };
 
-export type { InterWeight } from './fonts.types';
-
 export const resolveFontFamily = (weight: InterWeight = 'regular'): string => ANDROID_FAMILY[weight];
 
 export const resolveFontWeight = (_weight: InterWeight): TextStyle['fontWeight'] => 'normal';

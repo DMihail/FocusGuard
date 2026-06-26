@@ -1,7 +1,5 @@
 /** @format */
 
-export type { LegalDocumentId } from '@/domain/types/legal';
-
 export type LegalSection = {
   title: string;
   paragraphs: string[];

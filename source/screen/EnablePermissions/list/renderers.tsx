@@ -2,9 +2,10 @@
 
 import React from 'react';
 
+import type { PermissionId } from '@/domain/permissions';
 import type { ListRenderItem } from '@/list';
 
-import type { PermissionId, PermissionItem } from '../types';
+import type { PermissionItem } from '../types';
 
 import { PermissionCard } from '../components/PermissionCard';
 
