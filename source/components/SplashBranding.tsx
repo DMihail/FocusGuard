@@ -1,19 +1,18 @@
 /** @format */
 
-import React, { Activity, memo } from 'react';
+import React, { Activity, memo, useMemo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import Animated, { interpolate, type SharedValue, useAnimatedStyle } from 'react-native-reanimated';
 
 import { Shield } from '@/assets/svg/Onboarding';
 import { getAppDisplayName } from '@/constants/appDisplayName';
-import { createStylesHook } from '@/hooks/createStylesHook';
 import { splashDotPulseMin, useSplashDotPulse } from '@/hooks/useSplashDotPulse';
-import { useTheme } from '@/hooks/useTheme';
 import { useTranslation } from '@/i18n';
 import { testIds } from '@/testing/testIds';
 import { borderRadius, fontSize, lineHeight, spacing, typography } from '@/theme';
 import type { Theme } from '@/theme/types';
+import { useSystemTheme } from '@/theme/useSystemTheme';
 
 const SPLASH_DOT_COUNT = 3;
 
@@ -74,8 +73,6 @@ const createSplashBrandingStyles = ({ colors }: Theme) =>
     },
   });
 
-const useSplashBrandingStyles = createStylesHook(createSplashBrandingStyles);
-
 type SplashPulseDotProps = {
   pulse: SharedValue<number>;
   dotStyle: { width: number; height: number; borderRadius: number; backgroundColor: string };
@@ -125,8 +122,9 @@ const SplashLoadingDots = ({ dotStyle, dotsRowStyle }: SplashLoadingDotsProps) =
 };
 
 export const SplashBranding = memo(() => {
-  const styles = useSplashBrandingStyles();
-  const { colors } = useTheme();
+  const theme = useSystemTheme();
+  const styles = useMemo(() => createSplashBrandingStyles(theme), [theme]);
+  const { colors } = theme;
   const { t } = useTranslation();
   const appDisplayName = getAppDisplayName();
 
