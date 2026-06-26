@@ -91,6 +91,7 @@ jest.spyOn(AppState, 'addEventListener').mockImplementation((_, listener) => {
 });
 
 import { EnablePermissionsScreen } from '@/screen/EnablePermissions/EnablePermissionsScreen';
+import { testIds } from '@/testing/testIds';
 
 const grantAllNativePermissions = () => {
   mockCheckForPermission.mockReturnValue(true);
@@ -118,20 +119,20 @@ describe('EnablePermissionsScreen', () => {
     await flushVirtualizedListWork();
   });
 
-  it('renders header, permission cards, privacy notice, and footer', () => {
+  it('renders screen structure with permission cards and footer', () => {
     const tree = renderTestTree(<EnablePermissionsScreen />);
     flushVirtualizedListTimers();
 
-    expect(tree.root.findByProps({ children: 'Permissions' })).toBeDefined();
-    expect(tree.root.findByProps({ children: 'Usage access' })).toBeDefined();
-    expect(tree.root.findByProps({ children: 'Display over other apps' })).toBeDefined();
-    expect(tree.root.findByProps({ children: 'Notifications' })).toBeDefined();
+    expect(tree.root.findByProps({ testID: testIds.enablePermissions.screen })).toBeDefined();
+    expect(tree.root.findByProps({ testID: testIds.enablePermissions.header })).toBeDefined();
+    expect(tree.root.findByProps({ testID: testIds.enablePermissions.cards })).toBeDefined();
+    expect(tree.root.findByProps({ testID: testIds.enablePermissions.privacyNotice })).toBeDefined();
+    expect(tree.root.findByProps({ testID: testIds.enablePermissions.continueButton })).toBeDefined();
+    expect(tree.root.findByProps({ testID: testIds.enablePermissions.permissionCard('usage-access') })).toBeDefined();
     expect(
-      tree.root.findByProps({
-        children: 'Your data stays on this device. We never collect or share your usage stats.',
-      }),
+      tree.root.findByProps({ testID: testIds.enablePermissions.permissionCard('display-over-apps') }),
     ).toBeDefined();
-    expect(tree.root.findByProps({ children: 'Continue' })).toBeDefined();
+    expect(tree.root.findByProps({ testID: testIds.enablePermissions.permissionCard('notifications') })).toBeDefined();
   });
 
   it('keeps Continue disabled until all permissions are granted', () => {
