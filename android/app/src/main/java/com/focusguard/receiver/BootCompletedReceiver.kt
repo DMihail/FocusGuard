@@ -38,9 +38,16 @@ class BootCompletedReceiver : BroadcastReceiver() {
         MonitorServiceHelper.start(context.applicationContext)
       }
       Intent.ACTION_MY_PACKAGE_REPLACED -> {
-        if (MonitoringStateRepository.isMonitoringEnabled()) {
-          MonitorServiceHelper.start(context.applicationContext)
+        if (!MonitoringStateRepository.isMonitoringEnabled()) {
+          return
         }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+          MonitoringBootResumeStore.markPending()
+          return
+        }
+
+        MonitorServiceHelper.start(context.applicationContext)
       }
     }
   }

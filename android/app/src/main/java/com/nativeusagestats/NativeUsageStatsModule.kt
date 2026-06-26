@@ -9,6 +9,7 @@ import com.facebook.react.bridge.WritableMap
 import android.os.Handler
 import android.os.Looper
 import com.focusguard.DailyUsageRepository
+import com.focusguard.SettingsRepository
 import com.focusguard.TrackingConfigRepository
 import com.focusguard.apps.InstalledAppsRepository
 import com.focusguard.monitor.MonitorPermissions
@@ -150,6 +151,7 @@ class NativeUsageStatsModule(
   override fun syncTrackingConfig(snapshotJson: String) {
     NativeTrackingSnapshot.write(snapshotJson)
     TrackingConfigRepository.invalidateCache()
+    SettingsRepository.invalidateCache()
   }
 
   override fun requestScreenTimeAuthorization(promise: Promise) {

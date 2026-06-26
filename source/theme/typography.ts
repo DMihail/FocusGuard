@@ -30,7 +30,7 @@ export const lineHeight = {
   display: 40,
 } as const;
 
-export const letterSpacing = {
+const letterSpacing = {
   tightXs: -0.15,
   tight: -0.05,
   tightMd: -0.31,

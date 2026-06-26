@@ -53,13 +53,11 @@ internal object MonitorPermissions {
 
     /**
      * @return `true` if every manifest permission needed by the monitor service is granted:
-     * [RECEIVE_BOOT_COMPLETED][Manifest.permission.RECEIVE_BOOT_COMPLETED],
      * [FOREGROUND_SERVICE][Manifest.permission.FOREGROUND_SERVICE] (API 28+),
      * and [FOREGROUND_SERVICE_SPECIAL_USE][Manifest.permission.FOREGROUND_SERVICE_SPECIAL_USE] (API 34+).
      */
     fun hasManifestMonitorPermissions(context: Context): Boolean {
-        return hasReceiveBootCompletedPermission(context) &&
-            hasForegroundServicePermission(context) &&
+        return hasForegroundServicePermission(context) &&
             hasForegroundServiceSpecialUsePermission(context)
     }
 
@@ -84,13 +82,6 @@ internal object MonitorPermissions {
         return ContextCompat.checkSelfPermission(
             context,
             Manifest.permission.FOREGROUND_SERVICE_SPECIAL_USE,
-        ) == PackageManager.PERMISSION_GRANTED
-    }
-
-    private fun hasReceiveBootCompletedPermission(context: Context): Boolean {
-        return ContextCompat.checkSelfPermission(
-            context,
-            Manifest.permission.RECEIVE_BOOT_COMPLETED,
         ) == PackageManager.PERMISSION_GRANTED
     }
 }

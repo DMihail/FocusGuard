@@ -11,6 +11,13 @@ import org.json.JSONObject
  */
 internal object TrackingConfigRepository {
 
+    private const val DEFAULT_WARNING_MINUTES = 45
+    private const val DEFAULT_HARD_BLOCK_MINUTES = 60
+    private const val WARNING_MIN_MINUTES = 5
+    private const val WARNING_MAX_MINUTES = 180
+    private const val HARD_BLOCK_MIN_MINUTES = 10
+    private const val HARD_BLOCK_MAX_MINUTES = 240
+
     private val mmkv get() = KeeptMmkv.instance
 
     private var cachedSelectedAppsRaw: String? = null
@@ -113,14 +120,5 @@ internal object TrackingConfigRepository {
                 strictMode = false,
             )
         }
-    }
-
-    companion object {
-        private const val DEFAULT_WARNING_MINUTES = 45
-        private const val DEFAULT_HARD_BLOCK_MINUTES = 60
-        private const val WARNING_MIN_MINUTES = 5
-        private const val WARNING_MAX_MINUTES = 180
-        private const val HARD_BLOCK_MIN_MINUTES = 10
-        private const val HARD_BLOCK_MAX_MINUTES = 240
     }
 }

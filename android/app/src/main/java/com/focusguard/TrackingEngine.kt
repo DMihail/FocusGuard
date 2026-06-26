@@ -36,7 +36,7 @@ class TrackingEngine(
     private val detector = ForegroundAppDetector(context)
     private val usageRepository = DailyUsageRepository.getInstance(context)
     private val liveUsageEstimator = LiveUsageEstimator(usageRepository)
-    private val settingsRepository = SettingsRepository()
+    private val settingsRepository = SettingsRepository
     private val notificationManager =
         context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
     private val mainHandler = Handler(Looper.getMainLooper())
@@ -51,6 +51,8 @@ class TrackingEngine(
 
     /** Package currently over its hard block limit; overlay should stay until snooze or user leaves. */
     private var activeBlockPackage: String? = null
+
+    private var trackedApps: Set<String> = emptySet()
 
     /** Starts the polling loop. No-op if already running. */
     fun start() {
@@ -95,6 +97,8 @@ class TrackingEngine(
             context.stopService(Intent(context, FocusGuardMonitorService::class.java))
             return
         }
+
+        trackedApps = TrackingConfigRepository.getTrackedApps().toSet()
 
         val previousStable = stableForeground
         val foregroundApp = resolveStableForeground(detector.getForegroundApp())
@@ -223,8 +227,7 @@ class TrackingEngine(
         return stableForeground
     }
 
-    private fun isTrackedApp(packageName: String): Boolean =
-        TrackingConfigRepository.getTrackedApps().contains(packageName)
+    private fun isTrackedApp(packageName: String): Boolean = trackedApps.contains(packageName)
 
     private fun ensureWarningChannel() {
         KeeptNotifications.ensureWarningChannel(context, notificationManager)

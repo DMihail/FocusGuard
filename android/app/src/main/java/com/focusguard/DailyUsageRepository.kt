@@ -13,13 +13,15 @@ class DailyUsageRepository private constructor(
     private val usageStatsManager =
         context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
 
-  private val cacheLock = Any()
-  private var cachedUsageByPackage: Map<String, Long>? = null
-  private var cachedDayStartMs: Long = 0L
-  private var cachedAtMs: Long = 0L
+    private val cacheLock = Any()
+    private var cachedUsageByPackage: Map<String, Long>? = null
+    private var cachedDayStartMs: Long = 0L
+    private var cachedAtMs: Long = 0L
 
     companion object {
-        private const val CACHE_TTL_MS = 10 * 60 * 1000L
+        /** Short TTL keeps monitor limits accurate while the FGS is running. */
+        private const val CACHE_TTL_MS = 60_000L
+
         @Volatile
         private var instance: DailyUsageRepository? = null
 
@@ -31,10 +33,6 @@ class DailyUsageRepository private constructor(
                             instance = repository
                         }
                 }
-
-        fun invalidateSharedCache() {
-            instance?.invalidateCache()
-        }
     }
 
     /** @return foreground milliseconds for [packageName] since local midnight, or 0. */
