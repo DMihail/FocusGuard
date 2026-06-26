@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Splash / launcher (brand — same in both modes) -->
-    <color name="splash_background">#1C1B1F</color>
-    <color name="splash_surface">#4F378B</color>
-    <color name="splash_accent">#D0BCFF</color>
-    <color name="splash_text_primary">#E6E1E5</color>
-    <color name="splash_text_secondary">#938F99</color>
-    <color name="ic_launcher_background">#4F378B</color>
+    <!-- Splash — light (aligned with source/theme/palettes.ts lightColors) -->
+    <color name="splash_background">#FFFBFE</color>
+    <color name="splash_surface">#6750A4</color>
+    <color name="splash_accent">#FFFFFF</color>
+    <color name="splash_text_primary">#1C1B1F</color>
+    <color name="splash_text_secondary">#49454F</color>
+    <color name="ic_launcher_background">#6750A4</color>
+    <color name="ic_launcher_shield_stroke">#FFFFFF</color>
 
     <!-- App theme — light (aligned with source/theme/palettes.ts lightColors) -->
     <color name="background">#FFFBFE</color>

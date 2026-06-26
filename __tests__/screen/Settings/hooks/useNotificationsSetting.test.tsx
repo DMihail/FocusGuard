@@ -8,10 +8,6 @@ jest.mock('@/screen/Settings/notificationGrant', () =>
   jest.requireActual('@/screen/Settings/notificationGrant.android'),
 );
 
-jest.mock('@/utils/permissions/requestNotificationPermission', () =>
-  jest.requireActual('@/utils/permissions/requestNotificationPermission.android'),
-);
-
 const mockCheckForNotificationsPermission = jest.fn(() => false);
 const mockOpenNotificationsSettings = jest.fn();
 const mockRequestPostNotificationsPermission = jest.fn(async () => true);

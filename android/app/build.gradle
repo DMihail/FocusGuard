@@ -2,6 +2,7 @@ apply plugin: "com.android.application"
 apply plugin: "org.jetbrains.kotlin.android"
 apply plugin: "com.facebook.react"
 apply plugin: "com.google.gms.google-services"
+apply plugin: "com.google.firebase.crashlytics"
 
 react {
     autolinkLibrariesWithApp()
@@ -15,6 +16,10 @@ if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 }
 
+def googleServicesFile = file("google-services.json")
+def isCiFirebaseStub =
+    googleServicesFile.exists() && googleServicesFile.getText("UTF-8").contains('"project_id": "keept-ci"')
+
 def jscFlavor = 'io.github.react-native-community:jsc-android:2026004.+'
 
 android {
@@ -27,7 +32,7 @@ android {
         applicationId "com.keept"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
+        versionCode 3
         versionName "1.0.0"
     }
     signingConfigs {
@@ -59,16 +64,26 @@ android {
             )
             signingConfig signingConfigs.release
             manifestPlaceholders = [usesCleartextTraffic: "false"]
+            firebaseCrashlytics {
+                mappingFileUploadEnabled = !isCiFirebaseStub
+                nativeSymbolUploadEnabled = !isCiFirebaseStub
+            }
         }
+    }
+
+    testOptions {
+        unitTests.returnDefaultValues = true
     }
 }
 
 dependencies {
     implementation("com.facebook.react:react-android")
-    implementation platform('com.google.firebase:firebase-bom:34.14.0')
-    implementation 'com.google.firebase:firebase-analytics'
     implementation "androidx.core:core-splashscreen:1.0.1"
     implementation "io.github.zhongwuzw:mmkv:2.4.0"
+    implementation(platform("com.google.firebase:firebase-bom:34.15.0"))
+    implementation("com.google.firebase:firebase-crashlytics")
+
+    testImplementation("junit:junit:4.13.2")
 
     if (hermesEnabled.toBoolean()) {
         implementation("com.facebook.react:hermes-android")

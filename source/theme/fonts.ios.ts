@@ -13,8 +13,6 @@ const NUMERIC_WEIGHT: Record<InterWeight, TextStyle['fontWeight']> = {
   bold: '700',
 };
 
-export type { InterWeight } from './fonts.types';
-
 export const resolveFontFamily = (_weight: InterWeight = 'regular'): string => IOS_FAMILY;
 
 export const resolveFontWeight = (weight: InterWeight): TextStyle['fontWeight'] => NUMERIC_WEIGHT[weight];

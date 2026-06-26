@@ -9,7 +9,14 @@ import org.json.JSONObject
 /**
  * Reads tracked apps and per-app limits from the same MMKV instance as the JS layer.
  */
-class TrackingConfigRepository {
+internal object TrackingConfigRepository {
+
+    private const val DEFAULT_WARNING_MINUTES = 45
+    private const val DEFAULT_HARD_BLOCK_MINUTES = 60
+    private const val WARNING_MIN_MINUTES = 5
+    private const val WARNING_MAX_MINUTES = 180
+    private const val HARD_BLOCK_MIN_MINUTES = 10
+    private const val HARD_BLOCK_MAX_MINUTES = 240
 
     private val mmkv get() = KeeptMmkv.instance
 
@@ -17,6 +24,13 @@ class TrackingConfigRepository {
     private var cachedTrackedApps: List<String>? = null
     private var cachedLimitsRaw: String? = null
     private var cachedLimitsJson: JSONObject? = null
+
+    fun invalidateCache() {
+        cachedSelectedAppsRaw = null
+        cachedTrackedApps = null
+        cachedLimitsRaw = null
+        cachedLimitsJson = null
+    }
 
     fun getTrackedApps(): List<String> {
         NativeTrackingSnapshot.read()?.trackedApps?.let { return it }
@@ -106,14 +120,5 @@ class TrackingConfigRepository {
                 strictMode = false,
             )
         }
-    }
-
-    companion object {
-        private const val DEFAULT_WARNING_MINUTES = 45
-        private const val DEFAULT_HARD_BLOCK_MINUTES = 60
-        private const val WARNING_MIN_MINUTES = 5
-        private const val WARNING_MAX_MINUTES = 180
-        private const val HARD_BLOCK_MIN_MINUTES = 10
-        private const val HARD_BLOCK_MAX_MINUTES = 240
     }
 }

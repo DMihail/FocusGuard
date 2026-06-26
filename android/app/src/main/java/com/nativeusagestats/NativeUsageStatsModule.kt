@@ -9,6 +9,8 @@ import com.facebook.react.bridge.WritableMap
 import android.os.Handler
 import android.os.Looper
 import com.focusguard.DailyUsageRepository
+import com.focusguard.SettingsRepository
+import com.focusguard.TrackingConfigRepository
 import com.focusguard.apps.InstalledAppsRepository
 import com.focusguard.monitor.MonitorPermissions
 import com.focusguard.monitor.MonitorServiceHelper
@@ -32,36 +34,24 @@ class NativeUsageStatsModule(
   private val permissionRequester =
       PermissionRequester(appContext) { reactApplicationContext.currentActivity }
   private val installedAppsRepository = InstalledAppsRepository(appContext)
-  private val dailyUsageRepository = DailyUsageRepository(appContext)
+  private val dailyUsageRepository = DailyUsageRepository.getInstance(appContext)
   private val ioExecutor = Executors.newSingleThreadExecutor()
   private val mainHandler = Handler(Looper.getMainLooper())
-  private val permissionsRecheckDelaysMs = longArrayOf(0L, 400L, 1_200L)
-  private var permissionsRecheckGeneration = 0
+  private val emitPermissionsChangedRunnable = Runnable { emitPermissionsChanged() }
 
-  private val emitPermissionsChangedCallback = { emitPermissionsChanged() }
+  private val emitPermissionsChangedCallback = { schedulePermissionsChangedEmit() }
   private val permissionsLifecycleListener =
       object : LifecycleEventListener {
         override fun onHostResume() {
-          val generation = ++permissionsRecheckGeneration
-
-          for (delayMs in permissionsRecheckDelaysMs) {
-            mainHandler.postDelayed(
-                {
-                  if (generation == permissionsRecheckGeneration) {
-                    emitPermissionsChanged()
-                  }
-                },
-                delayMs,
-              )
-          }
+          schedulePermissionsChangedEmit()
         }
 
         override fun onHostPause() {
-          permissionsRecheckGeneration += 1
+          mainHandler.removeCallbacks(emitPermissionsChangedRunnable)
         }
 
         override fun onHostDestroy() {
-          permissionsRecheckGeneration += 1
+          mainHandler.removeCallbacks(emitPermissionsChangedRunnable)
         }
       }
 
@@ -71,8 +61,7 @@ class NativeUsageStatsModule(
   }
 
   override fun invalidate() {
-    permissionsRecheckGeneration += 1
-    mainHandler.removeCallbacksAndMessages(null)
+    mainHandler.removeCallbacks(emitPermissionsChangedRunnable)
     PermissionsChangedDispatcher.unregister(emitPermissionsChangedCallback)
     reactApplicationContext.removeLifecycleEventListener(permissionsLifecycleListener)
     ioExecutor.shutdown()
@@ -161,6 +150,8 @@ class NativeUsageStatsModule(
 
   override fun syncTrackingConfig(snapshotJson: String) {
     NativeTrackingSnapshot.write(snapshotJson)
+    TrackingConfigRepository.invalidateCache()
+    SettingsRepository.invalidateCache()
   }
 
   override fun requestScreenTimeAuthorization(promise: Promise) {
@@ -171,9 +162,19 @@ class NativeUsageStatsModule(
     promise.resolve(Arguments.createArray())
   }
 
+  private fun schedulePermissionsChangedEmit() {
+    mainHandler.removeCallbacks(emitPermissionsChangedRunnable)
+    mainHandler.postDelayed(emitPermissionsChangedRunnable, PERMISSIONS_CHANGED_DEBOUNCE_MS)
+  }
+
   private fun emitPermissionsChanged() {
+    MonitorPermissions.invalidateCache()
     reactApplicationContext.runOnUiQueueThread {
-      if (reactApplicationContext.hasActiveReactInstance()) {
+      if (!reactApplicationContext.hasActiveReactInstance()) {
+        return@runOnUiQueueThread
+      }
+
+      runCatching {
         emitOnPermissionsChanged(
             Arguments.createMap().apply {
               putDouble("changedAtMs", System.currentTimeMillis().toDouble())
@@ -185,5 +186,6 @@ class NativeUsageStatsModule(
 
   companion object {
     const val NAME = NativeUsageStatsSpec.NAME
+    private const val PERMISSIONS_CHANGED_DEBOUNCE_MS = 300L
   }
 }

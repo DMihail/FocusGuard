@@ -10,7 +10,7 @@ import { ThemeProvider } from '@/theme';
 
 import { RootNavigationGate } from './navigation/RootNavigationGate';
 
-import { SystemChrome } from '@/components';
+import { ErrorBoundary, SystemChrome } from '@/components';
 
 function App() {
   return (
@@ -18,8 +18,10 @@ function App() {
       <ThemeProvider>
         <LanguageSync>
           <GestureHandlerRootView style={styles.root}>
-            <SystemChrome />
-            <RootNavigationGate />
+            <ErrorBoundary>
+              <SystemChrome />
+              <RootNavigationGate />
+            </ErrorBoundary>
           </GestureHandlerRootView>
         </LanguageSync>
       </ThemeProvider>

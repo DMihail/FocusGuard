@@ -7,14 +7,16 @@ import { useGoBack } from '@/hooks/useGoBack';
 import { useTrackedAppRows } from '@/hooks/useTrackedAppRows';
 import { useTrackedAppsRefresh } from '@/hooks/useTrackedAppsRefresh';
 import { useTranslation } from '@/i18n';
-import { APP_LIST_FLAT_LIST_PROPS } from '@/list';
+import { APP_LIST_FLAT_LIST_PROPS, createAppUsageRowRenderItem as createTrackedAppRenderItem } from '@/list';
+import { keyByManageApp as trackedAppKeyExtractor } from '@/list/keys';
 import { useNavigateToConfigureLimits } from '@/navigation/hooks/useNavigateToConfigureLimits';
 import { testIds } from '@/testing/testIds';
 
-import { createTrackedAppRenderItem, trackedAppKeyExtractor } from './list';
+import { getTrackedAppListItemLayout } from './list/layout';
 import { useTrackedAppsStyles } from './styles';
 
-import { TrackedAppsEmpty, TrackedAppsHeader } from './components';
+import { TrackedAppsEmpty } from './components/TrackedAppsEmpty';
+import { TrackedAppsHeader } from './components/TrackedAppsHeader';
 import { ScreenSafeArea, UsageRefreshIndicator } from '@/components';
 
 export const TrackedAppsScreen = () => {
@@ -45,9 +47,9 @@ export const TrackedAppsScreen = () => {
         <FlatList
           testID={testIds.trackedApps.list}
           data={appRows}
-          extraData={appRows}
           renderItem={renderItem}
           keyExtractor={trackedAppKeyExtractor}
+          getItemLayout={getTrackedAppListItemLayout}
           ListHeaderComponent={renderListHeader}
           ListEmptyComponent={TrackedAppsEmpty}
           contentContainerStyle={styles.scrollContent}

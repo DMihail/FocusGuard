@@ -1,22 +1,39 @@
 package com.focusguard
 
-import android.app.usage.UsageStats
 import android.app.usage.UsageStatsManager
 import android.content.Context
-import com.focusguard.usage.UsageStatsExtensions.foregroundTimeMs
+import com.focusguard.usage.DailyUsageAggregator
 import com.focusguard.usage.UsageStatsExtensions.startOfLocalDayMs
 
 /** Reads per-app foreground usage for the current local calendar day. */
-class DailyUsageRepository(
-    private val context: Context,
+class DailyUsageRepository private constructor(
+    context: Context,
 ) {
 
     private val usageStatsManager =
         context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
 
     private val cacheLock = Any()
-    private var cachedStats: List<UsageStats>? = null
+    private var cachedUsageByPackage: Map<String, Long>? = null
     private var cachedDayStartMs: Long = 0L
+    private var cachedAtMs: Long = 0L
+
+    companion object {
+        /** Short TTL keeps monitor limits accurate while the FGS is running. */
+        private const val CACHE_TTL_MS = 60_000L
+
+        @Volatile
+        private var instance: DailyUsageRepository? = null
+
+        fun getInstance(context: Context): DailyUsageRepository =
+            instance
+                ?: synchronized(this) {
+                    instance
+                        ?: DailyUsageRepository(context.applicationContext).also { repository ->
+                            instance = repository
+                        }
+                }
+    }
 
     /** @return foreground milliseconds for [packageName] since local midnight, or 0. */
     fun getTodayForegroundMs(packageName: String): Long =
@@ -24,48 +41,60 @@ class DailyUsageRepository(
 
     /** @return foreground milliseconds per package since local midnight; missing packages map to 0. */
     fun getTodayForegroundMsForPackages(packageNames: Collection<String>): Map<String, Long> {
-        val stats = queryTodayStats()
-        val usageByPackage =
-            stats?.associate { stat ->
-                stat.packageName to stat.foregroundTimeMs()
-            } ?: emptyMap()
+        val packageFilter =
+            packageNames.filter { packageName -> packageName.isNotEmpty() }.toSet()
 
-        return packageNames.associateWith { packageName -> usageByPackage[packageName] ?: 0L }
+        if (packageFilter.isEmpty()) {
+            return emptyMap()
+        }
+
+        val usageByPackage = queryUsageForPackages(packageFilter)
+        return DailyUsageAggregator.usageForPackages(usageByPackage, packageFilter)
     }
 
-    private fun queryTodayStats(): List<UsageStats>? {
+    private fun queryUsageForPackages(packageFilter: Set<String>): Map<String, Long> {
         val dayStartMs = startOfLocalDayMs()
+        val nowMs = System.currentTimeMillis()
 
         synchronized(cacheLock) {
-            cachedStats?.let { cached ->
-                if (cachedDayStartMs == dayStartMs) {
-                    return cached
-                }
+            val cacheStale =
+                cachedUsageByPackage == null ||
+                    cachedDayStartMs != dayStartMs ||
+                    nowMs - cachedAtMs >= CACHE_TTL_MS
+
+            if (cacheStale) {
+                cachedUsageByPackage = emptyMap()
+                cachedDayStartMs = dayStartMs
             }
 
-            val endTime = System.currentTimeMillis()
-            val stats =
-                usageStatsManager.queryUsageStats(
-                    UsageStatsManager.INTERVAL_BEST,
+            val cached = cachedUsageByPackage!!
+            val missing = packageFilter.filter { packageName -> packageName !in cached }.toSet()
+
+            if (!cacheStale && missing.isEmpty()) {
+                return cached
+            }
+
+            val toQuery = if (cacheStale) packageFilter else missing
+            val fresh =
+                DailyUsageAggregator.buildUsageByPackage(
+                    usageStatsManager,
                     dayStartMs,
-                    endTime,
-                ) ?: usageStatsManager.queryUsageStats(
-                    UsageStatsManager.INTERVAL_DAILY,
-                    dayStartMs,
-                    endTime,
+                    nowMs,
+                    toQuery,
                 )
 
-            val filtered = stats?.filter { it.packageName.isNotEmpty() }
-            cachedStats = filtered
-            cachedDayStartMs = dayStartMs
-            return filtered
+            val merged = if (cacheStale) fresh else cached + fresh
+            cachedUsageByPackage = merged
+            cachedAtMs = nowMs
+            return merged
         }
     }
 
     fun invalidateCache() {
         synchronized(cacheLock) {
-            cachedStats = null
+            cachedUsageByPackage = null
             cachedDayStartMs = 0L
+            cachedAtMs = 0L
         }
     }
 }

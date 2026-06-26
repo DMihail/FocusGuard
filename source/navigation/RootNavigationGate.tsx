@@ -6,6 +6,8 @@ import { StyleSheet, View } from 'react-native';
 import type { NavigationContainerRef } from '@react-navigation/native';
 import Animated from 'react-native-reanimated';
 
+import { invalidatePermissionSnapshot } from '@/domain/permissionSnapshot';
+import { useCoreStoresHydrated } from '@/hooks/useCoreStoresHydrated';
 import { usePrefetchNativeCatalogs } from '@/hooks/usePrefetchNativeCatalogs';
 import { onboardingStore } from '@/store';
 import { startNativeTrackingSnapshotSync } from '@/store/nativeTrackingSnapshot';
@@ -20,11 +22,12 @@ import type { RootStackParamList } from './types';
 import { SplashBranding } from '@/components';
 
 export const RootNavigationGate = () => {
-  const hasHydrated = onboardingStore((state) => state.hasHydrated);
+  const hasCoreStoresHydrated = useCoreStoresHydrated();
+  const isOnboardingComplete = onboardingStore((state) => state.isConfirm);
   const navigationRef = useRef<NavigationContainerRef<RootStackParamList>>(null);
-  const initialRoute = hasHydrated ? resolveEntryRoute(onboardingStore.getState().isConfirm) : null;
+  const initialRoute = hasCoreStoresHydrated ? resolveEntryRoute(isOnboardingComplete) : null;
   const isNavigationReady = initialRoute !== null;
-  const { showSplashOverlay, splashOverlayStyle } = useSplashHandoff(isNavigationReady);
+  const { isSplashVisible, splashOverlayStyle } = useSplashHandoff(isNavigationReady);
 
   usePrefetchNativeCatalogs();
 
@@ -33,21 +36,21 @@ export const RootNavigationGate = () => {
       return;
     }
 
+    invalidatePermissionSnapshot();
+
     return startNativeTrackingSnapshotSync();
   }, [isNavigationReady]);
 
   useAppPermissionGuard(navigationRef, isNavigationReady);
   useMonitoringServiceSync(isNavigationReady);
 
-  if (!isNavigationReady || initialRoute === null) {
-    return <SplashBranding />;
-  }
-
   return (
     <View style={styles.root}>
-      <RootNavigator initialRoute={initialRoute} navigationRef={navigationRef} />
+      {isNavigationReady && initialRoute ? (
+        <RootNavigator initialRoute={initialRoute} navigationRef={navigationRef} />
+      ) : null}
 
-      {showSplashOverlay ? (
+      {isSplashVisible ? (
         <Animated.View
           pointerEvents="none"
           style={[styles.splashOverlay, splashOverlayStyle]}

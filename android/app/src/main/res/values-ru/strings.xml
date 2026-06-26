@@ -1,0 +1,23 @@
+<resources>
+    <string name="app_name">Keept</string>
+    <string name="monitor_notification_channel_name">Мониторинг фокуса</string>
+    <string name="monitor_notification_channel_description">Keept работает в фоне и следит за лимитами приложений</string>
+    <string name="monitor_notification_title">Keept активен</string>
+    <string name="monitor_notification_text">Слежение за приложениями в фоне</string>
+    <string name="special_use_fgs_subtype">focus_monitoring</string>
+    <string name="warning_notification_channel_name">Предупреждения</string>
+    <string name="warning_notification_channel_description">Когда вы слишком долго в отвлекающем приложении</string>
+    <string name="warning_notification_title">Пора сделать перерыв</string>
+    <string name="warning_notification_text">%s — превышен порог предупреждения</string>
+    <string name="warning_notification_details">Вы в %s дольше, чем задали для предупреждения. Сделайте паузу и верните внимание к важному.</string>
+    <string name="block_overlay_title">Время вышло</string>
+    <string name="block_overlay_subtitle">Дневной лимит исчерпан</string>
+    <string name="block_overlay_message">Сделайте паузу и верните внимание к важному.</string>
+    <string name="block_overlay_snooze">Ещё 5 минут</string>
+    <string name="block_overlay_home">На главный экран</string>
+    <string name="boot_resume_notification_channel_name">Возобновление мониторинга</string>
+    <string name="boot_resume_notification_channel_description">Напоминание открыть Keept после перезагрузки телефона</string>
+    <string name="boot_resume_notification_title">Включите мониторинг снова</string>
+    <string name="boot_resume_notification_text">Откройте Keept, чтобы продолжить контроль лимитов</string>
+    <string name="boot_resume_notification_details">До перезагрузки Keept следил за приложениями. Откройте приложение один раз, чтобы возобновить блокировки.</string>
+</resources>

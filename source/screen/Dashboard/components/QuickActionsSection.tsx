@@ -3,8 +3,7 @@
 import React, { memo } from 'react';
 import { Pressable, Text, View } from 'react-native';
 
-import { FocusModeSvg } from '@/assets/svg/Dashboard';
-import { ManageAppsSvg } from '@/assets/svg/Dashboard/ManageApps';
+import { FocusModeSvg, ManageAppsSvg } from '@/assets/svg/Dashboard';
 import { useTheme } from '@/hooks/useTheme';
 import { useTranslation } from '@/i18n';
 import { testIds } from '@/testing/testIds';

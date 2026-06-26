@@ -13,14 +13,12 @@ import { useNotificationsSetting } from './hooks/useNotificationsSetting';
 import { useSettingsPreferences } from './hooks/useSettingsPreferences';
 import { useSettingsStyles } from './styles';
 
-import {
-  SettingsFooter,
-  SettingsHeader,
-  SettingsLinkRow,
-  SettingsPrivacyBanner,
-  SettingsSection,
-  SettingsToggleRow,
-} from './components';
+import { SettingsFooter } from './components/SettingsFooter';
+import { SettingsHeader } from './components/SettingsHeader';
+import { SettingsLinkRow } from './components/SettingsLinkRow';
+import { SettingsPrivacyBanner } from './components/SettingsPrivacyBanner';
+import { SettingsSection } from './components/SettingsSection';
+import { SettingsToggleRow } from './components/SettingsToggleRow';
 import { ScreenSafeArea } from '@/components';
 
 export const SettingsScreen = () => {

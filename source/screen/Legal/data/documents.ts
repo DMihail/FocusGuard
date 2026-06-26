@@ -1,11 +1,12 @@
 /** @format */
 
 import { getAppDisplayName } from '@/constants/appDisplayName';
+import type { LegalDocumentId } from '@/domain/types/legal';
 import type { AppLanguage } from '@/i18n';
 import { buildDataPrivacyDocument as buildRuDataPrivacyDocument } from '@/i18n/legal/ru/dataPrivacy';
 import { buildTermsPrivacyDocument as buildRuTermsPrivacyDocument } from '@/i18n/legal/ru/termsPrivacy';
 
-import type { LegalDocument, LegalDocumentId } from '../types';
+import type { LegalDocument } from '../types';
 import { buildDataPrivacyDocument } from './dataPrivacy';
 import { buildTermsPrivacyDocument } from './termsPrivacy';
 

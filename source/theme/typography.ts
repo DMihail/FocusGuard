@@ -2,7 +2,8 @@
 
 import type { TextStyle } from 'react-native';
 
-import { type InterWeight, resolveFontFamily, resolveFontWeight } from './fonts';
+import { resolveFontFamily, resolveFontWeight } from './fonts';
+import type { InterWeight } from './fonts.types';
 
 const inter = (weight: InterWeight): Pick<TextStyle, 'fontFamily' | 'fontWeight'> => ({
   fontFamily: resolveFontFamily(weight),
@@ -30,7 +31,7 @@ export const lineHeight = {
   display: 40,
 } as const;
 
-export const letterSpacing = {
+const letterSpacing = {
   tightXs: -0.15,
   tight: -0.05,
   tightMd: -0.31,

@@ -5,8 +5,6 @@ import type { SvgProps } from 'react-native-svg';
 
 import type { PermissionId, PermissionStatus } from '@/domain/permissions';
 
-export type { PermissionId, PermissionStatus } from '@/domain/permissions';
-
 export type PermissionIcon = ComponentType<SvgProps>;
 
 export type PermissionItem = {

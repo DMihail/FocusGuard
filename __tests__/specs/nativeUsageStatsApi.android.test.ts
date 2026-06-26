@@ -84,6 +84,30 @@ describe('nativeUsageStatsApi.android', () => {
     expect(listener).toHaveBeenCalledWith({ changedAtMs: 42 });
 
     subscription.remove();
-    expect(mockPermissionsChangedSubscription.remove).toHaveBeenCalledTimes(1);
+    expect(mockPermissionsChangedSubscription.remove).not.toHaveBeenCalled();
+  });
+
+  it('registers a single native listener for multiple JS subscribers', () => {
+    const specs = loadSpecs();
+
+    specs.bootstrapPermissionsChangedEvents();
+    specs.subscribePermissionsChanged(jest.fn());
+    specs.subscribePermissionsChanged(jest.fn());
+
+    expect(mockUsageStats.onPermissionsChanged).toHaveBeenCalledTimes(1);
+  });
+
+  it('fans out native permission events to every JS subscriber', () => {
+    const firstListener = jest.fn();
+    const secondListener = jest.fn();
+    const specs = loadSpecs();
+
+    specs.subscribePermissionsChanged(firstListener);
+    specs.subscribePermissionsChanged(secondListener);
+
+    capturedPermissionsChangedListener?.({ changedAtMs: 99 });
+
+    expect(firstListener).toHaveBeenCalledWith({ changedAtMs: 99 });
+    expect(secondListener).toHaveBeenCalledWith({ changedAtMs: 99 });
   });
 });

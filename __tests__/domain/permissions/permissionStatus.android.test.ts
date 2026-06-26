@@ -93,15 +93,34 @@ describe('permissionStatus.android', () => {
     expect(readPermissionStatuses().notifications).toBe('pending');
   });
 
+  it('does not require battery optimization to continue', () => {
+    grantRequiredChecks();
+    mockCheckForIgnoreBatteryOptimizationsPermission.mockReturnValue(false);
+    mockCheckForManifestMonitorPermissions.mockReturnValue(true);
+
+    expect(areRequiredPermissionsGranted(readPermissionStatuses())).toBe(true);
+    expect(readPermissionStatuses()['battery-optimization']).toBe('pending');
+  });
+
   it('reads granted statuses when visible checks pass', () => {
     grantAllCardChecks();
     expect(readPermissionStatuses()).toEqual(allGranted);
   });
 
-  it('keeps usage-access granted after a transient native false read', () => {
+  it('shows usage-access pending when native reports revoked and persistence was cleared', () => {
     grantAllCardChecks();
-    expect(readPermissionStatuses()['usage-access']).toBe('granted');
-    expect(mockMmkvStorage.getBoolean('usage-access-granted-v1')).toBe(true);
+    readPermissionStatuses();
+
+    mockCheckForPermission.mockReturnValue(false);
+    mockMmkvStorage.remove('usage-access-granted-v1');
+
+    expect(readPermissionStatuses()['usage-access']).toBe('pending');
+    expect(mockMmkvStorage.getBoolean('usage-access-granted-v1')).toBe(false);
+  });
+
+  it('keeps usage-access granted when native flickers but persistence remains', () => {
+    grantAllCardChecks();
+    readPermissionStatuses();
 
     mockCheckForPermission.mockReturnValue(false);
 

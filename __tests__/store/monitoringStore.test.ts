@@ -54,8 +54,13 @@ describe('monitoringStore', () => {
   it('does not enable monitoring when startMonitorService reports failure', () => {
     mockStartMonitorService.mockReturnValue({ started: false, reason: 'usage_access_missing' });
 
-    monitoringStore.getState().toggle();
+    const result = monitoringStore.getState().toggle();
 
+    expect(result).toEqual({
+      ok: false,
+      reason: 'service_start_failed',
+      detail: 'usage_access_missing',
+    });
     expect(mockStartMonitorService).toHaveBeenCalledTimes(1);
     expect(monitoringStore.getState().isMonitoring).toBe(false);
   });
@@ -82,8 +87,9 @@ describe('monitoringStore', () => {
   it('does not enable monitoring when required permissions are missing', () => {
     mockAreAllPermissionsGranted.mockReturnValue(false);
 
-    monitoringStore.getState().toggle();
+    const result = monitoringStore.getState().toggle();
 
+    expect(result).toEqual({ ok: false, reason: 'permissions_missing' });
     expect(mockStartMonitorService).not.toHaveBeenCalled();
     expect(monitoringStore.getState().isMonitoring).toBe(false);
   });

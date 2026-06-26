@@ -169,9 +169,19 @@ jest.mock('@/store/mmkv', () => {
 
 jest.mock('@/hooks/useTheme', () => {
   const { createTheme } = require('./source/theme/createTheme');
+  const theme = createTheme('system', 'dark');
 
   return {
-    useTheme: () => createTheme('system', 'dark'),
+    useThemeColors: () => theme.colors,
+    useThemeShell: () => ({
+      presets: theme.presets,
+      colorScheme: theme.colorScheme,
+      isDark: theme.isDark,
+      preference: theme.preference,
+    }),
+    useTheme: () => theme,
+    ThemeColorsContext: { Provider: ({ children }) => children },
+    ThemeShellContext: { Provider: ({ children }) => children },
   };
 });
 
@@ -235,4 +245,16 @@ jest.mock('@/specs/nativeUsageStatsClient', () => ({
     requestScreenTimeAuthorization: jest.fn(async () => true),
     presentFamilyActivityPicker: jest.fn(async () => []),
   })),
+}));
+
+afterEach(() => {
+  const { __resetAppForegroundBusForTests } = require('./source/runtime/appForegroundBus');
+  __resetAppForegroundBusForTests();
+});
+
+jest.mock('@react-native-firebase/crashlytics', () => ({
+  getCrashlytics: jest.fn(() => ({})),
+  setCrashlyticsCollectionEnabled: jest.fn(async () => null),
+  recordError: jest.fn(async () => null),
+  log: jest.fn(),
 }));

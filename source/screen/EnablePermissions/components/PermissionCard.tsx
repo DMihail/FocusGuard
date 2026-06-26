@@ -6,13 +6,14 @@ import { Pressable, Text, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 
 import { CheckIcon } from '@/assets/svg/EnablePermissions';
+import type { PermissionId } from '@/domain/permissions';
 import { useTheme } from '@/hooks/useTheme';
 import { useTranslation } from '@/i18n';
 import { testIds } from '@/testing/testIds';
 
 import { usePermissionCardAnimation } from '../hooks/usePermissionCardAnimation';
 import { usePermissionsStyles } from '../styles';
-import type { PermissionId, PermissionItem } from '../types';
+import type { PermissionItem } from '../types';
 
 type PermissionCardProps = PermissionItem & {
   onGrant?: (id: PermissionId) => void;

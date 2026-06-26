@@ -4,9 +4,9 @@ import type { LinkingOptions, NavigationState, PartialState } from '@react-navig
 
 import type { RootStackParamList } from './types';
 
-export const DEEP_LINK_PREFIX = 'keept://';
+const DEEP_LINK_PREFIX = 'keept://';
 
-export type DeepLinkTarget =
+type DeepLinkTarget =
   | { screen: 'Dashboard' }
   | { screen: 'TrackedApps' }
   | { screen: 'ConfigureLimits'; params: RootStackParamList['ConfigureLimits'] };

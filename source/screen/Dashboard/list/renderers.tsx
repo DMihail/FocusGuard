@@ -2,13 +2,15 @@
 
 import React from 'react';
 
-import type { ListRenderItem } from '@/list';
 import type { DashboardSummary } from '@/utils/usage/dashboardStats';
 import type { DashboardAppRow } from '@/utils/usage/dashboardStats';
 
 import type { DashboardSectionId } from './sections';
 
-import { DailyStatsRow, DistractingAppsSection, FocusOverviewCard, QuickActionsSection } from '../components';
+import { DailyStatsRow } from '../components/DailyStatsRow';
+import { DistractingAppsSection } from '../components/DistractingAppsSection';
+import { FocusOverviewCard } from '../components/FocusOverviewCard';
+import { QuickActionsSection } from '../components/QuickActionsSection';
 
 export type DashboardSectionRenderContext = {
   summary: DashboardSummary;
@@ -22,35 +24,34 @@ export type DashboardSectionRenderContext = {
   onOpenManageApps: () => void;
 };
 
-export const createDashboardSectionRenderItem = (
+export const renderDashboardSection = (
+  sectionId: DashboardSectionId,
   context: DashboardSectionRenderContext,
-): ListRenderItem<DashboardSectionId> => {
-  return ({ item }) => {
-    switch (item) {
-      case 'overview':
-        return <FocusOverviewCard summary={context.summary} />;
-      case 'stats':
-        return <DailyStatsRow summary={context.summary} />;
-      case 'apps':
-        return (
-          <DistractingAppsSection
-            appRows={context.appRows}
-            onConfigureLimits={context.onConfigureLimits}
-            onViewAllPress={context.onViewAllPress}
-          />
-        );
-      case 'actions':
-        return (
-          <QuickActionsSection
-            isMonitoring={context.isMonitoring}
-            canStartFocusMode={context.hasSelectedApps}
-            monitoringSubtitle={context.monitoringSubtitle}
-            onToggleMonitoring={context.onToggleMonitoring}
-            onOpenManageApps={context.onOpenManageApps}
-          />
-        );
-      default:
-        return null;
-    }
-  };
+): React.ReactElement | null => {
+  switch (sectionId) {
+    case 'overview':
+      return <FocusOverviewCard summary={context.summary} />;
+    case 'stats':
+      return <DailyStatsRow summary={context.summary} />;
+    case 'apps':
+      return (
+        <DistractingAppsSection
+          appRows={context.appRows}
+          onConfigureLimits={context.onConfigureLimits}
+          onViewAllPress={context.onViewAllPress}
+        />
+      );
+    case 'actions':
+      return (
+        <QuickActionsSection
+          isMonitoring={context.isMonitoring}
+          canStartFocusMode={context.hasSelectedApps}
+          monitoringSubtitle={context.monitoringSubtitle}
+          onToggleMonitoring={context.onToggleMonitoring}
+          onOpenManageApps={context.onOpenManageApps}
+        />
+      );
+    default:
+      return null;
+  }
 };

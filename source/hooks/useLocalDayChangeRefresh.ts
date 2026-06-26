@@ -1,3 +1,5 @@
+/** @format */
+
 import { useEffect, useRef } from 'react';
 
 import { useIsFocused } from '@react-navigation/native';
@@ -5,12 +7,14 @@ import { useIsFocused } from '@react-navigation/native';
 import { logDevWarning } from '@/utils/logDevWarning';
 import { getLocalDayKey, getMsUntilNextLocalMidnight } from '@/utils/usage/localDayKey';
 
-const DAY_CHECK_INTERVAL_MS = 60_000;
+const DAY_CHECK_INTERVAL_MS = 5 * 60_000;
 
 /** Refreshes usage when the local calendar day changes while the screen stays open. */
 export const useLocalDayChangeRefresh = (refresh: () => void | Promise<void>): void => {
   const isFocused = useIsFocused();
   const dayKeyRef = useRef(getLocalDayKey());
+  const refreshRef = useRef(refresh);
+  refreshRef.current = refresh;
 
   useEffect(() => {
     if (!isFocused) {
@@ -25,7 +29,7 @@ export const useLocalDayChangeRefresh = (refresh: () => void | Promise<void>): v
       }
 
       dayKeyRef.current = nextDayKey;
-      Promise.resolve(refresh()).catch(logDevWarning);
+      Promise.resolve(refreshRef.current()).catch(logDevWarning);
     };
 
     const intervalId = setInterval(runIfDayChanged, DAY_CHECK_INTERVAL_MS);
@@ -48,5 +52,5 @@ export const useLocalDayChangeRefresh = (refresh: () => void | Promise<void>): v
         clearTimeout(midnightTimeoutId);
       }
     };
-  }, [isFocused, refresh]);
+  }, [isFocused]);
 };

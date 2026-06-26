@@ -16,11 +16,3 @@ export const CHIP_ROW_FLAT_LIST_PROPS = {
   windowSize: 5,
   removeClippedSubviews: true,
 } as const satisfies Partial<FlatListProps<unknown>>;
-
-export const SECTION_SCROLL_FLAT_LIST_PROPS = {
-  initialNumToRender: 4,
-  maxToRenderPerBatch: 4,
-  windowSize: 5,
-  removeClippedSubviews: false,
-  keyboardShouldPersistTaps: 'handled',
-} as const satisfies Partial<FlatListProps<unknown>>;

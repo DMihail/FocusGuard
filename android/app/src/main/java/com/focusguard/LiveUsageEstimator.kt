@@ -32,17 +32,14 @@ class LiveUsageEstimator(
     }
 
     fun getEffectiveUsageMs(packageName: String): Long {
-        val persistedMs = dailyUsageRepository.getTodayForegroundMs(packageName)
-
-        if (sessionPackage != packageName || sessionStartedAtMs <= 0L) {
-            return maxOf(persistedMs, baselineMsByPackage[packageName] ?: 0L)
+        if (sessionPackage == packageName && sessionStartedAtMs > 0L) {
+            val baselineMs = baselineMsByPackage[packageName] ?: 0L
+            val sessionMs = (System.currentTimeMillis() - sessionStartedAtMs).coerceAtLeast(0L)
+            return baselineMs + sessionMs
         }
 
-        val baselineMs = baselineMsByPackage[packageName] ?: persistedMs
-        val sessionMs = (System.currentTimeMillis() - sessionStartedAtMs).coerceAtLeast(0L)
-        val estimatedMs = baselineMs + sessionMs
-
-        return maxOf(estimatedMs, persistedMs)
+        val persistedMs = dailyUsageRepository.getTodayForegroundMs(packageName)
+        return maxOf(persistedMs, baselineMsByPackage[packageName] ?: 0L)
     }
 
     private fun flushActiveSession() {
@@ -52,8 +49,9 @@ class LiveUsageEstimator(
             return
         }
 
-        val baselineMs = baselineMsByPackage[activePackage]
-            ?: dailyUsageRepository.getTodayForegroundMs(activePackage)
+        val baselineMs =
+            baselineMsByPackage[activePackage]
+                ?: dailyUsageRepository.getTodayForegroundMs(activePackage)
         val sessionMs = (System.currentTimeMillis() - sessionStartedAtMs).coerceAtLeast(0L)
         val persistedMs = dailyUsageRepository.getTodayForegroundMs(activePackage)
         baselineMsByPackage[activePackage] = maxOf(baselineMs + sessionMs, persistedMs)

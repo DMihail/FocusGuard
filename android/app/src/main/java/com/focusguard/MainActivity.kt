@@ -10,6 +10,10 @@ import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate
 import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint.fabricEnabled
 import com.facebook.react.defaults.DefaultReactActivityDelegate
+import com.focusguard.monitor.MonitoringBootResumeNotifier
+import com.focusguard.monitor.MonitoringBootResumeStore
+import com.focusguard.monitor.MonitoringStateRepository
+import com.focusguard.monitor.MonitorServiceHelper
 import com.focusguard.permissions.NotificationPermission
 import com.focusguard.react.PermissionsChangedDispatcher
 import com.swmansion.rnscreens.fragment.restoration.RNScreensFragmentFactory
@@ -24,6 +28,20 @@ class MainActivity : ReactActivity() {
     // Screen fragments must not be restored from saved state (react-native-screens).
     super.onCreate(null)
     applySystemChromeColors()
+    resumeMonitoringAfterBootIfNeeded()
+  }
+
+  private fun resumeMonitoringAfterBootIfNeeded() {
+    if (!MonitoringBootResumeStore.consumePending()) {
+      return
+    }
+
+    if (!MonitoringStateRepository.isMonitoringEnabled()) {
+      return
+    }
+
+    MonitorServiceHelper.start(applicationContext)
+    MonitoringBootResumeNotifier.cancel(applicationContext)
   }
 
   override fun onConfigurationChanged(newConfig: Configuration) {

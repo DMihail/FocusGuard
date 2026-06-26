@@ -1,7 +1,5 @@
 import * as NativeSpecs from '@/specs';
-import { selectedAppsStore } from '@/store/selectedAppsStore';
 
-import { getManageAppKey } from './appKey';
 import { createNativeKeyedCatalogLoader } from './createNativeCatalogLoader';
 
 export type UsageByPackage = Record<string, number>;
@@ -20,13 +18,3 @@ const usageStatsCatalog = createNativeKeyedCatalogLoader<UsageByPackage>({
 export const getCachedUsageByPackage = usageStatsCatalog.getCached;
 export const invalidateUsageStatsCache = usageStatsCatalog.invalidate;
 export const loadUsageByPackage = usageStatsCatalog.loadForKeys;
-
-export const prefetchUsageStats = (): void => {
-  const appKeys = selectedAppsStore.getState().apps.map((app) => getManageAppKey(app));
-
-  if (appKeys.length === 0) {
-    return;
-  }
-
-  usageStatsCatalog.prefetch(appKeys);
-};

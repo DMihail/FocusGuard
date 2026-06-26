@@ -2,10 +2,30 @@ import type { PermissionsChangedEvent, Spec } from './NativeUsageStats.android';
 import { getNativeUsageStats } from './nativeUsageStatsClient.android';
 import type { InstallApp, MonitorServiceStartResult, PackageUsage } from './types';
 
-export type { PermissionsChangedEvent } from './types';
 export type { InstallApp, MonitorServiceStartResult, PackageUsage } from './types';
 
 const getModule = (): Spec => getNativeUsageStats();
+
+const permissionsChangedListeners = new Set<(event: PermissionsChangedEvent) => void>();
+let hasNativePermissionsChangedSubscription = false;
+
+const ensureNativePermissionsChangedSubscription = (): void => {
+  if (hasNativePermissionsChangedSubscription) {
+    return;
+  }
+
+  getModule().onPermissionsChanged((event) => {
+    for (const listener of permissionsChangedListeners) {
+      listener(event);
+    }
+  });
+  hasNativePermissionsChangedSubscription = true;
+};
+
+/** Registers the Turbo Module event callback before React mounts any screen. */
+export const bootstrapPermissionsChangedEvents = (): void => {
+  ensureNativePermissionsChangedSubscription();
+};
 
 export const checkForPermission = (): boolean => getModule().checkForPermission();
 
@@ -68,13 +88,12 @@ export const syncTrackingConfig = (snapshotJson: string): void => {
 export const subscribePermissionsChanged = (
   listener: (event: PermissionsChangedEvent) => void,
 ): { remove: () => void } => {
-  const subscription = getModule().onPermissionsChanged((event) => {
-    listener(event);
-  });
+  ensureNativePermissionsChangedSubscription();
+  permissionsChangedListeners.add(listener);
 
   return {
     remove: () => {
-      subscription.remove();
+      permissionsChangedListeners.delete(listener);
     },
   };
 };

@@ -19,7 +19,7 @@ jest.mock('@/store/platformTrackingSnapshot', () => jest.requireActual('@/store/
 import { getNativeUsageStats } from '@/specs/nativeUsageStatsClient';
 import { buildAndroidTrackingSnapshot } from '@/store/androidTrackingSnapshot';
 import { appLimitsStore } from '@/store/appLimitsStore';
-import { syncNativeTrackingSnapshot } from '@/store/nativeTrackingSnapshot';
+import { resetNativeTrackingSnapshotSyncForTests, syncNativeTrackingSnapshot } from '@/store/nativeTrackingSnapshot';
 import { NATIVE_TRACKING_SNAPSHOT_KEY } from '@/store/persistSchema';
 import { selectedAppsStore } from '@/store/selectedAppsStore';
 
@@ -28,6 +28,7 @@ const mockGetNativeUsageStats = getNativeUsageStats as jest.MockedFunction<typeo
 describe('nativeTrackingSnapshot (Android)', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    resetNativeTrackingSnapshotSyncForTests();
     selectedAppsStore.setState({ apps: [] });
     appLimitsStore.setState({ limitsByAppKey: {} });
     mockGetNativeUsageStats.mockReturnValue({ syncTrackingConfig: mockSyncTrackingConfig } as never);

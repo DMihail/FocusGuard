@@ -3,20 +3,17 @@
 import { useEffect } from 'react';
 
 import { prefetchInstalledApps } from '@/domain/installedAppsCatalog';
-import { prefetchUsageStats } from '@/domain/usageStatsCatalog';
-import { usePersistHydrated } from '@/hooks/usePersistHydrated';
-import { selectedAppsStore } from '@/store';
+import { useCoreStoresHydrated } from '@/hooks/useCoreStoresHydrated';
 
 /** Warms native catalogs during onboarding / permissions so later screens open instantly. */
 export const usePrefetchNativeCatalogs = (): void => {
-  const hasSelectedAppsHydrated = usePersistHydrated(selectedAppsStore);
+  const hasCoreStoresHydrated = useCoreStoresHydrated();
 
   useEffect(() => {
-    if (!hasSelectedAppsHydrated) {
+    if (!hasCoreStoresHydrated) {
       return;
     }
 
     prefetchInstalledApps();
-    prefetchUsageStats();
-  }, [hasSelectedAppsHydrated]);
+  }, [hasCoreStoresHydrated]);
 };

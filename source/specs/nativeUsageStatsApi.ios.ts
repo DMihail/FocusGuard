@@ -1,4 +1,4 @@
-import { AppState, type AppStateStatus } from 'react-native';
+import { subscribeAppForeground } from '@/runtime/appForegroundBus';
 
 import type { Spec } from './NativeUsageStats.ios';
 import { getNativeUsageStats } from './nativeUsageStatsClient.ios';
@@ -62,15 +62,6 @@ export const presentFamilyActivityPicker = async (): Promise<InstallApp[]> =>
   (await getModule()?.presentFamilyActivityPicker()) ?? [];
 
 export const subscribePermissionsChanged = (listener: () => void): { remove: () => void } => {
-  const handleAppStateChange = (state: AppStateStatus): void => {
-    if (state === 'active') {
-      listener();
-    }
-  };
-
-  const subscription = AppState.addEventListener('change', handleAppStateChange);
-
-  return {
-    remove: () => subscription.remove(),
-  };
+  const remove = subscribeAppForeground(listener);
+  return { remove };
 };

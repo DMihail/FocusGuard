@@ -10,7 +10,9 @@ import { testIds } from '@/testing/testIds';
 import { useManageAppsScreen } from './hooks/useManageAppsScreen';
 import { useManageAppsStyles } from './styles';
 
-import { ManageAppsContent, ManageAppsHeader, ManageAppsSearchToolbar } from './components';
+import { ManageAppsContent } from './components/ManageAppsContent';
+import { ManageAppsHeader } from './components/ManageAppsHeader';
+import { ManageAppsSearchToolbar } from './components/ManageAppsSearchToolbar';
 import { ScreenSafeArea } from '@/components';
 
 export const ManageAppsScreen = () => {

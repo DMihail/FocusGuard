@@ -4,8 +4,9 @@ import React, { useCallback } from 'react';
 import { FlatList, View } from 'react-native';
 
 import { APP_LIST_FLAT_LIST_PROPS } from '@/list';
+import { keyByTitle as legalSectionKeyExtractor } from '@/list/keys';
 
-import { legalSectionKeyExtractor, renderLegalSectionItem } from '../list';
+import { renderLegalSectionItem } from '../list/renderers';
 import { useLegalStyles } from '../styles';
 import type { LegalDocument } from '../types';
 import { LegalDocumentListHeader } from './LegalDocumentListHeader';

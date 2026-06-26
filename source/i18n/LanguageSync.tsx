@@ -1,8 +1,8 @@
 /** @format */
 
 import { type ReactNode, useEffect } from 'react';
-import { AppState } from 'react-native';
 
+import { subscribeAppForeground } from '@/runtime/appForegroundBus';
 import { settingsStore } from '@/store';
 
 import i18n from './i18n';
@@ -21,13 +21,11 @@ export const LanguageSync = ({ children }: LanguageSyncProps) => {
   }, [languagePreference]);
 
   useEffect(() => {
-    const subscription = AppState.addEventListener('change', (nextState) => {
-      if (nextState === 'active' && settingsStore.getState().languagePreference === 'system') {
+    return subscribeAppForeground(() => {
+      if (settingsStore.getState().languagePreference === 'system') {
         i18n.changeLanguage(resolveLanguage('system')).catch(() => undefined);
       }
     });
-
-    return () => subscription.remove();
   }, []);
 
   return children;

@@ -1,6 +1,6 @@
 /** @format */
 
-export type UsageMetrics = {
+type UsageMetrics = {
   barProgress: number;
   percentUsed: number;
   isOverLimit: boolean;

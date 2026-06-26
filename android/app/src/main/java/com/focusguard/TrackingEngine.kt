@@ -9,7 +9,9 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import com.focusguard.crashlytics.NativeErrorReporter
 import com.focusguard.monitor.MonitorPermissions
+import com.focusguard.monitor.MonitoringStateRepository
 import com.focusguard.monitor.NotificationPermissions
 import com.focusguard.navigation.DeepLinks
 import com.focusguard.notification.KeeptNotifications
@@ -34,10 +36,9 @@ class TrackingEngine(
 ) {
 
     private val detector = ForegroundAppDetector(context)
-    private val configRepository = TrackingConfigRepository()
-    private val usageRepository = DailyUsageRepository(context)
+    private val usageRepository = DailyUsageRepository.getInstance(context)
     private val liveUsageEstimator = LiveUsageEstimator(usageRepository)
-    private val settingsRepository = SettingsRepository()
+    private val settingsRepository = SettingsRepository
     private val notificationManager =
         context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
     private val mainHandler = Handler(Looper.getMainLooper())
@@ -53,17 +54,35 @@ class TrackingEngine(
     /** Package currently over its hard block limit; overlay should stay until snooze or user leaves. */
     private var activeBlockPackage: String? = null
 
+    private var trackedApps: Set<String> = emptySet()
+
     /** Starts the polling loop. No-op if already running. */
     fun start() {
         if (monitoringJob != null) return
 
         ensureWarningChannel()
+        DailyWarningStore.pruneStaleKeys()
 
         monitoringJob = scope.launch {
             while (isActive) {
-                monitorForegroundApp()
-                delay(POLL_INTERVAL_MS)
+                try {
+                    monitorForegroundApp()
+                } catch (error: Exception) {
+                    handleMonitorFailure(error)
+                    break
+                }
+                delay(resolvePollIntervalMs())
             }
+        }
+    }
+
+    private fun resolvePollIntervalMs(): Long {
+        val foregroundPackage = stableForeground
+
+        return when {
+            activeBlockPackage != null -> POLL_INTERVAL_ACTIVE_MS
+            foregroundPackage != null && isTrackedApp(foregroundPackage) -> POLL_INTERVAL_ACTIVE_MS
+            else -> POLL_INTERVAL_IDLE_MS
         }
     }
 
@@ -81,10 +100,18 @@ class TrackingEngine(
     }
 
     private fun monitorForegroundApp() {
-        if (!MonitorPermissions.canRunMonitorService(context)) {
+        if (!MonitoringStateRepository.isMonitoringEnabled()) {
             context.stopService(Intent(context, FocusGuardMonitorService::class.java))
             return
         }
+
+        if (!MonitorPermissions.canRunMonitorService(context)) {
+            MonitorPermissions.invalidateCache()
+            context.stopService(Intent(context, FocusGuardMonitorService::class.java))
+            return
+        }
+
+        trackedApps = TrackingConfigRepository.getTrackedApps().toSet()
 
         val previousStable = stableForeground
         val foregroundApp = resolveStableForeground(detector.getForegroundApp())
@@ -118,6 +145,13 @@ class TrackingEngine(
         evaluateTrackedApp(foregroundApp)
     }
 
+    private fun handleMonitorFailure(error: Exception) {
+        logDebug("Monitor loop failed: ${error.message}")
+        NativeErrorReporter.recordNonFatal(error, "TrackingEngine.monitorForegroundApp")
+        monitoringJob = null
+        context.stopService(Intent(context, FocusGuardMonitorService::class.java))
+    }
+
     private fun evaluateTrackedApp(packageName: String) {
         if (TrackingSnoozeStore.isSnoozed(packageName)) {
             if (activeBlockPackage == packageName) {
@@ -126,7 +160,7 @@ class TrackingEngine(
             return
         }
 
-        val limits = configRepository.getLimitConfig(packageName)
+        val limits = TrackingConfigRepository.getLimitConfig(packageName)
         val usedTodayMs = liveUsageEstimator.getEffectiveUsageMs(packageName)
 
         if (usedTodayMs >= limits.hardBlockThresholdMs) {
@@ -213,8 +247,7 @@ class TrackingEngine(
         return stableForeground
     }
 
-    private fun isTrackedApp(packageName: String): Boolean =
-        configRepository.getTrackedApps().contains(packageName)
+    private fun isTrackedApp(packageName: String): Boolean = trackedApps.contains(packageName)
 
     private fun ensureWarningChannel() {
         KeeptNotifications.ensureWarningChannel(context, notificationManager)
@@ -288,7 +321,8 @@ class TrackingEngine(
 
     companion object {
         private const val TAG = "TrackingEngine"
-        private const val POLL_INTERVAL_MS = 1000L
+        private const val POLL_INTERVAL_ACTIVE_MS = 1_000L
+        private const val POLL_INTERVAL_IDLE_MS = 2_500L
         private const val FOREGROUND_STABLE_POLLS = 1
         private const val FOREGROUND_MISS_POLLS = 3
         private const val WARNING_NOTIFICATION_ID_BASE = 2001

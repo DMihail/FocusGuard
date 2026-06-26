@@ -7,44 +7,44 @@ import { runOnJS, useAnimatedStyle, useReducedMotion, useSharedValue, withTiming
 const SPLASH_FADE_MS = 360;
 
 type SplashHandoffResult = {
-  showSplashOverlay: boolean;
+  isSplashVisible: boolean;
   splashOverlayStyle: ReturnType<typeof useAnimatedStyle>;
 };
 
-/** Crossfades the splash branding out once navigation is ready to mount. */
+/** Keeps splash visible until navigation is ready, then crossfades it out. */
 export const useSplashHandoff = (isNavigationReady: boolean): SplashHandoffResult => {
   const isReducedMotion = useReducedMotion();
-  const [showSplashOverlay, setShowSplashOverlay] = useState(false);
+  const [isFadeComplete, setIsFadeComplete] = useState(false);
   const splashOpacity = useSharedValue(1);
+  const isSplashVisible = !isNavigationReady || !isFadeComplete;
 
   useEffect(() => {
     if (!isNavigationReady) {
-      setShowSplashOverlay(false);
+      setIsFadeComplete(false);
       splashOpacity.value = 1;
       return;
     }
 
-    setShowSplashOverlay(true);
-
     if (isReducedMotion) {
-      setShowSplashOverlay(false);
       splashOpacity.value = 0;
+      setIsFadeComplete(true);
       return;
     }
 
+    splashOpacity.value = 1;
     splashOpacity.value = withTiming(0, { duration: SPLASH_FADE_MS }, (finished) => {
       if (finished) {
-        runOnJS(setShowSplashOverlay)(false);
+        runOnJS(setIsFadeComplete)(true);
       }
     });
   }, [isNavigationReady, isReducedMotion, splashOpacity]);
 
   const splashOverlayStyle = useAnimatedStyle(() => ({
-    opacity: splashOpacity.value,
+    opacity: isNavigationReady ? splashOpacity.value : 1,
   }));
 
   return {
-    showSplashOverlay,
+    isSplashVisible,
     splashOverlayStyle,
   };
 };

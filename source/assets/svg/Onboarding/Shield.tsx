@@ -4,7 +4,9 @@ import * as React from 'react';
 import type { SvgProps } from 'react-native-svg';
 import Svg, { Path } from 'react-native-svg';
 
-export const Shield = ({ stroke = '#D0BCFF', ...props }: SvgProps) => {
+import { darkColors } from '@/theme/palettes';
+
+export const Shield = ({ stroke = darkColors.accent, ...props }: SvgProps) => {
   return (
     <Svg width={96} height={96} viewBox="0 0 96 96" fill="none" {...props}>
       <Path

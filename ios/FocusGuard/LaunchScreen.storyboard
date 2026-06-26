@@ -41,8 +41,5 @@
     </scenes>
     <resources>
         <image name="SplashIcon" width="416" height="416"/>
-        <namedColor name="SplashBackground">
-            <color red="0.10999999940395355" green="0.10599999874830246" blue="0.12200000137090683" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-        </namedColor>
     </resources>
 </document>
