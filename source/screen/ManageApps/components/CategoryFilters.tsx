@@ -5,9 +5,10 @@ import { FlatList } from 'react-native';
 
 import { useTranslation } from '@/i18n';
 import { CHIP_ROW_FLAT_LIST_PROPS } from '@/list';
+import { keyById as categoryFilterKeyExtractor } from '@/list/keys';
 import { testIds } from '@/testing/testIds';
 
-import { categoryFilterKeyExtractor, createCategoryFilterRenderItem } from '../list';
+import { createCategoryFilterRenderItem } from '../list/renderers';
 import { useManageAppsStyles } from '../styles';
 import type { CategoryFilterOption } from '../types';
 

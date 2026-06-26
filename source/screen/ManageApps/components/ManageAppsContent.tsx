@@ -1,16 +1,26 @@
 import React, { Activity, useMemo } from 'react';
 import { ActivityIndicator, FlatList, View } from 'react-native';
 
+import { getManageAppKey } from '@/domain/appKey';
 import { useTheme } from '@/hooks/useTheme';
 import { useTranslation } from '@/i18n';
 import { APP_LIST_FLAT_LIST_PROPS } from '@/list';
+import { keyByManageApp as manageAppKeyExtractor } from '@/list/keys';
 import { testIds } from '@/testing/testIds';
 
-import { createManageAppListRenderItem, manageAppKeyExtractor, ManageAppsListEmpty } from '../list';
+import { ManageAppsListEmpty } from '../list/empty';
+import { getManageAppListItemLayout } from '../list/layout';
+import { createManageAppListRenderItem } from '../list/renderers';
 import { useManageAppsStyles } from '../styles';
 import type { ManageAppsContentProps } from '../types';
 import { IosPickAppsButton } from './IosPickAppsButton';
 import { ManageAppsListHeader } from './ManageAppsListHeader';
+
+const createSelectionFingerprint = (selectedApps: ManageAppsContentProps['selectedApps']): string =>
+  selectedApps
+    .map((app) => getManageAppKey(app))
+    .sort()
+    .join('\0');
 
 export const ManageAppsContent = ({
   apps,
@@ -33,6 +43,7 @@ export const ManageAppsContent = ({
   const { colors } = useTheme();
   const { t } = useTranslation();
   const renderItem = useMemo(() => createManageAppListRenderItem(isSelected, onToggle), [isSelected, onToggle]);
+  const listExtraData = useMemo(() => createSelectionFingerprint(selectedApps), [selectedApps]);
 
   const listHeader = useMemo(
     () => (
@@ -95,9 +106,10 @@ export const ManageAppsContent = ({
           style={styles.flatList}
           testID={testIds.manageApps.scroll}
           data={apps}
-          extraData={selectedApps}
+          extraData={listExtraData}
           renderItem={renderItem}
           keyExtractor={manageAppKeyExtractor}
+          getItemLayout={getManageAppListItemLayout}
           ListHeaderComponent={listHeader}
           ListEmptyComponent={listEmpty}
           contentContainerStyle={styles.scrollContent}

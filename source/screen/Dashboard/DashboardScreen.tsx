@@ -8,11 +8,12 @@ import { useRootNavigation } from '@/navigation';
 import { testIds } from '@/testing/testIds';
 
 import { useDashboard } from './hooks/useDashboard';
-import { DASHBOARD_SECTIONS, type DashboardSectionRenderContext, renderDashboardSection } from './list';
+import { type DashboardSectionRenderContext, renderDashboardSection } from './list/renderers';
+import { DASHBOARD_SECTIONS } from './list/sections';
 import { useDashboardStyles } from './styles';
 import { getGreeting } from './utils';
 
-import { DashboardHeader } from './components';
+import { DashboardHeader } from './components/DashboardHeader';
 import { ScreenSafeArea, UsageRefreshIndicator } from '@/components';
 
 export const DashboardScreen = () => {

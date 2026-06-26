@@ -9,7 +9,9 @@ import { testIds } from '@/testing/testIds';
 import { useOnboardingPager } from './hooks/useOnboardingPager';
 import { useOnboardingStyles } from './styles';
 
-import { OnboardingFooter, OnboardingHeader, WalkthroughPager } from './components';
+import { OnboardingFooter } from './components/OnboardingFooter';
+import { OnboardingHeader } from './components/OnboardingHeader';
+import { WalkthroughPager } from './components/WalkthroughPager';
 import { ScreenSafeArea } from '@/components';
 
 export const OnboardingScreen = () => {

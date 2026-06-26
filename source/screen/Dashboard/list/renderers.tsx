@@ -7,7 +7,10 @@ import type { DashboardAppRow } from '@/utils/usage/dashboardStats';
 
 import type { DashboardSectionId } from './sections';
 
-import { DailyStatsRow, DistractingAppsSection, FocusOverviewCard, QuickActionsSection } from '../components';
+import { DailyStatsRow } from '../components/DailyStatsRow';
+import { DistractingAppsSection } from '../components/DistractingAppsSection';
+import { FocusOverviewCard } from '../components/FocusOverviewCard';
+import { QuickActionsSection } from '../components/QuickActionsSection';
 
 export type DashboardSectionRenderContext = {
   summary: DashboardSummary;

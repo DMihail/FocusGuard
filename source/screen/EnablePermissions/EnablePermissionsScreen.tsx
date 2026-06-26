@@ -5,14 +5,17 @@ import { FlatList, View } from 'react-native';
 
 import { useTranslation } from '@/i18n';
 import { APP_LIST_FLAT_LIST_PROPS } from '@/list';
+import { keyById as permissionKeyExtractor } from '@/list/keys';
 import { useRootNavigation } from '@/navigation';
 import { testIds } from '@/testing/testIds';
 
 import { usePermissionsSync } from './hooks/usePermissionsSync';
-import { createPermissionListRenderItem, permissionKeyExtractor } from './list';
+import { createPermissionListRenderItem } from './list/renderers';
 import { usePermissionsStyles } from './styles';
 
-import { PermissionsFooter, PermissionsHeader, PrivacyNotice } from './components';
+import { PermissionsFooter } from './components/PermissionsFooter';
+import { PermissionsHeader } from './components/PermissionsHeader';
+import { PrivacyNotice } from './components/PrivacyNotice';
 import { ScreenSafeArea } from '@/components';
 
 export const EnablePermissionsScreen = () => {

@@ -41,34 +41,52 @@ class DailyUsageRepository private constructor(
 
     /** @return foreground milliseconds per package since local midnight; missing packages map to 0. */
     fun getTodayForegroundMsForPackages(packageNames: Collection<String>): Map<String, Long> {
-        val usageByPackage = queryTodayUsageByPackage()
-        return DailyUsageAggregator.usageForPackages(usageByPackage, packageNames)
+        val packageFilter =
+            packageNames.filter { packageName -> packageName.isNotEmpty() }.toSet()
+
+        if (packageFilter.isEmpty()) {
+            return emptyMap()
+        }
+
+        val usageByPackage = queryUsageForPackages(packageFilter)
+        return DailyUsageAggregator.usageForPackages(usageByPackage, packageFilter)
     }
 
-    private fun queryTodayUsageByPackage(): Map<String, Long> {
+    private fun queryUsageForPackages(packageFilter: Set<String>): Map<String, Long> {
         val dayStartMs = startOfLocalDayMs()
         val nowMs = System.currentTimeMillis()
 
         synchronized(cacheLock) {
-            cachedUsageByPackage?.let { cached ->
-                if (
-                    cachedDayStartMs == dayStartMs &&
-                        nowMs - cachedAtMs < CACHE_TTL_MS
-                ) {
-                    return cached
-                }
+            val cacheStale =
+                cachedUsageByPackage == null ||
+                    cachedDayStartMs != dayStartMs ||
+                    nowMs - cachedAtMs >= CACHE_TTL_MS
+
+            if (cacheStale) {
+                cachedUsageByPackage = emptyMap()
+                cachedDayStartMs = dayStartMs
             }
 
-            val usageByPackage =
+            val cached = cachedUsageByPackage!!
+            val missing = packageFilter.filter { packageName -> packageName !in cached }.toSet()
+
+            if (!cacheStale && missing.isEmpty()) {
+                return cached
+            }
+
+            val toQuery = if (cacheStale) packageFilter else missing
+            val fresh =
                 DailyUsageAggregator.buildUsageByPackage(
                     usageStatsManager,
                     dayStartMs,
                     nowMs,
+                    toQuery,
                 )
-            cachedUsageByPackage = usageByPackage
-            cachedDayStartMs = dayStartMs
+
+            val merged = if (cacheStale) fresh else cached + fresh
+            cachedUsageByPackage = merged
             cachedAtMs = nowMs
-            return usageByPackage
+            return merged
         }
     }
 

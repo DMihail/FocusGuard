@@ -19,15 +19,20 @@ internal object DailyUsageAggregator {
         usageStatsManager: UsageStatsManager,
         dayStartMs: Long,
         endMs: Long,
+        packageFilter: Set<String>,
     ): Map<String, Long> {
-        val fromEvents = aggregateFromEvents(usageStatsManager, dayStartMs, endMs)
-        val fromStats = aggregateFromUsageStats(usageStatsManager, dayStartMs, endMs)
+        if (packageFilter.isEmpty()) {
+            return emptyMap()
+        }
+
+        val fromEvents = aggregateFromEvents(usageStatsManager, dayStartMs, endMs, packageFilter)
+        val fromStats = aggregateFromUsageStats(usageStatsManager, dayStartMs, endMs, packageFilter)
 
         if (fromEvents.isEmpty()) {
             return fromStats
         }
 
-        return (fromEvents.keys + fromStats.keys).associateWith { packageName ->
+        return packageFilter.associateWith { packageName ->
             val eventsMs = fromEvents[packageName] ?: 0L
             val statsMs = fromStats[packageName] ?: 0L
 
@@ -44,6 +49,7 @@ internal object DailyUsageAggregator {
         usageStatsManager: UsageStatsManager,
         dayStartMs: Long,
         endMs: Long,
+        packageFilter: Set<String>,
     ): Map<String, Long> {
         if (endMs <= dayStartMs) {
             return emptyMap()
@@ -57,6 +63,9 @@ internal object DailyUsageAggregator {
         while (events.hasNextEvent()) {
             events.getNextEvent(event)
             val packageName = event.packageName?.takeIf { it.isNotEmpty() } ?: continue
+            if (packageName !in packageFilter) {
+                continue
+            }
 
             when {
                 isForegroundStartEvent(event.eventType) -> {
@@ -87,11 +96,14 @@ internal object DailyUsageAggregator {
         usageStatsManager: UsageStatsManager,
         dayStartMs: Long,
         endMs: Long,
+        packageFilter: Set<String>,
     ): Map<String, Long> {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             val aggregatedStats = usageStatsManager.queryAndAggregateUsageStats(dayStartMs, endMs)
             if (aggregatedStats.isNotEmpty()) {
-                return aggregatedStats.mapValues { (_, stats) -> stats.foregroundTimeMs() }
+                return aggregatedStats
+                    .filterKeys { packageName -> packageName in packageFilter }
+                    .mapValues { (_, stats) -> stats.foregroundTimeMs() }
             }
         }
 
@@ -103,7 +115,8 @@ internal object DailyUsageAggregator {
             ) ?: return emptyMap()
 
         return stats
-            .filter { it.packageName.isNotEmpty() }
+            .asSequence()
+            .filter { stat -> stat.packageName.isNotEmpty() && stat.packageName in packageFilter }
             .groupBy { it.packageName }
             .mapValues { (_, packageStats) ->
                 packageStats.sumOf { stat -> stat.foregroundTimeMs() }
