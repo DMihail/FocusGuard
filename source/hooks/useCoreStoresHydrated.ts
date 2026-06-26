@@ -1,21 +1,13 @@
 /** @format */
 
 import { usePersistHydrated } from '@/hooks/usePersistHydrated';
-import { appLimitsStore, monitoringStore, onboardingStore, selectedAppsStore, settingsStore } from '@/store';
+import { appLimitsStore, onboardingStore, selectedAppsStore } from '@/store';
 
-/** Returns true once onboarding and persisted app-selection stores have rehydrated. */
+/** Returns true once stores required for the initial navigation route have rehydrated. */
 export const useCoreStoresHydrated = (): boolean => {
-  const hasOnboardingHydrated = onboardingStore((state) => state.hasHydrated);
+  const hasOnboardingHydrated = usePersistHydrated(onboardingStore);
   const hasSelectedAppsHydrated = usePersistHydrated(selectedAppsStore);
   const hasAppLimitsHydrated = usePersistHydrated(appLimitsStore);
-  const hasSettingsHydrated = usePersistHydrated(settingsStore);
-  const hasMonitoringHydrated = usePersistHydrated(monitoringStore);
 
-  return (
-    hasOnboardingHydrated &&
-    hasSelectedAppsHydrated &&
-    hasAppLimitsHydrated &&
-    hasSettingsHydrated &&
-    hasMonitoringHydrated
-  );
+  return hasOnboardingHydrated && hasSelectedAppsHydrated && hasAppLimitsHydrated;
 };

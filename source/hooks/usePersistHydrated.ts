@@ -12,7 +12,15 @@ type PersistCapableStore = {
 /** Subscribes to Zustand persist hydration without an extra effect-driven render. */
 export const usePersistHydrated = (store: PersistCapableStore, serverFallback = true): boolean =>
   useSyncExternalStore(
-    (onStoreChange) => store.persist?.onFinishHydration(onStoreChange) ?? (() => undefined),
+    (onStoreChange) => {
+      const unsubscribe = store.persist?.onFinishHydration(onStoreChange) ?? (() => undefined);
+
+      if (store.persist?.hasHydrated()) {
+        onStoreChange();
+      }
+
+      return unsubscribe;
+    },
     () => store.persist?.hasHydrated() ?? serverFallback,
     () => serverFallback,
   );
