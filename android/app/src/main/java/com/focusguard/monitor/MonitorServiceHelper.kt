@@ -23,8 +23,15 @@ object MonitorServiceHelper {
     }
 
     val intent = Intent(context, FocusGuardMonitorService::class.java)
-    ContextCompat.startForegroundService(context, intent)
-    return MonitorServiceStartResult(started = true)
+
+    return try {
+      ContextCompat.startForegroundService(context, intent)
+      MonitorServiceStartResult(started = true)
+    } catch (_: android.app.ForegroundServiceStartNotAllowedException) {
+      MonitorServiceStartResult(started = false, reason = "background_start_blocked")
+    } catch (error: SecurityException) {
+      MonitorServiceStartResult(started = false, reason = "background_start_blocked")
+    }
   }
 
   /**

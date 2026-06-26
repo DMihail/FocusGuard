@@ -12,6 +12,7 @@ import { keyByManageApp as trackedAppKeyExtractor } from '@/list/keys';
 import { useNavigateToConfigureLimits } from '@/navigation/hooks/useNavigateToConfigureLimits';
 import { testIds } from '@/testing/testIds';
 
+import { getTrackedAppListItemLayout } from './list/layout';
 import { useTrackedAppsStyles } from './styles';
 
 import { TrackedAppsEmpty } from './components/TrackedAppsEmpty';
@@ -48,6 +49,7 @@ export const TrackedAppsScreen = () => {
           data={appRows}
           renderItem={renderItem}
           keyExtractor={trackedAppKeyExtractor}
+          getItemLayout={getTrackedAppListItemLayout}
           ListHeaderComponent={renderListHeader}
           ListEmptyComponent={TrackedAppsEmpty}
           contentContainerStyle={styles.scrollContent}

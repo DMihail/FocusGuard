@@ -107,14 +107,14 @@ describe('permissionStatus.android', () => {
     expect(readPermissionStatuses()).toEqual(allGranted);
   });
 
-  it('keeps usage-access granted after a transient native false read', () => {
+  it('clears usage-access when native reports revoked', () => {
     grantAllCardChecks();
-    expect(readPermissionStatuses()['usage-access']).toBe('granted');
-    expect(mockMmkvStorage.getBoolean('usage-access-granted-v1')).toBe(true);
+    readPermissionStatuses();
 
     mockCheckForPermission.mockReturnValue(false);
 
-    expect(readPermissionStatuses()['usage-access']).toBe('granted');
+    expect(readPermissionStatuses()['usage-access']).toBe('pending');
+    expect(mockMmkvStorage.getBoolean('usage-access-granted-v1')).toBe(false);
   });
 
   it('pins usage-access latch before opening another permission settings screen', () => {

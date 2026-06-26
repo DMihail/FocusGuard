@@ -10,6 +10,7 @@ import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate
 import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint.fabricEnabled
 import com.facebook.react.defaults.DefaultReactActivityDelegate
+import com.focusguard.monitor.MonitoringBootResumeNotifier
 import com.focusguard.monitor.MonitoringBootResumeStore
 import com.focusguard.monitor.MonitoringStateRepository
 import com.focusguard.monitor.MonitorServiceHelper
@@ -40,6 +41,7 @@ class MainActivity : ReactActivity() {
     }
 
     MonitorServiceHelper.start(applicationContext)
+    MonitoringBootResumeNotifier.cancel(applicationContext)
   }
 
   override fun onConfigurationChanged(newConfig: Configuration) {

@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import com.focusguard.monitor.MonitoringBootResumeNotifier
 import com.focusguard.monitor.MonitoringBootResumeStore
 import com.focusguard.monitor.MonitoringStateRepository
 import com.focusguard.monitor.MonitorServiceHelper
@@ -32,6 +33,7 @@ class BootCompletedReceiver : BroadcastReceiver() {
         // Android 14+ blocks special-use FGS starts from BOOT_COMPLETED.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
           MonitoringBootResumeStore.markPending()
+          MonitoringBootResumeNotifier.notifyResumePending(context.applicationContext)
           return
         }
 
@@ -44,6 +46,7 @@ class BootCompletedReceiver : BroadcastReceiver() {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
           MonitoringBootResumeStore.markPending()
+          MonitoringBootResumeNotifier.notifyResumePending(context.applicationContext)
           return
         }
 

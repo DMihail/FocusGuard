@@ -134,6 +134,7 @@ export const enUi: TranslationTree = {
       overlayAccessMissing: 'Display over other apps is required. Grant it in Settings → Permissions.',
       manifestPermissionsMissing:
         'Keept is missing a required system permission. Reinstall the app or contact support.',
+      backgroundStartBlocked: 'Open Keept in the foreground, then try starting monitoring again.',
       generic: 'Something went wrong while starting monitoring. Try again.',
     },
     manageApps: 'Manage Apps',

@@ -12,10 +12,16 @@ internal object MonitoringBootResumeStore {
         mmkv.encode(KEY, true)
     }
 
+    fun hasPending(): Boolean = mmkv.decodeBool(KEY, false)
+
+    fun clearPending() {
+        mmkv.removeValueForKey(KEY)
+    }
+
     fun consumePending(): Boolean {
-        val pending = mmkv.decodeBool(KEY, false)
+        val pending = hasPending()
         if (pending) {
-            mmkv.removeValueForKey(KEY)
+            clearPending()
         }
         return pending
     }

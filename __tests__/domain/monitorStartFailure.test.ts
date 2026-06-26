@@ -26,6 +26,19 @@ describe('getMonitorStartFailureMessage', () => {
     });
   });
 
+  it('maps background start block to a specific message', () => {
+    expect(
+      getMonitorStartFailureMessage(t, {
+        ok: false,
+        reason: 'service_start_failed',
+        detail: 'background_start_blocked',
+      }),
+    ).toEqual({
+      title: 'dashboard.monitorStartFailure.title',
+      message: 'dashboard.monitorStartFailure.backgroundStartBlocked',
+    });
+  });
+
   it('falls back to a generic message for unknown native reasons', () => {
     expect(
       getMonitorStartFailureMessage(t, {

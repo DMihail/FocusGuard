@@ -12,17 +12,19 @@ const ANDROID_REQUIRED_PERMISSION_IDS: PermissionId[] = ['usage-access', 'displa
 
 let usageAccessSessionLatch = false;
 
-const isUsageAccessLatched = (): boolean =>
-  usageAccessSessionLatch || (storage.getBoolean(USAGE_ACCESS_GRANTED_KEY) ?? false);
+const pinUsageAccessSessionLatch = (): void => {
+  usageAccessSessionLatch = true;
+};
 
-const setUsageAccessLatched = (latched: boolean): void => {
-  usageAccessSessionLatch = latched;
+const clearUsageAccessSessionLatch = (): void => {
+  usageAccessSessionLatch = false;
+};
 
-  if (latched) {
-    storage.set(USAGE_ACCESS_GRANTED_KEY, true);
-    return;
-  }
+const persistUsageAccessGrant = (): void => {
+  storage.set(USAGE_ACCESS_GRANTED_KEY, true);
+};
 
+const clearPersistedUsageAccessGrant = (): void => {
   storage.remove(USAGE_ACCESS_GRANTED_KEY);
 };
 
@@ -33,8 +35,16 @@ const readNativePermissionStatuses = (): Record<PermissionId, PermissionStatus> 
   >;
 
 const pinUsageAccessGrantIfDetected = (): void => {
-  if (checkForPermission() || isUsageAccessLatched()) {
-    setUsageAccessLatched(true);
+  const wasGranted = checkForPermission() || storage.getBoolean(USAGE_ACCESS_GRANTED_KEY) === true;
+
+  if (!wasGranted) {
+    return;
+  }
+
+  pinUsageAccessSessionLatch();
+
+  if (checkForPermission()) {
+    persistUsageAccessGrant();
   }
 };
 
@@ -43,14 +53,17 @@ export const readPermissionStatuses = (): Record<PermissionId, PermissionStatus>
   const statuses = readNativePermissionStatuses();
 
   if (statuses['usage-access'] === 'granted') {
-    setUsageAccessLatched(true);
+    persistUsageAccessGrant();
+    clearUsageAccessSessionLatch();
     return statuses;
   }
 
-  if (isUsageAccessLatched()) {
+  if (usageAccessSessionLatch) {
     return { ...statuses, 'usage-access': 'granted' };
   }
 
+  clearUsageAccessSessionLatch();
+  clearPersistedUsageAccessGrant();
   return statuses;
 };
 
@@ -61,7 +74,8 @@ export const areRequiredPermissionsGranted = (statuses: Record<PermissionId, Per
 /** Opens the system settings screen for a permission card action. */
 export const requestPermissionById = (id: PermissionId): void => {
   if (id === 'usage-access') {
-    setUsageAccessLatched(false);
+    clearUsageAccessSessionLatch();
+    clearPersistedUsageAccessGrant();
   } else {
     pinUsageAccessGrantIfDetected();
   }
@@ -71,5 +85,6 @@ export const requestPermissionById = (id: PermissionId): void => {
 
 /** @internal Resets Usage Access UI latches (tests only). */
 export const resetUsageAccessUiLatchForTests = (): void => {
-  setUsageAccessLatched(false);
+  clearUsageAccessSessionLatch();
+  clearPersistedUsageAccessGrant();
 };

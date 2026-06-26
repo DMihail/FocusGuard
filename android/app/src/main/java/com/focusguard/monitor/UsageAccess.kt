@@ -30,7 +30,7 @@ internal object UsageAccess {
   /** @return `true` when Usage Stats access is available. */
   fun hasAccess(context: Context): Boolean {
     if (hasConfirmedGrant()) {
-      return true
+      return maintainConfirmedGrant(context)
     }
 
     val packageName = context.packageName
@@ -126,6 +126,39 @@ internal object UsageAccess {
   }
 
   private fun hasConfirmedGrant(): Boolean = sessionGranted || UsageAccessGrantStore.isGranted()
+
+  private fun maintainConfirmedGrant(context: Context): Boolean {
+    val packageName = context.packageName
+    val appOps = context.getSystemService(AppOpsManager::class.java)
+
+    if (appOps != null && isExplicitlyDenied(appOps, packageName)) {
+      clearGrantState()
+      return false
+    }
+
+    if (!probeUsageStatsReadable(context)) {
+      clearGrantState()
+      return false
+    }
+
+    return true
+  }
+
+  private fun probeUsageStatsReadable(context: Context): Boolean {
+    val usageStatsManager =
+        context.getSystemService(Context.USAGE_STATS_SERVICE) as? UsageStatsManager ?: return false
+    val endTime = System.currentTimeMillis()
+
+    return try {
+      val events = usageStatsManager.queryEvents(endTime - 60_000L, endTime)
+      while (events.hasNextEvent()) {
+        // Drain at least one event so SecurityException surfaces when access was revoked.
+      }
+      true
+    } catch (_: SecurityException) {
+      false
+    }
+  }
 
   private fun confirmGrant(): Boolean {
     sessionGranted = true

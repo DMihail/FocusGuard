@@ -50,6 +50,10 @@ jest.mock('../../source/specs', () => ({
   isMonitorServiceRunning: jest.fn(() => false),
 }));
 
+jest.mock('../../source/hooks/useCoreStoresHydrated', () => ({
+  useCoreStoresHydrated: () => mockOnboardingState.hasHydrated,
+}));
+
 jest.mock('../../source/store/onboardingStore', () => {
   const onboardingStore = Object.assign(
     (selector: (state: typeof mockOnboardingState) => unknown) => selector(mockOnboardingState),
@@ -89,8 +93,10 @@ jest.mock('@react-navigation/native', () => {
   };
 });
 
-jest.spyOn(AppState, 'addEventListener').mockImplementation((_, listener) => {
-  appStateListener = listener as (state: string) => void;
+jest.spyOn(AppState, 'addEventListener').mockImplementation((event, listener) => {
+  if (event === 'change') {
+    appStateListener = listener as (state: string) => void;
+  }
   return { remove: jest.fn() };
 });
 

@@ -9,7 +9,9 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import com.focusguard.crashlytics.NativeErrorReporter
 import com.focusguard.monitor.MonitorPermissions
+import com.focusguard.monitor.MonitoringStateRepository
 import com.focusguard.monitor.NotificationPermissions
 import com.focusguard.navigation.DeepLinks
 import com.focusguard.notification.KeeptNotifications
@@ -63,7 +65,12 @@ class TrackingEngine(
 
         monitoringJob = scope.launch {
             while (isActive) {
-                monitorForegroundApp()
+                try {
+                    monitorForegroundApp()
+                } catch (error: Exception) {
+                    handleMonitorFailure(error)
+                    break
+                }
                 delay(resolvePollIntervalMs())
             }
         }
@@ -93,7 +100,13 @@ class TrackingEngine(
     }
 
     private fun monitorForegroundApp() {
+        if (!MonitoringStateRepository.isMonitoringEnabled()) {
+            context.stopService(Intent(context, FocusGuardMonitorService::class.java))
+            return
+        }
+
         if (!MonitorPermissions.canRunMonitorService(context)) {
+            MonitorPermissions.invalidateCache()
             context.stopService(Intent(context, FocusGuardMonitorService::class.java))
             return
         }
@@ -130,6 +143,13 @@ class TrackingEngine(
         }
 
         evaluateTrackedApp(foregroundApp)
+    }
+
+    private fun handleMonitorFailure(error: Exception) {
+        logDebug("Monitor loop failed: ${error.message}")
+        NativeErrorReporter.recordNonFatal(error, "TrackingEngine.monitorForegroundApp")
+        monitoringJob = null
+        context.stopService(Intent(context, FocusGuardMonitorService::class.java))
     }
 
     private fun evaluateTrackedApp(packageName: String) {

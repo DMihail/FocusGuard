@@ -7,6 +7,7 @@ const SERVICE_REASON_MESSAGE_KEYS: Readonly<Record<string, string>> = {
   usage_access_missing: 'dashboard.monitorStartFailure.usageAccessMissing',
   overlay_access_missing: 'dashboard.monitorStartFailure.overlayAccessMissing',
   manifest_permissions_missing: 'dashboard.monitorStartFailure.manifestPermissionsMissing',
+  background_start_blocked: 'dashboard.monitorStartFailure.backgroundStartBlocked',
 };
 
 export const getMonitorStartFailureMessage = (
