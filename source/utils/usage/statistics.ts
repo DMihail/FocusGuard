@@ -115,6 +115,27 @@ const toMinutes = (ms: number): number => Math.round(ms / MS_PER_MINUTE);
 
 const getPeriodDayCount = (period: StatisticsPeriod): number => (period === 'week' ? WEEK_DAY_COUNT : MONTH_DAY_COUNT);
 
+/** Picks history entries needed for charts, summary, and streak without subscribing to the full store map. */
+export const pickStatisticsHistory = (
+  byDay: Record<string, DailyUsageHistoryEntry>,
+  period: StatisticsPeriod,
+  anchor = new Date(),
+): Record<string, DailyUsageHistoryEntry> => {
+  const dayCount = Math.max(getPeriodDayCount(period), STREAK_LOOKBACK_DAYS);
+  const picked: Record<string, DailyUsageHistoryEntry> = {};
+
+  for (let offset = 0; offset < dayCount; offset += 1) {
+    const dayKey = getLocalDayKey(shiftLocalDate(anchor, -offset));
+    const entry = byDay[dayKey];
+
+    if (entry) {
+      picked[dayKey] = entry;
+    }
+  }
+
+  return picked;
+};
+
 export const createDailyHistoryEntry = (
   summary: DashboardSummary,
   appRows: readonly DashboardAppRow[],

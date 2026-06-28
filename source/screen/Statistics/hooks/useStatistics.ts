@@ -4,7 +4,9 @@ import { useCallback, useMemo, useState } from 'react';
 
 import { useShallow } from 'zustand/react/shallow';
 
+import { usePersistHydrated } from '@/hooks/usePersistHydrated';
 import { useTrackedAppRows } from '@/hooks/useTrackedAppRows';
+import { useTrackedAppsRefresh } from '@/hooks/useTrackedAppsRefresh';
 import { useTranslation } from '@/i18n';
 import { usageHistoryStore } from '@/store';
 import {
@@ -16,6 +18,7 @@ import {
   buildWeekUsageChart,
   formatWeekRangeLabel,
   getChartMaxMinutes,
+  pickStatisticsHistory,
   type StatisticsPeriod,
 } from '@/utils/usage/statistics';
 
@@ -23,8 +26,12 @@ import {
 export const useStatistics = () => {
   const { i18n } = useTranslation();
   const [period, setPeriod] = useState<StatisticsPeriod>('week');
-  const { appRows, showUsageRefreshIndicator, refreshUsage } = useTrackedAppRows();
-  const history = usageHistoryStore(useShallow((state) => state.byDay));
+  const { appRows, showUsageRefreshIndicator, refreshUsage } = useTrackedAppRows({ lifecycle: false });
+  const hasHistoryHydrated = usePersistHydrated(usageHistoryStore);
+  const history = usageHistoryStore(
+    useShallow((state) => (hasHistoryHydrated ? pickStatisticsHistory(state.byDay, period) : {})),
+  );
+  const { refreshControl, refreshing: isPullRefreshing } = useTrackedAppsRefresh(refreshUsage);
 
   const locale = i18n.language === 'ru' ? 'ru-RU' : 'en-US';
   const formatWeekRangeLabelForPeriod = useCallback(
@@ -65,7 +72,9 @@ export const useStatistics = () => {
     topApps,
     chartMaxMinutes,
     hasSelectedApps: appRows.length > 0,
+    isHistoryReady: hasHistoryHydrated,
     showUsageRefreshIndicator,
-    refreshUsage,
+    isPullRefreshing,
+    refreshControl,
   };
 };

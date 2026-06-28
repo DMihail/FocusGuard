@@ -4,7 +4,6 @@ import React from 'react';
 import { ScrollView, Text, View } from 'react-native';
 
 import { useGoBack } from '@/hooks/useGoBack';
-import { useTrackedAppsRefresh } from '@/hooks/useTrackedAppsRefresh';
 import { useTranslation } from '@/i18n';
 import { testIds } from '@/testing/testIds';
 
@@ -32,10 +31,11 @@ export const StatisticsScreen = () => {
     topApps,
     chartMaxMinutes,
     hasSelectedApps,
+    isHistoryReady,
     showUsageRefreshIndicator,
-    refreshUsage,
+    isPullRefreshing,
+    refreshControl,
   } = useStatistics();
-  const { refreshControl, refreshing: isPullRefreshing } = useTrackedAppsRefresh(refreshUsage);
 
   return (
     <ScreenSafeArea
@@ -57,7 +57,7 @@ export const StatisticsScreen = () => {
 
           {!hasSelectedApps ? (
             <Text style={styles.emptyText}>{t('statistics.noAppsSelected')}</Text>
-          ) : (
+          ) : !isHistoryReady ? null : (
             <>
               <SummaryCards summary={summary} />
               <UsageSavedChart points={usageChart} maxMinutes={chartMaxMinutes} />

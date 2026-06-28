@@ -22,7 +22,8 @@ const areTopAppsSectionPropsEqual = (previous: TopAppsSectionProps, next: TopApp
     (app, index) =>
       app.appKey === next.apps[index]?.appKey &&
       app.usedMs === next.apps[index]?.usedMs &&
-      app.appName === next.apps[index]?.appName,
+      app.appName === next.apps[index]?.appName &&
+      app.appImage === next.apps[index]?.appImage,
   );
 
 export const TopAppsSection = memo(({ apps }: TopAppsSectionProps) => {

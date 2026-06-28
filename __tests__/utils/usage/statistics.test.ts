@@ -12,6 +12,7 @@ import {
   createDailyHistoryEntry,
   formatWeekRangeLabel,
   getChartMaxMinutes,
+  pickStatisticsHistory,
 } from '@/utils/usage/statistics';
 
 const sampleApp = {
@@ -114,5 +115,22 @@ describe('statistics utils', () => {
     expect(summary.focusScore).toBe(64);
     expect(summary.savedMs).toBe((30 + 45 + 40) * 60_000);
     expect(summary.streakDays).toBe(3);
+  });
+
+  it('picks only history entries needed for the active period and streak', () => {
+    const extraHistory = {
+      ...history,
+      '2020-1-1': {
+        totalUsedMs: 1,
+        totalSavedMs: 1,
+        focusScore: 1,
+        usageByAppKey: { 'com.example.app': 1 },
+      },
+    };
+
+    const picked = pickStatisticsHistory(extraHistory, 'week', anchor);
+
+    expect(picked['2020-1-1']).toBeUndefined();
+    expect(picked['2026-6-22']).toEqual(extraHistory['2026-6-22']);
   });
 });

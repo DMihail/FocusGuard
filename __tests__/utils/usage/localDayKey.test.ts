@@ -21,4 +21,8 @@ describe('localDayKey', () => {
 
     expect(getMsUntilNextLocalMidnight(noon)).toBe(12 * 60 * 60 * 1000);
   });
+
+  it('treats malformed day keys as equal when comparing', () => {
+    expect(compareLocalDayKeys('invalid', 'also-invalid')).toBe(0);
+  });
 });

@@ -11,7 +11,13 @@ export const getLocalDayKey = (date = new Date()): string => {
 
 /** Parses a local day key to a comparable timestamp (noon local). */
 export const parseLocalDayKey = (dayKey: string): number => {
-  const [year, month, day] = dayKey.split('-').map(Number);
+  const parts = dayKey.split('-').map(Number);
+
+  if (parts.length !== 3 || parts.some((part) => Number.isNaN(part))) {
+    return 0;
+  }
+
+  const [year, month, day] = parts;
 
   return new Date(year, month - 1, day, 12, 0, 0, 0).getTime();
 };

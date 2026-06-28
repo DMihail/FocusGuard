@@ -16,6 +16,17 @@ import { buildDashboardAppRows, type DashboardAppRow } from '@/utils/usage/dashb
 
 import { useUsageHistorySync } from './useUsageHistorySync';
 
+export type UseTrackedAppRowsOptions = {
+  /** When false, skips mount refresh and usage-history sync for stacked screens. */
+  lifecycle?: boolean;
+};
+
+let lastLifecycleRefreshKeysKey = '';
+
+export const resetTrackedAppRowsLifecycleForTests = (): void => {
+  lastLifecycleRefreshKeysKey = '';
+};
+
 const pickLimitsForSelectedApps = (
   limitsByAppKey: AppLimitsByAppKey,
   selectedAppKeys: readonly string[],
@@ -46,11 +57,14 @@ const pickUsageForSelectedApps = (
   return picked;
 };
 
-export const useTrackedAppRows = (): {
+export const useTrackedAppRows = (
+  options?: UseTrackedAppRowsOptions,
+): {
   appRows: DashboardAppRow[];
   showUsageRefreshIndicator: boolean;
   refreshUsage: (force?: boolean) => Promise<void>;
 } => {
+  const lifecycle = options?.lifecycle !== false;
   const isFocused = useIsFocused();
   const hasCoreStoresHydrated = useCoreStoresHydrated();
 
@@ -82,7 +96,7 @@ export const useTrackedAppRows = (): {
   );
 
   useEffect(() => {
-    if (!hasCoreStoresHydrated) {
+    if (!lifecycle || !hasCoreStoresHydrated) {
       return;
     }
 
@@ -92,8 +106,13 @@ export const useTrackedAppRows = (): {
       return;
     }
 
+    if (lastLifecycleRefreshKeysKey === selectedAppKeysKey) {
+      return;
+    }
+
+    lastLifecycleRefreshKeysKey = selectedAppKeysKey;
     refreshUsage(false).catch(logDevWarning);
-  }, [hasCoreStoresHydrated, refreshUsage, selectedAppKeys.length, selectedAppKeysKey]);
+  }, [hasCoreStoresHydrated, lifecycle, refreshUsage, selectedAppKeys.length, selectedAppKeysKey]);
 
   const refreshUsageSoft = useCallback(() => refreshUsage(false), [refreshUsage]);
   const refreshUsageHard = useCallback(() => refreshUsage(true), [refreshUsage]);
@@ -106,7 +125,7 @@ export const useTrackedAppRows = (): {
     [limitsByAppKey, selectedApps, usageByPackage],
   );
 
-  useUsageHistorySync(appRows);
+  useUsageHistorySync(appRows, lifecycle);
 
   return {
     appRows,
