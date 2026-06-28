@@ -47,6 +47,10 @@ export const DashboardScreen = () => {
     navigation.navigate('TrackedApps');
   }, [navigation]);
 
+  const openStatistics = useCallback(() => {
+    navigation.navigate('Statistics');
+  }, [navigation]);
+
   const sectionContext = useMemo<DashboardSectionRenderContext>(
     () => ({
       summary,
@@ -56,6 +60,7 @@ export const DashboardScreen = () => {
       monitoringSubtitle,
       onConfigureLimits: openConfigureLimits,
       onViewAllPress: openTrackedApps,
+      onOpenStatistics: openStatistics,
       onToggleMonitoring: toggleMonitoring,
       onOpenManageApps: openManageApps,
     }),
@@ -66,6 +71,7 @@ export const DashboardScreen = () => {
       monitoringSubtitle,
       openConfigureLimits,
       openManageApps,
+      openStatistics,
       openTrackedApps,
       summary,
       toggleMonitoring,

@@ -46,7 +46,7 @@ export const buildDashboardAppRows = (
     .sort((left, right) => right.usedMs - left.usedMs);
 
 /** Aggregates focus score and daily totals from dashboard rows. */
-export const buildDashboardSummary = (rows: DashboardAppRow[]): DashboardSummary => {
+export const buildDashboardSummary = (rows: readonly DashboardAppRow[]): DashboardSummary => {
   const totalAllowedMs = rows.reduce((sum, row) => sum + row.limitMs, 0);
   const totalUsedMs = rows.reduce((sum, row) => sum + Math.min(row.usedMs, row.limitMs), 0);
   const remainingMs = rows.reduce((sum, row) => sum + Math.max(0, row.limitMs - row.usedMs), 0);

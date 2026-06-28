@@ -20,6 +20,7 @@ export type DashboardSectionRenderContext = {
   monitoringSubtitle: string;
   onConfigureLimits: (appKey: string) => void;
   onViewAllPress: () => void;
+  onOpenStatistics: () => void;
   onToggleMonitoring: () => void;
   onOpenManageApps: () => void;
 };
@@ -30,7 +31,7 @@ export const renderDashboardSection = (
 ): React.ReactElement | null => {
   switch (sectionId) {
     case 'overview':
-      return <FocusOverviewCard summary={context.summary} />;
+      return <FocusOverviewCard summary={context.summary} onPress={context.onOpenStatistics} />;
     case 'stats':
       return <DailyStatsRow summary={context.summary} />;
     case 'apps':

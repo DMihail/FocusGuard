@@ -1,7 +1,7 @@
 /** @format */
 
 import React, { memo } from 'react';
-import { Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 
 import { FocusScoreSvg } from '@/assets/svg/Dashboard';
 import { useFormatUsage } from '@/hooks/useFormatUsage';
@@ -16,15 +16,17 @@ import { ProgressBar } from '@/components';
 
 type FocusOverviewCardProps = {
   summary: DashboardSummary;
+  onPress?: () => void;
 };
 
 const areFocusOverviewCardPropsEqual = (previous: FocusOverviewCardProps, next: FocusOverviewCardProps): boolean =>
   previous.summary.focusScore === next.summary.focusScore &&
   previous.summary.totalUsedMs === next.summary.totalUsedMs &&
   previous.summary.totalAllowedMs === next.summary.totalAllowedMs &&
-  previous.summary.remainingMs === next.summary.remainingMs;
+  previous.summary.remainingMs === next.summary.remainingMs &&
+  previous.onPress === next.onPress;
 
-export const FocusOverviewCard = memo(({ summary }: FocusOverviewCardProps) => {
+export const FocusOverviewCard = memo(({ summary, onPress }: FocusOverviewCardProps) => {
   const styles = useDashboardStyles();
   const { colors } = useTheme();
   const { t } = useTranslation();
@@ -39,12 +41,15 @@ export const FocusOverviewCard = memo(({ summary }: FocusOverviewCardProps) => {
   });
 
   return (
-    <View
+    <Pressable
       style={styles.focusCard}
       testID={testIds.dashboard.focusOverview}
       accessible
-      accessibilityRole="summary"
+      accessibilityRole={onPress ? 'button' : 'summary'}
       accessibilityLabel={accessibilityLabel}
+      accessibilityHint={onPress ? t('dashboard.openStatisticsA11y') : undefined}
+      onPress={onPress}
+      disabled={!onPress}
     >
       <View style={styles.focusCardHeader}>
         <View style={styles.focusIconBadge} importantForAccessibility="no-hide-descendants">
@@ -63,6 +68,6 @@ export const FocusOverviewCard = memo(({ summary }: FocusOverviewCardProps) => {
         accessibilityLabel={t('dashboard.dailyBudgetUsed')}
         accessibilityValue={{ min: 0, max: 100, now: usedPercent }}
       />
-    </View>
+    </Pressable>
   );
 }, areFocusOverviewCardPropsEqual);

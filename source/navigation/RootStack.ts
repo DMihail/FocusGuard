@@ -9,6 +9,7 @@ import { LegalDocumentScreen } from '@/screen/Legal/LegalDocumentScreen';
 import { ManageAppsScreen } from '@/screen/ManageApps/ManageAppsScreen';
 import { OnboardingScreen } from '@/screen/Onboarding/OnboardingScreen';
 import { SettingsScreen } from '@/screen/Settings/SettingsScreen';
+import { StatisticsScreen } from '@/screen/Statistics/StatisticsScreen';
 import { TrackedAppsScreen } from '@/screen/TrackedApps/TrackedAppsScreen';
 
 import { rootScreenTransitionOptions } from './screenTransitionOptions';
@@ -35,6 +36,10 @@ const createRootScreens = () =>
     TrackedApps: {
       screen: TrackedAppsScreen,
       options: rootScreenTransitionOptions.trackedApps,
+    },
+    Statistics: {
+      screen: StatisticsScreen,
+      options: rootScreenTransitionOptions.statistics,
     },
     ConfigureLimits: {
       screen: ConfigureLimitsScreen,

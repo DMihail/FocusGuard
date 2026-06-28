@@ -1,3 +1,5 @@
+/** @format */
+
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 
 import { useIsFocused } from '@react-navigation/native';
@@ -11,6 +13,8 @@ import { appLimitsStore, selectedAppsStore, trackedUsageStore } from '@/store';
 import type { AppLimits, AppLimitsByAppKey } from '@/store/types/appLimits';
 import { logDevWarning } from '@/utils/logDevWarning';
 import { buildDashboardAppRows, type DashboardAppRow } from '@/utils/usage/dashboardStats';
+
+import { useUsageHistorySync } from './useUsageHistorySync';
 
 const pickLimitsForSelectedApps = (
   limitsByAppKey: AppLimitsByAppKey,
@@ -101,6 +105,8 @@ export const useTrackedAppRows = (): {
     () => buildDashboardAppRows(selectedApps, limitsByAppKey, usageByPackage),
     [limitsByAppKey, selectedApps, usageByPackage],
   );
+
+  useUsageHistorySync(appRows);
 
   return {
     appRows,
