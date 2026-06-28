@@ -32,6 +32,7 @@ export const PERSIST_STORAGE_KEYS = {
   monitoring: 'monitoring-storage',
   settings: 'settings-storage',
   onboarding: 'onboarding-storage',
+  usageHistory: 'usage-history-storage',
 } as const;
 
 /** Bump when `selectedAppsStore` persisted `state.apps` shape changes. */
@@ -45,6 +46,9 @@ export const MONITORING_PERSIST_VERSION = 1;
 
 /** Bump when `settingsStore` persisted shape changes. */
 export const SETTINGS_PERSIST_VERSION = 2;
+
+/** Bump when `usageHistoryStore` persisted shape changes. */
+export const USAGE_HISTORY_PERSIST_VERSION = 1;
 
 /** Flat tracking snapshot written for native monitor reads (`NativeTrackingSnapshot.kt`). */
 export const NATIVE_TRACKING_SNAPSHOT_KEY = 'native-tracking-snapshot-v1';

@@ -58,6 +58,10 @@ jest.mock('../../source/hooks/usePrefetchNativeCatalogs', () => ({
   usePrefetchNativeCatalogs: jest.fn(),
 }));
 
+jest.mock('../../source/hooks/useGlobalUsageHistorySync', () => ({
+  useGlobalUsageHistorySync: jest.fn(),
+}));
+
 jest.mock('../../source/store/onboardingStore', () => {
   const onboardingStore = Object.assign(
     (selector: (state: typeof mockOnboardingState) => unknown) => selector(mockOnboardingState),

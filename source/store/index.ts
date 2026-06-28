@@ -7,3 +7,4 @@ export { selectedAppsStore } from './selectedAppsStore';
 export { settingsStore } from './settingsStore';
 export { trackedUsageStore } from './trackedUsageStore';
 export type { AppLimits } from './types';
+export { usageHistoryStore } from './usageHistoryStore';

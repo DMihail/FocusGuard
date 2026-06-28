@@ -1,6 +1,6 @@
 /** @format */
 
-import { getSliderProgress, sliderValueFromPosition } from '@/screen/ConfigureLimits/utils/sliderValueFromPosition';
+import { sliderValueFromPosition } from '@/screen/ConfigureLimits/utils/sliderValueFromPosition';
 
 describe('sliderValueFromPosition', () => {
   const min = 15;
@@ -37,11 +37,5 @@ describe('sliderValueFromPosition', () => {
     expect(sliderValueFromPosition(0, width, clampMin, max, step, visualMin)).toBe(60);
     expect(sliderValueFromPosition(activeStart, width, clampMin, max, step, visualMin)).toBe(60);
     expect(sliderValueFromPosition(width, width, clampMin, max, step, visualMin)).toBe(180);
-  });
-});
-
-describe('getSliderProgress', () => {
-  it('returns normalized progress across the visual range', () => {
-    expect(getSliderProgress(60, 30, 240)).toBeCloseTo(30 / 210);
   });
 });
