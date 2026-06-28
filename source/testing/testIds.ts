@@ -55,6 +55,21 @@ export const testIds = {
     usageLoader: 'tracked-apps-usage-loader',
     appRow: (appKey: string) => `tracked-apps-row-${toSegment(appKey)}`,
   },
+  statistics: {
+    screen: 'statistics-screen',
+    scroll: 'statistics-scroll',
+    header: 'statistics-header',
+    backButton: 'statistics-back-button',
+    periodToggle: 'statistics-period-toggle',
+    periodWeek: 'statistics-period-week',
+    periodMonth: 'statistics-period-month',
+    summaryCards: 'statistics-summary-cards',
+    usageChart: 'statistics-usage-chart',
+    focusTrendChart: 'statistics-focus-trend-chart',
+    topApps: 'statistics-top-apps',
+    usageLoader: 'statistics-usage-loader',
+    topAppRow: (appKey: string) => `statistics-top-app-${toSegment(appKey)}`,
+  },
   legal: {
     dataPrivacy: {
       screen: 'data-privacy-screen',

@@ -10,8 +10,8 @@
         </shape>
     </item>
     <item
-        android:width="82dp"
-        android:height="101dp"
+        android:width="96dp"
+        android:height="96dp"
         android:drawable="@drawable/ic_splash_shield"
         android:gravity="center" />
 </layer-list>

@@ -1,3 +1,5 @@
+/** @format */
+
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 
 import { useIsFocused } from '@react-navigation/native';
@@ -11,6 +13,17 @@ import { appLimitsStore, selectedAppsStore, trackedUsageStore } from '@/store';
 import type { AppLimits, AppLimitsByAppKey } from '@/store/types/appLimits';
 import { logDevWarning } from '@/utils/logDevWarning';
 import { buildDashboardAppRows, type DashboardAppRow } from '@/utils/usage/dashboardStats';
+
+export type UseTrackedAppRowsOptions = {
+  /** When false, skips mount refresh for stacked screens that share a primary instance. */
+  lifecycle?: boolean;
+};
+
+let lastLifecycleRefreshKeysKey = '';
+
+export const resetTrackedAppRowsLifecycleForTests = (): void => {
+  lastLifecycleRefreshKeysKey = '';
+};
 
 const pickLimitsForSelectedApps = (
   limitsByAppKey: AppLimitsByAppKey,
@@ -42,11 +55,14 @@ const pickUsageForSelectedApps = (
   return picked;
 };
 
-export const useTrackedAppRows = (): {
+export const useTrackedAppRows = (
+  options?: UseTrackedAppRowsOptions,
+): {
   appRows: DashboardAppRow[];
   showUsageRefreshIndicator: boolean;
   refreshUsage: (force?: boolean) => Promise<void>;
 } => {
+  const lifecycle = options?.lifecycle !== false;
   const isFocused = useIsFocused();
   const hasCoreStoresHydrated = useCoreStoresHydrated();
 
@@ -78,7 +94,7 @@ export const useTrackedAppRows = (): {
   );
 
   useEffect(() => {
-    if (!hasCoreStoresHydrated) {
+    if (!lifecycle || !hasCoreStoresHydrated) {
       return;
     }
 
@@ -88,8 +104,13 @@ export const useTrackedAppRows = (): {
       return;
     }
 
+    if (lastLifecycleRefreshKeysKey === selectedAppKeysKey) {
+      return;
+    }
+
+    lastLifecycleRefreshKeysKey = selectedAppKeysKey;
     refreshUsage(false).catch(logDevWarning);
-  }, [hasCoreStoresHydrated, refreshUsage, selectedAppKeys.length, selectedAppKeysKey]);
+  }, [hasCoreStoresHydrated, lifecycle, refreshUsage, selectedAppKeys.length, selectedAppKeysKey]);
 
   const refreshUsageSoft = useCallback(() => refreshUsage(false), [refreshUsage]);
   const refreshUsageHard = useCallback(() => refreshUsage(true), [refreshUsage]);

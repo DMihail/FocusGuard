@@ -33,6 +33,7 @@ export const rootScreenTransitionOptions = {
   dashboard: fadeTransition,
   manageApps: pushTransition,
   trackedApps: pushTransition,
+  statistics: pushTransition,
   configureLimits: pushTransition,
   settings: modalTransition,
   legalDocument: pushTransition,

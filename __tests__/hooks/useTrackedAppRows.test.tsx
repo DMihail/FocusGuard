@@ -60,7 +60,7 @@ jest.mock('@/store/trackedUsageStore', () => {
   };
 });
 
-import { useTrackedAppRows } from '@/hooks/useTrackedAppRows';
+import { resetTrackedAppRowsLifecycleForTests, useTrackedAppRows } from '@/hooks/useTrackedAppRows';
 
 type HarnessProps = {
   onReady: (value: ReturnType<typeof useTrackedAppRows>) => void;
@@ -82,6 +82,7 @@ const UseTrackedAppRowsHarness = ({ onReady }: HarnessProps) => {
 describe('useTrackedAppRows', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    resetTrackedAppRowsLifecycleForTests();
     mockUseCoreStoresHydrated.mockReturnValue(true);
   });
 
@@ -149,5 +150,21 @@ describe('useTrackedAppRows', () => {
       mockSelectedApps.map((app) => app.packageName),
       true,
     );
+  });
+
+  it('skips lifecycle refresh when lifecycle is disabled', async () => {
+    const LifecycleDisabledHarness = () => {
+      useTrackedAppRows({ lifecycle: false });
+      return null;
+    };
+
+    act(() => {
+      ReactTestRenderer.create(<LifecycleDisabledHarness />);
+    });
+
+    await flushEffects();
+
+    expect(mockSeedUsageFromCache).not.toHaveBeenCalled();
+    expect(mockRefreshUsage).not.toHaveBeenCalled();
   });
 });
