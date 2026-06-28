@@ -18,6 +18,7 @@ Built with [React Native](https://reactnative.dev) **0.86** (New Architecture, T
 | App selection    | Installed-apps catalog                           | `FamilyActivityPicker` (Screen Time) |
 | Per-app limits   | Warning + hard-block sliders, strict mode        | Same JS UI                           |
 | Dashboard        | Focus score, distracting apps, monitoring toggle | Same JS UI                           |
+| Statistics       | Usage history charts, focus trend, top apps      | Same JS UI                           |
 | Boot / resume    | `BootCompletedReceiver`, service restore         | Scheduler + App Group state          |
 
 All limit and selection data stays on device. No account or cloud sync.
@@ -29,7 +30,7 @@ Onboarding → Enable Permissions → Dashboard
                     ↓
          Manage Apps → Configure Limits
                     ↓
-              Tracked Apps / Settings / Legal
+              Statistics / Tracked Apps / Settings / Legal
 ```
 
 Entry route is resolved after onboarding hydration (`resolveEntryRoute`): permissions gate on Android, Screen Time
@@ -81,6 +82,8 @@ Platform-specific TypeScript uses Metro / `moduleSuffixes`: `.ios.ts`, `.android
 | Layer                         | Value                                                                    |
 | ----------------------------- | ------------------------------------------------------------------------ |
 | Product name                  | Keept                                                                    |
+| Marketing version             | `1.0.1` (Android `versionName`, iOS `MARKETING_VERSION`, `app.json`)     |
+| Build number                  | `4` (Android `versionCode`, iOS `CURRENT_PROJECT_VERSION`)               |
 | Store bundle / application ID | `com.keept`                                                              |
 | Android namespace (Kotlin)    | `com.focusguard` (legacy)                                                |
 | iOS App Group                 | `group.com.keept.shared`                                                 |
@@ -111,10 +114,18 @@ npm run android    # or: npm run ios
 **Release builds (Google Play)**
 
 ```sh
-cp android/keystore.properties.example android/keystore.properties   # configure upload key
+cp android/keystore.properties.example android/keystore.properties   # local only — gitignored
+# Edit passwords/alias; place upload-keystore.jks in android/keystores/
 npm run check
 npm run android:bundle:release   # Play Store AAB
 npm run android:assemble:release # sideload APK
+```
+
+Adaptive launcher icons use square vector assets (`ic_launcher_foreground.xml`). To regenerate legacy PNG mipmaps after
+changing the shield artwork:
+
+```sh
+android/scripts/generate-launcher-icons.sh
 ```
 
 Or open `android/` in Android Studio (JDK 17, compile SDK 36, NDK 27.1.12297006).
@@ -195,8 +206,8 @@ screens.
 - `TrackingEngine` — limit evaluation, snooze, daily warnings
 - `BootCompletedReceiver` — restore monitoring after reboot
 
-`RootNavigationGate` wires splash handoff, catalog prefetch, permission guard, monitoring session restore, and native
-snapshot sync when navigation becomes ready.
+`RootNavigationGate` wires splash handoff, catalog prefetch, permission guard, monitoring session restore, global usage
+history sync, and native snapshot sync when navigation becomes ready.
 
 ## npm scripts
 

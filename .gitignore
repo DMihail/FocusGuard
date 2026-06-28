@@ -9,6 +9,8 @@ Thumbs.db
 .env.*
 !.env.example
 keystore.properties
+**/keystore.properties
+!**/keystore.properties.example
 android/keystore.properties
 !android/keystore.properties.example
 android/app/google-services.json
@@ -28,6 +30,7 @@ pnpm-debug.log*
 
 # Metro / RN tooling
 .metro-health-check*
+.icon-gen/
 
 # Yarn Berry (keep shared release/plugin config when present)
 .yarn/*

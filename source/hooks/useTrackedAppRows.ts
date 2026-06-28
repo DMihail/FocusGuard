@@ -14,10 +14,8 @@ import type { AppLimits, AppLimitsByAppKey } from '@/store/types/appLimits';
 import { logDevWarning } from '@/utils/logDevWarning';
 import { buildDashboardAppRows, type DashboardAppRow } from '@/utils/usage/dashboardStats';
 
-import { useUsageHistorySync } from './useUsageHistorySync';
-
 export type UseTrackedAppRowsOptions = {
-  /** When false, skips mount refresh and usage-history sync for stacked screens. */
+  /** When false, skips mount refresh for stacked screens that share a primary instance. */
   lifecycle?: boolean;
 };
 
@@ -124,8 +122,6 @@ export const useTrackedAppRows = (
     () => buildDashboardAppRows(selectedApps, limitsByAppKey, usageByPackage),
     [limitsByAppKey, selectedApps, usageByPackage],
   );
-
-  useUsageHistorySync(appRows, lifecycle);
 
   return {
     appRows,
