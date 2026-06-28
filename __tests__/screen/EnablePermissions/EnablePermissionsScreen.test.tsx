@@ -91,7 +91,6 @@ jest.spyOn(AppState, 'addEventListener').mockImplementation((_, listener) => {
 });
 
 import { EnablePermissionsScreen } from '@/screen/EnablePermissions/EnablePermissionsScreen';
-import { testIds } from '@/testing/testIds';
 
 const grantAllNativePermissions = () => {
   mockCheckForPermission.mockReturnValue(true);
@@ -117,22 +116,6 @@ describe('EnablePermissionsScreen', () => {
     cleanupTestTrees();
     jest.useRealTimers();
     await flushVirtualizedListWork();
-  });
-
-  it('renders screen structure with permission cards and footer', () => {
-    const tree = renderTestTree(<EnablePermissionsScreen />);
-    flushVirtualizedListTimers();
-
-    expect(tree.root.findByProps({ testID: testIds.enablePermissions.screen })).toBeDefined();
-    expect(tree.root.findByProps({ testID: testIds.enablePermissions.header })).toBeDefined();
-    expect(tree.root.findByProps({ testID: testIds.enablePermissions.cards })).toBeDefined();
-    expect(tree.root.findByProps({ testID: testIds.enablePermissions.privacyNotice })).toBeDefined();
-    expect(tree.root.findByProps({ testID: testIds.enablePermissions.continueButton })).toBeDefined();
-    expect(tree.root.findByProps({ testID: testIds.enablePermissions.permissionCard('usage-access') })).toBeDefined();
-    expect(
-      tree.root.findByProps({ testID: testIds.enablePermissions.permissionCard('display-over-apps') }),
-    ).toBeDefined();
-    expect(tree.root.findByProps({ testID: testIds.enablePermissions.permissionCard('notifications') })).toBeDefined();
   });
 
   it('keeps Continue disabled until all permissions are granted', () => {

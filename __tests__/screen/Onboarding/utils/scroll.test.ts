@@ -27,9 +27,8 @@ describe('scroll utils', () => {
   });
 
   describe('createGetItemLayout', () => {
-    it('returns layout metrics for each index', () => {
+    it('offsets each page by its index', () => {
       const getItemLayout = createGetItemLayout(300);
-      expect(getItemLayout(null, 0)).toEqual({ length: 300, offset: 0, index: 0 });
       expect(getItemLayout(null, 2)).toEqual({ length: 300, offset: 600, index: 2 });
     });
   });

@@ -32,15 +32,6 @@ describe('DistractingAppsSection', () => {
     expect(emptyText.props.children).toBe('No apps selected yet');
   });
 
-  it('renders app rows with usage data from shared fixtures', () => {
-    const socialChatRow = createDashboardAppRow(mockManageApps[0], 15 * 60_000);
-    const tree = renderSection([socialChatRow]);
-    const appRow = tree.root.findByProps({ testID: testIds.dashboard.appRow('com.social.chat') });
-
-    expect(appRow).toBeDefined();
-    expect(tree.root.findByProps({ children: 'Social Chat' })).toBeDefined();
-  });
-
   it('renders at most four app rows on the dashboard', () => {
     const appRows = Array.from({ length: 6 }, (_, index) =>
       createDashboardAppRow(

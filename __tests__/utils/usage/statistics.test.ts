@@ -133,4 +133,20 @@ describe('statistics utils', () => {
     expect(picked['2020-1-1']).toBeUndefined();
     expect(picked['2026-6-22']).toEqual(extraHistory['2026-6-22']);
   });
+
+  it('sums remaining budget per app in dashboard summary', () => {
+    const secondApp = { ...sampleApp, packageName: 'com.other.app', appName: 'Other' };
+    const rows = buildDashboardAppRows(
+      [sampleApp, secondApp],
+      {},
+      {
+        'com.example.app': 50 * 60_000,
+        'com.other.app': 10 * 60_000,
+      },
+    );
+    const summary = buildDashboardSummary(rows);
+
+    expect(summary.remainingMs).toBe(60 * 60_000);
+    expect(summary.totalUsedMs).toBe(60 * 60_000);
+  });
 });

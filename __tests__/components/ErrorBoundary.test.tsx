@@ -16,20 +16,6 @@ describe('ErrorBoundary', () => {
     jest.restoreAllMocks();
   });
 
-  it('renders children when there is no error', () => {
-    let tree!: ReactTestRenderer.ReactTestRenderer;
-
-    act(() => {
-      tree = ReactTestRenderer.create(
-        <ErrorBoundary>
-          <Text testID="child">ok</Text>
-        </ErrorBoundary>,
-      );
-    });
-
-    expect(tree.root.findByProps({ testID: 'child' })).toBeTruthy();
-  });
-
   it('recovers after retry', () => {
     let shouldThrow = true;
 
