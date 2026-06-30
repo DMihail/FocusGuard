@@ -168,8 +168,11 @@ export const enUi: TranslationTree = {
   },
   errorBoundary: {
     title: 'Something went wrong',
-    message: 'Keept ran into an unexpected error. You can try again.',
+    message: '{{appName}} ran into an unexpected error. You can try again.',
+    hint: 'If this keeps happening, restart the app.',
     retryA11y: 'Try again',
+    screenA11y: 'Application error',
+    devDetailsLabel: 'Developer details',
   },
   manageApps: {
     screenLabel: 'Manage apps',

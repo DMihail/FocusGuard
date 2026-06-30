@@ -4,6 +4,7 @@ import React from 'react';
 import { ScrollView, Text, View } from 'react-native';
 
 import { useGoBack } from '@/hooks/useGoBack';
+import { useScrollContentContainerStyle } from '@/hooks/useScrollContentContainerStyle';
 import { useTranslation } from '@/i18n';
 import { testIds } from '@/testing/testIds';
 
@@ -20,6 +21,7 @@ import { ScreenSafeArea, UsageRefreshIndicator } from '@/components';
 
 export const StatisticsScreen = () => {
   const styles = useStatisticsStyles();
+  const { scrollContentContainerStyle } = useScrollContentContainerStyle(styles.scrollContent);
   const goBack = useGoBack();
   const { t } = useTranslation();
   const {
@@ -46,7 +48,7 @@ export const StatisticsScreen = () => {
       <View style={styles.content}>
         <ScrollView
           testID={testIds.statistics.scroll}
-          contentContainerStyle={styles.scrollContent}
+          contentContainerStyle={scrollContentContainerStyle}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
           refreshControl={refreshControl}

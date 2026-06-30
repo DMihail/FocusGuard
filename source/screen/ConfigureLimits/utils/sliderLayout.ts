@@ -2,13 +2,19 @@
 
 import type { DimensionValue } from 'react-native';
 
-import { getSliderProgress } from './sliderValueFromPosition';
-
 const clamp01 = (value: number): number => Math.min(1, Math.max(0, value));
 
 const toPercentDimension = (ratio: number): DimensionValue => `${clamp01(ratio) * 100}%` as DimensionValue;
 
-export const getSliderInactiveRatio = (minMinutes: number, progressMinMinutes: number, maxMinutes: number): number => {
+const getSliderProgress = (valueMinutes: number, progressMinMinutes: number, maxMinutes: number): number => {
+  if (maxMinutes <= progressMinMinutes) {
+    return 1;
+  }
+
+  return (valueMinutes - progressMinMinutes) / (maxMinutes - progressMinMinutes);
+};
+
+const getSliderInactiveRatio = (minMinutes: number, progressMinMinutes: number, maxMinutes: number): number => {
   if (maxMinutes <= progressMinMinutes || minMinutes <= progressMinMinutes) {
     return 0;
   }

@@ -10,4 +10,5 @@ export type DailyUsageHistoryEntry = {
 export type UsageHistoryStore = {
   byDay: Record<string, DailyUsageHistoryEntry>;
   recordDay: (dayKey: string, entry: DailyUsageHistoryEntry) => void;
+  clearDay: (dayKey: string) => void;
 };

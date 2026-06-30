@@ -12,7 +12,7 @@ import { useOnboardingStyles } from './styles';
 import { OnboardingFooter } from './components/OnboardingFooter';
 import { OnboardingHeader } from './components/OnboardingHeader';
 import { WalkthroughPager } from './components/WalkthroughPager';
-import { ScreenSafeArea } from '@/components';
+import { ScreenContentFrame, ScreenSafeArea } from '@/components';
 
 export const OnboardingScreen = () => {
   const styles = useOnboardingStyles();
@@ -25,7 +25,9 @@ export const OnboardingScreen = () => {
       testID={testIds.onboarding.screen}
       accessibilityLabel={t('onboarding.screenLabel')}
     >
-      <OnboardingHeader indicatorProps={pager.indicatorProps} onSkip={pager.onSkip} />
+      <ScreenContentFrame>
+        <OnboardingHeader indicatorProps={pager.indicatorProps} onSkip={pager.onSkip} />
+      </ScreenContentFrame>
 
       <View style={styles.pagerContainer} onLayout={pager.handlePagerContainerLayout}>
         <Activity mode={pager.isPagerReady ? 'visible' : 'hidden'}>
@@ -41,11 +43,13 @@ export const OnboardingScreen = () => {
         </Activity>
       </View>
 
-      <OnboardingFooter
-        isLastStep={pager.isLastStep}
-        indicatorProps={pager.indicatorProps}
-        onContinue={pager.handleContinue}
-      />
+      <ScreenContentFrame>
+        <OnboardingFooter
+          isLastStep={pager.isLastStep}
+          indicatorProps={pager.indicatorProps}
+          onContinue={pager.handleContinue}
+        />
+      </ScreenContentFrame>
     </ScreenSafeArea>
   );
 };

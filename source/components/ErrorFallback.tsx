@@ -1,61 +1,73 @@
 /** @format */
 
-import React from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import React, { memo } from 'react';
+import { Pressable, Text, View } from 'react-native';
 
+import { Shield } from '@/assets/svg/Onboarding';
+import { getAppDisplayName } from '@/constants/appDisplayName';
 import { useTheme } from '@/hooks/useTheme';
 import { useTranslation } from '@/i18n';
+import { testIds } from '@/testing/testIds';
+
+import { useErrorFallbackStyles } from './errorFallbackStyles';
+import { ScreenSafeArea } from './ScreenSafeArea';
 
 type ErrorFallbackProps = {
+  error: Error | null;
   onRetry: () => void;
 };
 
-export const ErrorFallback = ({ onRetry }: ErrorFallbackProps) => {
+export const ErrorFallback = memo(({ error, onRetry }: ErrorFallbackProps) => {
+  const styles = useErrorFallbackStyles();
   const { colors } = useTheme();
   const { t } = useTranslation();
+  const appDisplayName = getAppDisplayName();
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <Text style={[styles.title, { color: colors.textPrimary }]}>{t('errorBoundary.title')}</Text>
-      <Text style={[styles.message, { color: colors.textSecondary }]}>{t('errorBoundary.message')}</Text>
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel={t('errorBoundary.retryA11y')}
-        onPress={onRetry}
-        style={[styles.button, { backgroundColor: colors.accent }]}
-      >
-        <Text style={[styles.buttonLabel, { color: colors.accentOnContainer }]}>{t('common.retry')}</Text>
-      </Pressable>
-    </View>
-  );
-};
+    <ScreenSafeArea
+      style={styles.screen}
+      accessibilityLabel={t('errorBoundary.screenA11y')}
+      testID={testIds.errorBoundary.screen}
+    >
+      <View style={styles.centered} accessible accessibilityRole="alert" accessibilityLiveRegion="assertive">
+        <View style={styles.card} importantForAccessibility="no-hide-descendants">
+          <Text style={styles.brand}>{appDisplayName}</Text>
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 24,
-    gap: 12,
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: '600',
-    textAlign: 'center',
-  },
-  message: {
-    fontSize: 16,
-    lineHeight: 22,
-    textAlign: 'center',
-  },
-  button: {
-    marginTop: 8,
-    borderRadius: 12,
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-  },
-  buttonLabel: {
-    fontSize: 16,
-    fontWeight: '600',
-  },
+          <View style={styles.iconBox} accessible={false}>
+            <Shield width={44} height={54} stroke={colors.overLimit} />
+          </View>
+
+          <Text style={styles.title} accessibilityRole="header">
+            {t('errorBoundary.title')}
+          </Text>
+          <Text style={styles.message}>{t('errorBoundary.message', { appName: appDisplayName })}</Text>
+
+          {__DEV__ && error?.message ? (
+            <View style={styles.devDetails} accessible={false}>
+              <Text style={styles.devDetailsLabel}>{t('errorBoundary.devDetailsLabel')}</Text>
+              <Text style={styles.devDetailsText} selectable>
+                {error.message}
+              </Text>
+            </View>
+          ) : null}
+
+          <View style={styles.actions}>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={t('errorBoundary.retryA11y')}
+              onPress={onRetry}
+              style={({ pressed }) => [styles.retryButton, pressed && styles.retryButtonPressed]}
+              testID={testIds.errorBoundary.retryButton}
+            >
+              <Text style={styles.retryButtonLabel}>{t('common.retry')}</Text>
+            </Pressable>
+
+            <Text style={styles.hint}>{t('errorBoundary.hint')}</Text>
+          </View>
+        </View>
+      </View>
+    </ScreenSafeArea>
+  );
 });
+
+ErrorFallback.displayName = 'ErrorFallback';

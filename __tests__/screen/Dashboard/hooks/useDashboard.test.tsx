@@ -85,6 +85,7 @@ jest.mock('@/hooks/usePrefetchNativeCatalogs', () => ({
   usePrefetchNativeCatalogs: jest.fn(),
 }));
 
+import { SelectedDashboardAppRowsProvider } from '@/context/SelectedDashboardAppRowsProvider';
 import { invalidateUsageStatsCache } from '@/domain/usageStatsCatalog';
 import { useDashboard } from '@/screen/Dashboard/hooks/useDashboard';
 import { resetTrackedUsageSeedForTests, trackedUsageStore } from '@/store/trackedUsageStore';
@@ -105,6 +106,13 @@ const UseDashboardHarness = ({ onReady }: HarnessProps) => {
 
   return null;
 };
+
+const renderDashboardHarness = (onReady: (value: ReturnType<typeof useDashboard>) => void) =>
+  ReactTestRenderer.create(
+    <SelectedDashboardAppRowsProvider>
+      <UseDashboardHarness onReady={onReady} />
+    </SelectedDashboardAppRowsProvider>,
+  );
 
 describe('useDashboard', () => {
   beforeEach(() => {
@@ -135,7 +143,7 @@ describe('useDashboard', () => {
     let result!: ReturnType<typeof useDashboard>;
 
     act(() => {
-      ReactTestRenderer.create(<UseDashboardHarness onReady={(value) => (result = value)} />);
+      renderDashboardHarness((value) => (result = value));
     });
     await flushUsageLoad();
 
@@ -157,7 +165,7 @@ describe('useDashboard', () => {
     let latest!: ReturnType<typeof useDashboard>;
 
     act(() => {
-      ReactTestRenderer.create(<UseDashboardHarness onReady={(value) => (latest = value)} />);
+      renderDashboardHarness((value) => (latest = value));
     });
     await flushUsageLoad();
 

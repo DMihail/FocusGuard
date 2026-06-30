@@ -3,6 +3,7 @@
 import React, { useCallback, useMemo } from 'react';
 import { ScrollView, View } from 'react-native';
 
+import { useScrollContentContainerStyle } from '@/hooks/useScrollContentContainerStyle';
 import { useTranslation } from '@/i18n';
 import { useRootNavigation } from '@/navigation';
 import { testIds } from '@/testing/testIds';
@@ -18,6 +19,7 @@ import { ScreenSafeArea, UsageRefreshIndicator } from '@/components';
 
 export const DashboardScreen = () => {
   const styles = useDashboardStyles();
+  const { scrollContentContainerStyle } = useScrollContentContainerStyle(styles.scrollContent);
   const navigation = useRootNavigation();
   const { t } = useTranslation();
   const greeting = useMemo(() => getGreeting(t), [t]);
@@ -87,7 +89,7 @@ export const DashboardScreen = () => {
       <View style={styles.content}>
         <ScrollView
           testID={testIds.dashboard.scroll}
-          contentContainerStyle={styles.scrollContent}
+          contentContainerStyle={scrollContentContainerStyle}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
           refreshControl={refreshControl}

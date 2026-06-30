@@ -4,7 +4,6 @@ import type { AppLimits, AppLimitsByAppKey } from './appLimits';
 
 export type AppLimitsStore = {
   limitsByAppKey: AppLimitsByAppKey;
-  getLimits: (appKey: string) => AppLimits;
   setLimits: (appKey: string, limits: AppLimits) => void;
 };
 

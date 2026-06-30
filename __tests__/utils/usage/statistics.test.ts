@@ -59,6 +59,23 @@ describe('statistics utils', () => {
     expect(buildTodayHistoryEntry([])).toBeNull();
   });
 
+  it('ignores persisted today history when no apps are selected', () => {
+    const staleHistory = {
+      ...history,
+      '2026-6-22': {
+        totalUsedMs: 99 * 60_000,
+        totalSavedMs: 1 * 60_000,
+        focusScore: 1,
+        usageByAppKey: { 'com.example.app': 99 * 60_000 },
+      },
+    };
+
+    const points = buildWeekUsageChart(staleHistory, null, 'en-US', anchor);
+
+    expect(points.at(-1)).toMatchObject({ usageMinutes: 0, savedMinutes: 0 });
+    expect(buildStatisticsSummary(staleHistory, null, 'week', anchor).savedMs).toBe((45 + 40) * 60_000);
+  });
+
   it('builds week usage chart with seven points', () => {
     const points = buildWeekUsageChart(history, todayEntry, 'en-US', anchor);
 

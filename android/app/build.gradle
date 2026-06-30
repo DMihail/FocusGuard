@@ -32,8 +32,8 @@ android {
         applicationId "com.keept"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 5
-        versionName "1.0.1"
+        versionCode 6
+        versionName "1.0.2"
     }
     signingConfigs {
         debug {
@@ -44,6 +44,7 @@ android {
         }
         release {
             if (keystorePropertiesFile.exists()) {
+                // storeFile in keystore.properties is relative to android/ (Gradle rootProject), not :app.
                 storeFile rootProject.file(keystoreProperties['storeFile'])
                 storePassword keystoreProperties['storePassword']
                 keyAlias keystoreProperties['keyAlias']

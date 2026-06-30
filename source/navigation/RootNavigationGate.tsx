@@ -6,6 +6,7 @@ import { StyleSheet, View } from 'react-native';
 import type { NavigationContainerRef } from '@react-navigation/native';
 import Animated from 'react-native-reanimated';
 
+import { SelectedDashboardAppRowsProvider } from '@/context/SelectedDashboardAppRowsProvider';
 import { invalidatePermissionSnapshot } from '@/domain/permissionSnapshot';
 import { useCoreStoresHydrated } from '@/hooks/useCoreStoresHydrated';
 import { useGlobalUsageHistorySync } from '@/hooks/useGlobalUsageHistorySync';
@@ -20,7 +21,7 @@ import { resolveEntryRoute } from './resolveEntryRoute';
 import { RootNavigator } from './RootNavigator';
 import type { RootStackParamList } from './types';
 
-import { SplashBranding } from '@/components';
+import { GlobalUsageHistorySync, SplashBranding } from '@/components';
 
 export const RootNavigationGate = () => {
   const hasCoreStoresHydrated = useCoreStoresHydrated();
@@ -49,7 +50,10 @@ export const RootNavigationGate = () => {
   return (
     <View style={styles.root}>
       {isNavigationReady && initialRoute ? (
-        <RootNavigator initialRoute={initialRoute} navigationRef={navigationRef} />
+        <SelectedDashboardAppRowsProvider>
+          <GlobalUsageHistorySync enabled />
+          <RootNavigator initialRoute={initialRoute} navigationRef={navigationRef} />
+        </SelectedDashboardAppRowsProvider>
       ) : null}
 
       {isSplashVisible ? (

@@ -13,7 +13,7 @@ import { useManageAppsStyles } from './styles';
 import { ManageAppsContent } from './components/ManageAppsContent';
 import { ManageAppsHeader } from './components/ManageAppsHeader';
 import { ManageAppsSearchToolbar } from './components/ManageAppsSearchToolbar';
-import { ScreenSafeArea } from '@/components';
+import { ScreenContentFrame, ScreenSafeArea } from '@/components';
 
 export const ManageAppsScreen = () => {
   const styles = useManageAppsStyles();
@@ -28,30 +28,32 @@ export const ManageAppsScreen = () => {
       testID={testIds.manageApps.screen}
       accessibilityLabel={t('manageApps.screenLabel')}
     >
-      <ManageAppsHeader selectedCount={screen.selectedCount} onBack={goBack} />
-      {screen.showSearchToolbar ? (
-        <ManageAppsSearchToolbar
-          onQueryChange={screen.setSearchQuery}
-          onQueryActiveChange={screen.setSearchInputActive}
+      <ScreenContentFrame style={styles.contentFrame}>
+        <ManageAppsHeader selectedCount={screen.selectedCount} onBack={goBack} />
+        {screen.showSearchToolbar ? (
+          <ManageAppsSearchToolbar
+            onQueryChange={screen.setSearchQuery}
+            onQueryActiveChange={screen.setSearchInputActive}
+          />
+        ) : null}
+        <ManageAppsContent
+          apps={screen.apps}
+          isLoadingApps={screen.isLoadingApps}
+          isFiltering={screen.isFiltering}
+          selectedApps={screen.selectedApps}
+          isSelected={screen.isSelected}
+          onToggle={screen.toggleAppSelection}
+          onSelectedAppPress={openConfigureLimits}
+          onSelectedAppRemove={screen.toggleAppSelection}
+          isSearchActive={screen.isSearchActive}
+          categoryFilters={screen.categoryFilters}
+          activeCategoryId={screen.activeCategoryId}
+          onCategoryChange={screen.setActiveCategory}
+          showInstalledAppsList={screen.showInstalledAppsList}
+          onPickApps={screen.onPickApps}
+          isPickingApps={screen.isPickingApps}
         />
-      ) : null}
-      <ManageAppsContent
-        apps={screen.apps}
-        isLoadingApps={screen.isLoadingApps}
-        isFiltering={screen.isFiltering}
-        selectedApps={screen.selectedApps}
-        isSelected={screen.isSelected}
-        onToggle={screen.toggleAppSelection}
-        onSelectedAppPress={openConfigureLimits}
-        onSelectedAppRemove={screen.toggleAppSelection}
-        isSearchActive={screen.isSearchActive}
-        categoryFilters={screen.categoryFilters}
-        activeCategoryId={screen.activeCategoryId}
-        onCategoryChange={screen.setActiveCategory}
-        showInstalledAppsList={screen.showInstalledAppsList}
-        onPickApps={screen.onPickApps}
-        isPickingApps={screen.isPickingApps}
-      />
+      </ScreenContentFrame>
     </ScreenSafeArea>
   );
 };

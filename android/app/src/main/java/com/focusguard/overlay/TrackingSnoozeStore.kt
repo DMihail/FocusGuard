@@ -16,20 +16,22 @@ internal object TrackingSnoozeStore {
         mmkv.encode(key(packageName), until)
     }
 
-    fun isSnoozed(packageName: String): Boolean {
+    fun isSnoozed(packageName: String): Boolean = getRemainingMs(packageName) > 0L
+
+    fun getRemainingMs(packageName: String): Long {
         val now = System.currentTimeMillis()
         val cachedUntil = snoozeUntilCache[packageName]
 
         if (cachedUntil != null) {
             if (cachedUntil > now) {
-                return true
+                return cachedUntil - now
             }
 
             snoozeUntilCache.remove(packageName)
             if (cachedUntil > 0L) {
                 clearSnooze(packageName)
             }
-            return false
+            return 0L
         }
 
         val until = mmkv.decodeLong(key(packageName), 0L)
@@ -37,11 +39,11 @@ internal object TrackingSnoozeStore {
             if (until > 0L) {
                 clearSnooze(packageName)
             }
-            return false
+            return 0L
         }
 
         snoozeUntilCache[packageName] = until
-        return true
+        return until - now
     }
 
     fun clearSnooze(packageName: String) {

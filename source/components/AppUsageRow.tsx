@@ -9,7 +9,6 @@ import { useTranslation } from '@/i18n';
 import { testIds } from '@/testing/testIds';
 import { fontSize, spacing, typography } from '@/theme';
 import type { Theme } from '@/theme/types';
-import { computeUsageMetrics } from '@/utils/usage/computeUsageMetrics';
 import type { DashboardAppRow } from '@/utils/usage/dashboardStats';
 
 import { AppIcon } from './AppIcon';
@@ -66,14 +65,25 @@ const createAppUsageRowStyles = ({ colors, presets }: Theme) => {
 
 const useAppUsageRowStyles = createStylesHook(createAppUsageRowStyles);
 
+const areAppUsageRowPropsEqual = (previous: AppUsageRowProps, next: AppUsageRowProps): boolean =>
+  previous.onPress === next.onPress &&
+  previous.rowTestID === next.rowTestID &&
+  getManageAppKey(previous) === getManageAppKey(next) &&
+  previous.usedMs === next.usedMs &&
+  previous.limitMs === next.limitMs &&
+  previous.percentUsed === next.percentUsed &&
+  previous.barProgress === next.barProgress &&
+  previous.isOverLimit === next.isOverLimit &&
+  previous.appName === next.appName &&
+  previous.appImage === next.appImage;
+
 export const AppUsageRow = memo(({ onPress, rowTestID, ...app }: AppUsageRowProps) => {
   const styles = useAppUsageRowStyles();
   const { colors } = useTheme();
   const { t } = useTranslation();
   const { formatUsagePair } = useFormatUsage();
   const appKey = getManageAppKey(app);
-  const { appImage, appName, usedMs, limitMs, percentUsed, isOverLimit } = app;
-  const { barProgress } = computeUsageMetrics(usedMs, limitMs);
+  const { appImage, appName, usedMs, limitMs, percentUsed, barProgress, isOverLimit } = app;
   const fillColor = isOverLimit ? colors.overLimit : colors.accent;
 
   return (
@@ -115,4 +125,4 @@ export const AppUsageRow = memo(({ onPress, rowTestID, ...app }: AppUsageRowProp
       />
     </Pressable>
   );
-});
+}, areAppUsageRowPropsEqual);

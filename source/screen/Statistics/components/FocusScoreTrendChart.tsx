@@ -1,10 +1,11 @@
 /** @format */
 
 import React, { memo, useMemo } from 'react';
-import { Text, useWindowDimensions, View } from 'react-native';
+import { Text, View } from 'react-native';
 
 import { LineChart } from 'react-native-gifted-charts';
 
+import { useContentLayout } from '@/hooks/useContentLayout';
 import { useTheme } from '@/hooks/useTheme';
 import { useTranslation } from '@/i18n';
 import { testIds } from '@/testing/testIds';
@@ -31,9 +32,9 @@ export const FocusScoreTrendChart = memo(({ points }: FocusScoreTrendChartProps)
   const styles = useStatisticsStyles();
   const { colors } = useTheme();
   const { t } = useTranslation();
-  const { width: windowWidth } = useWindowDimensions();
+  const { innerWidth } = useContentLayout();
 
-  const chartWidth = getStatisticsChartWidth(windowWidth);
+  const chartWidth = getStatisticsChartWidth(innerWidth);
 
   const lineData = useMemo(
     () =>

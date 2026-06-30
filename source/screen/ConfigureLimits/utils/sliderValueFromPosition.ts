@@ -1,13 +1,5 @@
 /** @format */
 
-export const getSliderProgress = (valueMinutes: number, progressMinMinutes: number, maxMinutes: number): number => {
-  if (maxMinutes <= progressMinMinutes) {
-    return 1;
-  }
-
-  return (valueMinutes - progressMinMinutes) / (maxMinutes - progressMinMinutes);
-};
-
 /** Maps touch X on the track (px) to a stepped minute value. */
 export const sliderValueFromPosition = (
   positionX: number,

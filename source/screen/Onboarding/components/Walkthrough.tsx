@@ -1,9 +1,10 @@
 /** @format */
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { createStylesHook } from '@/hooks/createStylesHook';
+import { useContentLayout } from '@/hooks/useContentLayout';
 import { borderRadius, spacing, typography } from '@/theme';
 import type { Theme } from '@/theme/types';
 
@@ -22,8 +23,6 @@ const createWalkthroughStyles = ({ colors }: Theme) =>
       paddingHorizontal: spacing.lg,
     },
     iconContainer: {
-      width: 224,
-      height: 224,
       borderRadius: borderRadius.walkthrough,
       backgroundColor: colors.surface,
       alignItems: 'center',
@@ -45,7 +44,6 @@ const createWalkthroughStyles = ({ colors }: Theme) =>
       ...typography.body,
       color: colors.textSecondary,
       textAlign: 'center',
-      maxWidth: 350,
     },
   });
 
@@ -53,13 +51,34 @@ const useWalkthroughStyles = createStylesHook(createWalkthroughStyles);
 
 export const Walkthrough = ({ title, text, children }: WalkthroughProps) => {
   const styles = useWalkthroughStyles();
+  const { innerWidth, isTablet } = useContentLayout();
+
+  const layout = useMemo(() => {
+    const iconSize = isTablet ? 280 : 224;
+    const descriptionMaxWidth = Math.min(420, Math.max(0, innerWidth - spacing.lg * 2));
+
+    return {
+      iconSize,
+      descriptionMaxWidth,
+    };
+  }, [innerWidth, isTablet]);
 
   return (
     <View style={styles.content}>
-      <View style={styles.iconContainer}>{children}</View>
+      <View
+        style={[
+          styles.iconContainer,
+          {
+            width: layout.iconSize,
+            height: layout.iconSize,
+          },
+        ]}
+      >
+        {children}
+      </View>
 
       <Text style={styles.title}>{title}</Text>
-      <Text style={styles.description}>{text}</Text>
+      <Text style={[styles.description, { maxWidth: layout.descriptionMaxWidth }]}>{text}</Text>
     </View>
   );
 };

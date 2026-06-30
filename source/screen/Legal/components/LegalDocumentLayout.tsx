@@ -3,6 +3,7 @@
 import React, { useCallback } from 'react';
 import { FlatList, View } from 'react-native';
 
+import { useScrollContentContainerStyle } from '@/hooks/useScrollContentContainerStyle';
 import { APP_LIST_FLAT_LIST_PROPS } from '@/list';
 import { keyByTitle as legalSectionKeyExtractor } from '@/list/keys';
 
@@ -35,6 +36,7 @@ export const LegalDocumentLayout = ({
   backButtonTestId,
 }: LegalDocumentLayoutProps) => {
   const styles = useLegalStyles();
+  const { scrollContentContainerStyle } = useScrollContentContainerStyle(styles.scrollContent);
 
   const renderListHeader = useCallback(
     () => (
@@ -51,7 +53,7 @@ export const LegalDocumentLayout = ({
         renderItem={renderLegalSectionItem}
         keyExtractor={legalSectionKeyExtractor}
         ListHeaderComponent={renderListHeader}
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={scrollContentContainerStyle}
         ItemSeparatorComponent={LegalSectionSeparator}
         showsVerticalScrollIndicator={false}
         accessibilityRole="list"

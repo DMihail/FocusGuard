@@ -2,6 +2,7 @@ import React, { useCallback } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 
 import { useGoBack } from '@/hooks/useGoBack';
+import { useScrollContentContainerStyle } from '@/hooks/useScrollContentContainerStyle';
 import { useTranslation } from '@/i18n';
 import { LIMIT_SLIDER_BOUNDS } from '@/store';
 import { testIds } from '@/testing/testIds';
@@ -20,6 +21,7 @@ import { ScreenSafeArea } from '@/components';
 
 export const ConfigureLimitsScreen = ({ route }: ConfigureLimitsScreenProps) => {
   const styles = useConfigureLimitsStyles();
+  const { scrollContentContainerStyle } = useScrollContentContainerStyle(styles.scrollContent);
   const { t } = useTranslation();
   const { appKey } = route.params;
   const goBack = useGoBack();
@@ -60,7 +62,7 @@ export const ConfigureLimitsScreen = ({ route }: ConfigureLimitsScreenProps) => 
     >
       <ScrollView
         testID={testIds.configureLimits.scroll}
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={scrollContentContainerStyle}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >

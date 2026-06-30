@@ -4,6 +4,8 @@ import androidx.appcompat.app.AppCompatDelegate
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReactContextBaseJavaModule
 import com.facebook.react.bridge.ReactMethod
+import com.focusguard.SettingsRepository
+import com.focusguard.widget.WidgetUpdater
 
 /** Syncs JS theme preference with native DayNight resources (overlay, notifications). */
 class KeeptUiThemeModule(
@@ -22,6 +24,8 @@ class KeeptUiThemeModule(
         }
 
     AppCompatDelegate.setDefaultNightMode(mode)
+    SettingsRepository.invalidateCache()
+    WidgetUpdater.scheduleUpdate(reactApplicationContext.applicationContext, force = true)
   }
 
   companion object {

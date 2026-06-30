@@ -13,6 +13,7 @@ export const createSettingsStyles = ({ colors, presets }: Theme) => {
     screen: layoutPresets.screen,
     scrollContent: {
       ...layoutPresets.scrollContent(spacing.xxl),
+      paddingHorizontal: 0,
       paddingTop: spacing.sm,
     },
     sections: {

@@ -23,6 +23,7 @@ import com.focusguard.platform.AppInfo
 import com.focusguard.react.PermissionsChangedDispatcher
 import com.focusguard.react.ReactNativeMappers
 import com.focusguard.storage.NativeTrackingSnapshot
+import com.focusguard.widget.WidgetUpdater
 import java.util.concurrent.Executors
 
 /** Codegen Turbo Module — thin bridge over the FocusGuard Android domain layer. */
@@ -152,6 +153,7 @@ class NativeUsageStatsModule(
     NativeTrackingSnapshot.write(snapshotJson)
     TrackingConfigRepository.invalidateCache()
     SettingsRepository.invalidateCache()
+    WidgetUpdater.scheduleUpdate(appContext, force = true)
   }
 
   override fun requestScreenTimeAuthorization(promise: Promise) {

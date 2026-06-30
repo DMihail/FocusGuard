@@ -60,7 +60,8 @@ jest.mock('@/store/trackedUsageStore', () => {
   };
 });
 
-import { resetTrackedAppRowsLifecycleForTests, useTrackedAppRows } from '@/hooks/useTrackedAppRows';
+import { SelectedDashboardAppRowsProvider } from '@/context/SelectedDashboardAppRowsProvider';
+import { useTrackedAppRows } from '@/hooks/useTrackedAppRows';
 
 type HarnessProps = {
   onReady: (value: ReturnType<typeof useTrackedAppRows>) => void;
@@ -79,10 +80,16 @@ const UseTrackedAppRowsHarness = ({ onReady }: HarnessProps) => {
   return null;
 };
 
+const renderTrackedAppRowsHarness = (onReady: (value: ReturnType<typeof useTrackedAppRows>) => void) =>
+  ReactTestRenderer.create(
+    <SelectedDashboardAppRowsProvider>
+      <UseTrackedAppRowsHarness onReady={onReady} />
+    </SelectedDashboardAppRowsProvider>,
+  );
+
 describe('useTrackedAppRows', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    resetTrackedAppRowsLifecycleForTests();
     mockUseCoreStoresHydrated.mockReturnValue(true);
   });
 
@@ -95,7 +102,7 @@ describe('useTrackedAppRows', () => {
 
   it('seeds cache and soft-refreshes usage after core stores hydrate', async () => {
     act(() => {
-      ReactTestRenderer.create(<UseTrackedAppRowsHarness onReady={() => undefined} />);
+      renderTrackedAppRowsHarness(() => undefined);
     });
 
     await flushEffects();
@@ -107,11 +114,32 @@ describe('useTrackedAppRows', () => {
     );
   });
 
+  it('runs lifecycle refresh independently for each hook instance', async () => {
+    const DualHarness = () => {
+      useTrackedAppRows();
+      useTrackedAppRows();
+      return null;
+    };
+
+    act(() => {
+      ReactTestRenderer.create(
+        <SelectedDashboardAppRowsProvider>
+          <DualHarness />
+        </SelectedDashboardAppRowsProvider>,
+      );
+    });
+
+    await flushEffects();
+
+    expect(mockSeedUsageFromCache).toHaveBeenCalledTimes(2);
+    expect(mockRefreshUsage).toHaveBeenCalledTimes(2);
+  });
+
   it('skips usage refresh while core stores are not hydrated', async () => {
     mockUseCoreStoresHydrated.mockReturnValue(false);
 
     act(() => {
-      ReactTestRenderer.create(<UseTrackedAppRowsHarness onReady={() => undefined} />);
+      renderTrackedAppRowsHarness(() => undefined);
     });
 
     await flushEffects();
@@ -122,7 +150,7 @@ describe('useTrackedAppRows', () => {
 
   it('wires focus refresh as soft and day rollover as forced', async () => {
     act(() => {
-      ReactTestRenderer.create(<UseTrackedAppRowsHarness onReady={() => undefined} />);
+      renderTrackedAppRowsHarness(() => undefined);
     });
 
     await flushEffects();
@@ -159,7 +187,11 @@ describe('useTrackedAppRows', () => {
     };
 
     act(() => {
-      ReactTestRenderer.create(<LifecycleDisabledHarness />);
+      ReactTestRenderer.create(
+        <SelectedDashboardAppRowsProvider>
+          <LifecycleDisabledHarness />
+        </SelectedDashboardAppRowsProvider>,
+      );
     });
 
     await flushEffects();

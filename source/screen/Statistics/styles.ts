@@ -18,6 +18,7 @@ export const createStatisticsStyles = ({ colors, presets }: Theme) => {
     },
     scrollContent: {
       ...layoutPresets.scrollContent(spacing.xl),
+      paddingHorizontal: 0,
       paddingBottom: spacing.xxxl,
     },
     periodToggle: {

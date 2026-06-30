@@ -12,5 +12,5 @@ export const CHART_HIDDEN_X_AXIS_HEIGHT = 4;
 export { CHART_Y_AXIS_WIDTH };
 
 /** Width available for gifted-charts inside a statistics card. */
-export const getStatisticsChartWidth = (windowWidth: number): number =>
-  windowWidth - spacing.xl * 2 - spacing.lg * 2 - CHART_Y_AXIS_WIDTH;
+export const getStatisticsChartWidth = (contentInnerWidth: number): number =>
+  Math.max(0, contentInnerWidth - spacing.lg * 2 - CHART_Y_AXIS_WIDTH);

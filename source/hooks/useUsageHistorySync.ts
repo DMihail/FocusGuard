@@ -19,12 +19,14 @@ export const useUsageHistorySync = (appRows: DashboardAppRow[], enabled = true):
       return;
     }
 
+    const dayKey = getLocalDayKey();
     const entry = buildTodayHistoryEntry(appRowsRef.current);
 
     if (!entry) {
+      usageHistoryStore.getState().clearDay(dayKey);
       return;
     }
 
-    usageHistoryStore.getState().recordDay(getLocalDayKey(), entry);
+    usageHistoryStore.getState().recordDay(dayKey, entry);
   }, [enabled, snapshotKey]);
 };

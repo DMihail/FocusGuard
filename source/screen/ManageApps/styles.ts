@@ -13,6 +13,9 @@ export const createManageAppsStyles = ({ colors, presets }: Theme) => {
 
   return StyleSheet.create({
     screen: layoutPresets.screen,
+    contentFrame: {
+      flex: 1,
+    },
     content: {
       flex: 1,
       minHeight: 0,
@@ -31,7 +34,6 @@ export const createManageAppsStyles = ({ colors, presets }: Theme) => {
       paddingBottom: spacing.md,
     },
     searchToolbar: {
-      paddingHorizontal: spacing.xl,
       paddingTop: spacing.lg,
       paddingBottom: spacing.md,
       flexGrow: 0,
@@ -39,6 +41,7 @@ export const createManageAppsStyles = ({ colors, presets }: Theme) => {
     },
     scrollContent: {
       ...layoutPresets.scrollContent(spacing.md),
+      paddingHorizontal: 0,
       paddingBottom: spacing.xxxl,
     },
     searchField: {
@@ -176,7 +179,6 @@ export const createManageAppsStyles = ({ colors, presets }: Theme) => {
     },
     iosPickAppsContainer: {
       gap: spacing.sm,
-      paddingHorizontal: spacing.xl,
       paddingBottom: spacing.md,
     },
     iosPickAppsButton: {

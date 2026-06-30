@@ -9,6 +9,10 @@ export const testIds = {
     loader: 'app-loader',
     usageLoader: 'app-usage-loader',
   },
+  errorBoundary: {
+    screen: 'error-boundary-screen',
+    retryButton: 'error-boundary-retry-button',
+  },
   onboarding: {
     screen: 'onboarding-screen',
     skipButton: 'onboarding-skip-button',

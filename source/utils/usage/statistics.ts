@@ -104,7 +104,7 @@ const resolveEntry = (
   todayKey: string,
   todayEntry: DailyUsageHistoryEntry | null,
 ): DailyUsageHistoryEntry | null => {
-  if (dayKey === todayKey && todayEntry) {
+  if (dayKey === todayKey) {
     return todayEntry;
   }
 

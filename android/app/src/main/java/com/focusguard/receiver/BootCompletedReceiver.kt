@@ -8,6 +8,7 @@ import com.focusguard.monitor.MonitoringBootResumeNotifier
 import com.focusguard.monitor.MonitoringBootResumeStore
 import com.focusguard.monitor.MonitoringStateRepository
 import com.focusguard.monitor.MonitorServiceHelper
+import com.focusguard.widget.WidgetUpdater
 
 /**
  * Restarts [FocusGuardMonitorService][com.focusguard.service.FocusGuardMonitorService]
@@ -26,6 +27,8 @@ class BootCompletedReceiver : BroadcastReceiver() {
   override fun onReceive(context: Context, intent: Intent?) {
     when (intent?.action) {
       Intent.ACTION_BOOT_COMPLETED -> {
+        WidgetUpdater.scheduleUpdate(context.applicationContext, force = true)
+
         if (!MonitoringStateRepository.isMonitoringEnabled()) {
           return
         }
@@ -40,6 +43,8 @@ class BootCompletedReceiver : BroadcastReceiver() {
         MonitorServiceHelper.start(context.applicationContext)
       }
       Intent.ACTION_MY_PACKAGE_REPLACED -> {
+        WidgetUpdater.scheduleUpdate(context.applicationContext, force = true)
+
         if (!MonitoringStateRepository.isMonitoringEnabled()) {
           return
         }

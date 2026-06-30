@@ -26,7 +26,7 @@ import {
 export const useStatistics = () => {
   const { i18n } = useTranslation();
   const [period, setPeriod] = useState<StatisticsPeriod>('week');
-  const { appRows, showUsageRefreshIndicator, refreshUsage } = useTrackedAppRows({ lifecycle: false });
+  const { appRows, refreshUsage, showUsageRefreshIndicator } = useTrackedAppRows({ lifecycle: false });
   const hasHistoryHydrated = usePersistHydrated(usageHistoryStore);
   const history = usageHistoryStore(
     useShallow((state) => (hasHistoryHydrated ? pickStatisticsHistory(state.byDay, period) : {})),
