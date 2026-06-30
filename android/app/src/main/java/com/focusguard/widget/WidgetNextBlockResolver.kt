@@ -14,6 +14,8 @@ internal object WidgetNextBlockResolver {
         val remainingMs: Long,
         val packageName: String,
         val appLabel: String,
+        /** True when [remainingMs] is snooze time for an app already over its daily hard block. */
+        val isSnoozeCountdown: Boolean,
     )
 
     sealed interface Snapshot {
@@ -57,7 +59,7 @@ internal object WidgetNextBlockResolver {
 
             if (remainingMs > 0L) {
                 if (nearest == null || remainingMs < nearest.remainingMs) {
-                    nearest = NextBlock(remainingMs, packageName, appLabel)
+                    nearest = NextBlock(remainingMs, packageName, appLabel, isSnoozeCountdown = false)
                 }
                 continue
             }
@@ -65,7 +67,7 @@ internal object WidgetNextBlockResolver {
             val snoozeRemainingMs = TrackingSnoozeStore.getRemainingMs(packageName)
             if (snoozeRemainingMs > 0L) {
                 if (nearest == null || snoozeRemainingMs < nearest.remainingMs) {
-                    nearest = NextBlock(snoozeRemainingMs, packageName, appLabel)
+                    nearest = NextBlock(snoozeRemainingMs, packageName, appLabel, isSnoozeCountdown = true)
                 }
                 continue
             }

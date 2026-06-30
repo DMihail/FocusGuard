@@ -48,4 +48,21 @@ describe('useUsageHistorySync', () => {
       focusScore: expect.any(Number),
     });
   });
+
+  it('clears today snapshot when selected apps are removed', () => {
+    const todayKey = getLocalDayKey();
+    let tree!: ReactTestRenderer.ReactTestRenderer;
+
+    act(() => {
+      tree = ReactTestRenderer.create(<UsageHistorySyncHarness appRows={mockDashboardAppRows} />);
+    });
+
+    expect(usageHistoryStore.getState().byDay[todayKey]).toBeDefined();
+
+    act(() => {
+      tree.update(<UsageHistorySyncHarness appRows={[]} />);
+    });
+
+    expect(usageHistoryStore.getState().byDay[todayKey]).toBeUndefined();
+  });
 });

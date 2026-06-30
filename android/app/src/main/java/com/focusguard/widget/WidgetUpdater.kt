@@ -112,7 +112,13 @@ object WidgetUpdater {
                     R.id.widget_time,
                     WidgetUsageFormatter.formatRemaining(context, snapshot.next.remainingMs),
                 )
-                views.setTextViewText(R.id.widget_subtitle, context.getString(R.string.widget_until_block))
+                val subtitleRes =
+                    if (snapshot.next.isSnoozeCountdown) {
+                        R.string.widget_until_reblock
+                    } else {
+                        R.string.widget_until_block
+                    }
+                views.setTextViewText(R.id.widget_subtitle, context.getString(subtitleRes))
                 views.setTextViewText(R.id.widget_app_name, snapshot.next.appLabel)
 
                 val timeColor =
