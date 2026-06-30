@@ -44,6 +44,7 @@ android {
         }
         release {
             if (keystorePropertiesFile.exists()) {
+                // storeFile in keystore.properties is relative to android/ (Gradle rootProject), not :app.
                 storeFile rootProject.file(keystoreProperties['storeFile'])
                 storePassword keystoreProperties['storePassword']
                 keyAlias keystoreProperties['keyAlias']

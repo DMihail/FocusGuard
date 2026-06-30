@@ -22,6 +22,7 @@ object SettingsRepository {
             notificationsEnabled = true,
         )
 
+    @Volatile
     private var cache: CachedSettings? = null
 
     fun invalidateCache() {
