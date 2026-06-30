@@ -13,6 +13,7 @@ import com.focusguard.TrackingEngine
 import com.focusguard.monitor.MonitorPermissions
 import com.focusguard.navigation.DeepLinks
 import com.focusguard.notification.KeeptNotifications
+import com.focusguard.widget.WidgetUpdater
 
 /**
  * Long-running foreground service that keeps the app-monitoring process alive.
@@ -69,6 +70,8 @@ class FocusGuardMonitorService : Service() {
       trackingEngine = TrackingEngine(applicationContext).also { it.start() }
     }
 
+    WidgetUpdater.scheduleUpdate(applicationContext, force = true)
+
     return START_STICKY
   }
 
@@ -77,6 +80,7 @@ class FocusGuardMonitorService : Service() {
     isRunning = false
     trackingEngine?.stop()
     trackingEngine = null
+    WidgetUpdater.scheduleUpdate(applicationContext, force = true)
     stopForeground(STOP_FOREGROUND_REMOVE)
     super.onDestroy()
   }

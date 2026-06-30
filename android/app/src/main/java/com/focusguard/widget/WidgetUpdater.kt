@@ -13,6 +13,7 @@ import java.util.concurrent.Executors
 object WidgetUpdater {
 
     private const val THROTTLE_MS = 60_000L
+    private const val LIVE_USAGE_THROTTLE_MS = 30_000L
     private const val URGENT_REMAINING_MS = 15 * 60_000L
     private const val PENDING_INTENT_REQUEST_CODE = 4101
 
@@ -20,6 +21,9 @@ object WidgetUpdater {
 
     @Volatile
     private var lastUpdateMs = 0L
+
+    @Volatile
+    private var lastLiveUsageUpdateMs = 0L
 
     fun scheduleUpdate(
         context: Context,
@@ -29,11 +33,22 @@ object WidgetUpdater {
         val appContext = context.applicationContext
         val now = System.currentTimeMillis()
 
-        if (!force && now - lastUpdateMs < THROTTLE_MS) {
-            return
+        if (!force) {
+            when {
+                usageOverrides != null -> {
+                    if (now - lastLiveUsageUpdateMs < LIVE_USAGE_THROTTLE_MS) {
+                        return
+                    }
+                    lastLiveUsageUpdateMs = now
+                }
+                now - lastUpdateMs < THROTTLE_MS -> return
+            }
         }
 
         lastUpdateMs = now
+        if (usageOverrides != null) {
+            lastLiveUsageUpdateMs = now
+        }
 
         executor.execute {
             val manager = AppWidgetManager.getInstance(appContext)

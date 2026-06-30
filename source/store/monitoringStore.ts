@@ -25,9 +25,12 @@ export const monitoringStore = create<MonitoringStore>()(
             return { ok: false, reason: 'permissions_missing' };
           }
 
+          set({ isMonitoring: true });
+
           const startResult = startMonitorService();
 
           if (!startResult.started) {
+            set({ isMonitoring: false });
             return {
               ok: false,
               reason: 'service_start_failed',
@@ -35,7 +38,6 @@ export const monitoringStore = create<MonitoringStore>()(
             };
           }
 
-          set({ isMonitoring: true });
           scheduleAfterInteractions(() => {
             if (!get().isMonitoring || isMonitorServiceRunning()) {
               return;

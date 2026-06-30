@@ -61,7 +61,7 @@ jest.mock('@/store/trackedUsageStore', () => {
 });
 
 import { SelectedDashboardAppRowsProvider } from '@/context/SelectedDashboardAppRowsProvider';
-import { resetTrackedAppRowsLifecycleForTests, useTrackedAppRows } from '@/hooks/useTrackedAppRows';
+import { useTrackedAppRows } from '@/hooks/useTrackedAppRows';
 
 type HarnessProps = {
   onReady: (value: ReturnType<typeof useTrackedAppRows>) => void;
@@ -90,7 +90,6 @@ const renderTrackedAppRowsHarness = (onReady: (value: ReturnType<typeof useTrack
 describe('useTrackedAppRows', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    resetTrackedAppRowsLifecycleForTests();
     mockUseCoreStoresHydrated.mockReturnValue(true);
   });
 
@@ -113,6 +112,27 @@ describe('useTrackedAppRows', () => {
       mockSelectedApps.map((app) => app.packageName),
       false,
     );
+  });
+
+  it('runs lifecycle refresh independently for each hook instance', async () => {
+    const DualHarness = () => {
+      useTrackedAppRows();
+      useTrackedAppRows();
+      return null;
+    };
+
+    act(() => {
+      ReactTestRenderer.create(
+        <SelectedDashboardAppRowsProvider>
+          <DualHarness />
+        </SelectedDashboardAppRowsProvider>,
+      );
+    });
+
+    await flushEffects();
+
+    expect(mockSeedUsageFromCache).toHaveBeenCalledTimes(2);
+    expect(mockRefreshUsage).toHaveBeenCalledTimes(2);
   });
 
   it('skips usage refresh while core stores are not hydrated', async () => {

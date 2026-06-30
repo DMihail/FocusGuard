@@ -4,8 +4,8 @@ import android.content.Context
 import android.content.pm.PackageManager
 import com.focusguard.DailyUsageRepository
 import com.focusguard.TrackingConfigRepository
-import com.focusguard.monitor.MonitoringStateRepository
 import com.focusguard.overlay.TrackingSnoozeStore
+import com.focusguard.service.FocusGuardMonitorService
 
 /** Builds home-screen widget state from the same limits and usage sources as [com.focusguard.TrackingEngine]. */
 internal object WidgetNextBlockResolver {
@@ -39,7 +39,7 @@ internal object WidgetNextBlockResolver {
             return Snapshot.NoTrackedApps
         }
 
-        val monitoringEnabled = MonitoringStateRepository.isMonitoringEnabled()
+        val monitoringEnabled = FocusGuardMonitorService.isRunning
         val usageRepository = DailyUsageRepository.getInstance(context)
         val packageManager = context.packageManager
 

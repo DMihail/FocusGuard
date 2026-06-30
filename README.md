@@ -82,8 +82,8 @@ Platform-specific TypeScript uses Metro / `moduleSuffixes`: `.ios.ts`, `.android
 | Layer                         | Value                                                                    |
 | ----------------------------- | ------------------------------------------------------------------------ |
 | Product name                  | Keept                                                                    |
-| Marketing version             | `1.0.1` (Android `versionName`, iOS `MARKETING_VERSION`, `app.json`)     |
-| Build number                  | `4` (Android `versionCode`, iOS `CURRENT_PROJECT_VERSION`)               |
+| Marketing version             | `1.0.2` (Android `versionName`, iOS `MARKETING_VERSION`, `app.json`)     |
+| Build number                  | `6` (Android `versionCode`, iOS `CURRENT_PROJECT_VERSION`)               |
 | Store bundle / application ID | `com.keept`                                                              |
 | Android namespace (Kotlin)    | `com.focusguard` (legacy)                                                |
 | iOS App Group                 | `group.com.keept.shared`                                                 |

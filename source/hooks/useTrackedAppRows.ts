@@ -17,12 +17,6 @@ export type UseTrackedAppRowsOptions = {
   lifecycle?: boolean;
 };
 
-let lastLifecycleRefreshKeysKey = '';
-
-export const resetTrackedAppRowsLifecycleForTests = (): void => {
-  lastLifecycleRefreshKeysKey = '';
-};
-
 export const useTrackedAppRows = (
   options?: UseTrackedAppRowsOptions,
 ): {
@@ -40,6 +34,7 @@ export const useTrackedAppRows = (
 
   const selectedAppKeysRef = useRef(selectedAppKeys);
   selectedAppKeysRef.current = selectedAppKeys;
+  const lastLifecycleRefreshKeysKeyRef = useRef<string | null>(null);
 
   const refreshUsage = useCallback(
     (force = false) => {
@@ -65,11 +60,11 @@ export const useTrackedAppRows = (
       return;
     }
 
-    if (lastLifecycleRefreshKeysKey === selectedAppKeysKey) {
+    if (lastLifecycleRefreshKeysKeyRef.current === selectedAppKeysKey) {
       return;
     }
 
-    lastLifecycleRefreshKeysKey = selectedAppKeysKey;
+    lastLifecycleRefreshKeysKeyRef.current = selectedAppKeysKey;
     refreshUsage(false).catch(logDevWarning);
   }, [hasCoreStoresHydrated, lifecycle, refreshUsage, selectedAppKeys.length, selectedAppKeysKey]);
 
