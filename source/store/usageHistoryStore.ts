@@ -62,6 +62,18 @@ export const usageHistoryStore = create<UsageHistoryStore>()(
           }),
         }));
       },
+
+      clearDay: (dayKey) => {
+        if (!(dayKey in get().byDay)) {
+          return;
+        }
+
+        set((state) => {
+          const byDay = { ...state.byDay };
+          delete byDay[dayKey];
+          return { byDay };
+        });
+      },
     }),
     {
       name: PERSIST_STORAGE_KEYS.usageHistory,

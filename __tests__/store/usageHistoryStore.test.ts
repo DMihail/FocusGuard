@@ -21,6 +21,20 @@ describe('usageHistoryStore', () => {
     expect(Object.keys(usageHistoryStore.getState().byDay)).toHaveLength(1);
   });
 
+  it('removes a day entry when cleared', () => {
+    const entry = {
+      totalUsedMs: 1_000,
+      totalSavedMs: 2_000,
+      focusScore: 80,
+      usageByAppKey: { 'com.example.app': 1_000 },
+    };
+
+    usageHistoryStore.getState().recordDay('2026-6-22', entry);
+    usageHistoryStore.getState().clearDay('2026-6-22');
+
+    expect(usageHistoryStore.getState().byDay['2026-6-22']).toBeUndefined();
+  });
+
   it('keeps the newest days when pruning history', () => {
     for (let day = 1; day <= 125; day += 1) {
       usageHistoryStore.getState().recordDay(`2026-1-${day}`, {
