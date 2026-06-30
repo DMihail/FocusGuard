@@ -2,13 +2,18 @@
 
 import { useCoreStoresHydrated } from '@/hooks/useCoreStoresHydrated';
 import { useSelectedDashboardAppRows } from '@/hooks/useSelectedDashboardAppRows';
+import { useUsageHistorySync } from '@/hooks/useUsageHistorySync';
 
-import { useUsageHistorySync } from './useUsageHistorySync';
+type GlobalUsageHistorySyncProps = {
+  enabled: boolean;
+};
 
 /** Single app-wide writer for daily usage history snapshots. */
-export const useGlobalUsageHistorySync = (enabled: boolean): void => {
+export const GlobalUsageHistorySync = ({ enabled }: GlobalUsageHistorySyncProps) => {
   const hasCoreStoresHydrated = useCoreStoresHydrated();
   const appRows = useSelectedDashboardAppRows();
 
   useUsageHistorySync(appRows, enabled && hasCoreStoresHydrated);
+
+  return null;
 };

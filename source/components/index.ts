@@ -3,6 +3,7 @@
 export { AppIcon } from './AppIcon';
 export { AppUsageRow } from './AppUsageRow';
 export { ErrorBoundary } from './ErrorBoundary';
+export { GlobalUsageHistorySync } from './GlobalUsageHistorySync';
 export { ProgressBar } from './ProgressBar';
 export { ScreenBackHeader } from './ScreenBackHeader';
 export { ScreenSafeArea } from './ScreenSafeArea';

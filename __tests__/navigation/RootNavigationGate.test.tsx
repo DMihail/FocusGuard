@@ -58,8 +58,8 @@ jest.mock('../../source/hooks/usePrefetchNativeCatalogs', () => ({
   usePrefetchNativeCatalogs: jest.fn(),
 }));
 
-jest.mock('../../source/hooks/useGlobalUsageHistorySync', () => ({
-  useGlobalUsageHistorySync: jest.fn(),
+jest.mock('@/components/GlobalUsageHistorySync', () => ({
+  GlobalUsageHistorySync: () => null,
 }));
 
 jest.mock('../../source/store/onboardingStore', () => {

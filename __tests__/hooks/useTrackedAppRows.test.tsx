@@ -60,6 +60,7 @@ jest.mock('@/store/trackedUsageStore', () => {
   };
 });
 
+import { SelectedDashboardAppRowsProvider } from '@/context/SelectedDashboardAppRowsProvider';
 import { resetTrackedAppRowsLifecycleForTests, useTrackedAppRows } from '@/hooks/useTrackedAppRows';
 
 type HarnessProps = {
@@ -79,6 +80,13 @@ const UseTrackedAppRowsHarness = ({ onReady }: HarnessProps) => {
   return null;
 };
 
+const renderTrackedAppRowsHarness = (onReady: (value: ReturnType<typeof useTrackedAppRows>) => void) =>
+  ReactTestRenderer.create(
+    <SelectedDashboardAppRowsProvider>
+      <UseTrackedAppRowsHarness onReady={onReady} />
+    </SelectedDashboardAppRowsProvider>,
+  );
+
 describe('useTrackedAppRows', () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -95,7 +103,7 @@ describe('useTrackedAppRows', () => {
 
   it('seeds cache and soft-refreshes usage after core stores hydrate', async () => {
     act(() => {
-      ReactTestRenderer.create(<UseTrackedAppRowsHarness onReady={() => undefined} />);
+      renderTrackedAppRowsHarness(() => undefined);
     });
 
     await flushEffects();
@@ -111,7 +119,7 @@ describe('useTrackedAppRows', () => {
     mockUseCoreStoresHydrated.mockReturnValue(false);
 
     act(() => {
-      ReactTestRenderer.create(<UseTrackedAppRowsHarness onReady={() => undefined} />);
+      renderTrackedAppRowsHarness(() => undefined);
     });
 
     await flushEffects();
@@ -122,7 +130,7 @@ describe('useTrackedAppRows', () => {
 
   it('wires focus refresh as soft and day rollover as forced', async () => {
     act(() => {
-      ReactTestRenderer.create(<UseTrackedAppRowsHarness onReady={() => undefined} />);
+      renderTrackedAppRowsHarness(() => undefined);
     });
 
     await flushEffects();
@@ -159,7 +167,11 @@ describe('useTrackedAppRows', () => {
     };
 
     act(() => {
-      ReactTestRenderer.create(<LifecycleDisabledHarness />);
+      ReactTestRenderer.create(
+        <SelectedDashboardAppRowsProvider>
+          <LifecycleDisabledHarness />
+        </SelectedDashboardAppRowsProvider>,
+      );
     });
 
     await flushEffects();
