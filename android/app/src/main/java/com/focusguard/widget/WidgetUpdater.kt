@@ -89,7 +89,9 @@ object WidgetUpdater {
         context: Context,
         snapshot: WidgetNextBlockResolver.Snapshot,
     ): RemoteViews {
+        val theme = WidgetTheme.colors(context)
         val views = RemoteViews(context.packageName, R.layout.widget_focus_guard)
+        applyTheme(views, theme)
         val clickIntent =
             when (snapshot) {
                 is WidgetNextBlockResolver.Snapshot.Countdown ->
@@ -115,9 +117,9 @@ object WidgetUpdater {
 
                 val timeColor =
                     if (snapshot.next.remainingMs <= URGENT_REMAINING_MS) {
-                        context.getColor(R.color.over_limit)
+                        theme.overLimit
                     } else {
-                        context.getColor(R.color.accent)
+                        theme.accent
                     }
                 views.setTextColor(R.id.widget_time, timeColor)
 
@@ -149,6 +151,22 @@ object WidgetUpdater {
         }
 
         return views
+    }
+
+    private fun applyTheme(views: RemoteViews, theme: WidgetTheme.Colors) {
+        views.setInt(R.id.widget_root, "setBackgroundColor", theme.cardBackground)
+        views.setInt(R.id.widget_icon_box, "setBackgroundColor", theme.surface)
+        views.setInt(R.id.widget_empty_icon_box, "setBackgroundColor", theme.surface)
+        views.setInt(R.id.widget_shield, "setColorFilter", theme.shieldStroke)
+        views.setInt(R.id.widget_empty_shield, "setColorFilter", theme.shieldStroke)
+        views.setTextColor(R.id.widget_brand, theme.accent)
+        views.setTextColor(R.id.widget_subtitle, theme.textSecondary)
+        views.setTextColor(R.id.widget_app_name, theme.accent)
+        views.setInt(R.id.widget_app_name, "setBackgroundColor", theme.accentIconBg)
+        views.setTextColor(R.id.widget_empty_title, theme.textPrimary)
+        views.setTextColor(R.id.widget_empty_subtitle, theme.textSecondary)
+        views.setTextColor(R.id.widget_status, theme.textSecondary)
+        views.setInt(R.id.widget_status, "setBackgroundColor", theme.accentIconBg)
     }
 
     private fun bindMonitoringStatus(

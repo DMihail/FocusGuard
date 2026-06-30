@@ -4,8 +4,8 @@ import android.content.Context
 import com.focusguard.AppLabelResolver
 import com.focusguard.DailyUsageRepository
 import com.focusguard.TrackingConfigRepository
+import com.focusguard.monitor.MonitoringStateRepository
 import com.focusguard.overlay.TrackingSnoozeStore
-import com.focusguard.service.FocusGuardMonitorService
 
 /** Builds home-screen widget state from the same limits and usage sources as [com.focusguard.TrackingEngine]. */
 internal object WidgetNextBlockResolver {
@@ -37,7 +37,7 @@ internal object WidgetNextBlockResolver {
         usageOverrides: Map<String, Long>? = null,
     ): Snapshot {
         val trackedApps = TrackingConfigRepository.getTrackedApps()
-        val monitoringEnabled = FocusGuardMonitorService.isRunning
+        val monitoringEnabled = MonitoringStateRepository.isMonitoringEnabled()
 
         if (trackedApps.isEmpty()) {
             return Snapshot.NoTrackedApps(monitoringEnabled)

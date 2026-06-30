@@ -1,7 +1,7 @@
 /** @format */
 
+import { useSelectedDashboardAppRows } from '@/context/SelectedDashboardAppRowsProvider';
 import { useCoreStoresHydrated } from '@/hooks/useCoreStoresHydrated';
-import { useSelectedDashboardAppRows } from '@/hooks/useSelectedDashboardAppRows';
 import { useUsageHistorySync } from '@/hooks/useUsageHistorySync';
 
 type GlobalUsageHistorySyncProps = {

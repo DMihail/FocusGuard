@@ -9,36 +9,62 @@ object SettingsRepository {
 
     private val mmkv get() = KeeptMmkv.instance
 
-    private var cachedRaw: String? = null
-    private var cachedNotificationsEnabled: Boolean? = null
+    private data class CachedSettings(
+        val raw: String,
+        val themePreference: String,
+        val notificationsEnabled: Boolean,
+    )
+
+    private val defaultSettings =
+        CachedSettings(
+            raw = "",
+            themePreference = "system",
+            notificationsEnabled = true,
+        )
+
+    private var cache: CachedSettings? = null
 
     fun invalidateCache() {
-        cachedRaw = null
-        cachedNotificationsEnabled = null
+        cache = null
     }
 
-    fun areNotificationsEnabled(): Boolean {
-        val raw = mmkv.decodeString(PersistSchema.SETTINGS_STORAGE_KEY) ?: return true
+    fun getThemePreference(): String = loadSettings().themePreference
 
-        if (raw == cachedRaw && cachedNotificationsEnabled != null) {
-            return cachedNotificationsEnabled!!
+    fun areNotificationsEnabled(): Boolean = loadSettings().notificationsEnabled
+
+    private fun loadSettings(): CachedSettings {
+        val raw = mmkv.decodeString(PersistSchema.SETTINGS_STORAGE_KEY) ?: return defaultSettings
+
+        cache?.takeIf { it.raw == raw }?.let { return it }
+
+        val parsed = parseSettings(raw)
+        cache = parsed
+        return parsed
+    }
+
+    private fun parseSettings(raw: String): CachedSettings {
+        val fallback =
+            CachedSettings(
+                raw = raw,
+                themePreference = "system",
+                notificationsEnabled = true,
+            )
+
+        return try {
+            val state =
+                ZustandPersistReader.readStateIfCompatible(
+                    raw,
+                    PersistSchema.SETTINGS_PERSIST_VERSION,
+                    PersistSchema.SETTINGS_STORAGE_KEY,
+                ) ?: return fallback
+
+            CachedSettings(
+                raw = raw,
+                themePreference = state.optString("themePreference", "system"),
+                notificationsEnabled = state.optBoolean("notificationsEnabled", true),
+            )
+        } catch (_: Exception) {
+            fallback
         }
-
-        val enabled =
-            try {
-                val state =
-                    ZustandPersistReader.readStateIfCompatible(
-                        raw,
-                        PersistSchema.SETTINGS_PERSIST_VERSION,
-                        PersistSchema.SETTINGS_STORAGE_KEY,
-                    ) ?: return true
-                state.optBoolean("notificationsEnabled", true)
-            } catch (_: Exception) {
-                true
-            }
-
-        cachedRaw = raw
-        cachedNotificationsEnabled = enabled
-        return enabled
     }
 }

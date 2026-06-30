@@ -95,7 +95,7 @@ describe('monitoringStore', () => {
   });
 
   it('restarts monitor service after rehydrate when monitoring was enabled', async () => {
-    mockIsMonitorServiceRunning.mockReturnValue(false);
+    mockIsMonitorServiceRunning.mockReturnValueOnce(false).mockReturnValue(true);
     mockGetItem.mockReturnValue(JSON.stringify({ state: { isMonitoring: true }, version: 1 }));
 
     await act(async () => {

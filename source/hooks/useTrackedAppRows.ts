@@ -4,11 +4,11 @@ import { useCallback, useEffect, useMemo, useRef } from 'react';
 
 import { useIsFocused } from '@react-navigation/native';
 
+import { useSelectedDashboardAppRows } from '@/context/SelectedDashboardAppRowsProvider';
 import { getManageAppKey } from '@/domain/appKey';
 import { useCoreStoresHydrated } from '@/hooks/useCoreStoresHydrated';
 import { useLocalDayChangeRefresh } from '@/hooks/useLocalDayChangeRefresh';
 import { useRefreshWhenVisible } from '@/hooks/useRefreshWhenVisible';
-import { useSelectedDashboardAppRows } from '@/hooks/useSelectedDashboardAppRows';
 import { trackedUsageStore } from '@/store';
 import { logDevWarning } from '@/utils/logDevWarning';
 

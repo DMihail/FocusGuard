@@ -14,11 +14,13 @@
         android:orientation="horizontal">
 
         <FrameLayout
+            android:id="@+id/widget_icon_box"
             android:layout_width="@dimen/widget_icon_box_size"
             android:layout_height="@dimen/widget_icon_box_size"
             android:background="@drawable/bg_block_icon_box">
 
             <ImageView
+                android:id="@+id/widget_shield"
                 android:layout_width="@dimen/widget_icon_size"
                 android:layout_height="@dimen/widget_icon_size"
                 android:layout_gravity="center"
@@ -83,11 +85,13 @@
         android:visibility="gone">
 
         <FrameLayout
+            android:id="@+id/widget_empty_icon_box"
             android:layout_width="@dimen/widget_icon_box_size"
             android:layout_height="@dimen/widget_icon_box_size"
             android:background="@drawable/bg_block_icon_box">
 
             <ImageView
+                android:id="@+id/widget_empty_shield"
                 android:layout_width="@dimen/widget_icon_size"
                 android:layout_height="@dimen/widget_icon_size"
                 android:layout_gravity="center"

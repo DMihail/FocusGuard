@@ -99,5 +99,8 @@ export const restoreMonitoringSession = (): void => {
 
   if (!startResult.started) {
     monitoringStore.setState({ isMonitoring: false });
+    return;
   }
+
+  scheduleMonitoringStartHealthCheck();
 };
