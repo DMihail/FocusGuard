@@ -26,7 +26,7 @@ export const TrackedAppsScreen = () => {
   const { t } = useTranslation();
   const goBack = useGoBack();
   const openConfigureLimits = useNavigateToConfigureLimits();
-  const { appRows, showUsageRefreshIndicator, refreshUsage } = useTrackedAppRows();
+  const { appRows, showUsageRefreshIndicator, refreshUsage } = useTrackedAppRows({ lifecycle: false });
   const { refreshControl, refreshing: isPullRefreshing } = useTrackedAppsRefresh(refreshUsage);
 
   const renderItem = useMemo(
