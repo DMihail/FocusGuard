@@ -3,7 +3,6 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
-import { DEFAULT_APP_LIMITS } from './constants/appLimits';
 import { zustandStorage } from './mmkv';
 import { APP_LIMITS_PERSIST_VERSION, PERSIST_STORAGE_KEYS } from './persistSchema';
 import type { AppLimitsStore } from './types';
@@ -17,8 +16,6 @@ export const appLimitsStore = create<AppLimitsStore>()(
   persist(
     (set, get) => ({
       limitsByAppKey: {},
-
-      getLimits: (appKey) => get().limitsByAppKey[appKey] ?? DEFAULT_APP_LIMITS,
 
       setLimits: (appKey, limits) => {
         const normalized = normalizeAppLimits(limits);

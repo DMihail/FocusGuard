@@ -1,21 +1,11 @@
-import { useShallow } from 'zustand/react/shallow';
-
-import { selectedAppsStore } from '@/store';
-
 import { useInstalledAppsCatalog } from './useInstalledAppsCatalog';
 import { useManageAppsFilters } from './useManageAppsFilters';
+import { useManageAppsSelection } from './useManageAppsSelection';
 
 export const useManageApps = () => {
   const { installedApps, isLoadingApps, refreshInstalledApps } = useInstalledAppsCatalog();
   const filters = useManageAppsFilters({ installedApps });
-  const selection = selectedAppsStore(
-    useShallow((state) => ({
-      selectedApps: state.apps,
-      toggleAppSelection: state.toggleApp,
-      isSelected: state.isSelected,
-      selectedCount: state.apps.length,
-    })),
-  );
+  const selection = useManageAppsSelection();
 
   return {
     ...filters,

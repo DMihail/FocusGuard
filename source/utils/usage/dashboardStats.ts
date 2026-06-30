@@ -11,6 +11,7 @@ export type DashboardAppRow = ManageApp & {
   usedMs: number;
   limitMs: number;
   percentUsed: number;
+  barProgress: number;
   isOverLimit: boolean;
 };
 
@@ -33,13 +34,14 @@ export const buildDashboardAppRows = (
       const limits = limitsByAppKey[appKey] ?? DEFAULT_APP_LIMITS;
       const usedMs = usageByPackage[appKey] ?? 0;
       const limitMs = limits.hardBlockMinutes * MS_PER_MINUTE;
-      const { percentUsed, isOverLimit } = computeUsageMetrics(usedMs, limitMs);
+      const { barProgress, percentUsed, isOverLimit } = computeUsageMetrics(usedMs, limitMs);
 
       return {
         ...app,
         usedMs,
         limitMs,
         percentUsed,
+        barProgress,
         isOverLimit,
       };
     })

@@ -1,6 +1,7 @@
 /** @format */
 
 import { DEFAULT_APP_LIMITS } from '@/store/constants/appLimits';
+import { computeUsageMetrics } from '@/utils/usage/computeUsageMetrics';
 import type { DashboardAppRow } from '@/utils/usage/dashboardStats';
 
 import { type ManageAppFixture, mockManageApps } from './manageApps';
@@ -20,14 +21,15 @@ export const createDashboardAppRow = (
   limits = DEFAULT_APP_LIMITS,
 ): DashboardAppRow => {
   const limitMs = limits.hardBlockMinutes * 60_000;
-  const rawPercent = limitMs > 0 ? Math.round((usedMs / limitMs) * 100) : 0;
+  const { barProgress, percentUsed, isOverLimit } = computeUsageMetrics(usedMs, limitMs);
 
   return {
     ...app,
     usedMs,
     limitMs,
-    percentUsed: Math.min(100, rawPercent),
-    isOverLimit: limitMs > 0 && usedMs >= limitMs,
+    percentUsed,
+    barProgress,
+    isOverLimit,
   };
 };
 
