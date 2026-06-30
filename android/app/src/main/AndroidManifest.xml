@@ -92,5 +92,17 @@
                 <action android:name="android.intent.action.USER_UNLOCKED"/>
             </intent-filter>
         </receiver>
+
+        <receiver
+                android:name=".widget.FocusGuardWidgetProvider"
+                android:exported="true"
+                android:label="@string/widget_description">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+            </intent-filter>
+            <meta-data
+                    android:name="android.appwidget.provider"
+                    android:resource="@xml/focus_guard_widget_info"/>
+        </receiver>
     </application>
 </manifest>

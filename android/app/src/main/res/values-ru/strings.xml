@@ -20,4 +20,14 @@
     <string name="boot_resume_notification_title">Включите мониторинг снова</string>
     <string name="boot_resume_notification_text">Откройте Keept, чтобы продолжить контроль лимитов</string>
     <string name="boot_resume_notification_details">До перезагрузки Keept следил за приложениями. Откройте приложение один раз, чтобы возобновить блокировки.</string>
+    <string name="widget_description">Время до следующей блокировки приложения</string>
+    <string name="widget_until_block">до блокировки</string>
+    <string name="widget_minutes_short">%d мин</string>
+    <string name="widget_hours_short">%d ч</string>
+    <string name="widget_hours_minutes_short">%1$d ч %2$d мин</string>
+    <string name="widget_all_blocked">Все лимиты исчерпаны</string>
+    <string name="widget_all_blocked_subtitle">Сделайте паузу — завтра лимиты обновятся</string>
+    <string name="widget_no_apps">Нет отслеживаемых приложений</string>
+    <string name="widget_no_apps_subtitle">Откройте Keept и выберите приложения</string>
+    <string name="widget_monitoring_off">Мониторинг выкл.</string>
 </resources>

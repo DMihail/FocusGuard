@@ -12,6 +12,7 @@ import android.view.WindowManager
 import android.widget.TextView
 import com.focusguard.R
 import com.focusguard.monitor.OverlayAccess
+import com.focusguard.widget.WidgetUpdater
 
 /**
  * Draws a full-screen block UI above other apps using [WindowManager].
@@ -93,6 +94,7 @@ object BlockOverlayManager {
                     packageName,
                     SNOOZE_MINUTES * 60_000L,
                 )
+                WidgetUpdater.scheduleUpdate(context, force = true)
                 dismiss(context)
             }
         }

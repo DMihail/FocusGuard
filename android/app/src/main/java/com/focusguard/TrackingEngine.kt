@@ -19,6 +19,7 @@ import com.focusguard.overlay.BlockOverlayManager
 import com.focusguard.overlay.DailyWarningStore
 import com.focusguard.overlay.TrackingSnoozeStore
 import com.focusguard.service.FocusGuardMonitorService
+import com.focusguard.widget.WidgetUpdater
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -121,6 +122,7 @@ class TrackingEngine(
             if (blockedPackage != null && isTrackedApp(blockedPackage)) {
                 evaluateTrackedApp(blockedPackage)
             }
+            publishWidgetUpdate()
             return
         }
 
@@ -132,6 +134,7 @@ class TrackingEngine(
             if (activeBlockPackage != null && foregroundApp != activeBlockPackage) {
                 clearActiveBlock()
             }
+            publishWidgetUpdate()
             return
         }
 
@@ -143,6 +146,18 @@ class TrackingEngine(
         }
 
         evaluateTrackedApp(foregroundApp)
+        publishWidgetUpdate()
+    }
+
+    private fun publishWidgetUpdate() {
+        if (trackedApps.isEmpty()) {
+            return
+        }
+
+        val usageOverrides = trackedApps.associateWith { packageName ->
+            liveUsageEstimator.getEffectiveUsageMs(packageName)
+        }
+        WidgetUpdater.scheduleUpdate(context, usageOverrides)
     }
 
     private fun handleMonitorFailure(error: Exception) {

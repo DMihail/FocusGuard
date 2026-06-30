@@ -171,8 +171,11 @@ export const ruUi: TranslationTree = {
   },
   errorBoundary: {
     title: 'Что-то пошло не так',
-    message: 'В Keept произошла ошибка. Попробуйте ещё раз.',
+    message: 'В {{appName}} произошла ошибка. Попробуйте ещё раз.',
+    hint: 'Если ошибка повторяется, перезапустите приложение.',
     retryA11y: 'Повторить',
+    screenA11y: 'Ошибка приложения',
+    devDetailsLabel: 'Для разработчика',
   },
   manageApps: {
     screenLabel: 'Управление приложениями',
