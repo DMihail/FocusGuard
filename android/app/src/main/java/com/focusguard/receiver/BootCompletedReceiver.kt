@@ -27,6 +27,8 @@ class BootCompletedReceiver : BroadcastReceiver() {
   override fun onReceive(context: Context, intent: Intent?) {
     when (intent?.action) {
       Intent.ACTION_BOOT_COMPLETED -> {
+        WidgetUpdater.scheduleUpdate(context.applicationContext, force = true)
+
         if (!MonitoringStateRepository.isMonitoringEnabled()) {
           return
         }

@@ -8,7 +8,11 @@ import kotlin.math.roundToInt
 internal object WidgetUsageFormatter {
 
     fun formatRemaining(context: Context, remainingMs: Long): String {
-        val minutes = max(0, (remainingMs / 60_000.0).roundToInt())
+        if (remainingMs <= 0L) {
+            return context.getString(R.string.widget_less_than_minute)
+        }
+
+        val minutes = max(1, (remainingMs / 60_000.0).roundToInt())
 
         if (minutes < 60) {
             return context.getString(R.string.widget_minutes_short, minutes)

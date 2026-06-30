@@ -1,7 +1,7 @@
 package com.focusguard.widget
 
 import android.content.Context
-import android.content.pm.PackageManager
+import com.focusguard.AppLabelResolver
 import com.focusguard.DailyUsageRepository
 import com.focusguard.TrackingConfigRepository
 import com.focusguard.overlay.TrackingSnoozeStore
@@ -27,7 +27,9 @@ internal object WidgetNextBlockResolver {
             val monitoringEnabled: Boolean,
         ) : Snapshot
 
-        data object NoTrackedApps : Snapshot
+        data class NoTrackedApps(
+            val monitoringEnabled: Boolean,
+        ) : Snapshot
     }
 
     fun resolve(
@@ -35,11 +37,12 @@ internal object WidgetNextBlockResolver {
         usageOverrides: Map<String, Long>? = null,
     ): Snapshot {
         val trackedApps = TrackingConfigRepository.getTrackedApps()
+        val monitoringEnabled = FocusGuardMonitorService.isRunning
+
         if (trackedApps.isEmpty()) {
-            return Snapshot.NoTrackedApps
+            return Snapshot.NoTrackedApps(monitoringEnabled)
         }
 
-        val monitoringEnabled = FocusGuardMonitorService.isRunning
         val usageRepository = DailyUsageRepository.getInstance(context)
         val packageManager = context.packageManager
 
@@ -50,7 +53,7 @@ internal object WidgetNextBlockResolver {
             val limits = TrackingConfigRepository.getLimitConfig(packageName)
             val usedMs = usageOverrides?.get(packageName) ?: usageRepository.getTodayForegroundMs(packageName)
             val remainingMs = limits.hardBlockThresholdMs - usedMs
-            val appLabel = resolveAppLabel(packageManager, packageName)
+            val appLabel = AppLabelResolver.resolve(packageManager, packageName)
 
             if (remainingMs > 0L) {
                 if (nearest == null || remainingMs < nearest.remainingMs) {
@@ -59,7 +62,15 @@ internal object WidgetNextBlockResolver {
                 continue
             }
 
-            if (!TrackingSnoozeStore.isSnoozed(packageName) && blockedLabel == null) {
+            val snoozeRemainingMs = TrackingSnoozeStore.getRemainingMs(packageName)
+            if (snoozeRemainingMs > 0L) {
+                if (nearest == null || snoozeRemainingMs < nearest.remainingMs) {
+                    nearest = NextBlock(snoozeRemainingMs, packageName, appLabel)
+                }
+                continue
+            }
+
+            if (blockedLabel == null) {
                 blockedLabel = appLabel
             }
         }
@@ -70,12 +81,4 @@ internal object WidgetNextBlockResolver {
             else -> Snapshot.AllBlocked(appLabel = null, monitoringEnabled = monitoringEnabled)
         }
     }
-
-    private fun resolveAppLabel(packageManager: PackageManager, packageName: String): String =
-        try {
-            val appInfo = packageManager.getApplicationInfo(packageName, 0)
-            packageManager.getApplicationLabel(appInfo).toString()
-        } catch (_: PackageManager.NameNotFoundException) {
-            packageName
-        }
 }

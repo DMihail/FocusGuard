@@ -14,6 +14,7 @@ object WidgetUpdater {
 
     private const val THROTTLE_MS = 60_000L
     private const val LIVE_USAGE_THROTTLE_MS = 30_000L
+    private const val URGENT_LIVE_THROTTLE_MS = 5_000L
     private const val URGENT_REMAINING_MS = 15 * 60_000L
     private const val PENDING_INTENT_REQUEST_CODE = 4101
 
@@ -29,6 +30,7 @@ object WidgetUpdater {
         context: Context,
         usageOverrides: Map<String, Long>? = null,
         force: Boolean = false,
+        urgent: Boolean = false,
     ) {
         val appContext = context.applicationContext
         val now = System.currentTimeMillis()
@@ -36,18 +38,13 @@ object WidgetUpdater {
         if (!force) {
             when {
                 usageOverrides != null -> {
-                    if (now - lastLiveUsageUpdateMs < LIVE_USAGE_THROTTLE_MS) {
+                    val throttleMs = if (urgent) URGENT_LIVE_THROTTLE_MS else LIVE_USAGE_THROTTLE_MS
+                    if (now - lastLiveUsageUpdateMs < throttleMs) {
                         return
                     }
-                    lastLiveUsageUpdateMs = now
                 }
                 now - lastUpdateMs < THROTTLE_MS -> return
             }
-        }
-
-        lastUpdateMs = now
-        if (usageOverrides != null) {
-            lastLiveUsageUpdateMs = now
         }
 
         executor.execute {
@@ -57,6 +54,12 @@ object WidgetUpdater {
 
             if (widgetIds.isEmpty()) {
                 return@execute
+            }
+
+            val updatedAt = System.currentTimeMillis()
+            lastUpdateMs = updatedAt
+            if (usageOverrides != null) {
+                lastLiveUsageUpdateMs = updatedAt
             }
 
             updateAll(appContext, manager, widgetIds, usageOverrides)
@@ -118,12 +121,7 @@ object WidgetUpdater {
                     }
                 views.setTextColor(R.id.widget_time, timeColor)
 
-                if (snapshot.monitoringEnabled) {
-                    views.setViewVisibility(R.id.widget_status, View.GONE)
-                } else {
-                    views.setViewVisibility(R.id.widget_status, View.VISIBLE)
-                    views.setTextViewText(R.id.widget_status, context.getString(R.string.widget_monitoring_off))
-                }
+                bindMonitoringStatus(views, context, snapshot.monitoringEnabled)
             }
 
             is WidgetNextBlockResolver.Snapshot.AllBlocked -> {
@@ -138,23 +136,31 @@ object WidgetUpdater {
                     snapshot.appLabel ?: context.getString(R.string.widget_all_blocked_subtitle),
                 )
 
-                if (snapshot.monitoringEnabled) {
-                    views.setViewVisibility(R.id.widget_status, View.GONE)
-                } else {
-                    views.setViewVisibility(R.id.widget_status, View.VISIBLE)
-                    views.setTextViewText(R.id.widget_status, context.getString(R.string.widget_monitoring_off))
-                }
+                bindMonitoringStatus(views, context, snapshot.monitoringEnabled)
             }
 
-            WidgetNextBlockResolver.Snapshot.NoTrackedApps -> {
+            is WidgetNextBlockResolver.Snapshot.NoTrackedApps -> {
                 views.setViewVisibility(R.id.widget_content, View.GONE)
                 views.setViewVisibility(R.id.widget_empty, View.VISIBLE)
-                views.setViewVisibility(R.id.widget_status, View.GONE)
                 views.setTextViewText(R.id.widget_empty_title, context.getString(R.string.widget_no_apps))
                 views.setTextViewText(R.id.widget_empty_subtitle, context.getString(R.string.widget_no_apps_subtitle))
+                bindMonitoringStatus(views, context, snapshot.monitoringEnabled)
             }
         }
 
         return views
+    }
+
+    private fun bindMonitoringStatus(
+        views: RemoteViews,
+        context: Context,
+        monitoringEnabled: Boolean,
+    ) {
+        if (monitoringEnabled) {
+            views.setViewVisibility(R.id.widget_status, View.GONE)
+        } else {
+            views.setViewVisibility(R.id.widget_status, View.VISIBLE)
+            views.setTextViewText(R.id.widget_status, context.getString(R.string.widget_monitoring_off))
+        }
     }
 }

@@ -3,7 +3,6 @@ package com.focusguard
 import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
@@ -150,14 +149,20 @@ class TrackingEngine(
     }
 
     private fun publishWidgetUpdate() {
-        if (trackedApps.isEmpty()) {
-            return
-        }
-
-        val usageOverrides = trackedApps.associateWith { packageName ->
-            liveUsageEstimator.getEffectiveUsageMs(packageName)
-        }
-        WidgetUpdater.scheduleUpdate(context, usageOverrides)
+        val usageOverrides =
+            if (trackedApps.isEmpty()) {
+                null
+            } else {
+                trackedApps.associateWith { packageName ->
+                    liveUsageEstimator.getEffectiveUsageMs(packageName)
+                }
+            }
+        val foregroundPackage = stableForeground
+        val urgent =
+            foregroundPackage != null &&
+                isTrackedApp(foregroundPackage) &&
+                usageOverrides != null
+        WidgetUpdater.scheduleUpdate(context, usageOverrides, urgent = urgent)
     }
 
     private fun handleMonitorFailure(error: Exception) {
@@ -313,12 +318,7 @@ class TrackingEngine(
         WARNING_NOTIFICATION_ID_BASE + (packageName.hashCode() and 0x7FFF)
 
     private fun getAppLabel(packageName: String): String =
-        try {
-            val appInfo = context.packageManager.getApplicationInfo(packageName, 0)
-            context.packageManager.getApplicationLabel(appInfo).toString()
-        } catch (_: PackageManager.NameNotFoundException) {
-            packageName
-        }
+        AppLabelResolver.resolve(context.packageManager, packageName)
 
     private fun runOnMainThread(action: () -> Unit) {
         if (Looper.myLooper() == Looper.getMainLooper()) {

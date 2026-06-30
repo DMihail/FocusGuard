@@ -24,6 +24,7 @@
     <string name="boot_resume_notification_details">Keept was monitoring your apps before this device restarted. Open the app once to resume enforcement.</string>
     <string name="widget_description">Time until your next app block</string>
     <string name="widget_until_block">until block</string>
+    <string name="widget_less_than_minute">&lt;1m</string>
     <string name="widget_minutes_short">%dm</string>
     <string name="widget_hours_short">%dh</string>
     <string name="widget_hours_minutes_short">%1$dh %2$dm</string>

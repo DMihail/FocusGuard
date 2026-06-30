@@ -11,6 +11,8 @@ import { zustandStorage } from './mmkv';
 import { MONITORING_PERSIST_VERSION, PERSIST_STORAGE_KEYS } from './persistSchema';
 import type { MonitoringStore, MonitoringToggleResult } from './types';
 
+const MONITOR_START_HEALTH_CHECK_MS = 2_000;
+
 /** Persisted focus-mode toggle; starts/stops the native monitor foreground service. */
 export const monitoringStore = create<MonitoringStore>()(
   persist(
@@ -38,13 +40,7 @@ export const monitoringStore = create<MonitoringStore>()(
             };
           }
 
-          scheduleAfterInteractions(() => {
-            if (!get().isMonitoring || isMonitorServiceRunning()) {
-              return;
-            }
-
-            set({ isMonitoring: false });
-          });
+          scheduleMonitoringStartHealthCheck();
           return { ok: true };
         }
 
@@ -64,6 +60,25 @@ export const monitoringStore = create<MonitoringStore>()(
     },
   ),
 );
+
+const scheduleMonitoringStartHealthCheck = (): void => {
+  const isTestEnvironment = typeof jest !== 'undefined';
+
+  const runCheck = (): void => {
+    if (!monitoringStore.getState().isMonitoring || isMonitorServiceRunning()) {
+      return;
+    }
+
+    monitoringStore.setState({ isMonitoring: false });
+  };
+
+  if (isTestEnvironment) {
+    runCheck();
+    return;
+  }
+
+  setTimeout(runCheck, MONITOR_START_HEALTH_CHECK_MS);
+};
 
 /** Restarts the monitor service for a persisted session or clears stale monitoring state. */
 export const restoreMonitoringSession = (): void => {

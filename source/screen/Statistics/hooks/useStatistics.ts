@@ -5,9 +5,8 @@ import { useCallback, useMemo, useState } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 
 import { usePersistHydrated } from '@/hooks/usePersistHydrated';
-import { useSelectedDashboardAppRows } from '@/hooks/useSelectedDashboardAppRows';
+import { useTrackedAppRows } from '@/hooks/useTrackedAppRows';
 import { useTrackedAppsRefresh } from '@/hooks/useTrackedAppsRefresh';
-import { useTrackedUsageRefresh } from '@/hooks/useTrackedUsageRefresh';
 import { useTranslation } from '@/i18n';
 import { usageHistoryStore } from '@/store';
 import {
@@ -27,8 +26,7 @@ import {
 export const useStatistics = () => {
   const { i18n } = useTranslation();
   const [period, setPeriod] = useState<StatisticsPeriod>('week');
-  const appRows = useSelectedDashboardAppRows();
-  const { refreshUsage, showUsageRefreshIndicator } = useTrackedUsageRefresh();
+  const { appRows, refreshUsage, showUsageRefreshIndicator } = useTrackedAppRows({ lifecycle: false });
   const hasHistoryHydrated = usePersistHydrated(usageHistoryStore);
   const history = usageHistoryStore(
     useShallow((state) => (hasHistoryHydrated ? pickStatisticsHistory(state.byDay, period) : {})),
