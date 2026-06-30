@@ -18,6 +18,7 @@ export const createDashboardStyles = ({ colors, presets }: Theme) => {
     },
     scrollContent: {
       ...layoutPresets.scrollContent(spacing.lg),
+      paddingHorizontal: 0,
       paddingBottom: spacing.xxl,
     },
     header: {

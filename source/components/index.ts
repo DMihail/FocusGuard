@@ -6,6 +6,7 @@ export { ErrorBoundary } from './ErrorBoundary';
 export { GlobalUsageHistorySync } from './GlobalUsageHistorySync';
 export { ProgressBar } from './ProgressBar';
 export { ScreenBackHeader } from './ScreenBackHeader';
+export { ScreenContentFrame } from './ScreenContentFrame';
 export { ScreenSafeArea } from './ScreenSafeArea';
 export { SplashBranding } from './SplashBranding';
 export { SystemChrome } from './SystemChrome';

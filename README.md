@@ -224,8 +224,8 @@ history sync, and native snapshot sync when navigation becomes ready.
 | `npm run android:assemble:release`        | Release APK (requires upload keystore)         |
 | `npm run android:release:check`           | Preflight: keystore + `npm run check`          |
 
-Pre-commit hooks (Husky + lint-staged) run ESLint, Prettier, and related tests on staged `source/` and `__tests__/`
-files.
+Pre-commit hooks (Husky + lint-staged) run ESLint and Prettier on staged `source/` and `__tests__/` files. The pre-push
+hook runs the full Jest suite; CI runs `npm run check` on every push/PR.
 
 ## Testing
 

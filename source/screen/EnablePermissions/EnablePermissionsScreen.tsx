@@ -3,6 +3,7 @@
 import React, { useCallback, useMemo } from 'react';
 import { FlatList, View } from 'react-native';
 
+import { useScrollContentContainerStyle } from '@/hooks/useScrollContentContainerStyle';
 import { useTranslation } from '@/i18n';
 import { APP_LIST_FLAT_LIST_PROPS } from '@/list';
 import { keyById as permissionKeyExtractor } from '@/list/keys';
@@ -20,6 +21,7 @@ import { ScreenSafeArea } from '@/components';
 
 export const EnablePermissionsScreen = () => {
   const styles = usePermissionsStyles();
+  const { scrollContentContainerStyle, contentInsetStyle } = useScrollContentContainerStyle(styles.scrollContent);
   const navigation = useRootNavigation();
   const { t } = useTranslation();
   const { permissions, canContinue, handleGrant } = usePermissionsSync();
@@ -45,7 +47,7 @@ export const EnablePermissionsScreen = () => {
         renderItem={renderItem}
         keyExtractor={permissionKeyExtractor}
         ListHeaderComponent={PermissionsHeader}
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={scrollContentContainerStyle}
         showsVerticalScrollIndicator={false}
         accessibilityRole="list"
         accessibilityLabel={t('permissions.requiredSection')}
@@ -53,7 +55,7 @@ export const EnablePermissionsScreen = () => {
         {...APP_LIST_FLAT_LIST_PROPS}
       />
 
-      <View style={styles.footer}>
+      <View style={[styles.footer, contentInsetStyle]}>
         <PrivacyNotice />
         <PermissionsFooter canContinue={canContinue} onContinue={handleContinue} />
       </View>

@@ -5,6 +5,7 @@ import { ScrollView, View } from 'react-native';
 
 import type { LegalDocumentId } from '@/domain/types/legal';
 import { useGoBack } from '@/hooks/useGoBack';
+import { useScrollContentContainerStyle } from '@/hooks/useScrollContentContainerStyle';
 import { useTranslation } from '@/i18n';
 import { useRootNavigation } from '@/navigation';
 import { testIds } from '@/testing/testIds';
@@ -23,6 +24,7 @@ import { ScreenSafeArea } from '@/components';
 
 export const SettingsScreen = () => {
   const styles = useSettingsStyles();
+  const { scrollContentContainerStyle } = useScrollContentContainerStyle(styles.scrollContent);
   const navigation = useRootNavigation();
   const goBack = useGoBack();
   const { t } = useTranslation();
@@ -52,7 +54,7 @@ export const SettingsScreen = () => {
     >
       <ScrollView
         testID={testIds.settings.scroll}
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={scrollContentContainerStyle}
         showsVerticalScrollIndicator={false}
       >
         <SettingsHeader onBack={goBack} />

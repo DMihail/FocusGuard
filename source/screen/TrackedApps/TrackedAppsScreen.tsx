@@ -4,6 +4,7 @@ import React, { useCallback, useMemo } from 'react';
 import { FlatList, View } from 'react-native';
 
 import { useGoBack } from '@/hooks/useGoBack';
+import { useScrollContentContainerStyle } from '@/hooks/useScrollContentContainerStyle';
 import { useTrackedAppRows } from '@/hooks/useTrackedAppRows';
 import { useTrackedAppsRefresh } from '@/hooks/useTrackedAppsRefresh';
 import { useTranslation } from '@/i18n';
@@ -21,6 +22,7 @@ import { ScreenSafeArea, UsageRefreshIndicator } from '@/components';
 
 export const TrackedAppsScreen = () => {
   const styles = useTrackedAppsStyles();
+  const { scrollContentContainerStyle } = useScrollContentContainerStyle(styles.scrollContent);
   const { t } = useTranslation();
   const goBack = useGoBack();
   const openConfigureLimits = useNavigateToConfigureLimits();
@@ -52,7 +54,7 @@ export const TrackedAppsScreen = () => {
           getItemLayout={getTrackedAppListItemLayout}
           ListHeaderComponent={renderListHeader}
           ListEmptyComponent={TrackedAppsEmpty}
-          contentContainerStyle={styles.scrollContent}
+          contentContainerStyle={scrollContentContainerStyle}
           showsVerticalScrollIndicator={false}
           accessibilityRole="list"
           accessibilityLabel={t('trackedApps.listA11y')}

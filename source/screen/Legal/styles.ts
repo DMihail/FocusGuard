@@ -13,6 +13,7 @@ export const createLegalStyles = ({ colors, presets }: Theme) => {
     screen: layoutPresets.screen,
     scrollContent: {
       ...layoutPresets.scrollContent(spacing.xl),
+      paddingHorizontal: 0,
       paddingTop: spacing.sm,
       paddingBottom: spacing.xxxl,
     },

@@ -14,7 +14,7 @@ type ScreenContentFrameProps = {
 
 /** Centers screen body within a max-width column with responsive horizontal inset. */
 export const ScreenContentFrame = ({ children, style }: ScreenContentFrameProps) => {
-  const { insetStyle } = useContentLayout();
+  const { contentInsetStyle } = useContentLayout();
 
-  return <View style={[insetStyle, style]}>{children}</View>;
+  return <View style={[contentInsetStyle, style]}>{children}</View>;
 };

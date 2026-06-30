@@ -6,9 +6,16 @@ import type { StyleProp, ViewStyle } from 'react-native';
 
 import { useContentLayout } from '@/hooks/useContentLayout';
 
-/** Merges screen scroll/list base styles with responsive column width and padding. */
-export const useScrollContentContainerStyle = (baseStyle: StyleProp<ViewStyle>): StyleProp<ViewStyle> => {
-  const { scrollContentStyle } = useContentLayout();
+type ScrollContentLayout = {
+  scrollContentContainerStyle: StyleProp<ViewStyle>;
+  contentInsetStyle: ViewStyle;
+};
 
-  return useMemo(() => [baseStyle, scrollContentStyle], [baseStyle, scrollContentStyle]);
+/** Merges screen scroll/list base styles with responsive column width and padding. */
+export const useScrollContentContainerStyle = (baseStyle: StyleProp<ViewStyle>): ScrollContentLayout => {
+  const { contentInsetStyle } = useContentLayout();
+
+  const scrollContentContainerStyle = useMemo(() => [baseStyle, contentInsetStyle], [baseStyle, contentInsetStyle]);
+
+  return { scrollContentContainerStyle, contentInsetStyle };
 };

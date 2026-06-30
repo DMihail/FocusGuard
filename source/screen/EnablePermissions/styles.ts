@@ -11,7 +11,10 @@ export const createPermissionsStyles = ({ colors, presets }: Theme) => {
 
   return StyleSheet.create({
     screen: layoutPresets.screen,
-    scrollContent: layoutPresets.scrollContent(spacing.lg),
+    scrollContent: {
+      ...layoutPresets.scrollContent(spacing.lg),
+      paddingHorizontal: 0,
+    },
     header: {
       gap: spacing.md,
       paddingTop: spacing.sm,
@@ -103,7 +106,6 @@ export const createPermissionsStyles = ({ colors, presets }: Theme) => {
       textAlign: 'center',
     },
     footer: {
-      paddingHorizontal: spacing.xl,
       paddingBottom: spacing.sm,
       gap: 20,
     },

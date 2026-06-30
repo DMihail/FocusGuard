@@ -15,7 +15,6 @@ export const createOnboardingStyles = ({ colors, presets }: Theme) => {
       ...layoutPresets.rowBetween,
       marginTop: spacing.sm,
       minHeight: 36,
-      paddingHorizontal: spacing.xl,
     },
     skipButton: {
       paddingVertical: spacing.sm,
@@ -31,7 +30,6 @@ export const createOnboardingStyles = ({ colors, presets }: Theme) => {
     },
     footer: {
       paddingBottom: spacing.sm,
-      paddingHorizontal: spacing.xl,
       gap: spacing.lg,
     },
     continueButton: {

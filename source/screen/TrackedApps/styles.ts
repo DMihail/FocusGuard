@@ -18,6 +18,7 @@ export const createTrackedAppsStyles = ({ presets }: Theme) => {
     },
     scrollContent: {
       ...layoutPresets.scrollContent(spacing.md),
+      paddingHorizontal: 0,
       paddingBottom: spacing.xxxl,
     },
     emptyText: {

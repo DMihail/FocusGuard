@@ -13,6 +13,7 @@ export const createConfigureLimitsStyles = ({ colors, presets }: Theme) => {
     screen: layoutPresets.screen,
     scrollContent: {
       ...layoutPresets.scrollContent(spacing.lg),
+      paddingHorizontal: 0,
       paddingTop: spacing.sm,
       paddingBottom: spacing.xxxl,
     },
