@@ -37,8 +37,6 @@ class FocusGuardMonitorService : Service() {
   /** Creates the notification channel on first launch (API 26+). */
   override fun onCreate() {
     super.onCreate()
-    isRunning = true
-    TurboModuleEventDispatchers.emitMonitorServiceState(isRunning = true)
     ensureNotificationChannel()
   }
 
@@ -70,6 +68,11 @@ class FocusGuardMonitorService : Service() {
       )
     } else {
       startForeground(NOTIFICATION_ID, notification)
+    }
+
+    if (!isRunning) {
+      isRunning = true
+      TurboModuleEventDispatchers.emitMonitorServiceState(isRunning = true)
     }
 
     if (trackingEngine == null) {
