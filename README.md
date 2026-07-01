@@ -223,13 +223,13 @@ Contract source of truth: `source/store/persistSchema.ts` ↔ `android/.../Persi
 
 ### iOS runtime
 
-| Component                          | Role                                     |
-| ---------------------------------- | ---------------------------------------- |
-| `KeeptMonitoringScheduler`         | DeviceActivity schedule + monitor events |
-| `KeeptMonitor` extension           | Warnings + ManagedSettings shields       |
-| `KeeptReport` extension            | Daily usage into App Group               |
-| `KeeptTurboModuleEventDispatchers` | Routes lifecycle signals to Turbo Module |
-| `KeeptLocalDayChangeScheduler`     | Midnight timer + extension pending flag  |
+| Component                          | Role                                                     |
+| ---------------------------------- | -------------------------------------------------------- |
+| `KeeptMonitoringScheduler`         | DeviceActivity schedule + monitor events                 |
+| `KeeptMonitor` extension           | Warnings + ManagedSettings shields                       |
+| `KeeptReport` extension            | Daily usage into App Group                               |
+| `KeeptTurboModuleEventDispatchers` | Routes lifecycle signals to Turbo Module                 |
+| `KeeptLocalDayChangeScheduler`     | `BGAppRefreshTask` at midnight + significant time change |
 
 ## npm scripts
 

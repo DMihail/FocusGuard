@@ -13,6 +13,15 @@ import UIKit
     started = true
 
     NotificationCenter.default.addObserver(
+      forName: UIApplication.significantTimeChangeNotification,
+      object: nil,
+      queue: .main,
+    ) { _ in
+      KeeptLocalDayChangeScheduler.schedule()
+      KeeptLocalDayChangeNotifier.checkAndNotify()
+    }
+
+    NotificationCenter.default.addObserver(
       forName: UIApplication.didBecomeActiveNotification,
       object: nil,
       queue: .main,

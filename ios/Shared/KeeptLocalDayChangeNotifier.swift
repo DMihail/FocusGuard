@@ -38,12 +38,6 @@ import Foundation
     }
   }
 
-  @objc static func onMidnightTimer() {
-    let dayKey = currentDayKey()
-    lastDayKey = dayKey
-    publishDayChange(dayKey: dayKey)
-  }
-
   private static func consumePendingExtensionDayChangeIfNeeded() {
     guard
       let pendingDayKey = KeeptAppGroup.defaults?.string(forKey: KeeptAppGroup.StorageKey.pendingLocalDayChange),
