@@ -28,16 +28,34 @@ const MONITOR_NOT_STARTED: MonitorServiceStartResult = {
   reason: 'screen_time_unauthorized',
 };
 
-const permissionsChangedHub = createNativeEventHub<PermissionsChangedEvent>((listener) => {
-  getModule()?.onPermissionsChanged?.(listener);
+const createModuleEventHub = <T>(register: (module: Spec, listener: (event: T) => void) => boolean) =>
+  createNativeEventHub<T>((listener) => {
+    const module = getModule();
+    return module != null && register(module, listener);
+  });
+
+const permissionsChangedHub = createModuleEventHub<PermissionsChangedEvent>((module, listener) => {
+  if (!module.onPermissionsChanged) {
+    return false;
+  }
+  module.onPermissionsChanged(listener);
+  return true;
 });
 
-const localDayChangedHub = createNativeEventHub<LocalDayChangedEvent>((listener) => {
-  getModule()?.onLocalDayChanged?.(listener);
+const localDayChangedHub = createModuleEventHub<LocalDayChangedEvent>((module, listener) => {
+  if (!module.onLocalDayChanged) {
+    return false;
+  }
+  module.onLocalDayChanged(listener);
+  return true;
 });
 
-const monitorServiceStateHub = createNativeEventHub<MonitorServiceStateChangedEvent>((listener) => {
-  getModule()?.onMonitorServiceStateChanged?.(listener);
+const monitorServiceStateHub = createModuleEventHub<MonitorServiceStateChangedEvent>((module, listener) => {
+  if (!module.onMonitorServiceStateChanged) {
+    return false;
+  }
+  module.onMonitorServiceStateChanged(listener);
+  return true;
 });
 
 export const bootstrapNativeUsageEvents = (): void => {

@@ -76,7 +76,7 @@ class MainActivity : ReactActivity() {
     super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 
     if (requestCode == NotificationPermission.REQUEST_CODE_POST_NOTIFICATIONS) {
-      TurboModuleEventDispatchers.emitPermissionsChanged(application)
+      TurboModuleEventDispatchers.emitPermissionsChanged()
     }
   }
 

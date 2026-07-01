@@ -199,6 +199,7 @@ class NativeUsageStatsModule(
   private fun emitLocalDayChanged(dayKey: String) {
     reactApplicationContext.runOnUiQueueThread {
       if (!reactApplicationContext.hasActiveReactInstance()) {
+        TurboModuleEventDispatchers.storePendingLocalDayChanged(dayKey)
         return@runOnUiQueueThread
       }
 
@@ -209,6 +210,8 @@ class NativeUsageStatsModule(
               putDouble("changedAtMs", System.currentTimeMillis().toDouble())
             },
         )
+      }.onSuccess {
+        LocalDayChangeNotifier.markDayChangeNotified(dayKey)
       }
     }
   }

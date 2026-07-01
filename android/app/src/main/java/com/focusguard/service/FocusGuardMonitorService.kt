@@ -38,7 +38,7 @@ class FocusGuardMonitorService : Service() {
   override fun onCreate() {
     super.onCreate()
     isRunning = true
-    TurboModuleEventDispatchers.emitMonitorServiceState(application, isRunning = true)
+    TurboModuleEventDispatchers.emitMonitorServiceState(isRunning = true)
     ensureNotificationChannel()
   }
 
@@ -50,10 +50,11 @@ class FocusGuardMonitorService : Service() {
    * Otherwise returns [START_STICKY] so the system re-creates the service after a kill.
    */
   override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+    MonitorPermissions.invalidateCache()
     if (!MonitorPermissions.canRunMonitorService(this)) {
       if (isRunning) {
         isRunning = false
-        TurboModuleEventDispatchers.emitMonitorServiceState(application, isRunning = false)
+        TurboModuleEventDispatchers.emitMonitorServiceState(isRunning = false)
       }
       stopSelf()
       return START_NOT_STICKY
@@ -83,7 +84,7 @@ class FocusGuardMonitorService : Service() {
   /** Stops the [TrackingEngine], removes the foreground notification and releases resources. */
   override fun onDestroy() {
     isRunning = false
-    TurboModuleEventDispatchers.emitMonitorServiceState(application, isRunning = false)
+    TurboModuleEventDispatchers.emitMonitorServiceState(isRunning = false)
     trackingEngine?.stop()
     trackingEngine = null
     WidgetUpdater.scheduleUpdate(applicationContext, force = true)

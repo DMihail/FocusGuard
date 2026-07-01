@@ -29,10 +29,14 @@ private final class MonitorStateListenerToken: NSObject {
   private static var permissionsChangedListeners: [ListenerToken] = []
   private static var localDayChangedListeners: [DayKeyListenerToken] = []
   private static var monitorServiceStateListeners: [MonitorStateListenerToken] = []
+  private static var pendingPermissionsChanged = false
+  private static var pendingLocalDayKey: String?
+  private static var pendingMonitorServiceState: Bool?
 
   @objc static func registerPermissionsChanged(_ callback: @escaping () -> Void) -> NSObject {
     let token = ListenerToken(callback)
     permissionsChangedListeners.append(token)
+    replayPendingPermissionsChanged()
     return token
   }
 
@@ -47,6 +51,7 @@ private final class MonitorStateListenerToken: NSObject {
   @objc static func registerLocalDayChanged(_ callback: @escaping (String) -> Void) -> NSObject {
     let token = DayKeyListenerToken(callback)
     localDayChangedListeners.append(token)
+    replayPendingLocalDayChanged()
     return token
   }
 
@@ -61,6 +66,7 @@ private final class MonitorStateListenerToken: NSObject {
   @objc static func registerMonitorServiceState(_ callback: @escaping (Bool) -> Void) -> NSObject {
     let token = MonitorStateListenerToken(callback)
     monitorServiceStateListeners.append(token)
+    replayPendingMonitorServiceState()
     return token
   }
 
@@ -76,17 +82,62 @@ private final class MonitorStateListenerToken: NSObject {
     permissionsChangedListeners.removeAll()
     localDayChangedListeners.removeAll()
     monitorServiceStateListeners.removeAll()
+    pendingPermissionsChanged = false
+    pendingLocalDayKey = nil
+    pendingMonitorServiceState = nil
   }
 
   @objc static func emitPermissionsChanged() {
+    if permissionsChangedListeners.isEmpty {
+      pendingPermissionsChanged = true
+      return
+    }
+
     permissionsChangedListeners.forEach { $0.handler() }
   }
 
   @objc static func emitLocalDayChanged(dayKey: String) {
+    if localDayChangedListeners.isEmpty {
+      pendingLocalDayKey = dayKey
+      return
+    }
+
     localDayChangedListeners.forEach { $0.handler(dayKey) }
   }
 
   @objc static func emitMonitorServiceState(isRunning: Bool) {
+    if monitorServiceStateListeners.isEmpty {
+      pendingMonitorServiceState = isRunning
+      return
+    }
+
+    monitorServiceStateListeners.forEach { $0.handler(isRunning) }
+  }
+
+  private static func replayPendingPermissionsChanged() {
+    guard pendingPermissionsChanged, !permissionsChangedListeners.isEmpty else {
+      return
+    }
+
+    pendingPermissionsChanged = false
+    permissionsChangedListeners.forEach { $0.handler() }
+  }
+
+  private static func replayPendingLocalDayChanged() {
+    guard let dayKey = pendingLocalDayKey, !localDayChangedListeners.isEmpty else {
+      return
+    }
+
+    pendingLocalDayKey = nil
+    localDayChangedListeners.forEach { $0.handler(dayKey) }
+  }
+
+  private static func replayPendingMonitorServiceState() {
+    guard let isRunning = pendingMonitorServiceState, !monitorServiceStateListeners.isEmpty else {
+      return
+    }
+
+    pendingMonitorServiceState = nil
     monitorServiceStateListeners.forEach { $0.handler(isRunning) }
   }
 }

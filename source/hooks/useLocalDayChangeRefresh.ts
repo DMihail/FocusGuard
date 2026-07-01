@@ -1,10 +1,11 @@
 /** @format */
 
-import { useEffect, useRef } from 'react';
+import { useCallback, useRef } from 'react';
 
-import { useIsFocused } from '@react-navigation/native';
+import { useFocusEffect, useIsFocused } from '@react-navigation/native';
 
 import { reportError } from '@/crashlytics/reportError';
+import { useAppStateOnActive } from '@/hooks/useAppStateOnActive';
 import { subscribeLocalDayChanged } from '@/specs';
 import { getLocalDayKey } from '@/utils/usage/localDayKey';
 
@@ -15,22 +16,40 @@ export const useLocalDayChangeRefresh = (refresh: () => void | Promise<void>): v
   const refreshRef = useRef(refresh);
   refreshRef.current = refresh;
 
-  useEffect(() => {
-    if (!isFocused) {
-      return undefined;
+  const refreshIfDayChanged = useCallback(() => {
+    const currentDayKey = getLocalDayKey();
+    if (currentDayKey === dayKeyRef.current) {
+      return;
     }
 
-    const subscription = subscribeLocalDayChanged((event) => {
-      if (event.dayKey === dayKeyRef.current) {
-        return;
+    dayKeyRef.current = currentDayKey;
+    Promise.resolve(refreshRef.current()).catch(reportError);
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      refreshIfDayChanged();
+
+      const subscription = subscribeLocalDayChanged((event) => {
+        if (event.dayKey === dayKeyRef.current) {
+          return;
+        }
+
+        dayKeyRef.current = event.dayKey;
+        Promise.resolve(refreshRef.current()).catch(reportError);
+      });
+
+      return () => {
+        subscription.remove();
+      };
+    }, [refreshIfDayChanged]),
+  );
+
+  useAppStateOnActive(
+    useCallback(() => {
+      if (isFocused) {
+        refreshIfDayChanged();
       }
-
-      dayKeyRef.current = event.dayKey;
-      Promise.resolve(refreshRef.current()).catch(reportError);
-    });
-
-    return () => {
-      subscription.remove();
-    };
-  }, [isFocused]);
+    }, [isFocused, refreshIfDayChanged]),
+  );
 };

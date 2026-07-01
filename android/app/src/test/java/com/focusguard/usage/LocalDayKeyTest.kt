@@ -19,6 +19,13 @@ class LocalDayKeyTest {
     }
 
     @Test
+    fun `shouldPublishLocalDayChange requires a prior day key`() {
+        assertEquals(false, shouldPublishLocalDayChange(null, "2026-3-16"))
+        assertEquals(false, shouldPublishLocalDayChange("2026-3-16", "2026-3-16"))
+        assertEquals(true, shouldPublishLocalDayChange("2026-3-15", "2026-3-16"))
+    }
+
+    @Test
     fun `getMsUntilNextLocalMidnight returns positive duration before midnight`() {
         val calendar =
             Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply {

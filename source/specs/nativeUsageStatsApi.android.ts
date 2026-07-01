@@ -1,12 +1,16 @@
+/** @format */
+
 import { createNativeEventHub } from './createNativeEventHub';
-import type {
-  LocalDayChangedEvent,
-  MonitorServiceStateChangedEvent,
-  PermissionsChangedEvent,
-  Spec,
-} from './NativeUsageStats.android';
+import type { Spec } from './NativeUsageStats.android';
 import { getNativeUsageStats } from './nativeUsageStatsClient.android';
-import type { InstallApp, MonitorServiceStartResult, PackageUsage } from './types';
+import type {
+  InstallApp,
+  LocalDayChangedEvent,
+  MonitorServiceStartResult,
+  MonitorServiceStateChangedEvent,
+  PackageUsage,
+  PermissionsChangedEvent,
+} from './types';
 
 export type {
   InstallApp,
@@ -19,16 +23,26 @@ export type {
 
 const getModule = (): Spec => getNativeUsageStats();
 
-const permissionsChangedHub = createNativeEventHub<PermissionsChangedEvent>((listener) => {
-  getModule().onPermissionsChanged(listener);
+const createModuleEventHub = <T>(register: (module: Spec, listener: (event: T) => void) => void) =>
+  createNativeEventHub<T>((listener) => {
+    try {
+      register(getModule(), listener);
+      return true;
+    } catch {
+      return false;
+    }
+  });
+
+const permissionsChangedHub = createModuleEventHub<PermissionsChangedEvent>((module, listener) => {
+  module.onPermissionsChanged(listener);
 });
 
-const localDayChangedHub = createNativeEventHub<LocalDayChangedEvent>((listener) => {
-  getModule().onLocalDayChanged(listener);
+const localDayChangedHub = createModuleEventHub<LocalDayChangedEvent>((module, listener) => {
+  module.onLocalDayChanged(listener);
 });
 
-const monitorServiceStateHub = createNativeEventHub<MonitorServiceStateChangedEvent>((listener) => {
-  getModule().onMonitorServiceStateChanged(listener);
+const monitorServiceStateHub = createModuleEventHub<MonitorServiceStateChangedEvent>((module, listener) => {
+  module.onMonitorServiceStateChanged(listener);
 });
 
 /** Registers Turbo Module event callbacks before React mounts any screen. */
