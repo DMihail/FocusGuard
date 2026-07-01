@@ -33,6 +33,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     )
 
     KeeptNotificationAuthorization.refreshCachedAuthorization()
+    KeeptAppLifecycleBridge.start()
 
     return true
   }

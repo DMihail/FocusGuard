@@ -3,7 +3,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface RCTNativeUsageStats : NSObject <NativeUsageStatsSpec>
+@interface RCTNativeUsageStats : NativeUsageStatsSpecBase <NativeUsageStatsSpec>
 
 @end
 

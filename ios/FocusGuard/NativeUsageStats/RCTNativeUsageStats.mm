@@ -4,11 +4,69 @@
 #import <ReactCodegen/NativeUsageStatsSpecJSI.h>
 
 #import "../ScreenTime/KeeptScreenTimeBridge.h"
+#import "FocusGuard-Swift.h"
 
-@implementation RCTNativeUsageStats
+@implementation RCTNativeUsageStats {
+  BOOL _eventCallbacksRegistered;
+}
+
+- (void)ensureEventCallbacksRegistered
+{
+  if (_eventCallbacksRegistered) {
+    return;
+  }
+
+  _eventCallbacksRegistered = YES;
+  __weak __typeof__(self) weakSelf = self;
+
+  [KeeptTurboModuleEventDispatchers registerPermissionsChanged:^{
+    __typeof__(self) strongSelf = weakSelf;
+    if (!strongSelf) {
+      return;
+    }
+
+    [strongSelf emitOnPermissionsChanged:@{
+      @"changedAtMs" : @((NSInteger)(NSDate.date.timeIntervalSince1970 * 1000)),
+    }];
+  }];
+
+  [KeeptTurboModuleEventDispatchers registerLocalDayChanged:^(NSString *dayKey) {
+    __typeof__(self) strongSelf = weakSelf;
+    if (!strongSelf) {
+      return;
+    }
+
+    [strongSelf emitOnLocalDayChanged:@{
+      @"dayKey" : dayKey,
+      @"changedAtMs" : @((NSInteger)(NSDate.date.timeIntervalSince1970 * 1000)),
+    }];
+  }];
+
+  [KeeptTurboModuleEventDispatchers registerMonitorServiceState:^(BOOL isRunning) {
+    __typeof__(self) strongSelf = weakSelf;
+    if (!strongSelf) {
+      return;
+    }
+
+    [strongSelf emitOnMonitorServiceStateChanged:@{
+      @"isRunning" : @(isRunning),
+      @"changedAtMs" : @((NSInteger)(NSDate.date.timeIntervalSince1970 * 1000)),
+    }];
+  }];
+
+  [KeeptAppLifecycleBridge start];
+}
+
+- (void)invalidate
+{
+  [KeeptLocalDayChangeScheduler stop];
+  [KeeptTurboModuleEventDispatchers clearAll];
+  _eventCallbacksRegistered = NO;
+}
 
 - (NSNumber *)checkForPermission
 {
+  [self ensureEventCallbacksRegistered];
   return @(KeeptScreenTimeBridge.isScreenTimeAuthorized);
 }
 
@@ -19,6 +77,7 @@
 
 - (NSNumber *)checkForNotificationsPermission
 {
+  [self ensureEventCallbacksRegistered];
   return @(KeeptScreenTimeBridge.areNotificationsAuthorized);
 }
 
@@ -34,6 +93,7 @@
 
 - (NSDictionary *)startMonitorService
 {
+  [self ensureEventCallbacksRegistered];
   return [KeeptScreenTimeBridge startMonitorService];
 }
 
@@ -50,6 +110,7 @@
 - (void)requestUsageStatsPermission
 {
   [KeeptScreenTimeBridge requestScreenTimeAuthorization:^(id result) {
+    [KeeptTurboModuleEventDispatchers emitPermissionsChanged];
   }
                                        reject:^(NSString *code, NSString *message, NSError *error) {
                                          (void)code;
@@ -65,6 +126,7 @@
 - (void)requestNotificationsPermission
 {
   [KeeptScreenTimeBridge requestNotificationsAuthorization:^(id result) {
+    [KeeptTurboModuleEventDispatchers emitPermissionsChanged];
   }
                                           reject:^(NSString *code, NSString *message, NSError *error) {
                                             (void)code;
@@ -135,6 +197,7 @@
 - (std::shared_ptr<facebook::react::TurboModule>)getTurboModule:
     (const facebook::react::ObjCTurboModule::InitParams &)params
 {
+  [self ensureEventCallbacksRegistered];
   return std::make_shared<facebook::react::NativeUsageStatsSpecJSI>(params);
 }
 

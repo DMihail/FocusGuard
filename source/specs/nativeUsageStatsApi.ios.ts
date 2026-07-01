@@ -1,6 +1,3 @@
-import { subscribeAppForeground } from '@/runtime/appForegroundBus';
-import { getLocalDayKey } from '@/utils/usage/localDayKey';
-
 import type { Spec } from './NativeUsageStats.ios';
 import { getNativeUsageStats } from './nativeUsageStatsClient.ios';
 import type {
@@ -19,6 +16,10 @@ export type {
   PackageUsage,
 } from './types';
 
+type PermissionsChangedEvent = Readonly<{
+  changedAtMs: number;
+}>;
+
 const getModule = (): Spec | null => getNativeUsageStats();
 
 const MONITOR_NOT_STARTED: MonitorServiceStartResult = {
@@ -26,41 +27,59 @@ const MONITOR_NOT_STARTED: MonitorServiceStartResult = {
   reason: 'screen_time_unauthorized',
 };
 
-const localDayChangedListeners = new Set<(event: LocalDayChangedEvent) => void>();
-const monitorServiceStateListeners = new Set<(event: MonitorServiceStateChangedEvent) => void>();
-
-let hasNativeLocalDayChangedSubscription = false;
-let hasNativeMonitorServiceStateSubscription = false;
-
-const ensureNativeLocalDayChangedSubscription = (): void => {
-  if (hasNativeLocalDayChangedSubscription) {
-    return;
-  }
-
-  getModule()?.onLocalDayChanged?.((event) => {
-    for (const listener of localDayChangedListeners) {
-      listener(event);
-    }
-  });
-  hasNativeLocalDayChangedSubscription = true;
+type NativeEventHub<T> = {
+  bootstrap: () => void;
+  subscribe: (listener: (event: T) => void) => { remove: () => void };
 };
 
-const ensureNativeMonitorServiceStateSubscription = (): void => {
-  if (hasNativeMonitorServiceStateSubscription) {
-    return;
-  }
+const createNativeEventHub = <T>(registerNativeListener: (listener: (event: T) => void) => void): NativeEventHub<T> => {
+  const listeners = new Set<(event: T) => void>();
+  let hasNativeSubscription = false;
 
-  getModule()?.onMonitorServiceStateChanged?.((event) => {
-    for (const listener of monitorServiceStateListeners) {
-      listener(event);
+  const bootstrap = (): void => {
+    if (hasNativeSubscription) {
+      return;
     }
-  });
-  hasNativeMonitorServiceStateSubscription = true;
+
+    registerNativeListener((event) => {
+      for (const listener of listeners) {
+        listener(event);
+      }
+    });
+    hasNativeSubscription = true;
+  };
+
+  return {
+    bootstrap,
+    subscribe: (listener) => {
+      bootstrap();
+      listeners.add(listener);
+
+      return {
+        remove: () => {
+          listeners.delete(listener);
+        },
+      };
+    },
+  };
 };
+
+const permissionsChangedHub = createNativeEventHub<PermissionsChangedEvent>((listener) => {
+  getModule()?.onPermissionsChanged?.(listener);
+});
+
+const localDayChangedHub = createNativeEventHub<LocalDayChangedEvent>((listener) => {
+  getModule()?.onLocalDayChanged?.(listener);
+});
+
+const monitorServiceStateHub = createNativeEventHub<MonitorServiceStateChangedEvent>((listener) => {
+  getModule()?.onMonitorServiceStateChanged?.(listener);
+});
 
 export const bootstrapNativeUsageEvents = (): void => {
-  ensureNativeLocalDayChangedSubscription();
-  ensureNativeMonitorServiceStateSubscription();
+  permissionsChangedHub.bootstrap();
+  localDayChangedHub.bootstrap();
+  monitorServiceStateHub.bootstrap();
 };
 
 export const checkForPermission = (): boolean => getModule()?.checkForPermission() ?? false;
@@ -111,43 +130,14 @@ export const syncTrackingConfig = (snapshotJson: string): void => {
 export const presentFamilyActivityPicker = async (): Promise<InstallApp[]> =>
   (await getModule()?.presentFamilyActivityPicker()) ?? [];
 
-export const subscribePermissionsChanged = (listener: () => void): { remove: () => void } => {
-  const remove = subscribeAppForeground(listener);
-  return { remove };
-};
-
-export const subscribeLocalDayChanged = (listener: (event: LocalDayChangedEvent) => void): { remove: () => void } => {
-  ensureNativeLocalDayChangedSubscription();
-  localDayChangedListeners.add(listener);
-
-  let lastDayKey = getLocalDayKey();
-  const removeForeground = subscribeAppForeground(() => {
-    const nextDayKey = getLocalDayKey();
-    if (nextDayKey === lastDayKey) {
-      return;
-    }
-
-    lastDayKey = nextDayKey;
-    listener({ dayKey: nextDayKey, changedAtMs: Date.now() });
+export const subscribePermissionsChanged = (listener: () => void): { remove: () => void } =>
+  permissionsChangedHub.subscribe(() => {
+    listener();
   });
 
-  return {
-    remove: () => {
-      localDayChangedListeners.delete(listener);
-      removeForeground();
-    },
-  };
-};
+export const subscribeLocalDayChanged = (listener: (event: LocalDayChangedEvent) => void): { remove: () => void } =>
+  localDayChangedHub.subscribe(listener);
 
 export const subscribeMonitorServiceStateChanged = (
   listener: (event: MonitorServiceStateChangedEvent) => void,
-): { remove: () => void } => {
-  ensureNativeMonitorServiceStateSubscription();
-  monitorServiceStateListeners.add(listener);
-
-  return {
-    remove: () => {
-      monitorServiceStateListeners.delete(listener);
-    },
-  };
-};
+): { remove: () => void } => monitorServiceStateHub.subscribe(listener);

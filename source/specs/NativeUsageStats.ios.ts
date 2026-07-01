@@ -5,6 +5,10 @@ import type { EventEmitter } from 'react-native/Libraries/Types/CodegenTypes';
 
 import type { InstallApp, PackageUsage } from './types';
 
+type PermissionsChangedEventCodegen = Readonly<{
+  changedAtMs: number;
+}>;
+
 type LocalDayChangedEventCodegen = Readonly<{
   dayKey: string;
   changedAtMs: number;
@@ -23,6 +27,7 @@ type MonitorServiceStartResultCodegen = {
 export type { LocalDayChangedEvent, MonitorServiceStateChangedEvent } from './types';
 
 export interface Spec extends TurboModule {
+  readonly onPermissionsChanged: EventEmitter<PermissionsChangedEventCodegen>;
   readonly onLocalDayChanged: EventEmitter<LocalDayChangedEventCodegen>;
   readonly onMonitorServiceStateChanged: EventEmitter<MonitorServiceStateChangedEventCodegen>;
   checkForPermission(): boolean;

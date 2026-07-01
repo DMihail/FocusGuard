@@ -23,13 +23,24 @@ internal object NextBlockResolver {
 
     fun resolveAppBlockState(packageName: String, usedMs: Long): AppBlockState {
         val limits = TrackingConfigRepository.getLimitConfig(packageName)
-        val remainingMs = limits.hardBlockThresholdMs - usedMs
+        return resolveAppBlockState(
+            usedMs = usedMs,
+            hardBlockThresholdMs = limits.hardBlockThresholdMs,
+            snoozeRemainingMs = TrackingSnoozeStore.getRemainingMs(packageName),
+        )
+    }
+
+    internal fun resolveAppBlockState(
+        usedMs: Long,
+        hardBlockThresholdMs: Long,
+        snoozeRemainingMs: Long,
+    ): AppBlockState {
+        val remainingMs = hardBlockThresholdMs - usedMs
 
         if (remainingMs > 0L) {
             return AppBlockState.UnderLimit(remainingMs)
         }
 
-        val snoozeRemainingMs = TrackingSnoozeStore.getRemainingMs(packageName)
         if (snoozeRemainingMs > 0L) {
             return AppBlockState.SnoozeCountdown(snoozeRemainingMs)
         }
@@ -41,12 +52,15 @@ internal object NextBlockResolver {
         trackedApps: Iterable<String>,
         usedMsFor: (String) -> Long,
         labelFor: (String) -> String,
+        blockStateFor: (String, Long) -> AppBlockState = { packageName, usedMs ->
+            resolveAppBlockState(packageName, usedMs)
+        },
     ): Pair<NextBlock?, String?> {
         var nearest: NextBlock? = null
         var blockedLabel: String? = null
 
         for (packageName in trackedApps) {
-            when (val state = resolveAppBlockState(packageName, usedMsFor(packageName))) {
+            when (val state = blockStateFor(packageName, usedMsFor(packageName))) {
                 is AppBlockState.UnderLimit -> {
                     val candidate =
                         NextBlock(

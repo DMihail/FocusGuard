@@ -98,6 +98,14 @@
                 android:exported="false"/>
 
         <receiver
+                android:name=".receiver.TimeZoneChangedReceiver"
+                android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.TIMEZONE_CHANGED"/>
+            </intent-filter>
+        </receiver>
+
+        <receiver
                 android:name=".widget.FocusGuardWidgetProvider"
                 android:exported="true"
                 android:label="@string/widget_description">
