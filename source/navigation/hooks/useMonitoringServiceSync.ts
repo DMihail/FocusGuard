@@ -5,6 +5,21 @@ import { useCallback, useEffect } from 'react';
 import { useAppStateOnActive } from '@/hooks/useAppStateOnActive';
 import { subscribeMonitorServiceStateChanged } from '@/specs';
 import { monitoringStore, restoreMonitoringSession } from '@/store/monitoringStore';
+import { scheduleMicrotask } from '@/utils/scheduleMicrotask';
+
+let reconcileScheduled = false;
+
+const scheduleMonitoringReconcile = (): void => {
+  if (reconcileScheduled) {
+    return;
+  }
+
+  reconcileScheduled = true;
+  scheduleMicrotask(() => {
+    reconcileScheduled = false;
+    restoreMonitoringSession();
+  });
+};
 
 /** Reconciles the persisted focus session when the app returns to the foreground. */
 export const useMonitoringServiceSync = (isEnabled: boolean): void => {
@@ -13,7 +28,7 @@ export const useMonitoringServiceSync = (isEnabled: boolean): void => {
       return;
     }
 
-    restoreMonitoringSession();
+    scheduleMonitoringReconcile();
   }, [isEnabled]);
 
   useAppStateOnActive(sync);
@@ -29,7 +44,7 @@ export const useMonitoringServiceSync = (isEnabled: boolean): void => {
       }
 
       if (!event.isRunning && monitoringStore.getState().isMonitoring) {
-        restoreMonitoringSession();
+        scheduleMonitoringReconcile();
       }
     });
 
@@ -37,4 +52,9 @@ export const useMonitoringServiceSync = (isEnabled: boolean): void => {
       subscription.remove();
     };
   }, [isEnabled]);
+};
+
+/** @internal */
+export const resetMonitoringReconcileSchedulerForTests = (): void => {
+  reconcileScheduled = false;
 };

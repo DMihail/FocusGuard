@@ -11,10 +11,16 @@ class FocusGuardWidgetProvider : android.appwidget.AppWidgetProvider() {
         appWidgetManager: AppWidgetManager,
         appWidgetIds: IntArray,
     ) {
+        WidgetUpdater.onWidgetsEnabled()
         WidgetUpdater.updateAll(context, appWidgetManager, appWidgetIds)
     }
 
     override fun onEnabled(context: Context) {
+        WidgetUpdater.onWidgetsEnabled()
         WidgetUpdater.scheduleUpdate(context.applicationContext, force = true)
+    }
+
+    override fun onDisabled(context: Context) {
+        WidgetUpdater.onWidgetsDisabled()
     }
 }

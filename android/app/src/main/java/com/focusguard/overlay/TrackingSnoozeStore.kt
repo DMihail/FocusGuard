@@ -1,5 +1,6 @@
 package com.focusguard.overlay
 
+import com.focusguard.DailyUsageRepository
 import com.focusguard.storage.KeeptMmkv
 import java.util.concurrent.ConcurrentHashMap
 
@@ -14,6 +15,7 @@ internal object TrackingSnoozeStore {
         val until = System.currentTimeMillis() + durationMs
         snoozeUntilCache[packageName] = until
         mmkv.encode(key(packageName), until)
+        DailyUsageRepository.invalidateCacheIfLoaded()
     }
 
     fun isSnoozed(packageName: String): Boolean = getRemainingMs(packageName) > 0L
@@ -49,6 +51,7 @@ internal object TrackingSnoozeStore {
     fun clearSnooze(packageName: String) {
         snoozeUntilCache.remove(packageName)
         mmkv.removeValueForKey(key(packageName))
+        DailyUsageRepository.invalidateCacheIfLoaded()
     }
 
     private fun key(packageName: String) = "$KEY_PREFIX$packageName"

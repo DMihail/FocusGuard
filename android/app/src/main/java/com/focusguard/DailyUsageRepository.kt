@@ -20,8 +20,8 @@ class DailyUsageRepository private constructor(
     private var cachedAtMs: Long = 0L
 
     companion object {
-        /** Short TTL keeps monitor limits accurate while the FGS is running. */
-        private const val CACHE_TTL_MS = 60_000L
+        /** Safety net when an event-driven invalidation is missed. */
+        private const val CACHE_TTL_MS = 5 * 60_000L
 
         @Volatile
         private var instance: DailyUsageRepository? = null
@@ -34,6 +34,10 @@ class DailyUsageRepository private constructor(
                             instance = repository
                         }
                 }
+
+        fun invalidateCacheIfLoaded() {
+            instance?.invalidateCache()
+        }
     }
 
     /** @return foreground milliseconds for [packageName] since local midnight, or 0. */

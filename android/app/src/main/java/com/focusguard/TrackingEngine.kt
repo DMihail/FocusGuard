@@ -127,6 +127,9 @@ class TrackingEngine(
         val enteredNewForeground = foregroundApp != previousStable
 
         if (!isTrackedApp(foregroundApp)) {
+            if (previousStable != null && isTrackedApp(previousStable)) {
+                usageRepository.invalidateCache()
+            }
             liveUsageEstimator.clearSession()
 
             if (activeBlockPackage != null && foregroundApp != activeBlockPackage) {
@@ -140,6 +143,7 @@ class TrackingEngine(
             if (activeBlockPackage != null && activeBlockPackage != foregroundApp) {
                 clearActiveBlock()
             }
+            usageRepository.invalidateCache()
             liveUsageEstimator.onTrackedAppForeground(foregroundApp)
         }
 
