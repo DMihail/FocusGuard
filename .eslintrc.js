@@ -128,5 +128,25 @@ module.exports = {
         'simple-import-sort/exports': 'off',
       },
     },
+    {
+      files: ['source/**/*.{ts,tsx}'],
+      rules: {
+        'no-restricted-syntax': [
+          'error',
+          {
+            selector: 'TSAnyKeyword',
+            message: 'Do not use `any`. Prefer `unknown` or a concrete type.',
+          },
+          {
+            selector: 'CallExpression[callee.name="setTimeout"]',
+            message: 'Do not use setTimeout in production JS. Use native Turbo Module events or scheduleMicrotask.',
+          },
+          {
+            selector: 'CallExpression[callee.name="setInterval"]',
+            message: 'Do not use setInterval in production JS. Use native Turbo Module event subscriptions.',
+          },
+        ],
+      },
+    },
   ],
 };
