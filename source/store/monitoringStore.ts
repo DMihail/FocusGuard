@@ -105,7 +105,10 @@ const scheduleMonitoringStartHealthCheck = (): void => {
     verifyRunningOrClear();
   });
 
-  scheduleMicrotask(verifyRunningOrClear);
+  // Android reports `started` before onStartCommand flips isRunning; wait for native events.
+  if (monitoringStore.getState().isMonitoring && isMonitorServiceRunning()) {
+    settle();
+  }
 };
 
 /** Restarts the monitor service for a persisted session or clears stale monitoring state. */

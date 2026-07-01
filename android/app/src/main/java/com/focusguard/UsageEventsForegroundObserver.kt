@@ -63,7 +63,7 @@ internal class UsageEventsForegroundObserver(
 
         val query =
             UsageEventsQuery.Builder(startTime, endTime)
-                .setEventTypes(UsageEvents.Event.ACTIVITY_RESUMED)
+                .setEventTypes(*FOREGROUND_QUERY_EVENT_TYPES)
                 .build()
 
         val events = usageStatsManager.queryEvents(query) ?: return null
@@ -79,6 +79,13 @@ internal class UsageEventsForegroundObserver(
     }
 
     companion object {
+        @Suppress("DEPRECATION")
+        private val FOREGROUND_QUERY_EVENT_TYPES =
+            intArrayOf(
+                UsageEvents.Event.MOVE_TO_FOREGROUND,
+                UsageEvents.Event.ACTIVITY_RESUMED,
+            )
+
         private const val POLL_INTERVAL_MS = 750L
         private const val EVENTS_WINDOW_MS = 15_000L
 

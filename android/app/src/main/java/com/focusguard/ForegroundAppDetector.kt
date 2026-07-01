@@ -75,7 +75,7 @@ class ForegroundAppDetector(
 
         val query =
             UsageEventsQuery.Builder(startTime, endTime)
-                .setEventTypes(UsageEvents.Event.ACTIVITY_RESUMED)
+                .setEventTypes(*FOREGROUND_QUERY_EVENT_TYPES)
                 .build()
 
         val events = usageStatsManager.queryEvents(query) ?: return null
@@ -148,6 +148,13 @@ class ForegroundAppDetector(
                 eventType == UsageEvents.Event.ACTIVITY_RESUMED)
 
     companion object {
+        @Suppress("DEPRECATION")
+        private val FOREGROUND_QUERY_EVENT_TYPES =
+            intArrayOf(
+                UsageEvents.Event.MOVE_TO_FOREGROUND,
+                UsageEvents.Event.ACTIVITY_RESUMED,
+            )
+
         private const val EVENTS_WINDOW_MS = 60_000L
         private const val STATS_WINDOW_MS = 60_000L
         private const val STATS_RECENCY_MS = 30_000L
