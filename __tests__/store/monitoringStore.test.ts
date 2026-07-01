@@ -9,6 +9,9 @@ const mockStartMonitorService = jest.fn(() => ({ started: true })) as jest.Mock<
 const mockStopMonitorService = jest.fn();
 const mockIsMonitorServiceRunning = jest.fn(() => false);
 const mockAreAllPermissionsGranted = jest.fn(() => true);
+const mockSubscribeMonitorServiceStateChanged = jest.fn((_listener: (event: { isRunning: boolean }) => void) => ({
+  remove: jest.fn(),
+}));
 
 jest.mock('@/domain/permissionSnapshot', () => ({
   areAllPermissionsGranted: () => mockAreAllPermissionsGranted(),
@@ -18,6 +21,8 @@ jest.mock('@/specs', () => ({
   startMonitorService: () => mockStartMonitorService(),
   stopMonitorService: (...args: unknown[]) => mockStopMonitorService(...args),
   isMonitorServiceRunning: () => mockIsMonitorServiceRunning(),
+  subscribeMonitorServiceStateChanged: (listener: (event: { isRunning: boolean }) => void) =>
+    mockSubscribeMonitorServiceStateChanged(listener),
 }));
 
 const mockGetItem = jest.fn((_name: string): string | null => null);
@@ -65,13 +70,14 @@ describe('monitoringStore', () => {
     expect(monitoringStore.getState().isMonitoring).toBe(false);
   });
 
-  it('keeps monitoring enabled when start succeeds even if the service is not running yet', () => {
+  it('clears monitoring when start succeeds but the service is not running', () => {
     mockIsMonitorServiceRunning.mockReturnValue(false);
 
     monitoringStore.getState().toggle();
 
     expect(mockStartMonitorService).toHaveBeenCalledTimes(1);
-    expect(monitoringStore.getState().isMonitoring).toBe(true);
+    expect(mockSubscribeMonitorServiceStateChanged).toHaveBeenCalledTimes(1);
+    expect(monitoringStore.getState().isMonitoring).toBe(false);
   });
 
   it('calls stopMonitorService and sets isMonitoring to false on second toggle', () => {
@@ -137,6 +143,19 @@ describe('monitoringStore', () => {
     restoreMonitoringSession();
 
     expect(mockStartMonitorService).toHaveBeenCalledTimes(1);
+    expect(mockSubscribeMonitorServiceStateChanged).not.toHaveBeenCalled();
+    expect(monitoringStore.getState().isMonitoring).toBe(false);
+  });
+
+  it('schedules a health check after restore when startMonitorService succeeds', () => {
+    monitoringStore.setState({ isMonitoring: true });
+    mockIsMonitorServiceRunning.mockReturnValue(false);
+    mockStartMonitorService.mockReturnValue({ started: true });
+
+    restoreMonitoringSession();
+
+    expect(mockStartMonitorService).toHaveBeenCalledTimes(1);
+    expect(mockSubscribeMonitorServiceStateChanged).toHaveBeenCalledTimes(1);
     expect(monitoringStore.getState().isMonitoring).toBe(false);
   });
 });

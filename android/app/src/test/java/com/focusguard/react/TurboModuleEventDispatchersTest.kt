@@ -48,4 +48,22 @@ class TurboModuleEventDispatchersTest {
 
         assertEquals(false, receivedState)
     }
+
+    @Test
+    fun replaysStoredPendingMonitorServiceStateWhenExplicitlyReplayed() {
+        TurboModuleEventDispatchers.storePendingMonitorServiceState(isRunning = true)
+
+        var receivedState: Boolean? = null
+        TurboModuleEventDispatchers.registerMonitorServiceState { isRunning ->
+            receivedState = isRunning
+        }
+
+        assertEquals(true, receivedState)
+
+        receivedState = null
+        TurboModuleEventDispatchers.storePendingMonitorServiceState(isRunning = false)
+        TurboModuleEventDispatchers.replayPendingMonitorServiceStateIfNeeded()
+
+        assertEquals(false, receivedState)
+    }
 }

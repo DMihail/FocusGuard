@@ -50,6 +50,7 @@ class NativeUsageStatsModule(
       object : LifecycleEventListener {
         override fun onHostResume() {
           LocalDayChangeNotifier.checkAndNotify(appContext)
+          TurboModuleEventDispatchers.replayPendingMonitorServiceStateIfNeeded()
           queuePermissionsChangedEmit()
         }
 
@@ -219,6 +220,7 @@ class NativeUsageStatsModule(
   private fun emitMonitorServiceStateChanged(isRunning: Boolean) {
     reactApplicationContext.runOnUiQueueThread {
       if (!reactApplicationContext.hasActiveReactInstance()) {
+        TurboModuleEventDispatchers.storePendingMonitorServiceState(isRunning)
         return@runOnUiQueueThread
       }
 

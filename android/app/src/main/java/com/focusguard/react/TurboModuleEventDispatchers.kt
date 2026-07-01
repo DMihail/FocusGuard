@@ -69,6 +69,14 @@ object TurboModuleEventDispatchers {
         pendingLocalDayKey = dayKey
     }
 
+    fun storePendingMonitorServiceState(isRunning: Boolean) {
+        pendingMonitorServiceState = isRunning
+    }
+
+    fun replayPendingMonitorServiceStateIfNeeded() {
+        replayPendingMonitorServiceState()
+    }
+
     fun registerMonitorServiceState(callback: (isRunning: Boolean) -> Unit) {
         monitorServiceStateListeners.add(callback)
         replayPendingMonitorServiceState()

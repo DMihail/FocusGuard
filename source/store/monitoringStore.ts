@@ -4,7 +4,12 @@ import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
 import { areAllPermissionsGranted } from '@/domain/permissionSnapshot';
-import { isMonitorServiceRunning, startMonitorService, stopMonitorService } from '@/specs';
+import {
+  isMonitorServiceRunning,
+  startMonitorService,
+  stopMonitorService,
+  subscribeMonitorServiceStateChanged,
+} from '@/specs';
 import { scheduleMicrotask } from '@/utils/scheduleMicrotask';
 
 import { zustandStorage } from './mmkv';
@@ -38,6 +43,7 @@ export const monitoringStore = create<MonitoringStore>()(
             };
           }
 
+          scheduleMonitoringStartHealthCheck();
           return { ok: true };
         }
 
@@ -57,6 +63,50 @@ export const monitoringStore = create<MonitoringStore>()(
     },
   ),
 );
+
+const scheduleMonitoringStartHealthCheck = (): void => {
+  let settled = false;
+
+  const settle = (): void => {
+    if (settled) {
+      return;
+    }
+
+    settled = true;
+    subscription.remove();
+  };
+
+  const verifyRunningOrClear = (): void => {
+    if (!monitoringStore.getState().isMonitoring) {
+      settle();
+      return;
+    }
+
+    if (isMonitorServiceRunning()) {
+      settle();
+      return;
+    }
+
+    monitoringStore.setState({ isMonitoring: false });
+    settle();
+  };
+
+  const subscription = subscribeMonitorServiceStateChanged((event) => {
+    if (!monitoringStore.getState().isMonitoring) {
+      settle();
+      return;
+    }
+
+    if (event.isRunning) {
+      settle();
+      return;
+    }
+
+    verifyRunningOrClear();
+  });
+
+  scheduleMicrotask(verifyRunningOrClear);
+};
 
 /** Restarts the monitor service for a persisted session or clears stale monitoring state. */
 export const restoreMonitoringSession = (): void => {
@@ -79,4 +129,6 @@ export const restoreMonitoringSession = (): void => {
     monitoringStore.setState({ isMonitoring: false });
     return;
   }
+
+  scheduleMonitoringStartHealthCheck();
 };

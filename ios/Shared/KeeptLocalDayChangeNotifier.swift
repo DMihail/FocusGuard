@@ -79,6 +79,17 @@ import Foundation
     }
 
     KeeptAppGroup.defaults?.removeObject(forKey: KeeptAppGroup.StorageKey.pendingLocalDayChange)
+
+    let todayKey = currentDayKey()
+    guard pendingDayKey == todayKey else {
+      return
+    }
+
+    let previousDayKey = lastNotifiedDayKey ?? readPersistedDayKey()
+    guard shouldPublishLocalDayChange(previousDayKey: previousDayKey, currentDayKey: pendingDayKey) else {
+      return
+    }
+
     publishDayChange(dayKey: pendingDayKey)
   }
 
