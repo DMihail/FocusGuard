@@ -3,8 +3,6 @@ package com.focusguard.widget
 import android.appwidget.AppWidgetManager
 import android.content.ComponentName
 import android.content.Context
-import android.os.Build
-import android.os.SystemClock
 import android.view.View
 import android.widget.RemoteViews
 import com.focusguard.R
@@ -129,7 +127,10 @@ object WidgetUpdater {
             is WidgetNextBlockResolver.Snapshot.Countdown -> {
                 views.setViewVisibility(R.id.widget_content, View.VISIBLE)
                 views.setViewVisibility(R.id.widget_empty, View.GONE)
-                bindCountdown(views, context, snapshot.next.remainingMs)
+                views.setTextViewText(
+                    R.id.widget_time,
+                    WidgetUsageFormatter.formatRemaining(context, snapshot.next.remainingMs),
+                )
                 val subtitleRes =
                     if (snapshot.next.isSnoozeCountdown) {
                         R.string.widget_until_reblock
@@ -175,24 +176,6 @@ object WidgetUpdater {
         }
 
         return views
-    }
-
-    private fun bindCountdown(views: RemoteViews, context: Context, remainingMs: Long) {
-        if (remainingMs <= 0L) {
-            views.setChronometer(R.id.widget_time, SystemClock.elapsedRealtime(), null, false)
-            views.setTextViewText(
-                R.id.widget_time,
-                WidgetUsageFormatter.formatRemaining(context, remainingMs),
-            )
-            return
-        }
-
-        val base = SystemClock.elapsedRealtime() + remainingMs
-        views.setChronometer(R.id.widget_time, base, null, true)
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            views.setChronometerCountDown(R.id.widget_time, true)
-        }
     }
 
     private fun applyTheme(views: RemoteViews, theme: WidgetTheme.Colors) {

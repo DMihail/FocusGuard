@@ -8,6 +8,9 @@
 
 @implementation RCTNativeUsageStats {
   BOOL _eventCallbacksRegistered;
+  NSObject *_permissionsChangedToken;
+  NSObject *_localDayChangedToken;
+  NSObject *_monitorServiceStateToken;
 }
 
 - (void)ensureEventCallbacksRegistered
@@ -19,7 +22,7 @@
   _eventCallbacksRegistered = YES;
   __weak __typeof__(self) weakSelf = self;
 
-  [KeeptTurboModuleEventDispatchers registerPermissionsChanged:^{
+  _permissionsChangedToken = [KeeptTurboModuleEventDispatchers registerPermissionsChanged:^{
     __typeof__(self) strongSelf = weakSelf;
     if (!strongSelf) {
       return;
@@ -30,7 +33,7 @@
     }];
   }];
 
-  [KeeptTurboModuleEventDispatchers registerLocalDayChanged:^(NSString *dayKey) {
+  _localDayChangedToken = [KeeptTurboModuleEventDispatchers registerLocalDayChanged:^(NSString *dayKey) {
     __typeof__(self) strongSelf = weakSelf;
     if (!strongSelf) {
       return;
@@ -42,7 +45,7 @@
     }];
   }];
 
-  [KeeptTurboModuleEventDispatchers registerMonitorServiceState:^(BOOL isRunning) {
+  _monitorServiceStateToken = [KeeptTurboModuleEventDispatchers registerMonitorServiceState:^(BOOL isRunning) {
     __typeof__(self) strongSelf = weakSelf;
     if (!strongSelf) {
       return;
@@ -60,7 +63,22 @@
 - (void)invalidate
 {
   [KeeptLocalDayChangeScheduler stop];
-  [KeeptTurboModuleEventDispatchers clearAll];
+
+  if (_permissionsChangedToken != nil) {
+    [KeeptTurboModuleEventDispatchers unregisterPermissionsChanged:_permissionsChangedToken];
+    _permissionsChangedToken = nil;
+  }
+
+  if (_localDayChangedToken != nil) {
+    [KeeptTurboModuleEventDispatchers unregisterLocalDayChanged:_localDayChangedToken];
+    _localDayChangedToken = nil;
+  }
+
+  if (_monitorServiceStateToken != nil) {
+    [KeeptTurboModuleEventDispatchers unregisterMonitorServiceState:_monitorServiceStateToken];
+    _monitorServiceStateToken = nil;
+  }
+
   _eventCallbacksRegistered = NO;
 }
 

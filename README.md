@@ -1,51 +1,38 @@
 # Keept
 
-Cross-platform mobile app (Android + iOS) that helps reduce screen time: track distracting apps, send warnings when you
-approach limits, and block access when limits are reached.
+Cross-platform screen-time app: track distracting apps, warn before limits, and block when limits are reached.
 
-Built with [React Native](https://reactnative.dev) **0.86** (New Architecture, Turbo Modules) and **React 19**.
+Built with React Native **0.86** (New Architecture, Turbo Modules) and React **19**.
 
-> **Repo vs product name:** the repository folder is still `FocusGuard`, while the product, store IDs, and deep links
-> use **Keept**. Legacy Kotlin package `com.focusguard` and Xcode target `FocusGuard` remain for build compatibility.
+> **Repo vs product:** the folder is still `FocusGuard`; the product, store IDs, and deep links use **Keept**. Legacy
+> Kotlin namespace `com.focusguard` and Xcode target `FocusGuard` remain for build compatibility.
 
 ## Features
 
-| Capability       | Android                                          | iOS                                  |
-| ---------------- | ------------------------------------------------ | ------------------------------------ |
-| Usage monitoring | Foreground service + `UsageStatsManager`         | DeviceActivity monitor extension     |
-| Soft warnings    | Local notification                               | Local notification                   |
-| Hard block       | Full-screen overlay (`SYSTEM_ALERT_WINDOW`)      | ManagedSettings shield               |
-| App selection    | Installed-apps catalog                           | `FamilyActivityPicker` (Screen Time) |
-| Per-app limits   | Warning + hard-block sliders, strict mode        | Same JS UI                           |
-| Dashboard        | Focus score, distracting apps, monitoring toggle | Same JS UI                           |
-| Statistics       | Usage history charts, focus trend, top apps      | Same JS UI                           |
-| Boot / resume    | `BootCompletedReceiver`, service restore         | Scheduler + App Group state          |
+| Capability       | Android                                     | iOS                                  |
+| ---------------- | ------------------------------------------- | ------------------------------------ |
+| Usage monitoring | Foreground service + `UsageStatsManager`    | DeviceActivity monitor extension     |
+| Soft warnings    | Local notification                          | Local notification                   |
+| Hard block       | Full-screen overlay (`SYSTEM_ALERT_WINDOW`) | ManagedSettings shield               |
+| App selection    | Installed-apps catalog                      | `FamilyActivityPicker` (Screen Time) |
+| Per-app limits   | Warning + hard-block sliders, strict mode   | Same JS UI                           |
+| Dashboard        | Focus score, distracting apps, monitoring   | Same JS UI                           |
+| Statistics       | Usage history charts, focus trend, top apps | Same JS UI                           |
+| Home widget      | Next-block countdown (Android)              | —                                    |
+| Boot / resume    | `BootCompletedReceiver`, service restore    | Scheduler + App Group state          |
 
 All limit and selection data stays on device. No account or cloud sync.
 
-## User flow
-
-```
-Onboarding → Enable Permissions → Dashboard
-                    ↓
-         Manage Apps → Configure Limits
-                    ↓
-              Statistics / Tracked Apps / Settings / Legal
-```
-
-Entry route is resolved after onboarding hydration (`resolveEntryRoute`): permissions gate on Android, Screen Time
-authorization on iOS.
-
 ## Tech stack
 
-| Layer          | Choices                                                                     |
-| -------------- | --------------------------------------------------------------------------- |
-| UI             | React 19.2, TypeScript 5.8, Reanimated 4, React Navigation 7 (static stack) |
-| State          | Zustand 5 + `react-native-mmkv` 4 (Nitro Modules)                           |
-| i18n           | i18next, react-i18next, react-native-localize (en / ru)                     |
-| Android native | Kotlin, foreground service, overlay manager, Turbo Module                   |
-| iOS native     | Swift, Family Controls, DeviceActivity + Report extensions                  |
-| Quality        | ESLint, Prettier, Husky, lint-staged, Jest                                  |
+| Layer          | Choices                                                                   |
+| -------------- | ------------------------------------------------------------------------- |
+| UI             | React 19, TypeScript 5.8, Reanimated 4, React Navigation 7 (static stack) |
+| State          | Zustand 5 + `react-native-mmkv` 4 (Nitro Modules)                         |
+| i18n           | i18next, react-i18next, react-native-localize (en / ru)                   |
+| Android native | Kotlin, FGS, overlay manager, Turbo Module, App Widget                    |
+| iOS native     | Swift, Family Controls, DeviceActivity + Report extensions                |
+| Quality        | ESLint, Prettier, Husky, lint-staged, Jest                                |
 
 **Requirements:** Node **≥ 22.11**, JDK **17** (Android), Xcode **16+** (iOS), CocoaPods.
 
@@ -53,37 +40,46 @@ authorization on iOS.
 
 ```
 source/                         # TypeScript / React application
-├── App.tsx                     # Root: providers + navigation gate
-├── components/                 # Shared UI (AppIcon, ScreenSafeArea, …)
-├── domain/                     # Permissions, catalogs, app keys, usage loaders
-├── hooks/                      # App state, refresh, catalog prefetch
-├── i18n/                       # i18next init, locales (en/ru), LanguageSync
-├── navigation/                 # Static stack, deep links, permission guard
-├── screen/                     # Feature screens (Dashboard, ManageApps, …)
-├── specs/                      # Turbo Module contract (`NativeUsageStats`)
-├── store/                      # Zustand stores, MMKV, native snapshot sync
-├── theme/                      # Colors, typography, animated theme transitions
-└── assets/                     # Fonts, SVG icons
+├── App.tsx                     # Root providers
+├── components/                 # Shared UI
+├── constants/                  # Branding, platform app name/version
+├── context/                    # Dashboard row selection provider
+├── crashlytics/                # Firebase bootstrap + reportError
+├── domain/                     # Permissions, catalogs, reconcile logic
+├── hooks/                      # Refresh, hydration, theme, usage sync
+├── i18n/                       # Locales (en/ru), LanguageSync
+├── layout/                     # Content layout metrics
+├── list/                       # FlatList helpers
+├── navigation/                 # Stack, linking, gates, native sync hooks
+├── runtime/                    # Shared AppState foreground bus
+├── screen/                     # Feature screens
+├── setup/                      # Reanimated logger config
+├── specs/                      # Turbo Module contract + API wrappers
+├── store/                      # Zustand + MMKV + native snapshot sync
+├── theme/                      # ThemeProvider, palettes, typography
+└── utils/                      # Usage math, permissions, scheduleMicrotask
 
-android/app/src/main/java/com/focusguard/   # Monitor, overlay, permissions (legacy package)
-android/app/src/main/java/com/nativeusagestats/  # Codegen Turbo Module entry
+android/app/src/main/java/
+├── com/focusguard/             # Monitor, overlay, widget, usage, receivers
+└── com/nativeusagestats/       # Codegen Turbo Module entry
+
 ios/
 ├── FocusGuard/                 # Main app target (legacy name)
 ├── KeeptMonitor/               # DeviceActivityMonitor extension
 ├── KeeptReport/                # DeviceActivity report extension
-└── Shared/                     # App Group stores, Screen Time bridge
+└── Shared/                     # App Group stores, event dispatchers, schedulers
 ```
 
-Platform-specific TypeScript uses Metro / `moduleSuffixes`: `.ios.ts`, `.android.ts` (see `tsconfig.json`). Path alias:
-`@/*` → `source/*`.
+Platform-specific TypeScript resolves via Metro / `moduleSuffixes`: `.ios.ts`, `.android.ts`. Path alias: `@/*` →
+`source/*`.
 
 ## Identity
 
 | Layer                         | Value                                                                    |
 | ----------------------------- | ------------------------------------------------------------------------ |
 | Product name                  | Keept                                                                    |
-| Marketing version             | `1.0.2` (Android `versionName`, iOS `MARKETING_VERSION`, `app.json`)     |
-| Build number                  | `6` (Android `versionCode`, iOS `CURRENT_PROJECT_VERSION`)               |
+| Marketing version             | `1.0.2` (`package.json`, Android `versionName`)                          |
+| Android build number          | `7` (`versionCode` in `android/app/build.gradle`)                        |
 | Store bundle / application ID | `com.keept`                                                              |
 | Android namespace (Kotlin)    | `com.focusguard` (legacy)                                                |
 | iOS App Group                 | `group.com.keept.shared`                                                 |
@@ -91,46 +87,43 @@ Platform-specific TypeScript uses Metro / `moduleSuffixes`: `.ios.ts`, `.android
 | Report extension              | `com.keept.report`                                                       |
 | Deep links                    | `keept://dashboard`, `keept://tracked-apps`, `keept://configure/:appKey` |
 
+> **Note:** iOS `MARKETING_VERSION` / `CURRENT_PROJECT_VERSION` in Xcode may differ until bumped for App Store release.
+> In-app version on iOS reads `package.json` via `source/constants/appVersion.ios.ts`.
+
 ## Getting started
 
 ```sh
 npm ci
-npm start          # Metro bundler (separate terminal)
+npm start          # Metro (separate terminal)
 npm run android    # or: npm run ios
 ```
 
 ### Android
 
 1. Device or emulator with API 24+ (target SDK 36).
-2. Firebase Crashlytics (release crash reports only — no Firebase Analytics):
+2. Firebase Crashlytics stub for local/CI builds:
    ```sh
-   cp android/app/google-services.ci.json android/app/google-services.json   # local / CI stub
+   cp android/app/google-services.ci.json android/app/google-services.json
    ```
-   For Play Store builds, replace `google-services.json` with the file from
-   [Firebase Console](https://console.firebase.google.com/) for app `com.keept`.
+   For Play Store builds, use the real `google-services.json` from Firebase Console for `com.keept`.
 3. Grant special permissions in-app (Usage Access, Display over other apps, battery exemption). Notifications are
    optional.
 
-**Release builds (Google Play)**
+**Release builds**
 
 ```sh
-cp android/keystore.properties.example android/keystore.properties   # local only — gitignored
-# Edit passwords/alias; place upload-keystore.jks in android/keystores/
-npm run check
-npm run android:bundle:release   # Play Store AAB
-npm run android:assemble:release # sideload APK
+cp android/keystore.properties.example android/keystore.properties   # gitignored
+# Edit passwords/alias; place upload keystore in android/keystores/
+npm run android:release:check   # keystore + full npm check
+npm run android:bundle:release  # Play Store AAB
+npm run android:assemble:release
 ```
 
-Adaptive launcher icons use square vector assets (`ic_launcher_foreground.xml`). To regenerate legacy PNG mipmaps after
-changing the shield artwork:
+Regenerate launcher PNG mipmaps after changing shield artwork:
 
 ```sh
 android/scripts/generate-launcher-icons.sh
 ```
-
-Or open `android/` in Android Studio (JDK 17, compile SDK 36, NDK 27.1.12297006).
-
-#### Android permissions
 
 | Permission                             | Role                         |
 | -------------------------------------- | ---------------------------- |
@@ -143,12 +136,12 @@ Or open `android/` in Android Studio (JDK 17, compile SDK 36, NDK 27.1.12297006)
 
 ### iOS
 
-Screen Time integration uses Family Controls (self-control / `.individual` auth mode).
-
-For Firebase Crashlytics, copy the CI stub or your real plist from Firebase Console:
+Screen Time uses Family Controls (self-control / `.individual` auth mode).
 
 ```sh
 cp ios/FocusGuard/GoogleService-Info.ci.plist ios/FocusGuard/GoogleService-Info.plist
+cd ios && pod install && cd ..
+npm run ios
 ```
 
 | Item                  | Value                              |
@@ -158,114 +151,139 @@ cp ios/FocusGuard/GoogleService-Info.ci.plist ios/FocusGuard/GoogleService-Info.
 | Family selection blob | `ios-family-activity-selection-v1` |
 | Daily usage           | `ios-daily-usage-v1`               |
 
-```sh
-cd ios && pod install && cd ..
-npm run ios
-```
-
-**Family Controls** entitlement must be enabled on your Apple Developer team for physical devices. Free personal teams
-can still use the simulator. CI builds the simulator target with `CODE_SIGNING_ALLOWED=NO`.
+Family Controls entitlement is required on a paid Apple Developer team for physical devices. Simulator works with a free
+team. **CI does not build iOS** — run Xcode locally.
 
 ## Architecture
 
+### Design principles
+
+```
+Background / blocking / day rollover  →  native loop, AlarmManager, or FGS
+React UI state                        →  Turbo Module event emitters
+Caches                                →  event invalidation + short TTL safety net
+JavaScript                            →  subscriptions only (no production timers)
+```
+
+Agent rule with frozen native components: `.cursor/rules/native-events-architecture.mdc`.
+
 ### JavaScript ↔ native bridge
 
-Turbo Module **`NativeUsageStats`** (`source/specs/`) exposes:
+Turbo Module **`NativeUsageStats`** (`source/specs/`) exposes permissions, catalogs, monitor control, and
+`syncTrackingConfig(snapshotJson)`.
 
-- Permission checks and settings intents
-- Installed apps + daily usage catalogs
-- Monitor start/stop / running state
-- `syncTrackingConfig(snapshotJson)` — push flat tracking snapshot to native
+App bootstrap (`index.js`):
 
-Client code imports `@/specs` (API wrappers), not the codegen files directly.
+1. Crashlytics bootstrap
+2. `bootstrapNativeUsageEvents()` — registers native listeners via `createNativeEventHub`
+
+Event subscriptions (production):
+
+| Event                          | Native emitters (Android / iOS)             | JS consumer                |
+| ------------------------------ | ------------------------------------------- | -------------------------- |
+| `onPermissionsChanged`         | MainActivity, module resume, auth callbacks | `usePermissionsSync`       |
+| `onLocalDayChanged`            | AlarmManager midnight, timezone, foreground | `useLocalDayChangeRefresh` |
+| `onMonitorServiceStateChanged` | FGS start/stop / monitoring scheduler       | `useMonitoringServiceSync` |
+
+Import `@/specs` in app code, not codegen files directly.
+
+`appForegroundBus` (`source/runtime/`) is a shared `AppState` subscription for UI-only foreground refresh (language,
+monitoring reconcile) — not a substitute for missing native events.
 
 ### Storage
 
 ```text
-Zustand persist ──► MMKV "keept-storage" ◄── Android monitor (Kotlin)
+Zustand persist ──► MMKV "keept-storage"
                          │
-                         ├── native-tracking-snapshot-v1 (flat JSON)
-                         └── Zustand JSON blobs (fallback for native)
+                         ├── native-tracking-snapshot-v1 (Android flat JSON)
+                         ├── ios-tracking-snapshot-v2 (via syncTrackingConfig)
+                         └── Zustand JSON blobs (selected apps, limits, monitoring, …)
 
-iOS main app ──syncTrackingConfig──► App Group UserDefaults
-                                           │
-                                    KeeptMonitor / KeeptReport
+Android monitor reads flat snapshot + MMKV persist keys.
+iOS extensions read App Group UserDefaults written by main app.
 ```
 
 Contract source of truth: `source/store/persistSchema.ts` ↔ `android/.../PersistSchema.kt` ↔
 `ios/Shared/KeeptAppGroup.swift`.
 
-On Android, the monitor reads the flat snapshot first, then can parse Zustand persist keys. Usage Access grant uses a
-native MMKV latch (`usage-access-granted-v1`) to survive OEM AppOps flicker when returning from other permission
-screens.
+`RootNavigationGate` wires splash, catalog prefetch, permission guard, monitoring restore, usage history sync
+(`GlobalUsageHistorySync`), and native snapshot sync.
 
-### Runtime services (Android)
+### Android runtime
 
-- `FocusGuardMonitorService` — polls foreground app, enforces limits
-- `BlockOverlayManager` — hard block UI
-- `TrackingEngine` — limit evaluation, snooze, daily warnings
-- `BootCompletedReceiver` — restore monitoring after reboot
+| Component                       | Role                                                       |
+| ------------------------------- | ---------------------------------------------------------- |
+| `FocusGuardMonitorService`      | Foreground service host                                    |
+| `TrackingEngine`                | Poll loop (1s active / 2.5s idle), limit evaluation, block |
+| `UsageEventsForegroundObserver` | API 35+ wake on foreground change (poll stays fallback)    |
+| `BlockOverlayManager`           | Hard block UI                                              |
+| `WidgetUpdater`                 | Home-screen widget (throttled; skips when no widgets)      |
+| `LocalDayChangeScheduler`       | `AlarmManager` midnight + timezone receiver                |
+| `TurboModuleEventDispatchers`   | Routes native signals to Turbo Module listeners            |
 
-`RootNavigationGate` wires splash handoff, catalog prefetch, permission guard, monitoring session restore, global usage
-history sync, and native snapshot sync when navigation becomes ready.
+### iOS runtime
+
+| Component                          | Role                                     |
+| ---------------------------------- | ---------------------------------------- |
+| `KeeptMonitoringScheduler`         | DeviceActivity schedule + monitor events |
+| `KeeptMonitor` extension           | Warnings + ManagedSettings shields       |
+| `KeeptReport` extension            | Daily usage into App Group               |
+| `KeeptTurboModuleEventDispatchers` | Routes lifecycle signals to Turbo Module |
+| `KeeptLocalDayChangeScheduler`     | Midnight timer + extension pending flag  |
 
 ## npm scripts
 
-| Script                                    | Description                                    |
-| ----------------------------------------- | ---------------------------------------------- |
-| `npm start`                               | Metro bundler                                  |
-| `npm run android` / `npm run ios`         | Run on device / simulator                      |
-| `npm run check`                           | Full CI gate: lint, format, types, tests       |
-| `npm test`                                | Jest (add `-- --watch` for watch mode locally) |
-| `npm run lint` / `npm run lint:fix`       | ESLint                                         |
-| `npm run format` / `npm run format:check` | Prettier                                       |
-| `npm run typecheck`                       | `tsc --noEmit`                                 |
-| `npm run android:bundle:release`          | Release AAB (requires upload keystore)         |
-| `npm run android:assemble:release`        | Release APK (requires upload keystore)         |
-| `npm run android:release:check`           | Preflight: keystore + `npm run check`          |
+| Script                              | Description                              |
+| ----------------------------------- | ---------------------------------------- |
+| `npm start`                         | Metro bundler                            |
+| `npm run android` / `npm run ios`   | Run on device / simulator                |
+| `npm run check`                     | CI gate: lint, format, types, tests      |
+| `npm test`                          | Jest                                     |
+| `npm run lint` / `npm run lint:fix` | ESLint                                   |
+| `npm run format` / `format:check`   | Prettier                                 |
+| `npm run typecheck`                 | `tsc --noEmit`                           |
+| `npm run android:bundle:release`    | Release AAB                              |
+| `npm run android:assemble:release`  | Release APK                              |
+| `npm run android:release:check`     | Requires `keystore.properties` + `check` |
 
-Pre-commit hooks (Husky + lint-staged) run ESLint and Prettier on staged `source/` and `__tests__/` files. The pre-push
-hook runs the full Jest suite; CI runs `npm run check` on every push/PR.
+**Git hooks:** pre-commit runs lint-staged on staged files; pre-push runs Jest `--findRelatedTests` for changed TS/JS
+only (full gate is in CI).
 
 ## Testing
 
 ```sh
 npm test              # local
-npm run check         # same gate as CI (js job)
+npm run check         # same gate as CI
+cd android && ./gradlew testDebugUnitTest   # Kotlin unit tests
 ```
 
-Tests focus on business logic and integration points that are easy to break:
+Coverage focus:
 
-- **Domain & stores** — permissions, catalogs, MMKV snapshots, usage math
-- **Navigation** — entry route, deep links, bootstrap gate
-- **Hooks & screens** — permission flow, manage-apps selection, dashboard data wiring
+- Domain & stores — permissions, catalogs, MMKV snapshots, usage math
+- Navigation — entry route, deep links, bootstrap gate
+- Architecture guard — no `setTimeout` / `setInterval` in `source/`
+- Kotlin — `NextBlockResolver`, `LocalDayKey`, event dispatchers
 
-Jest defaults to `.ios.ts` resolution; Android-specific modules are imported explicitly in tests (e.g.
-`permissionStatus.android.ts`).
+Jest defaults to `.ios.ts` resolution; Android modules are imported explicitly in tests.
 
 ## Localization
 
-The app supports **English** and **Russian** via **i18next** (`source/i18n/`):
-
-- `useTranslation()` from `@/i18n` — `t('key.path', { params })` in components
-- `languagePreference` in settings (`system` | `en` | `ru`), persisted in MMKV
-- Settings → **Language**; `system` follows device locale via `react-native-localize`
-- Russian plural rules handled by i18next (`compatibilityJSON: 'v4'`)
-- Legal documents: English builders under `source/screen/Legal/data/`, Russian under `source/i18n/legal/ru/`
+English and Russian via i18next (`source/i18n/`). Settings → Language (`system` | `en` | `ru`). Legal: English under
+`source/screen/Legal/data/`, Russian under `source/i18n/legal/ru/`.
 
 ## CI
 
 GitHub Actions (`.github/workflows/ci.yml`), New Architecture enabled:
 
-1. **js** — `npm run check` (lint, format, types, tests) on Node 22
-2. **android** — `assembleDebug` after SDK/NDK install (API 36)
+1. **check** — `npm run check` on Node 22
+2. **android** — `assembleDebug` + `testDebugUnitTest` (API 36, NDK 27.1.12297006)
 
-The Android job runs only after **js** passes.
+Android runs only after **check** passes. Husky is disabled in CI (`HUSKY=0`).
 
 ## Contributing notes
 
-- Bump persist versions in `persistSchema.ts` and native counterparts when changing stored shapes.
+- Bump persist versions in `persistSchema.ts` and native counterparts when stored shapes change.
 - Prefer `syncNativeTrackingSnapshot()` over writing MMKV snapshot keys from JS.
-- Turbo Module spec files in `source/specs/NativeUsageStats*.ts` must keep `TurboModuleRegistry.get` in the same file as
-  `Spec` (codegen requirement).
-- Do not rename legacy `com.focusguard` Kotlin package or `FocusGuard` Xcode target without a coordinated rename.
+- Turbo Module spec files must keep `TurboModuleRegistry.get` in the same file as `Spec` (codegen requirement).
+- Do not add JS polling timers — use native events or `scheduleMicrotask`.
+- Do not rename legacy `com.focusguard` Kotlin package or `FocusGuard` Xcode target without a coordinated migration.

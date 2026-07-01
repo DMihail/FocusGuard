@@ -75,10 +75,7 @@ class ForegroundAppDetector(
 
         val query =
             UsageEventsQuery.Builder(startTime, endTime)
-                .setEventTypes(
-                    UsageEvents.Event.ACTIVITY_RESUMED,
-                    UsageEvents.Event.MOVE_TO_FOREGROUND,
-                )
+                .setEventTypes(UsageEvents.Event.ACTIVITY_RESUMED)
                 .build()
 
         val events = usageStatsManager.queryEvents(query) ?: return null
