@@ -2,79 +2,68 @@ package com.focusguard.react
 
 import android.app.Application
 import com.facebook.react.ReactApplication
+import java.util.concurrent.CopyOnWriteArraySet
 
-/** Routes native lifecycle signals to the active Turbo Module instance. */
+/** Routes native lifecycle signals to active Turbo Module listeners. */
 object TurboModuleEventDispatchers {
-    private var permissionsChangedEmit: (() -> Unit)? = null
-    private var localDayChangedEmit: ((dayKey: String) -> Unit)? = null
-    private var monitorServiceStateEmit: ((isRunning: Boolean) -> Unit)? = null
+    private val permissionsChangedListeners = CopyOnWriteArraySet<() -> Unit>()
+    private val localDayChangedListeners = CopyOnWriteArraySet<(dayKey: String) -> Unit>()
+    private val monitorServiceStateListeners = CopyOnWriteArraySet<(isRunning: Boolean) -> Unit>()
 
     fun registerPermissionsChanged(callback: () -> Unit) {
-        permissionsChangedEmit = callback
+        permissionsChangedListeners.add(callback)
     }
 
     fun unregisterPermissionsChanged(callback: () -> Unit) {
-        if (permissionsChangedEmit === callback) {
-            permissionsChangedEmit = null
-        }
+        permissionsChangedListeners.remove(callback)
     }
 
     fun emitPermissionsChanged(application: Application) {
-        dispatch(application, permissionsChangedEmit)
+        dispatch(application, permissionsChangedListeners) { listener ->
+            listener()
+        }
     }
 
     fun registerLocalDayChanged(callback: (dayKey: String) -> Unit) {
-        localDayChangedEmit = callback
+        localDayChangedListeners.add(callback)
     }
 
     fun unregisterLocalDayChanged(callback: (dayKey: String) -> Unit) {
-        if (localDayChangedEmit === callback) {
-            localDayChangedEmit = null
-        }
+        localDayChangedListeners.remove(callback)
     }
 
     fun emitLocalDayChanged(application: Application, dayKey: String) {
-        val callback = localDayChangedEmit
-        if (callback != null) {
-            callback(dayKey)
-            return
-        }
-
-        dispatchOnUiQueue(application) {
-            localDayChangedEmit?.invoke(dayKey)
+        dispatch(application, localDayChangedListeners) { listener ->
+            listener(dayKey)
         }
     }
 
     fun registerMonitorServiceState(callback: (isRunning: Boolean) -> Unit) {
-        monitorServiceStateEmit = callback
+        monitorServiceStateListeners.add(callback)
     }
 
     fun unregisterMonitorServiceState(callback: (isRunning: Boolean) -> Unit) {
-        if (monitorServiceStateEmit === callback) {
-            monitorServiceStateEmit = null
-        }
+        monitorServiceStateListeners.remove(callback)
     }
 
     fun emitMonitorServiceState(application: Application, isRunning: Boolean) {
-        val callback = monitorServiceStateEmit
-        if (callback != null) {
-            callback(isRunning)
-            return
-        }
-
-        dispatchOnUiQueue(application) {
-            monitorServiceStateEmit?.invoke(isRunning)
+        dispatch(application, monitorServiceStateListeners) { listener ->
+            listener(isRunning)
         }
     }
 
-    private fun dispatch(application: Application, callback: (() -> Unit)?) {
-        if (callback != null) {
-            callback()
+    private fun <T> dispatch(
+        application: Application,
+        listeners: CopyOnWriteArraySet<T>,
+        action: (T) -> Unit,
+    ) {
+        if (listeners.isNotEmpty()) {
+            listeners.forEach(action)
             return
         }
 
         dispatchOnUiQueue(application) {
-            permissionsChangedEmit?.invoke()
+            listeners.forEach(action)
         }
     }
 

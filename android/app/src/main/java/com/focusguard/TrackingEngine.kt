@@ -55,12 +55,27 @@ class TrackingEngine(
 
     private var trackedApps: Set<String> = emptySet()
 
+    private var usageEventsObserver: UsageEventsForegroundObserver? = null
+
     /** Starts the polling loop. No-op if already running. */
     fun start() {
         if (monitoringJob != null) return
 
         ensureWarningChannel()
         DailyWarningStore.pruneStaleKeys()
+
+        usageEventsObserver =
+            UsageEventsForegroundObserver.createIfSupported(context) {
+                scope.launch {
+                    try {
+                        monitorForegroundApp()
+                    } catch (error: Exception) {
+                        handleMonitorFailure(error)
+                    }
+                }
+            }?.also { observer ->
+                observer.start()
+            }
 
         monitoringJob = scope.launch {
             while (isActive) {
@@ -87,6 +102,8 @@ class TrackingEngine(
 
     /** Cancels the polling coroutine and dismisses any active block overlay. */
     fun stop() {
+        usageEventsObserver?.stop()
+        usageEventsObserver = null
         monitoringJob?.cancel()
         monitoringJob = null
         stableForeground = null

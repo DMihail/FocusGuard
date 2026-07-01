@@ -1,38 +1,50 @@
 import Foundation
 
-/** Routes native lifecycle signals to the active Turbo Module instance. */
+/** Routes native lifecycle signals to active Turbo Module listeners. */
 @objc final class KeeptTurboModuleEventDispatchers: NSObject {
-  private static var permissionsChangedEmit: (() -> Void)?
-  private static var localDayChangedEmit: ((String) -> Void)?
-  private static var monitorServiceStateEmit: ((Bool) -> Void)?
+  private static var permissionsChangedListeners: [() -> Void] = []
+  private static var localDayChangedListeners: [(String) -> Void] = []
+  private static var monitorServiceStateListeners: [(Bool) -> Void] = []
 
   @objc static func registerPermissionsChanged(_ callback: @escaping () -> Void) {
-    permissionsChangedEmit = callback
+    permissionsChangedListeners.append(callback)
+  }
+
+  @objc static func unregisterPermissionsChanged(_ callback: @escaping () -> Void) {
+    permissionsChangedListeners.removeAll { $0 as AnyObject === callback as AnyObject }
   }
 
   @objc static func registerLocalDayChanged(_ callback: @escaping (String) -> Void) {
-    localDayChangedEmit = callback
+    localDayChangedListeners.append(callback)
+  }
+
+  @objc static func unregisterLocalDayChanged(_ callback: @escaping (String) -> Void) {
+    localDayChangedListeners.removeAll { $0 as AnyObject === callback as AnyObject }
   }
 
   @objc static func registerMonitorServiceState(_ callback: @escaping (Bool) -> Void) {
-    monitorServiceStateEmit = callback
+    monitorServiceStateListeners.append(callback)
+  }
+
+  @objc static func unregisterMonitorServiceState(_ callback: @escaping (Bool) -> Void) {
+    monitorServiceStateListeners.removeAll { $0 as AnyObject === callback as AnyObject }
   }
 
   @objc static func clearAll() {
-    permissionsChangedEmit = nil
-    localDayChangedEmit = nil
-    monitorServiceStateEmit = nil
+    permissionsChangedListeners.removeAll()
+    localDayChangedListeners.removeAll()
+    monitorServiceStateListeners.removeAll()
   }
 
   @objc static func emitPermissionsChanged() {
-    permissionsChangedEmit?()
+    permissionsChangedListeners.forEach { $0() }
   }
 
   @objc static func emitLocalDayChanged(dayKey: String) {
-    localDayChangedEmit?(dayKey)
+    localDayChangedListeners.forEach { $0(dayKey) }
   }
 
   @objc static func emitMonitorServiceState(isRunning: Bool) {
-    monitorServiceStateEmit?(isRunning)
+    monitorServiceStateListeners.forEach { $0(isRunning) }
   }
 }

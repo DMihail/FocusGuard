@@ -1,9 +1,11 @@
 package com.focusguard
 
 import android.app.usage.UsageEvents
+import android.app.usage.UsageEventsQuery
 import android.app.usage.UsageStatsManager
 import android.content.Context
 import android.os.Build
+import androidx.annotation.RequiresApi
 
 /**
  * Determines which application is currently in the foreground.
@@ -59,6 +61,39 @@ class ForegroundAppDetector(
     }
 
     private fun getForegroundAppFromEvents(): String? {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            return getForegroundAppFromEventsQuery()
+        }
+
+        return getForegroundAppFromLegacyEvents()
+    }
+
+    @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
+    private fun getForegroundAppFromEventsQuery(): String? {
+        val endTime = System.currentTimeMillis()
+        val startTime = endTime - EVENTS_WINDOW_MS
+
+        val query =
+            UsageEventsQuery.Builder(startTime, endTime)
+                .setEventTypes(
+                    UsageEvents.Event.ACTIVITY_RESUMED,
+                    UsageEvents.Event.MOVE_TO_FOREGROUND,
+                )
+                .build()
+
+        val events = usageStatsManager.queryEvents(query) ?: return null
+        val event = UsageEvents.Event()
+        var currentApp: String? = null
+
+        while (events.hasNextEvent()) {
+            events.getNextEvent(event)
+            currentApp = event.packageName
+        }
+
+        return currentApp
+    }
+
+    private fun getForegroundAppFromLegacyEvents(): String? {
         val endTime = System.currentTimeMillis()
         val startTime = endTime - EVENTS_WINDOW_MS
 
