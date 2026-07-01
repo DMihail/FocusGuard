@@ -27,6 +27,8 @@ const mockStoreState = {
 jest.mock('@/specs', () => ({
   getPackagesUsageToday: (packageNames: readonly string[]) => mockGetPackagesUsageToday(packageNames),
   invalidateNativeCatalogCaches: jest.fn(),
+  subscribeLocalDayChanged: jest.fn(() => ({ remove: jest.fn() })),
+  subscribeMonitorServiceStateChanged: jest.fn(() => ({ remove: jest.fn() })),
 }));
 
 jest.mock('@/domain/installedAppsCatalog', () => {

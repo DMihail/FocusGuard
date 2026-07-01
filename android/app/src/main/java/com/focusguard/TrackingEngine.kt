@@ -16,7 +16,6 @@ import com.focusguard.navigation.DeepLinks
 import com.focusguard.notification.KeeptNotifications
 import com.focusguard.overlay.BlockOverlayManager
 import com.focusguard.overlay.DailyWarningStore
-import com.focusguard.overlay.TrackingSnoozeStore
 import com.focusguard.service.FocusGuardMonitorService
 import com.focusguard.widget.WidgetUpdater
 import kotlinx.coroutines.CoroutineScope
@@ -173,34 +172,37 @@ class TrackingEngine(
     }
 
     private fun evaluateTrackedApp(packageName: String) {
-        if (TrackingSnoozeStore.isSnoozed(packageName)) {
-            if (activeBlockPackage == packageName) {
-                clearActiveBlock()
-            }
-            return
-        }
-
-        val limits = TrackingConfigRepository.getLimitConfig(packageName)
         val usedTodayMs = liveUsageEstimator.getEffectiveUsageMs(packageName)
 
-        if (usedTodayMs >= limits.hardBlockThresholdMs) {
-            DailyWarningStore.markWarningShownToday(packageName)
-            activeBlockPackage = packageName
-            ensureBlockOverlayVisible(packageName, limits)
-            return
-        }
+        when (val blockState = NextBlockResolver.resolveAppBlockState(packageName, usedTodayMs)) {
+            is NextBlockResolver.AppBlockState.SnoozeCountdown -> {
+                if (activeBlockPackage == packageName) {
+                    clearActiveBlock()
+                }
+            }
 
-        if (activeBlockPackage == packageName) {
-            clearActiveBlock()
-        }
+            is NextBlockResolver.AppBlockState.HardBlocked -> {
+                val limits = TrackingConfigRepository.getLimitConfig(packageName)
+                DailyWarningStore.markWarningShownToday(packageName)
+                activeBlockPackage = packageName
+                ensureBlockOverlayVisible(packageName, limits)
+            }
 
-        if (
-            usedTodayMs >= limits.warningThresholdMs &&
-                !DailyWarningStore.wasWarningShownToday(packageName)
-        ) {
-            logDebug("Daily warning for $packageName (${usedTodayMs / 60_000}m)")
-            showWarningNotification(packageName)
-            DailyWarningStore.markWarningShownToday(packageName)
+            is NextBlockResolver.AppBlockState.UnderLimit -> {
+                if (activeBlockPackage == packageName) {
+                    clearActiveBlock()
+                }
+
+                val limits = TrackingConfigRepository.getLimitConfig(packageName)
+                if (
+                    usedTodayMs >= limits.warningThresholdMs &&
+                    !DailyWarningStore.wasWarningShownToday(packageName)
+                ) {
+                    logDebug("Daily warning for $packageName (${usedTodayMs / 60_000}m)")
+                    showWarningNotification(packageName)
+                    DailyWarningStore.markWarningShownToday(packageName)
+                }
+            }
         }
     }
 

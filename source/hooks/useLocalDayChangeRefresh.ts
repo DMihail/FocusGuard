@@ -1,13 +1,13 @@
 /** @format */
 
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 
 import { useIsFocused } from '@react-navigation/native';
 
+import { subscribeAppForeground } from '@/runtime/appForegroundBus';
+import { subscribeLocalDayChanged } from '@/specs';
 import { logDevWarning } from '@/utils/logDevWarning';
-import { getLocalDayKey, getMsUntilNextLocalMidnight } from '@/utils/usage/localDayKey';
-
-const DAY_CHECK_INTERVAL_MS = 5 * 60_000;
+import { getLocalDayKey } from '@/utils/usage/localDayKey';
 
 /** Refreshes usage when the local calendar day changes while the screen stays open. */
 export const useLocalDayChangeRefresh = (refresh: () => void | Promise<void>): void => {
@@ -16,41 +16,36 @@ export const useLocalDayChangeRefresh = (refresh: () => void | Promise<void>): v
   const refreshRef = useRef(refresh);
   refreshRef.current = refresh;
 
+  const runIfDayChanged = useCallback(() => {
+    const nextDayKey = getLocalDayKey();
+
+    if (nextDayKey === dayKeyRef.current) {
+      return;
+    }
+
+    dayKeyRef.current = nextDayKey;
+    Promise.resolve(refreshRef.current()).catch(logDevWarning);
+  }, []);
+
   useEffect(() => {
     if (!isFocused) {
       return undefined;
     }
 
-    const runIfDayChanged = () => {
-      const nextDayKey = getLocalDayKey();
-
-      if (nextDayKey === dayKeyRef.current) {
+    const nativeSubscription = subscribeLocalDayChanged((event) => {
+      if (event.dayKey === dayKeyRef.current) {
         return;
       }
 
-      dayKeyRef.current = nextDayKey;
+      dayKeyRef.current = event.dayKey;
       Promise.resolve(refreshRef.current()).catch(logDevWarning);
-    };
+    });
 
-    const intervalId = setInterval(runIfDayChanged, DAY_CHECK_INTERVAL_MS);
-
-    let midnightTimeoutId: ReturnType<typeof setTimeout> | undefined;
-
-    const scheduleMidnightCheck = () => {
-      midnightTimeoutId = setTimeout(() => {
-        runIfDayChanged();
-        scheduleMidnightCheck();
-      }, getMsUntilNextLocalMidnight() + 50);
-    };
-
-    scheduleMidnightCheck();
+    const unsubscribeForeground = subscribeAppForeground(runIfDayChanged);
 
     return () => {
-      clearInterval(intervalId);
-
-      if (midnightTimeoutId !== undefined) {
-        clearTimeout(midnightTimeoutId);
-      }
+      nativeSubscription.remove();
+      unsubscribeForeground();
     };
-  }, [isFocused]);
+  }, [isFocused, runIfDayChanged]);
 };

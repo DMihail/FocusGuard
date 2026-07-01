@@ -8,6 +8,8 @@ const mockUsageStats = {
     capturedPermissionsChangedListener = listener;
     return mockPermissionsChangedSubscription;
   }),
+  onLocalDayChanged: jest.fn(() => mockPermissionsChangedSubscription),
+  onMonitorServiceStateChanged: jest.fn(() => mockPermissionsChangedSubscription),
   checkForPermission: jest.fn(),
   checkForSystemAlertWindowPermission: jest.fn(),
   checkForNotificationsPermission: jest.fn(),

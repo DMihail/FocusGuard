@@ -94,6 +94,10 @@
         </receiver>
 
         <receiver
+                android:name=".receiver.LocalDayChangeReceiver"
+                android:exported="false"/>
+
+        <receiver
                 android:name=".widget.FocusGuardWidgetProvider"
                 android:exported="true"
                 android:label="@string/widget_description">

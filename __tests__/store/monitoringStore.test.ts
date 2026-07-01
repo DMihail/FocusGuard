@@ -65,13 +65,13 @@ describe('monitoringStore', () => {
     expect(monitoringStore.getState().isMonitoring).toBe(false);
   });
 
-  it('rolls back monitoring when the service fails to start', () => {
+  it('keeps monitoring enabled when start succeeds even if the service is not running yet', () => {
     mockIsMonitorServiceRunning.mockReturnValue(false);
 
     monitoringStore.getState().toggle();
 
     expect(mockStartMonitorService).toHaveBeenCalledTimes(1);
-    expect(monitoringStore.getState().isMonitoring).toBe(false);
+    expect(monitoringStore.getState().isMonitoring).toBe(true);
   });
 
   it('calls stopMonitorService and sets isMonitoring to false on second toggle', () => {

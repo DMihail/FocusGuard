@@ -3,15 +3,16 @@ package com.focusguard
 import android.app.usage.UsageStatsManager
 import android.content.Context
 import com.focusguard.usage.DailyUsageAggregator
+import com.focusguard.usage.LocalDayChangeNotifier
 import com.focusguard.usage.UsageStatsExtensions.startOfLocalDayMs
 
 /** Reads per-app foreground usage for the current local calendar day. */
 class DailyUsageRepository private constructor(
-    context: Context,
+    private val appContext: Context,
 ) {
 
     private val usageStatsManager =
-        context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
+        appContext.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
 
     private val cacheLock = Any()
     private var cachedUsageByPackage: Map<String, Long>? = null
@@ -63,6 +64,9 @@ class DailyUsageRepository private constructor(
                     nowMs - cachedAtMs >= CACHE_TTL_MS
 
             if (cacheStale) {
+                if (cachedUsageByPackage != null && cachedDayStartMs != dayStartMs) {
+                    LocalDayChangeNotifier.checkAndNotify(appContext)
+                }
                 cachedUsageByPackage = emptyMap()
                 cachedDayStartMs = dayStartMs
             }

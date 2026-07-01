@@ -9,7 +9,6 @@ import Animated from 'react-native-reanimated';
 import { SelectedDashboardAppRowsProvider } from '@/context/SelectedDashboardAppRowsProvider';
 import { invalidatePermissionSnapshot } from '@/domain/permissionSnapshot';
 import { useCoreStoresHydrated } from '@/hooks/useCoreStoresHydrated';
-import { useGlobalUsageHistorySync } from '@/hooks/useGlobalUsageHistorySync';
 import { usePrefetchNativeCatalogs } from '@/hooks/usePrefetchNativeCatalogs';
 import { onboardingStore } from '@/store';
 import { startNativeTrackingSnapshotSync } from '@/store/nativeTrackingSnapshot';
@@ -32,7 +31,6 @@ export const RootNavigationGate = () => {
   const { isSplashVisible, splashOverlayStyle } = useSplashHandoff(isNavigationReady);
 
   usePrefetchNativeCatalogs();
-  useGlobalUsageHistorySync(isNavigationReady);
 
   useEffect(() => {
     if (!isNavigationReady) {

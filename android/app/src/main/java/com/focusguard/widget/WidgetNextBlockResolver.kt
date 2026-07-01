@@ -3,24 +3,16 @@ package com.focusguard.widget
 import android.content.Context
 import com.focusguard.AppLabelResolver
 import com.focusguard.DailyUsageRepository
+import com.focusguard.NextBlockResolver
 import com.focusguard.TrackingConfigRepository
 import com.focusguard.monitor.MonitoringStateRepository
-import com.focusguard.overlay.TrackingSnoozeStore
 
-/** Builds home-screen widget state from the same limits and usage sources as [com.focusguard.TrackingEngine]. */
+/** Builds home-screen widget state from [NextBlockResolver] and native usage sources. */
 internal object WidgetNextBlockResolver {
-
-    data class NextBlock(
-        val remainingMs: Long,
-        val packageName: String,
-        val appLabel: String,
-        /** True when [remainingMs] is snooze time for an app already over its daily hard block. */
-        val isSnoozeCountdown: Boolean,
-    )
 
     sealed interface Snapshot {
         data class Countdown(
-            val next: NextBlock,
+            val next: NextBlockResolver.NextBlock,
             val monitoringEnabled: Boolean,
         ) : Snapshot
 
@@ -48,34 +40,16 @@ internal object WidgetNextBlockResolver {
         val usageRepository = DailyUsageRepository.getInstance(context)
         val packageManager = context.packageManager
 
-        var nearest: NextBlock? = null
-        var blockedLabel: String? = null
-
-        for (packageName in trackedApps) {
-            val limits = TrackingConfigRepository.getLimitConfig(packageName)
-            val usedMs = usageOverrides?.get(packageName) ?: usageRepository.getTodayForegroundMs(packageName)
-            val remainingMs = limits.hardBlockThresholdMs - usedMs
-            val appLabel = AppLabelResolver.resolve(packageManager, packageName)
-
-            if (remainingMs > 0L) {
-                if (nearest == null || remainingMs < nearest.remainingMs) {
-                    nearest = NextBlock(remainingMs, packageName, appLabel, isSnoozeCountdown = false)
-                }
-                continue
-            }
-
-            val snoozeRemainingMs = TrackingSnoozeStore.getRemainingMs(packageName)
-            if (snoozeRemainingMs > 0L) {
-                if (nearest == null || snoozeRemainingMs < nearest.remainingMs) {
-                    nearest = NextBlock(snoozeRemainingMs, packageName, appLabel, isSnoozeCountdown = true)
-                }
-                continue
-            }
-
-            if (blockedLabel == null) {
-                blockedLabel = appLabel
-            }
-        }
+        val (nearest, blockedLabel) =
+            NextBlockResolver.findNearestNextBlock(
+                trackedApps,
+                usedMsFor = { packageName ->
+                    usageOverrides?.get(packageName) ?: usageRepository.getTodayForegroundMs(packageName)
+                },
+                labelFor = { packageName ->
+                    AppLabelResolver.resolve(packageManager, packageName)
+                },
+            )
 
         return when {
             nearest != null -> Snapshot.Countdown(nearest, monitoringEnabled)

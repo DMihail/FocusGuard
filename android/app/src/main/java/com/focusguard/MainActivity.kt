@@ -16,6 +16,8 @@ import com.focusguard.monitor.MonitoringStateRepository
 import com.focusguard.monitor.MonitorServiceHelper
 import com.focusguard.permissions.NotificationPermission
 import com.focusguard.react.PermissionsChangedDispatcher
+import com.focusguard.usage.LocalDayChangeNotifier
+import com.focusguard.usage.LocalDayChangeScheduler
 import com.swmansion.rnscreens.fragment.restoration.RNScreensFragmentFactory
 
 class MainActivity : ReactActivity() {
@@ -66,6 +68,11 @@ class MainActivity : ReactActivity() {
   override fun onNewIntent(intent: Intent) {
     super.onNewIntent(intent)
     setIntent(intent)
+  }
+
+  override fun onResume() {
+    super.onResume()
+    LocalDayChangeNotifier.checkAndNotify(applicationContext)
   }
 
   override fun onRequestPermissionsResult(

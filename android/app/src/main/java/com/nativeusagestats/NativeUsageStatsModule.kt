@@ -20,6 +20,8 @@ import com.focusguard.monitor.UsageAccess
 import com.focusguard.permissions.BatteryOptimizationAccess
 import com.focusguard.permissions.PermissionRequester
 import com.focusguard.platform.AppInfo
+import com.focusguard.react.LocalDayChangeDispatcher
+import com.focusguard.react.MonitorServiceStateDispatcher
 import com.focusguard.react.PermissionsChangedDispatcher
 import com.focusguard.react.ReactNativeMappers
 import com.focusguard.storage.NativeTrackingSnapshot
@@ -39,6 +41,10 @@ class NativeUsageStatsModule(
   private val ioExecutor = Executors.newSingleThreadExecutor()
   private val mainHandler = Handler(Looper.getMainLooper())
   private val emitPermissionsChangedRunnable = Runnable { emitPermissionsChanged() }
+  private val emitLocalDayChangedCallback = { dayKey: String -> emitLocalDayChanged(dayKey) }
+  private val emitMonitorServiceStateCallback = { isRunning: Boolean ->
+    emitMonitorServiceStateChanged(isRunning)
+  }
 
   private val emitPermissionsChangedCallback = { schedulePermissionsChangedEmit() }
   private val permissionsLifecycleListener =
@@ -58,12 +64,16 @@ class NativeUsageStatsModule(
 
   init {
     PermissionsChangedDispatcher.register(emitPermissionsChangedCallback)
+    LocalDayChangeDispatcher.register(emitLocalDayChangedCallback)
+    MonitorServiceStateDispatcher.register(emitMonitorServiceStateCallback)
     reactApplicationContext.addLifecycleEventListener(permissionsLifecycleListener)
   }
 
   override fun invalidate() {
     mainHandler.removeCallbacks(emitPermissionsChangedRunnable)
     PermissionsChangedDispatcher.unregister(emitPermissionsChangedCallback)
+    LocalDayChangeDispatcher.unregister(emitLocalDayChangedCallback)
+    MonitorServiceStateDispatcher.unregister(emitMonitorServiceStateCallback)
     reactApplicationContext.removeLifecycleEventListener(permissionsLifecycleListener)
     ioExecutor.shutdown()
     super.invalidate()
@@ -179,6 +189,40 @@ class NativeUsageStatsModule(
       runCatching {
         emitOnPermissionsChanged(
             Arguments.createMap().apply {
+              putDouble("changedAtMs", System.currentTimeMillis().toDouble())
+            },
+        )
+      }
+    }
+  }
+
+  private fun emitLocalDayChanged(dayKey: String) {
+    reactApplicationContext.runOnUiQueueThread {
+      if (!reactApplicationContext.hasActiveReactInstance()) {
+        return@runOnUiQueueThread
+      }
+
+      runCatching {
+        emitOnLocalDayChanged(
+            Arguments.createMap().apply {
+              putString("dayKey", dayKey)
+              putDouble("changedAtMs", System.currentTimeMillis().toDouble())
+            },
+        )
+      }
+    }
+  }
+
+  private fun emitMonitorServiceStateChanged(isRunning: Boolean) {
+    reactApplicationContext.runOnUiQueueThread {
+      if (!reactApplicationContext.hasActiveReactInstance()) {
+        return@runOnUiQueueThread
+      }
+
+      runCatching {
+        emitOnMonitorServiceStateChanged(
+            Arguments.createMap().apply {
+              putBoolean("isRunning", isRunning)
               putDouble("changedAtMs", System.currentTimeMillis().toDouble())
             },
         )
