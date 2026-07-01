@@ -13,7 +13,7 @@ import com.focusguard.TrackingEngine
 import com.focusguard.monitor.MonitorPermissions
 import com.focusguard.navigation.DeepLinks
 import com.focusguard.notification.KeeptNotifications
-import com.focusguard.react.MonitorServiceStateDispatcher
+import com.focusguard.react.TurboModuleEventDispatchers
 import com.focusguard.widget.WidgetUpdater
 
 /**
@@ -38,7 +38,7 @@ class FocusGuardMonitorService : Service() {
   override fun onCreate() {
     super.onCreate()
     isRunning = true
-    MonitorServiceStateDispatcher.emit(application, isRunning = true)
+    TurboModuleEventDispatchers.emitMonitorServiceState(application, isRunning = true)
     ensureNotificationChannel()
   }
 
@@ -53,7 +53,7 @@ class FocusGuardMonitorService : Service() {
     if (!MonitorPermissions.canRunMonitorService(this)) {
       if (isRunning) {
         isRunning = false
-        MonitorServiceStateDispatcher.emit(application, isRunning = false)
+        TurboModuleEventDispatchers.emitMonitorServiceState(application, isRunning = false)
       }
       stopSelf()
       return START_NOT_STICKY
@@ -83,7 +83,7 @@ class FocusGuardMonitorService : Service() {
   /** Stops the [TrackingEngine], removes the foreground notification and releases resources. */
   override fun onDestroy() {
     isRunning = false
-    MonitorServiceStateDispatcher.emit(application, isRunning = false)
+    TurboModuleEventDispatchers.emitMonitorServiceState(application, isRunning = false)
     trackingEngine?.stop()
     trackingEngine = null
     WidgetUpdater.scheduleUpdate(applicationContext, force = true)

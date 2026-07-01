@@ -1,5 +1,5 @@
-import { logDevWarning } from '@/utils/logDevWarning';
-import { scheduleAfterInteractions } from '@/utils/scheduleAfterInteractions';
+import { reportError } from '@/crashlytics/reportError';
+import { scheduleMicrotask } from '@/utils/scheduleMicrotask';
 
 type CatalogLoaderState<T> = {
   cached: T | null;
@@ -14,12 +14,12 @@ type KeyedCatalogLoaderState<T extends Record<string, number>> = {
 
 const runDeferred = <T>(task: () => T | Promise<T>, fallback: T): Promise<T> =>
   new Promise((resolve) => {
-    scheduleAfterInteractions(() => {
+    scheduleMicrotask(() => {
       Promise.resolve()
         .then(task)
         .then(resolve)
         .catch((error) => {
-          logDevWarning(error);
+          reportError(error);
           resolve(fallback);
         });
     });
@@ -73,7 +73,7 @@ export const createNativeCatalogLoader = <T>(config: {
     invalidate,
     load,
     prefetch: () => {
-      load().catch(logDevWarning);
+      load().catch(reportError);
     },
   };
 };
@@ -166,7 +166,7 @@ export const createNativeKeyedCatalogLoader = <T extends Record<string, number>>
     invalidate,
     loadForKeys,
     prefetch: (keys) => {
-      loadForKeys(keys).catch(logDevWarning);
+      loadForKeys(keys).catch(reportError);
     },
   };
 };

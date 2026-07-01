@@ -5,7 +5,7 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 
 import { areAllPermissionsGranted } from '@/domain/permissionSnapshot';
 import { isMonitorServiceRunning, startMonitorService, stopMonitorService } from '@/specs';
-import { scheduleAfterInteractions } from '@/utils/scheduleAfterInteractions';
+import { scheduleMicrotask } from '@/utils/scheduleMicrotask';
 
 import { zustandStorage } from './mmkv';
 import { MONITORING_PERSIST_VERSION, PERSIST_STORAGE_KEYS } from './persistSchema';
@@ -52,7 +52,7 @@ export const monitoringStore = create<MonitoringStore>()(
       storage: createJSONStorage(() => zustandStorage),
       partialize: (state) => ({ isMonitoring: state.isMonitoring }),
       onRehydrateStorage: () => () => {
-        scheduleAfterInteractions(restoreMonitoringSession);
+        scheduleMicrotask(restoreMonitoringSession);
       },
     },
   ),

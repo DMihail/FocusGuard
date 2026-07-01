@@ -1,1 +1,17 @@
+#!/usr/bin/env sh
+
+remote="${1:-origin}"
+branch=$(git rev-parse --abbrev-ref HEAD)
+merge_base=$(git merge-base "refs/remotes/${remote}/${branch}" HEAD 2>/dev/null)
+
+if [ -n "$merge_base" ]; then
+  files=$(git diff --name-only --diff-filter=ACMRTUXB "$merge_base" HEAD | grep -E '\.(ts|tsx|js|jsx)$' || true)
+
+  if [ -n "$files" ]; then
+    # shellcheck disable=SC2086
+    npm test -- --watchman=false --forceExit --findRelatedTests --passWithNoTests $files
+    exit $?
+  fi
+fi
+
 npm test -- --watchman=false --forceExit

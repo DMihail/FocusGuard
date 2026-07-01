@@ -18,63 +18,60 @@ export type {
 
 const getModule = (): Spec => getNativeUsageStats();
 
-const permissionsChangedListeners = new Set<(event: PermissionsChangedEvent) => void>();
-const localDayChangedListeners = new Set<(event: LocalDayChangedEvent) => void>();
-const monitorServiceStateListeners = new Set<(event: MonitorServiceStateChangedEvent) => void>();
-
-let hasNativePermissionsChangedSubscription = false;
-let hasNativeLocalDayChangedSubscription = false;
-let hasNativeMonitorServiceStateSubscription = false;
-
-const ensureNativePermissionsChangedSubscription = (): void => {
-  if (hasNativePermissionsChangedSubscription) {
-    return;
-  }
-
-  getModule().onPermissionsChanged((event) => {
-    for (const listener of permissionsChangedListeners) {
-      listener(event);
-    }
-  });
-  hasNativePermissionsChangedSubscription = true;
+type NativeEventHub<T> = {
+  bootstrap: () => void;
+  subscribe: (listener: (event: T) => void) => { remove: () => void };
 };
 
-const ensureNativeLocalDayChangedSubscription = (): void => {
-  if (hasNativeLocalDayChangedSubscription) {
-    return;
-  }
+const createNativeEventHub = <T>(registerNativeListener: (listener: (event: T) => void) => void): NativeEventHub<T> => {
+  const listeners = new Set<(event: T) => void>();
+  let hasNativeSubscription = false;
 
-  getModule().onLocalDayChanged((event) => {
-    for (const listener of localDayChangedListeners) {
-      listener(event);
+  const bootstrap = (): void => {
+    if (hasNativeSubscription) {
+      return;
     }
-  });
-  hasNativeLocalDayChangedSubscription = true;
+
+    registerNativeListener((event) => {
+      for (const listener of listeners) {
+        listener(event);
+      }
+    });
+    hasNativeSubscription = true;
+  };
+
+  return {
+    bootstrap,
+    subscribe: (listener) => {
+      bootstrap();
+      listeners.add(listener);
+
+      return {
+        remove: () => {
+          listeners.delete(listener);
+        },
+      };
+    },
+  };
 };
 
-const ensureNativeMonitorServiceStateSubscription = (): void => {
-  if (hasNativeMonitorServiceStateSubscription) {
-    return;
-  }
+const permissionsChangedHub = createNativeEventHub<PermissionsChangedEvent>((listener) => {
+  getModule().onPermissionsChanged(listener);
+});
 
-  getModule().onMonitorServiceStateChanged((event) => {
-    for (const listener of monitorServiceStateListeners) {
-      listener(event);
-    }
-  });
-  hasNativeMonitorServiceStateSubscription = true;
-};
+const localDayChangedHub = createNativeEventHub<LocalDayChangedEvent>((listener) => {
+  getModule().onLocalDayChanged(listener);
+});
+
+const monitorServiceStateHub = createNativeEventHub<MonitorServiceStateChangedEvent>((listener) => {
+  getModule().onMonitorServiceStateChanged(listener);
+});
 
 /** Registers Turbo Module event callbacks before React mounts any screen. */
 export const bootstrapNativeUsageEvents = (): void => {
-  ensureNativePermissionsChangedSubscription();
-  ensureNativeLocalDayChangedSubscription();
-  ensureNativeMonitorServiceStateSubscription();
-};
-
-/** @deprecated Use bootstrapNativeUsageEvents */
-export const bootstrapPermissionsChangedEvents = (): void => {
-  bootstrapNativeUsageEvents();
+  permissionsChangedHub.bootstrap();
+  localDayChangedHub.bootstrap();
+  monitorServiceStateHub.bootstrap();
 };
 
 export const checkForPermission = (): boolean => getModule().checkForPermission();
@@ -137,37 +134,11 @@ export const syncTrackingConfig = (snapshotJson: string): void => {
 
 export const subscribePermissionsChanged = (
   listener: (event: PermissionsChangedEvent) => void,
-): { remove: () => void } => {
-  ensureNativePermissionsChangedSubscription();
-  permissionsChangedListeners.add(listener);
+): { remove: () => void } => permissionsChangedHub.subscribe(listener);
 
-  return {
-    remove: () => {
-      permissionsChangedListeners.delete(listener);
-    },
-  };
-};
-
-export const subscribeLocalDayChanged = (listener: (event: LocalDayChangedEvent) => void): { remove: () => void } => {
-  ensureNativeLocalDayChangedSubscription();
-  localDayChangedListeners.add(listener);
-
-  return {
-    remove: () => {
-      localDayChangedListeners.delete(listener);
-    },
-  };
-};
+export const subscribeLocalDayChanged = (listener: (event: LocalDayChangedEvent) => void): { remove: () => void } =>
+  localDayChangedHub.subscribe(listener);
 
 export const subscribeMonitorServiceStateChanged = (
   listener: (event: MonitorServiceStateChangedEvent) => void,
-): { remove: () => void } => {
-  ensureNativeMonitorServiceStateSubscription();
-  monitorServiceStateListeners.add(listener);
-
-  return {
-    remove: () => {
-      monitorServiceStateListeners.delete(listener);
-    },
-  };
-};
+): { remove: () => void } => monitorServiceStateHub.subscribe(listener);

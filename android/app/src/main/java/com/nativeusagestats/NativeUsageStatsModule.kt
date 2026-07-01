@@ -20,9 +20,8 @@ import com.focusguard.monitor.UsageAccess
 import com.focusguard.permissions.BatteryOptimizationAccess
 import com.focusguard.permissions.PermissionRequester
 import com.focusguard.platform.AppInfo
-import com.focusguard.react.LocalDayChangeDispatcher
-import com.focusguard.react.MonitorServiceStateDispatcher
-import com.focusguard.react.PermissionsChangedDispatcher
+import com.focusguard.react.TurboModuleEventDispatchers
+import com.focusguard.usage.LocalDayChangeNotifier
 import com.focusguard.react.ReactNativeMappers
 import com.focusguard.storage.NativeTrackingSnapshot
 import com.focusguard.widget.WidgetUpdater
@@ -46,11 +45,12 @@ class NativeUsageStatsModule(
     emitMonitorServiceStateChanged(isRunning)
   }
 
-  private val emitPermissionsChangedCallback = { schedulePermissionsChangedEmit() }
+  private val emitPermissionsChangedCallback = { queuePermissionsChangedEmit() }
   private val permissionsLifecycleListener =
       object : LifecycleEventListener {
         override fun onHostResume() {
-          schedulePermissionsChangedEmit()
+          LocalDayChangeNotifier.checkAndNotify(appContext)
+          queuePermissionsChangedEmit()
         }
 
         override fun onHostPause() {
@@ -63,17 +63,17 @@ class NativeUsageStatsModule(
       }
 
   init {
-    PermissionsChangedDispatcher.register(emitPermissionsChangedCallback)
-    LocalDayChangeDispatcher.register(emitLocalDayChangedCallback)
-    MonitorServiceStateDispatcher.register(emitMonitorServiceStateCallback)
+    TurboModuleEventDispatchers.registerPermissionsChanged(emitPermissionsChangedCallback)
+    TurboModuleEventDispatchers.registerLocalDayChanged(emitLocalDayChangedCallback)
+    TurboModuleEventDispatchers.registerMonitorServiceState(emitMonitorServiceStateCallback)
     reactApplicationContext.addLifecycleEventListener(permissionsLifecycleListener)
   }
 
   override fun invalidate() {
     mainHandler.removeCallbacks(emitPermissionsChangedRunnable)
-    PermissionsChangedDispatcher.unregister(emitPermissionsChangedCallback)
-    LocalDayChangeDispatcher.unregister(emitLocalDayChangedCallback)
-    MonitorServiceStateDispatcher.unregister(emitMonitorServiceStateCallback)
+    TurboModuleEventDispatchers.unregisterPermissionsChanged(emitPermissionsChangedCallback)
+    TurboModuleEventDispatchers.unregisterLocalDayChanged(emitLocalDayChangedCallback)
+    TurboModuleEventDispatchers.unregisterMonitorServiceState(emitMonitorServiceStateCallback)
     reactApplicationContext.removeLifecycleEventListener(permissionsLifecycleListener)
     ioExecutor.shutdown()
     super.invalidate()
@@ -174,9 +174,9 @@ class NativeUsageStatsModule(
     promise.resolve(Arguments.createArray())
   }
 
-  private fun schedulePermissionsChangedEmit() {
+  private fun queuePermissionsChangedEmit() {
     mainHandler.removeCallbacks(emitPermissionsChangedRunnable)
-    mainHandler.postDelayed(emitPermissionsChangedRunnable, PERMISSIONS_CHANGED_DEBOUNCE_MS)
+    mainHandler.post(emitPermissionsChangedRunnable)
   }
 
   private fun emitPermissionsChanged() {
@@ -232,6 +232,5 @@ class NativeUsageStatsModule(
 
   companion object {
     const val NAME = NativeUsageStatsSpec.NAME
-    private const val PERMISSIONS_CHANGED_DEBOUNCE_MS = 300L
   }
 }

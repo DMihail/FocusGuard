@@ -92,7 +92,7 @@ describe('nativeUsageStatsApi.android', () => {
   it('registers a single native listener for multiple JS subscribers', () => {
     const specs = loadSpecs();
 
-    specs.bootstrapPermissionsChangedEvents();
+    specs.bootstrapNativeUsageEvents();
     specs.subscribePermissionsChanged(jest.fn());
     specs.subscribePermissionsChanged(jest.fn());
 

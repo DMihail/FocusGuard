@@ -2,9 +2,9 @@ package com.focusguard.usage
 
 import android.content.Context
 import com.focusguard.DailyUsageRepository
-import com.focusguard.react.LocalDayChangeDispatcher
+import com.focusguard.react.TurboModuleEventDispatchers
 
-/** Detects local day rollovers and notifies JS through [LocalDayChangeDispatcher]. */
+/** Detects local day rollovers and notifies JS through [TurboModuleEventDispatchers]. */
 object LocalDayChangeNotifier {
     @Volatile
     private var lastDayKey: String? = null
@@ -27,6 +27,6 @@ object LocalDayChangeNotifier {
 
     private fun publishDayChange(context: Context, dayKey: String) {
         DailyUsageRepository.getInstance(context).invalidateCache()
-        LocalDayChangeDispatcher.emit(context.applicationContext as android.app.Application, dayKey)
+        TurboModuleEventDispatchers.emitLocalDayChanged(context.applicationContext as android.app.Application, dayKey)
     }
 }
