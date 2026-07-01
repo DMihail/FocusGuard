@@ -12,6 +12,7 @@ enum KeeptAppGroup {
     static let dailyWarningPrefix = "ios-daily-warning-"
     static let iosDailyUsage = "ios-daily-usage-v1"
     static let pendingLocalDayChange = "ios-pending-local-day-change-v1"
+    static let lastLocalDayKey = "last-local-day-key-v1"
   }
 
   /// Screen Time authorization mode for Keept — self-control only.

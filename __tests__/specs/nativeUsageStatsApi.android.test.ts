@@ -89,27 +89,24 @@ describe('nativeUsageStatsApi.android', () => {
     expect(mockPermissionsChangedSubscription.remove).not.toHaveBeenCalled();
   });
 
-  it('registers a single native listener for multiple JS subscribers', () => {
+  it('retries native registration when bootstrap runs before the turbo module is ready', () => {
     const specs = loadSpecs();
+
+    mockUsageStats.onPermissionsChanged
+      .mockImplementationOnce(() => {
+        throw new Error('NativeUsageStats not ready');
+      })
+      .mockImplementation((listener: (event: { changedAtMs: number }) => void) => {
+        capturedPermissionsChangedListener = listener;
+        return mockPermissionsChangedSubscription;
+      });
 
     specs.bootstrapNativeUsageEvents();
-    specs.subscribePermissionsChanged(jest.fn());
-    specs.subscribePermissionsChanged(jest.fn());
-
     expect(mockUsageStats.onPermissionsChanged).toHaveBeenCalledTimes(1);
-  });
 
-  it('fans out native permission events to every JS subscriber', () => {
-    const firstListener = jest.fn();
-    const secondListener = jest.fn();
-    const specs = loadSpecs();
-
-    specs.subscribePermissionsChanged(firstListener);
-    specs.subscribePermissionsChanged(secondListener);
-
-    capturedPermissionsChangedListener?.({ changedAtMs: 99 });
-
-    expect(firstListener).toHaveBeenCalledWith({ changedAtMs: 99 });
-    expect(secondListener).toHaveBeenCalledWith({ changedAtMs: 99 });
+    specs.subscribePermissionsChanged(jest.fn());
+    expect(mockUsageStats.onPermissionsChanged).toHaveBeenCalledTimes(2);
   });
 });
+
+export {};

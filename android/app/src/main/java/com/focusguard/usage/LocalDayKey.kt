@@ -10,6 +10,10 @@ internal fun getLocalDayKey(dateMs: Long = System.currentTimeMillis()): String {
     return "${calendar.get(Calendar.YEAR)}-${calendar.get(Calendar.MONTH) + 1}-${calendar.get(Calendar.DAY_OF_MONTH)}"
 }
 
+/** True when [previousDayKey] was set and differs from [currentDayKey]. */
+internal fun shouldPublishLocalDayChange(previousDayKey: String?, currentDayKey: String): Boolean =
+    previousDayKey != null && previousDayKey != currentDayKey
+
 internal fun getMsUntilNextLocalMidnight(dateMs: Long = System.currentTimeMillis()): Long {
     val calendar = Calendar.getInstance()
     calendar.timeInMillis = dateMs

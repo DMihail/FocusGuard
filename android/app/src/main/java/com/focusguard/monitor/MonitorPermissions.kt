@@ -29,12 +29,20 @@ internal object MonitorPermissions {
             else -> null
         }
 
-    /** @return `true` if the monitor service can be safely started. */
+    /**
+     * @return `true` if the monitor service can be safely started.
+     *
+     * Positive results are never cached: usage and overlay access can be revoked while the FGS
+     * poll loop runs. Only a cached `false` is returned without re-checking (manifest permissions
+     * are not revocable at runtime); call [invalidateCache] before a start attempt after grants.
+     */
     fun canRunMonitorService(context: Context): Boolean {
-        cachedCanRun?.let { return it }
+        if (cachedCanRun == false) {
+            return false
+        }
 
         val canRun = resolveStartFailureReason(context) == null
-        cachedCanRun = canRun
+        cachedCanRun = if (canRun) null else false
         return canRun
     }
 

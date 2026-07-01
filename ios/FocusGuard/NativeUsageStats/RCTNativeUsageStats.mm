@@ -43,6 +43,7 @@
       @"dayKey" : dayKey,
       @"changedAtMs" : @((NSInteger)(NSDate.date.timeIntervalSince1970 * 1000)),
     }];
+    [KeeptLocalDayChangeNotifier markDayChangeNotified:dayKey];
   }];
 
   _monitorServiceStateToken = [KeeptTurboModuleEventDispatchers registerMonitorServiceState:^(BOOL isRunning) {

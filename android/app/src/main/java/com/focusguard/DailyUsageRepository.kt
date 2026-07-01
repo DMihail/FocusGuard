@@ -68,9 +68,7 @@ class DailyUsageRepository private constructor(
                     nowMs - cachedAtMs >= CACHE_TTL_MS
 
             if (cacheStale) {
-                if (cachedUsageByPackage != null && cachedDayStartMs != dayStartMs) {
-                    LocalDayChangeNotifier.checkAndNotify(appContext)
-                }
+                LocalDayChangeNotifier.checkAndNotify(appContext)
                 cachedUsageByPackage = emptyMap()
                 cachedDayStartMs = dayStartMs
             }

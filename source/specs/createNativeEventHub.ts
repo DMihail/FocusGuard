@@ -4,22 +4,23 @@ type NativeEventHub<T> = {
 };
 
 export const createNativeEventHub = <T>(
-  registerNativeListener: (listener: (event: T) => void) => void,
+  registerNativeListener: (listener: (event: T) => void) => boolean,
 ): NativeEventHub<T> => {
   const listeners = new Set<(event: T) => void>();
   let hasNativeSubscription = false;
+
+  const fanOut = (event: T): void => {
+    for (const listener of listeners) {
+      listener(event);
+    }
+  };
 
   const bootstrap = (): void => {
     if (hasNativeSubscription) {
       return;
     }
 
-    registerNativeListener((event) => {
-      for (const listener of listeners) {
-        listener(event);
-      }
-    });
-    hasNativeSubscription = true;
+    hasNativeSubscription = registerNativeListener(fanOut);
   };
 
   return {
