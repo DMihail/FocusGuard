@@ -1,23 +1,34 @@
-const { execSync } = require('child_process');
+const fs = require('fs');
+const path = require('path');
+
+const SOURCE_ROOT = path.join(__dirname, '../../source');
+const TIMER_PATTERN = /\b(setTimeout|setInterval)\s*\(/;
+
+const collectSourceFiles = (directory) => {
+  const entries = fs.readdirSync(directory, { withFileTypes: true });
+
+  return entries.flatMap((entry) => {
+    const fullPath = path.join(directory, entry.name);
+
+    if (entry.isDirectory()) {
+      return collectSourceFiles(fullPath);
+    }
+
+    if (!/\.(ts|tsx)$/.test(entry.name)) {
+      return [];
+    }
+
+    return [fullPath];
+  });
+};
 
 describe('architecture / production timers', () => {
   it('does not use setTimeout or setInterval under source/', () => {
-    let output = '';
+    const offenders = collectSourceFiles(SOURCE_ROOT).filter((filePath) => {
+      const contents = fs.readFileSync(filePath, 'utf8');
+      return TIMER_PATTERN.test(contents);
+    });
 
-    try {
-      output = execSync('rg "\\b(setTimeout|setInterval)\\s*\\(" source -g "*.ts" -g "*.tsx" -l', {
-        cwd: process.cwd(),
-        encoding: 'utf8',
-        stdio: ['pipe', 'pipe', 'pipe'],
-      });
-    } catch (error) {
-      if (error && typeof error === 'object' && 'status' in error && error.status === 1) {
-        output = '';
-      } else {
-        throw error;
-      }
-    }
-
-    expect(output.trim()).toBe('');
+    expect(offenders).toEqual([]);
   });
 });
