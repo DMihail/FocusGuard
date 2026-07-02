@@ -10,11 +10,24 @@ import {
   stopMonitorService,
   subscribeMonitorServiceStateChanged,
 } from '@/specs';
+import type { MonitorServiceStateChangedEvent } from '@/specs/types';
 import { scheduleMicrotask } from '@/utils/scheduleMicrotask';
 
 import { zustandStorage } from './mmkv';
 import { MONITORING_PERSIST_VERSION, PERSIST_STORAGE_KEYS } from './persistSchema';
 import type { MonitoringStore, MonitoringToggleResult } from './types';
+
+let monitorStartRequestedAtMs = 0;
+let activeHealthCheckCancel: (() => void) | null = null;
+
+const disposeActiveHealthCheck = (): void => {
+  activeHealthCheckCancel?.();
+  activeHealthCheckCancel = null;
+};
+
+const markMonitorStartRequested = (): void => {
+  monitorStartRequestedAtMs = Date.now();
+};
 
 /** Persisted focus-mode toggle; starts/stops the native monitor foreground service. */
 export const monitoringStore = create<MonitoringStore>()(
@@ -32,6 +45,7 @@ export const monitoringStore = create<MonitoringStore>()(
 
           set({ isMonitoring: true });
 
+          markMonitorStartRequested();
           const startResult = startMonitorService();
 
           if (!startResult.started) {
@@ -47,6 +61,7 @@ export const monitoringStore = create<MonitoringStore>()(
           return { ok: true };
         }
 
+        disposeActiveHealthCheck();
         stopMonitorService();
         set({ isMonitoring: false });
         return { ok: true };
@@ -65,7 +80,10 @@ export const monitoringStore = create<MonitoringStore>()(
 );
 
 const scheduleMonitoringStartHealthCheck = (): void => {
+  disposeActiveHealthCheck();
+
   let settled = false;
+  let verifyScheduled = false;
 
   const settle = (): void => {
     if (settled) {
@@ -74,7 +92,13 @@ const scheduleMonitoringStartHealthCheck = (): void => {
 
     settled = true;
     subscription.remove();
+
+    if (activeHealthCheckCancel === settle) {
+      activeHealthCheckCancel = null;
+    }
   };
+
+  activeHealthCheckCancel = settle;
 
   const verifyRunningOrClear = (): void => {
     if (!monitoringStore.getState().isMonitoring) {
@@ -91,6 +115,24 @@ const scheduleMonitoringStartHealthCheck = (): void => {
     settle();
   };
 
+  const scheduleVerifyRunningOrClear = (): void => {
+    if (verifyScheduled || settled) {
+      return;
+    }
+
+    verifyScheduled = true;
+    scheduleMicrotask(() => {
+      verifyScheduled = false;
+
+      if (!settled) {
+        verifyRunningOrClear();
+      }
+    });
+  };
+
+  const isStaleStopEvent = (event: MonitorServiceStateChangedEvent): boolean =>
+    event.changedAtMs < monitorStartRequestedAtMs;
+
   const subscription = subscribeMonitorServiceStateChanged((event) => {
     if (!monitoringStore.getState().isMonitoring) {
       settle();
@@ -102,7 +144,12 @@ const scheduleMonitoringStartHealthCheck = (): void => {
       return;
     }
 
-    verifyRunningOrClear();
+    // A delayed `false` from the previous service teardown can arrive while a new start is in flight.
+    if (isStaleStopEvent(event)) {
+      return;
+    }
+
+    scheduleVerifyRunningOrClear();
   });
 
   // Android reports `started` before onStartCommand flips isRunning; wait for native events.
@@ -126,6 +173,7 @@ export const restoreMonitoringSession = (): void => {
     return;
   }
 
+  markMonitorStartRequested();
   const startResult = startMonitorService();
 
   if (!startResult.started) {
@@ -134,4 +182,10 @@ export const restoreMonitoringSession = (): void => {
   }
 
   scheduleMonitoringStartHealthCheck();
+};
+
+/** @internal */
+export const resetMonitoringStartHealthCheckForTests = (): void => {
+  disposeActiveHealthCheck();
+  monitorStartRequestedAtMs = 0;
 };
