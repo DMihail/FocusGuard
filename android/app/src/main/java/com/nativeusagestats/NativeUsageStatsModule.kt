@@ -50,7 +50,7 @@ class NativeUsageStatsModule(
       object : LifecycleEventListener {
         override fun onHostResume() {
           LocalDayChangeNotifier.checkAndNotify(appContext)
-          TurboModuleEventDispatchers.replayPendingMonitorServiceStateIfNeeded()
+          TurboModuleEventDispatchers.replayPendingMonitorServiceState()
           queuePermissionsChangedEmit()
         }
 

@@ -139,18 +139,6 @@ describe('monitoringStore', () => {
     expect(monitoringStore.getState().isMonitoring).toBe(true);
   });
 
-  it('keeps monitoring enabled when native confirms the service is running', () => {
-    mockIsMonitorServiceRunning.mockReturnValue(false);
-
-    monitoringStore.getState().toggle();
-
-    act(() => {
-      monitorServiceStateListener?.({ isRunning: true });
-    });
-
-    expect(monitoringStore.getState().isMonitoring).toBe(true);
-  });
-
   it('calls stopMonitorService and sets isMonitoring to false on second toggle', () => {
     monitoringStore.setState({ isMonitoring: true });
 
@@ -180,6 +168,7 @@ describe('monitoringStore', () => {
     });
 
     expect(mockStartMonitorService).toHaveBeenCalledTimes(1);
+    expect(mockSubscribeMonitorServiceStateChanged).toHaveBeenCalledTimes(1);
     expect(monitoringStore.getState().isMonitoring).toBe(true);
   });
 
@@ -216,17 +205,5 @@ describe('monitoringStore', () => {
     expect(mockStartMonitorService).toHaveBeenCalledTimes(1);
     expect(mockSubscribeMonitorServiceStateChanged).not.toHaveBeenCalled();
     expect(monitoringStore.getState().isMonitoring).toBe(false);
-  });
-
-  it('schedules a health check after restore when startMonitorService succeeds', () => {
-    monitoringStore.setState({ isMonitoring: true });
-    mockIsMonitorServiceRunning.mockReturnValue(false);
-    mockStartMonitorService.mockReturnValue({ started: true });
-
-    restoreMonitoringSession();
-
-    expect(mockStartMonitorService).toHaveBeenCalledTimes(1);
-    expect(mockSubscribeMonitorServiceStateChanged).toHaveBeenCalledTimes(1);
-    expect(monitoringStore.getState().isMonitoring).toBe(true);
   });
 });

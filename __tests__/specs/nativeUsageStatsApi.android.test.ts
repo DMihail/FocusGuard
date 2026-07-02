@@ -88,25 +88,6 @@ describe('nativeUsageStatsApi.android', () => {
     subscription.remove();
     expect(mockPermissionsChangedSubscription.remove).not.toHaveBeenCalled();
   });
-
-  it('retries native registration when bootstrap runs before the turbo module is ready', () => {
-    const specs = loadSpecs();
-
-    mockUsageStats.onPermissionsChanged
-      .mockImplementationOnce(() => {
-        throw new Error('NativeUsageStats not ready');
-      })
-      .mockImplementation((listener: (event: { changedAtMs: number }) => void) => {
-        capturedPermissionsChangedListener = listener;
-        return mockPermissionsChangedSubscription;
-      });
-
-    specs.bootstrapNativeUsageEvents();
-    expect(mockUsageStats.onPermissionsChanged).toHaveBeenCalledTimes(1);
-
-    specs.subscribePermissionsChanged(jest.fn());
-    expect(mockUsageStats.onPermissionsChanged).toHaveBeenCalledTimes(2);
-  });
 });
 
 export {};

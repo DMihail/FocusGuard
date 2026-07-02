@@ -73,10 +73,6 @@ object TurboModuleEventDispatchers {
         pendingMonitorServiceState = isRunning
     }
 
-    fun replayPendingMonitorServiceStateIfNeeded() {
-        replayPendingMonitorServiceState()
-    }
-
     fun registerMonitorServiceState(callback: (isRunning: Boolean) -> Unit) {
         monitorServiceStateListeners.add(callback)
         replayPendingMonitorServiceState()
@@ -169,7 +165,7 @@ object TurboModuleEventDispatchers {
         }
     }
 
-    private fun replayPendingMonitorServiceState() {
+    internal fun replayPendingMonitorServiceState() {
         val isRunning = pendingMonitorServiceState ?: return
         if (monitorServiceStateListeners.isEmpty()) {
             return

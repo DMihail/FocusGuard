@@ -62,7 +62,7 @@ class TurboModuleEventDispatchersTest {
 
         receivedState = null
         TurboModuleEventDispatchers.storePendingMonitorServiceState(isRunning = false)
-        TurboModuleEventDispatchers.replayPendingMonitorServiceStateIfNeeded()
+        TurboModuleEventDispatchers.replayPendingMonitorServiceState()
 
         assertEquals(false, receivedState)
     }

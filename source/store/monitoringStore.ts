@@ -10,7 +10,6 @@ import {
   stopMonitorService,
   subscribeMonitorServiceStateChanged,
 } from '@/specs';
-import type { MonitorServiceStateChangedEvent } from '@/specs/types';
 import { scheduleMicrotask } from '@/utils/scheduleMicrotask';
 
 import { zustandStorage } from './mmkv';
@@ -83,7 +82,6 @@ const scheduleMonitoringStartHealthCheck = (): void => {
   disposeActiveHealthCheck();
 
   let settled = false;
-  let verifyScheduled = false;
 
   const settle = (): void => {
     if (settled) {
@@ -93,45 +91,16 @@ const scheduleMonitoringStartHealthCheck = (): void => {
     settled = true;
     subscription.remove();
 
-    if (activeHealthCheckCancel === settle) {
+    if (activeHealthCheckCancel === cancel) {
       activeHealthCheckCancel = null;
     }
   };
 
-  activeHealthCheckCancel = settle;
-
-  const verifyRunningOrClear = (): void => {
-    if (!monitoringStore.getState().isMonitoring) {
-      settle();
-      return;
-    }
-
-    if (isMonitorServiceRunning()) {
-      settle();
-      return;
-    }
-
-    monitoringStore.setState({ isMonitoring: false });
+  const cancel = (): void => {
     settle();
   };
 
-  const scheduleVerifyRunningOrClear = (): void => {
-    if (verifyScheduled || settled) {
-      return;
-    }
-
-    verifyScheduled = true;
-    scheduleMicrotask(() => {
-      verifyScheduled = false;
-
-      if (!settled) {
-        verifyRunningOrClear();
-      }
-    });
-  };
-
-  const isStaleStopEvent = (event: MonitorServiceStateChangedEvent): boolean =>
-    event.changedAtMs < monitorStartRequestedAtMs;
+  activeHealthCheckCancel = cancel;
 
   const subscription = subscribeMonitorServiceStateChanged((event) => {
     if (!monitoringStore.getState().isMonitoring) {
@@ -145,11 +114,23 @@ const scheduleMonitoringStartHealthCheck = (): void => {
     }
 
     // A delayed `false` from the previous service teardown can arrive while a new start is in flight.
-    if (isStaleStopEvent(event)) {
+    if (event.changedAtMs < monitorStartRequestedAtMs) {
       return;
     }
 
-    scheduleVerifyRunningOrClear();
+    scheduleMicrotask(() => {
+      if (settled || !monitoringStore.getState().isMonitoring) {
+        return;
+      }
+
+      if (isMonitorServiceRunning()) {
+        settle();
+        return;
+      }
+
+      monitoringStore.setState({ isMonitoring: false });
+      settle();
+    });
   });
 
   // Android reports `started` before onStartCommand flips isRunning; wait for native events.
