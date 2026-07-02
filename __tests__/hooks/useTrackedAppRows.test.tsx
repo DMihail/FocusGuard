@@ -114,6 +114,27 @@ describe('useTrackedAppRows', () => {
     );
   });
 
+  it('runs lifecycle refresh independently for each hook instance', async () => {
+    const DualHarness = () => {
+      useTrackedAppRows();
+      useTrackedAppRows();
+      return null;
+    };
+
+    act(() => {
+      ReactTestRenderer.create(
+        <SelectedDashboardAppRowsProvider>
+          <DualHarness />
+        </SelectedDashboardAppRowsProvider>,
+      );
+    });
+
+    await flushEffects();
+
+    expect(mockSeedUsageFromCache).toHaveBeenCalledTimes(2);
+    expect(mockRefreshUsage).toHaveBeenCalledTimes(2);
+  });
+
   it('skips usage refresh while core stores are not hydrated', async () => {
     mockUseCoreStoresHydrated.mockReturnValue(false);
 
