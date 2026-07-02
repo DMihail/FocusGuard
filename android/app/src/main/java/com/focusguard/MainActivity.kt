@@ -15,7 +15,7 @@ import com.focusguard.monitor.MonitoringBootResumeStore
 import com.focusguard.monitor.MonitoringStateRepository
 import com.focusguard.monitor.MonitorServiceHelper
 import com.focusguard.permissions.NotificationPermission
-import com.focusguard.react.PermissionsChangedDispatcher
+import com.focusguard.react.TurboModuleEventDispatchers
 import com.swmansion.rnscreens.fragment.restoration.RNScreensFragmentFactory
 
 class MainActivity : ReactActivity() {
@@ -76,7 +76,7 @@ class MainActivity : ReactActivity() {
     super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 
     if (requestCode == NotificationPermission.REQUEST_CODE_POST_NOTIFICATIONS) {
-      PermissionsChangedDispatcher.emit(application)
+      TurboModuleEventDispatchers.emitPermissionsChanged()
     }
   }
 

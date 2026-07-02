@@ -4,7 +4,6 @@ import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
-import android.os.SystemClock
 import androidx.core.content.ContextCompat
 
 /**
@@ -15,17 +14,11 @@ import androidx.core.content.ContextCompat
  */
 internal object MonitorPermissions {
 
-    private const val CACHE_TTL_MS = 45_000L
-
     @Volatile
     private var cachedCanRun: Boolean? = null
 
-    @Volatile
-    private var cachedAtElapsedMs: Long = 0L
-
     fun invalidateCache() {
         cachedCanRun = null
-        cachedAtElapsedMs = 0L
     }
 
     fun resolveStartFailureReason(context: Context): String? =
@@ -36,18 +29,20 @@ internal object MonitorPermissions {
             else -> null
         }
 
-    /** @return `true` if the monitor service can be safely started. */
+    /**
+     * @return `true` if the monitor service can be safely started.
+     *
+     * Positive results are never cached: usage and overlay access can be revoked while the FGS
+     * poll loop runs. Only a cached `false` is returned without re-checking (manifest permissions
+     * are not revocable at runtime); call [invalidateCache] before a start attempt after grants.
+     */
     fun canRunMonitorService(context: Context): Boolean {
-        val now = SystemClock.elapsedRealtime()
-        val cached = cachedCanRun
-
-        if (cached != null && now - cachedAtElapsedMs < CACHE_TTL_MS) {
-            return cached
+        if (cachedCanRun == false) {
+            return false
         }
 
         val canRun = resolveStartFailureReason(context) == null
-        cachedCanRun = canRun
-        cachedAtElapsedMs = now
+        cachedCanRun = if (canRun) null else false
         return canRun
     }
 

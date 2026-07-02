@@ -4,14 +4,29 @@ import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
 import { areAllPermissionsGranted } from '@/domain/permissionSnapshot';
-import { isMonitorServiceRunning, startMonitorService, stopMonitorService } from '@/specs';
-import { scheduleAfterInteractions } from '@/utils/scheduleAfterInteractions';
+import {
+  isMonitorServiceRunning,
+  startMonitorService,
+  stopMonitorService,
+  subscribeMonitorServiceStateChanged,
+} from '@/specs';
+import { scheduleMicrotask } from '@/utils/scheduleMicrotask';
 
 import { zustandStorage } from './mmkv';
 import { MONITORING_PERSIST_VERSION, PERSIST_STORAGE_KEYS } from './persistSchema';
 import type { MonitoringStore, MonitoringToggleResult } from './types';
 
-const MONITOR_START_HEALTH_CHECK_MS = 2_000;
+let monitorStartRequestedAtMs = 0;
+let activeHealthCheckCancel: (() => void) | null = null;
+
+const disposeActiveHealthCheck = (): void => {
+  activeHealthCheckCancel?.();
+  activeHealthCheckCancel = null;
+};
+
+const markMonitorStartRequested = (): void => {
+  monitorStartRequestedAtMs = Date.now();
+};
 
 /** Persisted focus-mode toggle; starts/stops the native monitor foreground service. */
 export const monitoringStore = create<MonitoringStore>()(
@@ -29,6 +44,7 @@ export const monitoringStore = create<MonitoringStore>()(
 
           set({ isMonitoring: true });
 
+          markMonitorStartRequested();
           const startResult = startMonitorService();
 
           if (!startResult.started) {
@@ -44,6 +60,7 @@ export const monitoringStore = create<MonitoringStore>()(
           return { ok: true };
         }
 
+        disposeActiveHealthCheck();
         stopMonitorService();
         set({ isMonitoring: false });
         return { ok: true };
@@ -55,29 +72,71 @@ export const monitoringStore = create<MonitoringStore>()(
       storage: createJSONStorage(() => zustandStorage),
       partialize: (state) => ({ isMonitoring: state.isMonitoring }),
       onRehydrateStorage: () => () => {
-        scheduleAfterInteractions(restoreMonitoringSession);
+        scheduleMicrotask(restoreMonitoringSession);
       },
     },
   ),
 );
 
 const scheduleMonitoringStartHealthCheck = (): void => {
-  const isTestEnvironment = typeof jest !== 'undefined';
+  disposeActiveHealthCheck();
 
-  const runCheck = (): void => {
-    if (!monitoringStore.getState().isMonitoring || isMonitorServiceRunning()) {
+  let settled = false;
+
+  const settle = (): void => {
+    if (settled) {
       return;
     }
 
-    monitoringStore.setState({ isMonitoring: false });
+    settled = true;
+    subscription.remove();
+
+    if (activeHealthCheckCancel === cancel) {
+      activeHealthCheckCancel = null;
+    }
   };
 
-  if (isTestEnvironment) {
-    runCheck();
-    return;
-  }
+  const cancel = (): void => {
+    settle();
+  };
 
-  setTimeout(runCheck, MONITOR_START_HEALTH_CHECK_MS);
+  activeHealthCheckCancel = cancel;
+
+  const subscription = subscribeMonitorServiceStateChanged((event) => {
+    if (!monitoringStore.getState().isMonitoring) {
+      settle();
+      return;
+    }
+
+    if (event.isRunning) {
+      settle();
+      return;
+    }
+
+    // A delayed `false` from the previous service teardown can arrive while a new start is in flight.
+    if (event.changedAtMs < monitorStartRequestedAtMs) {
+      return;
+    }
+
+    scheduleMicrotask(() => {
+      if (settled || !monitoringStore.getState().isMonitoring) {
+        return;
+      }
+
+      if (isMonitorServiceRunning()) {
+        settle();
+        return;
+      }
+
+      monitoringStore.setState({ isMonitoring: false });
+      settle();
+    });
+  });
+
+  // Android reports `started` before onStartCommand flips isRunning; wait for native events.
+  if (monitoringStore.getState().isMonitoring && isMonitorServiceRunning()) {
+    settle();
+  }
 };
 
 /** Restarts the monitor service for a persisted session or clears stale monitoring state. */
@@ -95,6 +154,7 @@ export const restoreMonitoringSession = (): void => {
     return;
   }
 
+  markMonitorStartRequested();
   const startResult = startMonitorService();
 
   if (!startResult.started) {
@@ -103,4 +163,10 @@ export const restoreMonitoringSession = (): void => {
   }
 
   scheduleMonitoringStartHealthCheck();
+};
+
+/** @internal */
+export const resetMonitoringStartHealthCheckForTests = (): void => {
+  disposeActiveHealthCheck();
+  monitorStartRequestedAtMs = 0;
 };

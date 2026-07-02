@@ -1,13 +1,13 @@
 /** @format */
 
-import { useEffect, useRef } from 'react';
+import { useCallback, useRef } from 'react';
 
-import { useIsFocused } from '@react-navigation/native';
+import { useFocusEffect, useIsFocused } from '@react-navigation/native';
 
-import { logDevWarning } from '@/utils/logDevWarning';
-import { getLocalDayKey, getMsUntilNextLocalMidnight } from '@/utils/usage/localDayKey';
-
-const DAY_CHECK_INTERVAL_MS = 5 * 60_000;
+import { reportError } from '@/crashlytics/reportError';
+import { useAppStateOnActive } from '@/hooks/useAppStateOnActive';
+import { subscribeLocalDayChanged } from '@/specs';
+import { getLocalDayKey } from '@/utils/usage/localDayKey';
 
 /** Refreshes usage when the local calendar day changes while the screen stays open. */
 export const useLocalDayChangeRefresh = (refresh: () => void | Promise<void>): void => {
@@ -16,41 +16,40 @@ export const useLocalDayChangeRefresh = (refresh: () => void | Promise<void>): v
   const refreshRef = useRef(refresh);
   refreshRef.current = refresh;
 
-  useEffect(() => {
-    if (!isFocused) {
-      return undefined;
+  const refreshIfDayChanged = useCallback(() => {
+    const currentDayKey = getLocalDayKey();
+    if (currentDayKey === dayKeyRef.current) {
+      return;
     }
 
-    const runIfDayChanged = () => {
-      const nextDayKey = getLocalDayKey();
+    dayKeyRef.current = currentDayKey;
+    Promise.resolve(refreshRef.current()).catch(reportError);
+  }, []);
 
-      if (nextDayKey === dayKeyRef.current) {
-        return;
+  useFocusEffect(
+    useCallback(() => {
+      refreshIfDayChanged();
+
+      const subscription = subscribeLocalDayChanged((event) => {
+        if (event.dayKey === dayKeyRef.current) {
+          return;
+        }
+
+        dayKeyRef.current = event.dayKey;
+        Promise.resolve(refreshRef.current()).catch(reportError);
+      });
+
+      return () => {
+        subscription.remove();
+      };
+    }, [refreshIfDayChanged]),
+  );
+
+  useAppStateOnActive(
+    useCallback(() => {
+      if (isFocused) {
+        refreshIfDayChanged();
       }
-
-      dayKeyRef.current = nextDayKey;
-      Promise.resolve(refreshRef.current()).catch(logDevWarning);
-    };
-
-    const intervalId = setInterval(runIfDayChanged, DAY_CHECK_INTERVAL_MS);
-
-    let midnightTimeoutId: ReturnType<typeof setTimeout> | undefined;
-
-    const scheduleMidnightCheck = () => {
-      midnightTimeoutId = setTimeout(() => {
-        runIfDayChanged();
-        scheduleMidnightCheck();
-      }, getMsUntilNextLocalMidnight() + 50);
-    };
-
-    scheduleMidnightCheck();
-
-    return () => {
-      clearInterval(intervalId);
-
-      if (midnightTimeoutId !== undefined) {
-        clearTimeout(midnightTimeoutId);
-      }
-    };
-  }, [isFocused]);
+    }, [isFocused, refreshIfDayChanged]),
+  );
 };

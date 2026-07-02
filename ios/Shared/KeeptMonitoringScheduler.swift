@@ -44,6 +44,7 @@ enum KeeptMonitoringScheduler {
     do {
       try center.startMonitoring(KeeptMonitoringNames.dailyActivity, during: schedule, events: events)
       KeeptMonitoringStateStore.setEnabled(true)
+      KeeptTurboModuleEventDispatchers.emitMonitorServiceState(isRunning: true)
       return true
     } catch {
       throw StartFailure.scheduleFailed
@@ -54,6 +55,7 @@ enum KeeptMonitoringScheduler {
     center.stopMonitoring([KeeptMonitoringNames.dailyActivity])
     IosShieldStore.clearAll()
     KeeptMonitoringStateStore.setEnabled(false)
+    KeeptTurboModuleEventDispatchers.emitMonitorServiceState(isRunning: false)
   }
 
   static func rescheduleIfRunning() {

@@ -11,8 +11,13 @@ const { bootstrapCrashlytics } = require('@/crashlytics/bootstrapCrashlytics');
 bootstrapCrashlytics();
 
 if (Platform.OS === 'android') {
-  const { bootstrapPermissionsChangedEvents } = require('@/specs/nativeUsageStatsApi.android');
-  bootstrapPermissionsChangedEvents();
+  const { bootstrapNativeUsageEvents } = require('@/specs/nativeUsageStatsApi.android');
+  bootstrapNativeUsageEvents();
+}
+
+if (Platform.OS === 'ios') {
+  const { bootstrapNativeUsageEvents } = require('@/specs/nativeUsageStatsApi.ios');
+  bootstrapNativeUsageEvents();
 }
 
 const App = require('@/App').default;

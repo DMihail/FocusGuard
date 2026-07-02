@@ -1,9 +1,11 @@
 package com.focusguard
 
 import android.app.usage.UsageEvents
+import android.app.usage.UsageEventsQuery
 import android.app.usage.UsageStatsManager
 import android.content.Context
 import android.os.Build
+import androidx.annotation.RequiresApi
 
 /**
  * Determines which application is currently in the foreground.
@@ -59,6 +61,36 @@ class ForegroundAppDetector(
     }
 
     private fun getForegroundAppFromEvents(): String? {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            return getForegroundAppFromEventsQuery()
+        }
+
+        return getForegroundAppFromLegacyEvents()
+    }
+
+    @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
+    private fun getForegroundAppFromEventsQuery(): String? {
+        val endTime = System.currentTimeMillis()
+        val startTime = endTime - EVENTS_WINDOW_MS
+
+        val query =
+            UsageEventsQuery.Builder(startTime, endTime)
+                .setEventTypes(*FOREGROUND_QUERY_EVENT_TYPES)
+                .build()
+
+        val events = usageStatsManager.queryEvents(query) ?: return null
+        val event = UsageEvents.Event()
+        var currentApp: String? = null
+
+        while (events.hasNextEvent()) {
+            events.getNextEvent(event)
+            currentApp = event.packageName
+        }
+
+        return currentApp
+    }
+
+    private fun getForegroundAppFromLegacyEvents(): String? {
         val endTime = System.currentTimeMillis()
         val startTime = endTime - EVENTS_WINDOW_MS
 
@@ -116,6 +148,13 @@ class ForegroundAppDetector(
                 eventType == UsageEvents.Event.ACTIVITY_RESUMED)
 
     companion object {
+        @Suppress("DEPRECATION")
+        private val FOREGROUND_QUERY_EVENT_TYPES =
+            intArrayOf(
+                UsageEvents.Event.MOVE_TO_FOREGROUND,
+                UsageEvents.Event.ACTIVITY_RESUMED,
+            )
+
         private const val EVENTS_WINDOW_MS = 60_000L
         private const val STATS_WINDOW_MS = 60_000L
         private const val STATS_RECENCY_MS = 30_000L

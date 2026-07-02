@@ -2,7 +2,7 @@
 
 import { useCallback } from 'react';
 
-import { logDevWarning } from '@/utils/logDevWarning';
+import { reportError } from '@/crashlytics/reportError';
 
 import { useFamilyActivityPicker } from './useFamilyActivityPicker.ios';
 import { useManageApps } from './useManageApps.ios';
@@ -16,7 +16,7 @@ export const useManageAppsScreen = () => {
   const onPickApps = useCallback(() => {
     pickApps()
       .then(() => refreshInstalledApps(true))
-      .catch(logDevWarning);
+      .catch(reportError);
   }, [pickApps, refreshInstalledApps]);
 
   useManageAppsFocusRefresh(refreshInstalledApps);

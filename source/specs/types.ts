@@ -5,6 +5,18 @@ export type PermissionsChangedEvent = Readonly<{
   changedAtMs: number;
 }>;
 
+/** Emitted when the device-local calendar day rolls over. */
+export type LocalDayChangedEvent = Readonly<{
+  dayKey: string;
+  changedAtMs: number;
+}>;
+
+/** Emitted when the native monitor foreground service starts or stops. */
+export type MonitorServiceStateChangedEvent = Readonly<{
+  isRunning: boolean;
+  changedAtMs: number;
+}>;
+
 /** Daily foreground usage for a single tracked package. */
 export type PackageUsage = Readonly<{
   packageName: string;

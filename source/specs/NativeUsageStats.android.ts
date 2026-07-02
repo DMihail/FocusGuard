@@ -9,15 +9,27 @@ type PermissionsChangedEventCodegen = Readonly<{
   changedAtMs: number;
 }>;
 
+type LocalDayChangedEventCodegen = Readonly<{
+  dayKey: string;
+  changedAtMs: number;
+}>;
+
+type MonitorServiceStateChangedEventCodegen = Readonly<{
+  isRunning: boolean;
+  changedAtMs: number;
+}>;
+
 type MonitorServiceStartResultCodegen = {
   started: boolean;
   reason?: string;
 };
 
-export type { PermissionsChangedEvent } from './types';
+export type { LocalDayChangedEvent, MonitorServiceStateChangedEvent, PermissionsChangedEvent } from './types';
 
 export interface Spec extends TurboModule {
   readonly onPermissionsChanged: EventEmitter<PermissionsChangedEventCodegen>;
+  readonly onLocalDayChanged: EventEmitter<LocalDayChangedEventCodegen>;
+  readonly onMonitorServiceStateChanged: EventEmitter<MonitorServiceStateChangedEventCodegen>;
   checkForPermission(): boolean;
   checkForSystemAlertWindowPermission(): boolean;
   checkForNotificationsPermission(): boolean;

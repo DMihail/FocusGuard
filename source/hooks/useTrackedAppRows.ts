@@ -5,12 +5,12 @@ import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useIsFocused } from '@react-navigation/native';
 
 import { useSelectedDashboardAppRows } from '@/context/SelectedDashboardAppRowsProvider';
+import { reportError } from '@/crashlytics/reportError';
 import { getManageAppKey } from '@/domain/appKey';
 import { useCoreStoresHydrated } from '@/hooks/useCoreStoresHydrated';
 import { useLocalDayChangeRefresh } from '@/hooks/useLocalDayChangeRefresh';
 import { useRefreshWhenVisible } from '@/hooks/useRefreshWhenVisible';
 import { trackedUsageStore } from '@/store';
-import { logDevWarning } from '@/utils/logDevWarning';
 
 export type UseTrackedAppRowsOptions = {
   /** When false, skips mount refresh for stacked screens that share a primary instance. */
@@ -65,7 +65,7 @@ export const useTrackedAppRows = (
     }
 
     lastLifecycleRefreshKeysKeyRef.current = selectedAppKeysKey;
-    refreshUsage(false).catch(logDevWarning);
+    refreshUsage(false).catch(reportError);
   }, [hasCoreStoresHydrated, lifecycle, refreshUsage, selectedAppKeys.length, selectedAppKeysKey]);
 
   const refreshUsageSoft = useCallback(() => refreshUsage(false), [refreshUsage]);

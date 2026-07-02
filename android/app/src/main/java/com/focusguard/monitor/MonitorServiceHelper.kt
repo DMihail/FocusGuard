@@ -16,6 +16,7 @@ object MonitorServiceHelper {
    * Uses [ContextCompat.startForegroundService] for compatibility with API 26+.
    */
   fun start(context: Context): MonitorServiceStartResult {
+    MonitorPermissions.invalidateCache()
     val failureReason = MonitorServiceStartResult.resolveStartFailureReason(context)
 
     if (failureReason != null) {

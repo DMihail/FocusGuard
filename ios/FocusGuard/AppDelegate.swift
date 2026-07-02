@@ -17,6 +17,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   ) -> Bool {
     FirebaseApp.configure()
 
+    KeeptLocalDayChangeScheduler.registerBackgroundTasks()
+
     let delegate = ReactNativeDelegate()
     let factory = RCTReactNativeFactory(delegate: delegate)
     delegate.dependencyProvider = RCTAppDependencyProvider()
@@ -33,6 +35,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     )
 
     KeeptNotificationAuthorization.refreshCachedAuthorization()
+    KeeptAppLifecycleBridge.start()
 
     return true
   }

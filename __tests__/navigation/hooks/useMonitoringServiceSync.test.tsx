@@ -15,7 +15,10 @@ jest.mock('@/store/monitoringStore', () => ({
   restoreMonitoringSession: (...args: unknown[]) => mockRestoreMonitoringSession(...args),
 }));
 
-import { useMonitoringServiceSync } from '@/navigation/hooks/useMonitoringServiceSync';
+import {
+  resetMonitoringReconcileSchedulerForTests,
+  useMonitoringServiceSync,
+} from '@/navigation/hooks/useMonitoringServiceSync';
 import { __resetAppForegroundBusForTests } from '@/runtime/appForegroundBus';
 
 const TestHarness = ({ enabled }: { enabled: boolean }) => {
@@ -28,6 +31,7 @@ describe('useMonitoringServiceSync', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    resetMonitoringReconcileSchedulerForTests();
     __resetAppForegroundBusForTests();
     appStateListener = undefined;
 
