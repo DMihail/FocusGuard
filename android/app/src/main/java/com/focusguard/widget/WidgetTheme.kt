@@ -23,12 +23,12 @@ internal object WidgetTheme {
         val themed = themedContext(context)
 
         return Colors(
-            cardBackground = themed.getColor(R.color.card_background),
+            cardBackground = themed.getColor(R.color.widget_card_background),
             accent = themed.getColor(R.color.accent),
             textPrimary = themed.getColor(R.color.text_primary),
             textSecondary = themed.getColor(R.color.text_secondary),
             overLimit = themed.getColor(R.color.over_limit),
-            accentIconBg = themed.getColor(R.color.accent_icon_bg),
+            accentIconBg = themed.getColor(R.color.widget_accent_icon_bg),
             surface = themed.getColor(R.color.surface),
             shieldStroke = themed.getColor(R.color.splash_accent),
         )

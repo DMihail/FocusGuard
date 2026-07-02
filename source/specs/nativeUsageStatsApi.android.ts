@@ -1,30 +1,55 @@
-import type { PermissionsChangedEvent, Spec } from './NativeUsageStats.android';
-import { getNativeUsageStats } from './nativeUsageStatsClient.android';
-import type { InstallApp, MonitorServiceStartResult, PackageUsage } from './types';
+/** @format */
 
-export type { InstallApp, MonitorServiceStartResult, PackageUsage } from './types';
+import { createNativeEventHub } from './createNativeEventHub';
+import type { Spec } from './NativeUsageStats.android';
+import { getNativeUsageStats } from './nativeUsageStatsClient.android';
+import type {
+  InstallApp,
+  LocalDayChangedEvent,
+  MonitorServiceStartResult,
+  MonitorServiceStateChangedEvent,
+  PackageUsage,
+  PermissionsChangedEvent,
+} from './types';
+
+export type {
+  InstallApp,
+  LocalDayChangedEvent,
+  MonitorServiceStartResult,
+  MonitorServiceStateChangedEvent,
+  PackageUsage,
+  PermissionsChangedEvent,
+} from './types';
 
 const getModule = (): Spec => getNativeUsageStats();
 
-const permissionsChangedListeners = new Set<(event: PermissionsChangedEvent) => void>();
-let hasNativePermissionsChangedSubscription = false;
-
-const ensureNativePermissionsChangedSubscription = (): void => {
-  if (hasNativePermissionsChangedSubscription) {
-    return;
-  }
-
-  getModule().onPermissionsChanged((event) => {
-    for (const listener of permissionsChangedListeners) {
-      listener(event);
+const createModuleEventHub = <T>(register: (module: Spec, listener: (event: T) => void) => void) =>
+  createNativeEventHub<T>((listener) => {
+    try {
+      register(getModule(), listener);
+      return true;
+    } catch {
+      return false;
     }
   });
-  hasNativePermissionsChangedSubscription = true;
-};
 
-/** Registers the Turbo Module event callback before React mounts any screen. */
-export const bootstrapPermissionsChangedEvents = (): void => {
-  ensureNativePermissionsChangedSubscription();
+const permissionsChangedHub = createModuleEventHub<PermissionsChangedEvent>((module, listener) => {
+  module.onPermissionsChanged(listener);
+});
+
+const localDayChangedHub = createModuleEventHub<LocalDayChangedEvent>((module, listener) => {
+  module.onLocalDayChanged(listener);
+});
+
+const monitorServiceStateHub = createModuleEventHub<MonitorServiceStateChangedEvent>((module, listener) => {
+  module.onMonitorServiceStateChanged(listener);
+});
+
+/** Registers Turbo Module event callbacks before React mounts any screen. */
+export const bootstrapNativeUsageEvents = (): void => {
+  permissionsChangedHub.bootstrap();
+  localDayChangedHub.bootstrap();
+  monitorServiceStateHub.bootstrap();
 };
 
 export const checkForPermission = (): boolean => getModule().checkForPermission();
@@ -87,13 +112,11 @@ export const syncTrackingConfig = (snapshotJson: string): void => {
 
 export const subscribePermissionsChanged = (
   listener: (event: PermissionsChangedEvent) => void,
-): { remove: () => void } => {
-  ensureNativePermissionsChangedSubscription();
-  permissionsChangedListeners.add(listener);
+): { remove: () => void } => permissionsChangedHub.subscribe(listener);
 
-  return {
-    remove: () => {
-      permissionsChangedListeners.delete(listener);
-    },
-  };
-};
+export const subscribeLocalDayChanged = (listener: (event: LocalDayChangedEvent) => void): { remove: () => void } =>
+  localDayChangedHub.subscribe(listener);
+
+export const subscribeMonitorServiceStateChanged = (
+  listener: (event: MonitorServiceStateChangedEvent) => void,
+): { remove: () => void } => monitorServiceStateHub.subscribe(listener);

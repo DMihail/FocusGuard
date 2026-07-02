@@ -18,7 +18,7 @@ env:
   RCT_NEW_ARCH_ENABLED: '1'
 
 jobs:
-  js:
+  check:
     name: Lint, types & tests
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -34,8 +34,8 @@ jobs:
       - run: npm run check
 
   android:
-    name: Android assembleDebug
-    needs: js
+    name: Android debug build & unit tests
+    needs: check
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -46,8 +46,6 @@ jobs:
           node-version: 22
           cache: npm
 
-      - run: npm ci
-
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -56,30 +54,17 @@ jobs:
       - uses: android-actions/setup-android@v3
 
       - name: Install Android SDK packages
-        env:
-          ANDROID_NDK_VERSION: '27.1.12297006'
         run: |
-          install_packages() {
-            sdkmanager --install \
-              "platforms;android-36" \
-              "build-tools;36.0.0" \
-              "ndk;${ANDROID_NDK_VERSION}"
-          }
-
-          for attempt in 1 2 3; do
-            if install_packages; then
-              exit 0
-            fi
-            echo "SDK package install failed (attempt ${attempt}), retrying..."
-            rm -rf "${ANDROID_SDK_ROOT}/ndk/${ANDROID_NDK_VERSION}" || true
-            sleep 10
-          done
-          exit 1
+          sdkmanager --install \
+            "platforms;android-36" \
+            "build-tools;36.0.0" \
+            "ndk;27.1.12297006"
 
       - uses: gradle/actions/setup-gradle@v4
 
+      - run: npm ci
       - run: cp android/app/google-services.ci.json android/app/google-services.json
 
-      - name: Assemble debug APK
+      - name: Gradle assembleDebug + unit tests
         working-directory: android
-        run: ./gradlew assembleDebug --no-daemon
+        run: ./gradlew assembleDebug testDebugUnitTest --no-daemon

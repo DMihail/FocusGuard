@@ -13,18 +13,30 @@ import java.util.concurrent.Executors
 object WidgetUpdater {
 
     private const val THROTTLE_MS = 60_000L
-    private const val LIVE_USAGE_THROTTLE_MS = 30_000L
+    private const val LIVE_USAGE_THROTTLE_MS = 60_000L
     private const val URGENT_LIVE_THROTTLE_MS = 5_000L
     private const val URGENT_REMAINING_MS = 15 * 60_000L
     private const val PENDING_INTENT_REQUEST_CODE = 4101
 
     private val executor = Executors.newSingleThreadExecutor()
+    private val componentNameClass = FocusGuardWidgetProvider::class.java
 
     @Volatile
     private var lastUpdateMs = 0L
 
     @Volatile
     private var lastLiveUsageUpdateMs = 0L
+
+    @Volatile
+    private var hasPlacedWidgets: Boolean? = null
+
+    fun onWidgetsEnabled() {
+        hasPlacedWidgets = true
+    }
+
+    fun onWidgetsDisabled() {
+        hasPlacedWidgets = false
+    }
 
     fun scheduleUpdate(
         context: Context,
@@ -33,6 +45,10 @@ object WidgetUpdater {
         urgent: Boolean = false,
     ) {
         val appContext = context.applicationContext
+        if (!force && hasPlacedWidgets == false) {
+            return
+        }
+
         val now = System.currentTimeMillis()
 
         if (!force) {
@@ -49,8 +65,9 @@ object WidgetUpdater {
 
         executor.execute {
             val manager = AppWidgetManager.getInstance(appContext)
-            val componentName = ComponentName(appContext, FocusGuardWidgetProvider::class.java)
+            val componentName = ComponentName(appContext, componentNameClass)
             val widgetIds = manager.getAppWidgetIds(componentName)
+            hasPlacedWidgets = widgetIds.isNotEmpty()
 
             if (widgetIds.isEmpty()) {
                 return@execute
@@ -70,14 +87,16 @@ object WidgetUpdater {
         context: Context,
         manager: AppWidgetManager = AppWidgetManager.getInstance(context),
         widgetIds: IntArray = manager.getAppWidgetIds(
-            ComponentName(context, FocusGuardWidgetProvider::class.java),
+            ComponentName(context, componentNameClass),
         ),
         usageOverrides: Map<String, Long>? = null,
     ) {
         if (widgetIds.isEmpty()) {
+            hasPlacedWidgets = false
             return
         }
 
+        hasPlacedWidgets = true
         val snapshot = WidgetNextBlockResolver.resolve(context, usageOverrides)
 
         for (widgetId in widgetIds) {

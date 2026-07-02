@@ -1,7 +1,5 @@
 /** @format */
 
-export const MANAGE_APPS_SEARCH_DEBOUNCE_MS = 300;
-
 /** Fixed chip width — must match `selectedChip.width` in styles. */
 export const SELECTED_CHIP_WIDTH = 148;
 

@@ -3,15 +3,16 @@ package com.focusguard
 import android.app.usage.UsageStatsManager
 import android.content.Context
 import com.focusguard.usage.DailyUsageAggregator
+import com.focusguard.usage.LocalDayChangeNotifier
 import com.focusguard.usage.UsageStatsExtensions.startOfLocalDayMs
 
 /** Reads per-app foreground usage for the current local calendar day. */
 class DailyUsageRepository private constructor(
-    context: Context,
+    private val appContext: Context,
 ) {
 
     private val usageStatsManager =
-        context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
+        appContext.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
 
     private val cacheLock = Any()
     private var cachedUsageByPackage: Map<String, Long>? = null
@@ -19,8 +20,8 @@ class DailyUsageRepository private constructor(
     private var cachedAtMs: Long = 0L
 
     companion object {
-        /** Short TTL keeps monitor limits accurate while the FGS is running. */
-        private const val CACHE_TTL_MS = 60_000L
+        /** Safety net when an event-driven invalidation is missed. */
+        private const val CACHE_TTL_MS = 5 * 60_000L
 
         @Volatile
         private var instance: DailyUsageRepository? = null
@@ -33,6 +34,10 @@ class DailyUsageRepository private constructor(
                             instance = repository
                         }
                 }
+
+        fun invalidateCacheIfLoaded() {
+            instance?.invalidateCache()
+        }
     }
 
     /** @return foreground milliseconds for [packageName] since local midnight, or 0. */
@@ -63,6 +68,7 @@ class DailyUsageRepository private constructor(
                     nowMs - cachedAtMs >= CACHE_TTL_MS
 
             if (cacheStale) {
+                LocalDayChangeNotifier.checkAndNotify(appContext)
                 cachedUsageByPackage = emptyMap()
                 cachedDayStartMs = dayStartMs
             }

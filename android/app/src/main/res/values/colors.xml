@@ -20,6 +20,10 @@
     <color name="text_muted">#B849454F</color>
     <color name="over_limit">#8C1D18</color>
     <color name="card_background">#FFFFFF</color>
+    <!-- Opaque card for home-screen widgets (launcher has no app background behind the card). -->
+    <color name="widget_card_background">#FFFFFF</color>
+    <color name="widget_card_border">#2979747E</color>
+    <color name="widget_accent_icon_bg">#EADDFF</color>
     <color name="card_border">#2979747E</color>
     <color name="accent_muted">#146750A4</color>
     <color name="accent_icon_bg">#246750A4</color>

@@ -11,6 +11,6 @@
     "types": ["jest"],
     "moduleSuffixes": [".ios", ".android", ""]
   },
-  "include": ["**/*.ts", "**/*.tsx"],
+  "include": ["source/**/*", "__tests__/**/*", "index.js", "jest.setup.js"],
   "exclude": ["**/node_modules", "**/Pods"]
 }

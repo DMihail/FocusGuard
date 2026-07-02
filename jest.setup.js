@@ -219,10 +219,19 @@ jest.mock('@/i18n', () => {
 });
 
 const mockPermissionsChangedSubscription = { remove: jest.fn() };
+const mockNativeEventSubscription = jest.fn();
 
 jest.mock('@/specs/nativeUsageStatsClient', () => ({
   getNativeUsageStats: jest.fn(() => ({
     onPermissionsChanged: jest.fn(() => mockPermissionsChangedSubscription),
+    onLocalDayChanged: jest.fn((listener) => {
+      mockNativeEventSubscription(listener);
+      return mockPermissionsChangedSubscription;
+    }),
+    onMonitorServiceStateChanged: jest.fn((listener) => {
+      mockNativeEventSubscription(listener);
+      return mockPermissionsChangedSubscription;
+    }),
     checkForPermission: jest.fn(() => false),
     checkForSystemAlertWindowPermission: jest.fn(() => false),
     checkForNotificationsPermission: jest.fn(() => false),

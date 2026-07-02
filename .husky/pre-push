@@ -1,1 +1,14 @@
-npm test -- --watchman=false --forceExit
+#!/usr/bin/env sh
+set -e
+
+remote="${1:-origin}"
+branch=$(git rev-parse --abbrev-ref HEAD)
+merge_base=$(git merge-base "refs/remotes/${remote}/${branch}" HEAD 2>/dev/null || true)
+files=$(git diff --name-only --diff-filter=ACMRTUXB "${merge_base:-HEAD~1}" HEAD | grep -E '\.(ts|tsx|js|jsx)$' || true)
+
+if [ -z "$files" ]; then
+  exit 0
+fi
+
+# shellcheck disable=SC2086
+npm test -- --watchman=false --forceExit --findRelatedTests --passWithNoTests $files

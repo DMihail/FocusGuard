@@ -1,16 +1,67 @@
-import { subscribeAppForeground } from '@/runtime/appForegroundBus';
-
+import { createNativeEventHub } from './createNativeEventHub';
 import type { Spec } from './NativeUsageStats.ios';
 import { getNativeUsageStats } from './nativeUsageStatsClient.ios';
-import type { InstallApp, MonitorServiceStartResult, PackageUsage } from './types';
+import type {
+  InstallApp,
+  LocalDayChangedEvent,
+  MonitorServiceStartResult,
+  MonitorServiceStateChangedEvent,
+  PackageUsage,
+} from './types';
 
-export type { InstallApp, MonitorServiceStartResult, PackageUsage } from './types';
+export type {
+  InstallApp,
+  LocalDayChangedEvent,
+  MonitorServiceStartResult,
+  MonitorServiceStateChangedEvent,
+  PackageUsage,
+} from './types';
+
+type PermissionsChangedEvent = Readonly<{
+  changedAtMs: number;
+}>;
 
 const getModule = (): Spec | null => getNativeUsageStats();
 
 const MONITOR_NOT_STARTED: MonitorServiceStartResult = {
   started: false,
   reason: 'screen_time_unauthorized',
+};
+
+const createModuleEventHub = <T>(register: (module: Spec, listener: (event: T) => void) => boolean) =>
+  createNativeEventHub<T>((listener) => {
+    const module = getModule();
+    return module != null && register(module, listener);
+  });
+
+const permissionsChangedHub = createModuleEventHub<PermissionsChangedEvent>((module, listener) => {
+  if (!module.onPermissionsChanged) {
+    return false;
+  }
+  module.onPermissionsChanged(listener);
+  return true;
+});
+
+const localDayChangedHub = createModuleEventHub<LocalDayChangedEvent>((module, listener) => {
+  if (!module.onLocalDayChanged) {
+    return false;
+  }
+  module.onLocalDayChanged(listener);
+  return true;
+});
+
+const monitorServiceStateHub = createModuleEventHub<MonitorServiceStateChangedEvent>((module, listener) => {
+  if (!module.onMonitorServiceStateChanged) {
+    return false;
+  }
+  module.onMonitorServiceStateChanged(listener);
+  return true;
+});
+
+export const bootstrapNativeUsageEvents = (): void => {
+  permissionsChangedHub.bootstrap();
+  localDayChangedHub.bootstrap();
+  monitorServiceStateHub.bootstrap();
 };
 
 export const checkForPermission = (): boolean => getModule()?.checkForPermission() ?? false;
@@ -61,7 +112,14 @@ export const syncTrackingConfig = (snapshotJson: string): void => {
 export const presentFamilyActivityPicker = async (): Promise<InstallApp[]> =>
   (await getModule()?.presentFamilyActivityPicker()) ?? [];
 
-export const subscribePermissionsChanged = (listener: () => void): { remove: () => void } => {
-  const remove = subscribeAppForeground(listener);
-  return { remove };
-};
+export const subscribePermissionsChanged = (listener: () => void): { remove: () => void } =>
+  permissionsChangedHub.subscribe(() => {
+    listener();
+  });
+
+export const subscribeLocalDayChanged = (listener: (event: LocalDayChangedEvent) => void): { remove: () => void } =>
+  localDayChangedHub.subscribe(listener);
+
+export const subscribeMonitorServiceStateChanged = (
+  listener: (event: MonitorServiceStateChangedEvent) => void,
+): { remove: () => void } => monitorServiceStateHub.subscribe(listener);

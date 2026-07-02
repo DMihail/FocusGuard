@@ -2,7 +2,7 @@
 
 import { useCallback, useState } from 'react';
 
-import { logDevWarning } from '@/utils/logDevWarning';
+import { reportError } from '@/crashlytics/reportError';
 
 /** Wraps a refresh handler for `RefreshControl` and keeps the spinner until async work finishes. */
 export const usePullToRefresh = (refresh: () => void | Promise<void>) => {
@@ -12,7 +12,7 @@ export const usePullToRefresh = (refresh: () => void | Promise<void>) => {
     setRefreshing(true);
 
     Promise.resolve(refresh())
-      .catch(logDevWarning)
+      .catch(reportError)
       .finally(() => {
         setRefreshing(false);
       });

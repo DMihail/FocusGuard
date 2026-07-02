@@ -2,7 +2,7 @@ import { useCallback, useRef } from 'react';
 
 import { useFocusEffect, useIsFocused } from '@react-navigation/native';
 
-import { logDevWarning } from '@/utils/logDevWarning';
+import { reportError } from '@/crashlytics/reportError';
 
 import { useAppStateOnActive } from './useAppStateOnActive';
 
@@ -22,7 +22,7 @@ export const useRefreshWhenVisible = (
   refreshRef.current = refresh;
 
   const run = useCallback(() => {
-    Promise.resolve(refreshRef.current()).catch(logDevWarning);
+    Promise.resolve(refreshRef.current()).catch(reportError);
   }, []);
 
   const runWhenFocused = useCallback(() => {

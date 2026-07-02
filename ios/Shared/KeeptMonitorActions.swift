@@ -6,6 +6,10 @@ enum KeeptMonitorActions {
   static func handleIntervalStart() {
     IosShieldStore.clearAll()
     IosDailyUsageStore.resetForNewDayIfNeeded()
+    KeeptAppGroup.defaults?.set(
+      IosDailyUsageStore.currentDayKey(),
+      forKey: KeeptAppGroup.StorageKey.pendingLocalDayChange,
+    )
   }
 
   static func handleWarning(tokenId: String) {

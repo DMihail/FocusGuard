@@ -48,6 +48,8 @@ jest.mock('../../source/store/nativeTrackingSnapshot', () => ({
 
 jest.mock('../../source/specs', () => ({
   isMonitorServiceRunning: jest.fn(() => false),
+  subscribeLocalDayChanged: jest.fn(() => ({ remove: jest.fn() })),
+  subscribeMonitorServiceStateChanged: jest.fn(() => ({ remove: jest.fn() })),
 }));
 
 jest.mock('../../source/hooks/useCoreStoresHydrated', () => ({

@@ -20,7 +20,8 @@ import com.focusguard.monitor.UsageAccess
 import com.focusguard.permissions.BatteryOptimizationAccess
 import com.focusguard.permissions.PermissionRequester
 import com.focusguard.platform.AppInfo
-import com.focusguard.react.PermissionsChangedDispatcher
+import com.focusguard.react.TurboModuleEventDispatchers
+import com.focusguard.usage.LocalDayChangeNotifier
 import com.focusguard.react.ReactNativeMappers
 import com.focusguard.storage.NativeTrackingSnapshot
 import com.focusguard.widget.WidgetUpdater
@@ -39,12 +40,18 @@ class NativeUsageStatsModule(
   private val ioExecutor = Executors.newSingleThreadExecutor()
   private val mainHandler = Handler(Looper.getMainLooper())
   private val emitPermissionsChangedRunnable = Runnable { emitPermissionsChanged() }
+  private val emitLocalDayChangedCallback = { dayKey: String -> emitLocalDayChanged(dayKey) }
+  private val emitMonitorServiceStateCallback = { isRunning: Boolean ->
+    emitMonitorServiceStateChanged(isRunning)
+  }
 
-  private val emitPermissionsChangedCallback = { schedulePermissionsChangedEmit() }
+  private val emitPermissionsChangedCallback = { queuePermissionsChangedEmit() }
   private val permissionsLifecycleListener =
       object : LifecycleEventListener {
         override fun onHostResume() {
-          schedulePermissionsChangedEmit()
+          LocalDayChangeNotifier.checkAndNotify(appContext)
+          TurboModuleEventDispatchers.replayPendingMonitorServiceState()
+          queuePermissionsChangedEmit()
         }
 
         override fun onHostPause() {
@@ -57,13 +64,17 @@ class NativeUsageStatsModule(
       }
 
   init {
-    PermissionsChangedDispatcher.register(emitPermissionsChangedCallback)
+    TurboModuleEventDispatchers.registerPermissionsChanged(emitPermissionsChangedCallback)
+    TurboModuleEventDispatchers.registerLocalDayChanged(emitLocalDayChangedCallback)
+    TurboModuleEventDispatchers.registerMonitorServiceState(emitMonitorServiceStateCallback)
     reactApplicationContext.addLifecycleEventListener(permissionsLifecycleListener)
   }
 
   override fun invalidate() {
     mainHandler.removeCallbacks(emitPermissionsChangedRunnable)
-    PermissionsChangedDispatcher.unregister(emitPermissionsChangedCallback)
+    TurboModuleEventDispatchers.unregisterPermissionsChanged(emitPermissionsChangedCallback)
+    TurboModuleEventDispatchers.unregisterLocalDayChanged(emitLocalDayChangedCallback)
+    TurboModuleEventDispatchers.unregisterMonitorServiceState(emitMonitorServiceStateCallback)
     reactApplicationContext.removeLifecycleEventListener(permissionsLifecycleListener)
     ioExecutor.shutdown()
     super.invalidate()
@@ -164,9 +175,9 @@ class NativeUsageStatsModule(
     promise.resolve(Arguments.createArray())
   }
 
-  private fun schedulePermissionsChangedEmit() {
+  private fun queuePermissionsChangedEmit() {
     mainHandler.removeCallbacks(emitPermissionsChangedRunnable)
-    mainHandler.postDelayed(emitPermissionsChangedRunnable, PERMISSIONS_CHANGED_DEBOUNCE_MS)
+    mainHandler.post(emitPermissionsChangedRunnable)
   }
 
   private fun emitPermissionsChanged() {
@@ -186,8 +197,45 @@ class NativeUsageStatsModule(
     }
   }
 
+  private fun emitLocalDayChanged(dayKey: String) {
+    reactApplicationContext.runOnUiQueueThread {
+      if (!reactApplicationContext.hasActiveReactInstance()) {
+        TurboModuleEventDispatchers.storePendingLocalDayChanged(dayKey)
+        return@runOnUiQueueThread
+      }
+
+      runCatching {
+        emitOnLocalDayChanged(
+            Arguments.createMap().apply {
+              putString("dayKey", dayKey)
+              putDouble("changedAtMs", System.currentTimeMillis().toDouble())
+            },
+        )
+      }.onSuccess {
+        LocalDayChangeNotifier.markDayChangeNotified(dayKey)
+      }
+    }
+  }
+
+  private fun emitMonitorServiceStateChanged(isRunning: Boolean) {
+    reactApplicationContext.runOnUiQueueThread {
+      if (!reactApplicationContext.hasActiveReactInstance()) {
+        TurboModuleEventDispatchers.storePendingMonitorServiceState(isRunning)
+        return@runOnUiQueueThread
+      }
+
+      runCatching {
+        emitOnMonitorServiceStateChanged(
+            Arguments.createMap().apply {
+              putBoolean("isRunning", isRunning)
+              putDouble("changedAtMs", System.currentTimeMillis().toDouble())
+            },
+        )
+      }
+    }
+  }
+
   companion object {
     const val NAME = NativeUsageStatsSpec.NAME
-    private const val PERMISSIONS_CHANGED_DEBOUNCE_MS = 300L
   }
 }

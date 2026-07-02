@@ -129,3 +129,4 @@ ios/build/
 .turbo/
 .watchmanconfig.local
 /.jest-cache/
+/.cursor/

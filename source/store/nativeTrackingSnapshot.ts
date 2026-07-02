@@ -1,24 +1,17 @@
 /** @format */
 
+import { reportError } from '@/crashlytics/reportError';
 import { syncTrackingConfig } from '@/specs/nativeUsageStatsApi';
 import { getNativeUsageStats } from '@/specs/nativeUsageStatsClient';
-import { logDevWarning } from '@/utils/logDevWarning';
 
 import { appLimitsStore } from './appLimitsStore';
 import { storage } from './mmkv';
 import { buildPlatformTrackingSnapshot, platformTrackingSnapshotKey } from './platformTrackingSnapshot';
 import { selectedAppsStore } from './selectedAppsStore';
 
-const SYNC_DEBOUNCE_MS = 200;
 let lastSnapshotJson: string | null = null;
-let syncTimer: ReturnType<typeof setTimeout> | null = null;
 
 export const resetNativeTrackingSnapshotSyncForTests = (): void => {
-  if (syncTimer !== null) {
-    clearTimeout(syncTimer);
-    syncTimer = null;
-  }
-
   lastSnapshotJson = null;
 };
 
@@ -38,20 +31,9 @@ export const syncNativeTrackingSnapshot = (): void => {
   }
 
   storage.set(platformTrackingSnapshotKey, snapshotJson);
-  logDevWarning(
+  reportError(
     '[syncNativeTrackingSnapshot] Native module unavailable; MMKV updated without native cache invalidation.',
   );
-};
-
-const scheduleNativeTrackingSnapshotSync = (): void => {
-  if (syncTimer !== null) {
-    clearTimeout(syncTimer);
-  }
-
-  syncTimer = setTimeout(() => {
-    syncTimer = null;
-    syncNativeTrackingSnapshot();
-  }, SYNC_DEBOUNCE_MS);
 };
 
 let unsubscribeSelectedApps: (() => void) | null = null;
@@ -64,7 +46,7 @@ export const startNativeTrackingSnapshotSync = (): (() => void) => {
   if (!unsubscribeSelectedApps) {
     unsubscribeSelectedApps = selectedAppsStore.subscribe((state, previous) => {
       if (state.apps !== previous.apps) {
-        scheduleNativeTrackingSnapshotSync();
+        syncNativeTrackingSnapshot();
       }
     });
   }
@@ -72,7 +54,7 @@ export const startNativeTrackingSnapshotSync = (): (() => void) => {
   if (!unsubscribeAppLimits) {
     unsubscribeAppLimits = appLimitsStore.subscribe((state, previous) => {
       if (state.limitsByAppKey !== previous.limitsByAppKey) {
-        scheduleNativeTrackingSnapshotSync();
+        syncNativeTrackingSnapshot();
       }
     });
   }

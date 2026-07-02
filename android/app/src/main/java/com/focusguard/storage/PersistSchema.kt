@@ -25,4 +25,7 @@ object PersistSchema {
 
     /** Set by native after Usage Stats is confirmed (`UsageAccessGrantStore.kt`). */
     const val USAGE_ACCESS_GRANTED_KEY = "usage-access-granted-v1"
+
+    /** Last local calendar day successfully notified to JS (`LocalDayChangeNotifier.kt`). */
+    const val LAST_LOCAL_DAY_KEY = "last-local-day-key-v1"
 }

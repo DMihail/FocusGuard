@@ -77,6 +77,8 @@ export const USAGE_ACCESS_GRANTED_KEY = 'usage-access-granted-v1';
 /**
  * Native-only ephemeral keys (not Zustand persist). Documented here for cross-platform reference:
  * - Android `block-snooze-{packageName}` — overlay snooze (`TrackingSnoozeStore.kt`)
+ * - Android `last-local-day-key-v1` — last notified local day (`LocalDayChangeNotifier.kt`)
+ * - iOS App Group `last-local-day-key-v1` — last notified local day (`KeeptLocalDayChangeNotifier.swift`)
  * - Android daily warning keys — `DailyWarningStore.kt`
  * - iOS `{IOS_APP_GROUP_ID}/ios-block-snooze-{tokenId}` — `IosTrackingSnoozeStore.swift`
  * - iOS daily warning keys — `IosDailyWarningStore.swift`
