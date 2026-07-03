@@ -41,27 +41,29 @@ All limit and selection data stays on device. No account or cloud sync.
 ```
 source/                         # TypeScript / React application
 ├── App.tsx                     # Root providers
-├── components/                 # Shared UI
+├── assets/                     # Fonts, SVG icons
+├── components/                 # Shared UI (ErrorBoundary, SplashBranding, …)
 ├── constants/                  # Branding, platform app name/version
-├── context/                    # Dashboard row selection provider
+├── context/                    # CoreStoresHydrationProvider, dashboard row selection
 ├── crashlytics/                # Firebase bootstrap + reportError
 ├── domain/                     # Permissions, catalogs, reconcile logic
 ├── hooks/                      # Refresh, hydration, theme, usage sync
 ├── i18n/                       # Locales (en/ru), LanguageSync
-├── layout/                     # Content layout metrics
+├── layout/                     # Content layout metrics (tablet column width)
 ├── list/                       # FlatList helpers
 ├── navigation/                 # Stack, linking, gates, native sync hooks
 ├── runtime/                    # Shared AppState foreground bus
-├── screen/                     # Feature screens
+├── screen/                     # Feature screens (Dashboard, ManageApps, Statistics, …)
 ├── setup/                      # Reanimated logger config
-├── specs/                      # Turbo Module contract + API wrappers
+├── specs/                      # Turbo Module codegen + API wrappers
 ├── store/                      # Zustand + MMKV + native snapshot sync
+├── testing/                    # testIDs + Jest fixtures
 ├── theme/                      # ThemeProvider, palettes, typography
 └── utils/                      # Usage math, permissions, scheduleMicrotask
 
 android/app/src/main/java/
 ├── com/focusguard/             # Monitor, overlay, widget, usage, receivers
-└── com/keept/turbomodule/       # Codegen Turbo Module entry
+└── com/keept/turbomodule/      # Codegen Turbo Module entry (KeeptTurboModule)
 
 ios/
 ├── FocusGuard/                 # Main app target (legacy name)
@@ -78,8 +80,9 @@ Platform-specific TypeScript resolves via Metro / `moduleSuffixes`: `.ios.ts`, `
 | Layer                         | Value                                                                    |
 | ----------------------------- | ------------------------------------------------------------------------ |
 | Product name                  | Keept                                                                    |
-| Marketing version             | `1.0.2` (`package.json`, Android `versionName`)                          |
-| Android build number          | `7` (`versionCode` in `android/app/build.gradle`)                        |
+| npm / JS version              | `1.0.2` (`package.json`)                                                 |
+| Android store version         | `1.0.4` (`versionName` in `android/app/build.gradle`)                    |
+| Android build number          | `8` (`versionCode` in `android/app/build.gradle`)                        |
 | Store bundle / application ID | `com.keept`                                                              |
 | Android namespace (Kotlin)    | `com.focusguard` (legacy)                                                |
 | iOS App Group                 | `group.com.keept.shared`                                                 |
@@ -87,8 +90,9 @@ Platform-specific TypeScript resolves via Metro / `moduleSuffixes`: `.ios.ts`, `
 | Report extension              | `com.keept.report`                                                       |
 | Deep links                    | `keept://dashboard`, `keept://tracked-apps`, `keept://configure/:appKey` |
 
-> **Note:** iOS `MARKETING_VERSION` / `CURRENT_PROJECT_VERSION` in Xcode may differ until bumped for App Store release.
-> In-app version on iOS reads `package.json` via `source/constants/appVersion.ios.ts`.
+> **Version sources:** Play Store reads `android/app/build.gradle`. In-app version on iOS reads `package.json` via
+> `source/constants/appVersion.ios.ts`. Xcode `MARKETING_VERSION` / `CURRENT_PROJECT_VERSION` may lag until an App Store
+> release bump.
 
 ## Getting started
 
@@ -96,6 +100,12 @@ Platform-specific TypeScript resolves via Metro / `moduleSuffixes`: `.ios.ts`, `
 npm ci
 npm start          # Metro (separate terminal)
 npm run android    # or: npm run ios
+```
+
+If Reanimated/Worklets throws a version mismatch after upgrading deps, restart Metro with a clean cache:
+
+```sh
+npm run start:clean
 ```
 
 ### Android
@@ -169,8 +179,15 @@ Agent rule with frozen native components: `.cursor/rules/native-events-architect
 
 ### JavaScript ↔ native bridge
 
-Turbo Module **`KeeptTurboModule`** (`source/specs/`) exposes permissions, catalogs, monitor control, and
-`syncTrackingConfig(snapshotJson)`.
+Three naming layers (same module, different concerns):
+
+| Layer              | Name / path                                      | Role                                      |
+| ------------------ | ------------------------------------------------ | ----------------------------------------- |
+| Native runtime     | **`KeeptTurboModule`**                           | Turbo Module name on the bridge           |
+| Codegen spec files | **`NativeKeeptTurboModule*.ts`**                 | RN codegen schema (`Native*.ts` required) |
+| App imports        | **`@/specs`** → `nativeUsageStatsApi` / `client` | Typed wrappers + event hub bootstrap      |
+
+`KeeptTurboModule` exposes permissions, catalogs, monitor control, and `syncTrackingConfig(snapshotJson)`.
 
 App bootstrap (`index.js`):
 
@@ -179,11 +196,11 @@ App bootstrap (`index.js`):
 
 Event subscriptions (production):
 
-| Event                          | Native emitters (Android / iOS)             | JS consumer                |
-| ------------------------------ | ------------------------------------------- | -------------------------- |
-| `onPermissionsChanged`         | MainActivity, module resume, auth callbacks | `usePermissionsSync`       |
-| `onLocalDayChanged`            | AlarmManager midnight, timezone, foreground | `useLocalDayChangeRefresh` |
-| `onMonitorServiceStateChanged` | FGS start/stop / monitoring scheduler       | `useMonitoringServiceSync` |
+| Event                          | Native emitters (Android / iOS)             | JS consumers                                    |
+| ------------------------------ | ------------------------------------------- | ----------------------------------------------- |
+| `onPermissionsChanged`         | MainActivity, module resume, auth callbacks | `usePermissionsSync`, `useNotificationsSetting` |
+| `onLocalDayChanged`            | AlarmManager midnight, timezone, foreground | `useLocalDayChangeRefresh`                      |
+| `onMonitorServiceStateChanged` | FGS start/stop / monitoring scheduler       | `useMonitoringServiceSync`                      |
 
 Import `@/specs` in app code, not codegen files directly.
 
@@ -246,6 +263,7 @@ Limits day rollover. `trackedUsageStore` coalesces concurrent refreshes into one
 | Script                              | Description                              |
 | ----------------------------------- | ---------------------------------------- |
 | `npm start`                         | Metro bundler                            |
+| `npm run start:clean`               | Metro with `--reset-cache`               |
 | `npm run android` / `npm run ios`   | Run on device / simulator                |
 | `npm run check`                     | CI gate: lint, format, types, tests      |
 | `npm test`                          | Jest                                     |
@@ -269,11 +287,12 @@ cd android && ./gradlew testDebugUnitTest   # Kotlin unit tests
 
 Coverage focus:
 
-- Domain & stores — permissions, catalogs, MMKV snapshots, usage math
+- Domain & stores — permissions, catalogs, MMKV snapshots, usage math, refresh coalescing
 - Navigation — entry route, deep links, bootstrap gate
 - Architecture guard — no `setTimeout` / `setInterval` in `source/`
+- Specs — `createNativeEventHub` retry/fan-out
 - Kotlin — `NextBlockResolver`, `LocalDayKey`, `DailyWarningStore`, `LocalDayChangeNotifier`, `ForegroundStabilizer`,
-  event dispatchers (Robolectric + in-memory MMKV)
+  `TrackingEnginePoll`, event dispatchers (Robolectric + in-memory MMKV)
 
 Jest defaults to `.ios.ts` resolution; Android modules are imported explicitly in tests.
 
@@ -295,7 +314,7 @@ Android runs only after **check** passes. Husky is disabled in CI (`HUSKY=0`).
 
 - Bump persist versions in `persistSchema.ts` and native counterparts when stored shapes change.
 - Prefer `syncNativeTrackingSnapshot()` over writing MMKV snapshot keys from JS.
-- Turbo Module spec files must keep `TurboModuleRegistry.get` in the same file as `Spec` (codegen requirement) and use a
-  `Native*.ts` basename (RN codegen filter).
+- Turbo Module codegen files must be named `Native*.ts` and keep `TurboModuleRegistry.get` in the same file as `Spec`.
+- Import the module in app code via `@/specs`, not `NativeKeeptTurboModule*.ts` directly.
 - Do not add JS polling timers — use native events or `scheduleMicrotask`.
 - Do not rename legacy `com.focusguard` Kotlin package or `FocusGuard` Xcode target without a coordinated migration.
