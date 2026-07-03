@@ -103,4 +103,28 @@ class DailyUsageRepository private constructor(
             cachedAtMs = 0L
         }
     }
+
+    /** Drops cached totals for [packageNames] so the next read re-queries only those apps. */
+    fun invalidatePackages(packageNames: Collection<String>) {
+        if (packageNames.isEmpty()) {
+            return
+        }
+
+        synchronized(cacheLock) {
+            val cached = cachedUsageByPackage ?: return
+
+            val next = cached.toMutableMap()
+            var changed = false
+
+            for (packageName in packageNames) {
+                if (next.remove(packageName) != null) {
+                    changed = true
+                }
+            }
+
+            if (changed) {
+                cachedUsageByPackage = next
+            }
+        }
+    }
 }

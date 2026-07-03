@@ -16,6 +16,7 @@ export type DashboardSectionRenderContext = {
   summary: DashboardSummary;
   appRows: DashboardAppRow[];
   isMonitoring: boolean;
+  isMonitoringReady: boolean;
   hasSelectedApps: boolean;
   monitoringSubtitle: string;
   onConfigureLimits: (appKey: string) => void;
@@ -46,6 +47,7 @@ export const renderDashboardSection = (
       return (
         <QuickActionsSection
           isMonitoring={context.isMonitoring}
+          isMonitoringReady={context.isMonitoringReady}
           canStartFocusMode={context.hasSelectedApps}
           monitoringSubtitle={context.monitoringSubtitle}
           onToggleMonitoring={context.onToggleMonitoring}

@@ -105,29 +105,53 @@ describe('trackedUsageStore.refreshUsage', () => {
     jest.useRealTimers();
   });
 
-  it('keeps isRefreshingUsage true until all concurrent refreshes finish', async () => {
-    let resolveFirst: (value: Record<string, number>) => void = () => undefined;
-    let resolveSecond: (value: Record<string, number>) => void = () => undefined;
-    const firstRefresh = new Promise<Record<string, number>>((resolve) => {
-      resolveFirst = resolve;
-    });
-    const secondRefresh = new Promise<Record<string, number>>((resolve) => {
-      resolveSecond = resolve;
+  it('coalesces concurrent refresh requests into a single native load', async () => {
+    mockedLoadUsageByPackage.mockResolvedValue({
+      'com.social.chat': 2_000,
+      'com.game.puzzle': 3_000,
     });
 
-    mockedLoadUsageByPackage.mockReturnValueOnce(firstRefresh).mockReturnValueOnce(secondRefresh);
+    await Promise.all([
+      trackedUsageStore.getState().refreshUsage(['com.social.chat']),
+      trackedUsageStore.getState().refreshUsage(['com.game.puzzle']),
+    ]);
+
+    expect(mockedLoadUsageByPackage).toHaveBeenCalledTimes(1);
+    expect(mockedLoadUsageByPackage).toHaveBeenCalledWith(
+      expect.arrayContaining(['com.social.chat', 'com.game.puzzle']),
+      false,
+    );
+    expect(trackedUsageStore.getState().usageByPackage).toEqual({
+      'com.social.chat': 2_000,
+      'com.game.puzzle': 3_000,
+    });
+  });
+
+  it('upgrades a coalesced refresh to forced when any caller requests force', async () => {
+    mockedLoadUsageByPackage.mockResolvedValue({
+      'com.social.chat': 2_000,
+    });
+
+    await Promise.all([
+      trackedUsageStore.getState().refreshUsage(['com.social.chat'], false),
+      trackedUsageStore.getState().refreshUsage(['com.social.chat'], true),
+    ]);
+
+    expect(mockedLoadUsageByPackage).toHaveBeenCalledTimes(1);
+    expect(mockedLoadUsageByPackage).toHaveBeenCalledWith(['com.social.chat'], true);
+  });
+
+  it('keeps isRefreshingUsage true until all concurrent refreshes finish', async () => {
+    mockedLoadUsageByPackage.mockResolvedValue({
+      'com.social.chat': 2_000,
+      'com.game.puzzle': 3_000,
+    });
 
     const first = trackedUsageStore.getState().refreshUsage(['com.social.chat']);
     const second = trackedUsageStore.getState().refreshUsage(['com.game.puzzle']);
 
     expect(trackedUsageStore.getState().isRefreshingUsage).toBe(true);
 
-    resolveFirst({ 'com.social.chat': 2_000 });
-    await Promise.resolve();
-
-    expect(trackedUsageStore.getState().isRefreshingUsage).toBe(true);
-
-    resolveSecond({ 'com.game.puzzle': 3_000 });
     await Promise.all([first, second]);
 
     expect(trackedUsageStore.getState().isRefreshingUsage).toBe(false);

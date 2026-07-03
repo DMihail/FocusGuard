@@ -145,7 +145,7 @@ class TrackingEngine(
 
         if (!isTrackedApp(foregroundApp)) {
             if (previousStable != null && isTrackedApp(previousStable)) {
-                usageRepository.invalidateCache()
+                usageRepository.invalidatePackages(setOf(previousStable))
             }
             liveUsageEstimator.clearSession()
 
@@ -160,7 +160,10 @@ class TrackingEngine(
             if (activeBlockPackage != null && activeBlockPackage != foregroundApp) {
                 clearActiveBlock()
             }
-            usageRepository.invalidateCache()
+            if (previousStable != null && isTrackedApp(previousStable)) {
+                usageRepository.invalidatePackages(setOf(previousStable))
+            }
+            usageRepository.invalidatePackages(setOf(foregroundApp))
             liveUsageEstimator.onTrackedAppForeground(foregroundApp)
         }
 
