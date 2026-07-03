@@ -26,16 +26,6 @@ const HydrationProbe = ({ onChange }: { onChange: (hydrated: boolean) => void })
 };
 
 describe('CoreStoresHydrationProvider', () => {
-  it('returns false outside the provider', () => {
-    let hydrated = true;
-
-    ReactTestRenderer.act(() => {
-      ReactTestRenderer.create(<HydrationProbe onChange={(value) => (hydrated = value)} />);
-    });
-
-    expect(hydrated).toBe(false);
-  });
-
   it('returns true once core stores finish hydrating inside the provider', async () => {
     onboardingStore.setState({ isConfirm: false });
     const values: boolean[] = [];

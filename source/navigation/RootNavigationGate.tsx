@@ -55,7 +55,7 @@ const RootNavigationGateContent = () => {
     <View style={styles.root}>
       {isNavigationReady && initialRoute ? (
         <SelectedDashboardAppRowsProvider>
-          <GlobalUsageHistorySync enabled />
+          <GlobalUsageHistorySync />
           <RootNavigator initialRoute={initialRoute} navigationRef={navigationRef} />
         </SelectedDashboardAppRowsProvider>
       ) : null}
