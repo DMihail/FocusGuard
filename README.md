@@ -207,7 +207,17 @@ Contract source of truth: `source/store/persistSchema.ts` ↔ `android/.../Persi
 `ios/Shared/KeeptAppGroup.swift`.
 
 `RootNavigationGate` wires splash, catalog prefetch, permission guard, monitoring restore, usage history sync
-(`GlobalUsageHistorySync`), and native snapshot sync.
+(`GlobalUsageHistorySync`), and native snapshot sync. `CoreStoresHydrationProvider` shares one MMKV hydration
+subscription set across dashboard-related hooks.
+
+**Monitoring sync (three layers):**
+
+1. Native — FGS emits `onMonitorServiceStateChanged`; pending events replay on JS resume.
+2. `useMonitoringServiceSync` — reconciles drift when app returns to foreground (`restoreMonitoringSession`).
+3. `monitoringStore` health check — settles the dashboard toggle while Android FGS starts asynchronously.
+
+**Usage refresh policy:** soft refresh on screen focus; hard refresh on pull-to-refresh, local day change, and Configure
+Limits day rollover. `trackedUsageStore` coalesces concurrent refreshes into one native load.
 
 ### Android runtime
 
@@ -217,8 +227,8 @@ Contract source of truth: `source/store/persistSchema.ts` ↔ `android/.../Persi
 | `TrackingEngine`                | Poll loop (1s active / 2.5s idle), limit evaluation, block |
 | `UsageEventsForegroundObserver` | API 35+ wake on foreground change (poll stays fallback)    |
 | `BlockOverlayManager`           | Hard block UI                                              |
-| `WidgetUpdater`                 | Home-screen widget (throttled; skips when no widgets)      |
-| `LocalDayChangeScheduler`       | `AlarmManager` midnight + timezone receiver                |
+| `WidgetUpdater`                 | Home-screen widget (throttled + deferred coalescing)       |
+| `LocalDayChangeScheduler`       | `AlarmManager` midnight + clock/timezone receivers         |
 | `TurboModuleEventDispatchers`   | Routes native signals to Turbo Module listeners            |
 
 ### iOS runtime

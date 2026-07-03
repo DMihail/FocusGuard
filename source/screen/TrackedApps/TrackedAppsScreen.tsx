@@ -12,6 +12,7 @@ import { APP_LIST_FLAT_LIST_PROPS, createAppUsageRowRenderItem as createTrackedA
 import { keyByManageApp as trackedAppKeyExtractor } from '@/list/keys';
 import { useNavigateToConfigureLimits } from '@/navigation/hooks/useNavigateToConfigureLimits';
 import { testIds } from '@/testing/testIds';
+import { buildAppRowsSnapshotKey } from '@/utils/usage/appRowsSnapshotKey';
 
 import { getTrackedAppListItemLayout } from './list/layout';
 import { useTrackedAppsStyles } from './styles';
@@ -28,6 +29,7 @@ export const TrackedAppsScreen = () => {
   const openConfigureLimits = useNavigateToConfigureLimits();
   const { appRows, showUsageRefreshIndicator, refreshUsage } = useTrackedAppRows({ lifecycle: false });
   const { refreshControl, refreshing: isPullRefreshing } = useTrackedAppsRefresh(refreshUsage);
+  const appRowsExtraData = useMemo(() => buildAppRowsSnapshotKey(appRows), [appRows]);
 
   const renderItem = useMemo(
     () => createTrackedAppRenderItem(openConfigureLimits, testIds.trackedApps.appRow),
@@ -49,6 +51,7 @@ export const TrackedAppsScreen = () => {
         <FlatList
           testID={testIds.trackedApps.list}
           data={appRows}
+          extraData={appRowsExtraData}
           renderItem={renderItem}
           keyExtractor={trackedAppKeyExtractor}
           getItemLayout={getTrackedAppListItemLayout}

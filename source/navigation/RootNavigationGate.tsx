@@ -6,6 +6,7 @@ import { StyleSheet, View } from 'react-native';
 import type { NavigationContainerRef } from '@react-navigation/native';
 import Animated from 'react-native-reanimated';
 
+import { CoreStoresHydrationProvider } from '@/context/CoreStoresHydrationProvider';
 import { SelectedDashboardAppRowsProvider } from '@/context/SelectedDashboardAppRowsProvider';
 import { invalidatePermissionSnapshot } from '@/domain/permissionSnapshot';
 import { useCoreStoresHydrated } from '@/hooks/useCoreStoresHydrated';
@@ -22,7 +23,13 @@ import type { RootStackParamList } from './types';
 
 import { GlobalUsageHistorySync, SplashBranding } from '@/components';
 
-export const RootNavigationGate = () => {
+export const RootNavigationGate = () => (
+  <CoreStoresHydrationProvider>
+    <RootNavigationGateContent />
+  </CoreStoresHydrationProvider>
+);
+
+const RootNavigationGateContent = () => {
   const hasCoreStoresHydrated = useCoreStoresHydrated();
   const isOnboardingComplete = onboardingStore((state) => state.isConfirm);
   const navigationRef = useRef<NavigationContainerRef<RootStackParamList>>(null);

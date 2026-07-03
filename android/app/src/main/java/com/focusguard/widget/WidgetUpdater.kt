@@ -3,6 +3,8 @@ package com.focusguard.widget
 import android.appwidget.AppWidgetManager
 import android.content.ComponentName
 import android.content.Context
+import android.os.Handler
+import android.os.Looper
 import android.view.View
 import android.widget.RemoteViews
 import com.focusguard.R
@@ -18,7 +20,14 @@ object WidgetUpdater {
     private const val URGENT_REMAINING_MS = 15 * 60_000L
     private const val PENDING_INTENT_REQUEST_CODE = 4101
 
+    private data class PendingWidgetUpdate(
+        val usageOverrides: Map<String, Long>?,
+        val force: Boolean,
+        val urgent: Boolean,
+    )
+
     private val executor = Executors.newSingleThreadExecutor()
+    private val mainHandler = Handler(Looper.getMainLooper())
     private val componentNameClass = FocusGuardWidgetProvider::class.java
 
     @Volatile
@@ -30,12 +39,20 @@ object WidgetUpdater {
     @Volatile
     private var hasPlacedWidgets: Boolean? = null
 
+    @Volatile
+    private var pendingUpdate: PendingWidgetUpdate? = null
+
+    @Volatile
+    private var deferredRunnable: Runnable? = null
+
     fun onWidgetsEnabled() {
         hasPlacedWidgets = true
     }
 
     fun onWidgetsDisabled() {
         hasPlacedWidgets = false
+        pendingUpdate = null
+        cancelDeferredUpdate()
     }
 
     fun scheduleUpdate(
@@ -49,38 +66,24 @@ object WidgetUpdater {
             return
         }
 
+        val request =
+            PendingWidgetUpdate(
+                usageOverrides = usageOverrides,
+                force = force,
+                urgent = urgent,
+            )
+        pendingUpdate = mergePendingUpdate(pendingUpdate, request)
+
         val now = System.currentTimeMillis()
+        val snapshot = pendingUpdate ?: return
 
-        if (!force) {
-            when {
-                usageOverrides != null -> {
-                    val throttleMs = if (urgent) URGENT_LIVE_THROTTLE_MS else LIVE_USAGE_THROTTLE_MS
-                    if (now - lastLiveUsageUpdateMs < throttleMs) {
-                        return
-                    }
-                }
-                now - lastUpdateMs < THROTTLE_MS -> return
-            }
+        if (snapshot.force || !isThrottled(now, snapshot)) {
+            cancelDeferredUpdate()
+            flushPendingUpdate(appContext)
+            return
         }
 
-        executor.execute {
-            val manager = AppWidgetManager.getInstance(appContext)
-            val componentName = ComponentName(appContext, componentNameClass)
-            val widgetIds = manager.getAppWidgetIds(componentName)
-            hasPlacedWidgets = widgetIds.isNotEmpty()
-
-            if (widgetIds.isEmpty()) {
-                return@execute
-            }
-
-            val updatedAt = System.currentTimeMillis()
-            lastUpdateMs = updatedAt
-            if (usageOverrides != null) {
-                lastLiveUsageUpdateMs = updatedAt
-            }
-
-            updateAll(appContext, manager, widgetIds, usageOverrides)
-        }
+        scheduleDeferredUpdate(appContext, now, snapshot)
     }
 
     fun updateAll(
@@ -102,6 +105,92 @@ object WidgetUpdater {
         for (widgetId in widgetIds) {
             manager.updateAppWidget(widgetId, buildRemoteViews(context, snapshot))
         }
+    }
+
+    private fun flushPendingUpdate(context: Context) {
+        val snapshot = pendingUpdate ?: return
+        pendingUpdate = null
+
+        executor.execute {
+            val manager = AppWidgetManager.getInstance(context)
+            val componentName = ComponentName(context, componentNameClass)
+            val widgetIds = manager.getAppWidgetIds(componentName)
+            hasPlacedWidgets = widgetIds.isNotEmpty()
+
+            if (widgetIds.isEmpty()) {
+                return@execute
+            }
+
+            val updatedAt = System.currentTimeMillis()
+            lastUpdateMs = updatedAt
+            if (snapshot.usageOverrides != null) {
+                lastLiveUsageUpdateMs = updatedAt
+            }
+
+            updateAll(context, manager, widgetIds, snapshot.usageOverrides)
+        }
+    }
+
+    private fun scheduleDeferredUpdate(
+        context: Context,
+        now: Long,
+        snapshot: PendingWidgetUpdate,
+    ) {
+        if (deferredRunnable != null) {
+            return
+        }
+
+        val delayMs = remainingThrottleMs(now, snapshot).coerceAtLeast(0L)
+        val appContext = context.applicationContext
+        val runnable =
+            Runnable {
+                deferredRunnable = null
+                flushPendingUpdate(appContext)
+            }
+
+        deferredRunnable = runnable
+        mainHandler.postDelayed(runnable, delayMs)
+    }
+
+    private fun cancelDeferredUpdate() {
+        deferredRunnable?.let(mainHandler::removeCallbacks)
+        deferredRunnable = null
+    }
+
+    private fun isThrottled(now: Long, snapshot: PendingWidgetUpdate): Boolean {
+        return remainingThrottleMs(now, snapshot) > 0L
+    }
+
+    private fun remainingThrottleMs(now: Long, snapshot: PendingWidgetUpdate): Long {
+        return when {
+            snapshot.usageOverrides != null -> {
+                val throttleMs = if (snapshot.urgent) URGENT_LIVE_THROTTLE_MS else LIVE_USAGE_THROTTLE_MS
+                throttleMs - (now - lastLiveUsageUpdateMs)
+            }
+            else -> THROTTLE_MS - (now - lastUpdateMs)
+        }
+    }
+
+    private fun mergePendingUpdate(
+        previous: PendingWidgetUpdate?,
+        next: PendingWidgetUpdate,
+    ): PendingWidgetUpdate {
+        if (previous == null) {
+            return next
+        }
+
+        val mergedOverrides =
+            when {
+                previous.usageOverrides == null -> next.usageOverrides
+                next.usageOverrides == null -> previous.usageOverrides
+                else -> previous.usageOverrides + next.usageOverrides
+            }
+
+        return PendingWidgetUpdate(
+            usageOverrides = mergedOverrides,
+            force = previous.force || next.force,
+            urgent = previous.urgent || next.urgent,
+        )
     }
 
     private fun buildRemoteViews(
