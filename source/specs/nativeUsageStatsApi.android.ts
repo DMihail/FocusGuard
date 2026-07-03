@@ -1,7 +1,7 @@
 /** @format */
 
 import { createNativeEventHub } from './createNativeEventHub';
-import type { Spec } from './NativeUsageStats.android';
+import type { Spec } from './NativeKeeptTurboModule.android';
 import { getNativeUsageStats } from './nativeUsageStatsClient.android';
 import type {
   InstallApp,

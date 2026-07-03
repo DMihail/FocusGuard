@@ -61,7 +61,7 @@ source/                         # TypeScript / React application
 
 android/app/src/main/java/
 ├── com/focusguard/             # Monitor, overlay, widget, usage, receivers
-└── com/nativeusagestats/       # Codegen Turbo Module entry
+└── com/keept/turbomodule/       # Codegen Turbo Module entry
 
 ios/
 ├── FocusGuard/                 # Main app target (legacy name)
@@ -169,7 +169,7 @@ Agent rule with frozen native components: `.cursor/rules/native-events-architect
 
 ### JavaScript ↔ native bridge
 
-Turbo Module **`NativeUsageStats`** (`source/specs/`) exposes permissions, catalogs, monitor control, and
+Turbo Module **`KeeptTurboModule`** (`source/specs/`) exposes permissions, catalogs, monitor control, and
 `syncTrackingConfig(snapshotJson)`.
 
 App bootstrap (`index.js`):
@@ -207,7 +207,17 @@ Contract source of truth: `source/store/persistSchema.ts` ↔ `android/.../Persi
 `ios/Shared/KeeptAppGroup.swift`.
 
 `RootNavigationGate` wires splash, catalog prefetch, permission guard, monitoring restore, usage history sync
-(`GlobalUsageHistorySync`), and native snapshot sync.
+(`GlobalUsageHistorySync`), and native snapshot sync. `CoreStoresHydrationProvider` shares one MMKV hydration
+subscription set across dashboard-related hooks.
+
+**Monitoring sync (three layers):**
+
+1. Native — FGS emits `onMonitorServiceStateChanged`; pending events replay on JS resume.
+2. `useMonitoringServiceSync` — reconciles drift when app returns to foreground (`restoreMonitoringSession`).
+3. `monitoringStore` health check — settles the dashboard toggle while Android FGS starts asynchronously.
+
+**Usage refresh policy:** soft refresh on screen focus; hard refresh on pull-to-refresh, local day change, and Configure
+Limits day rollover. `trackedUsageStore` coalesces concurrent refreshes into one native load.
 
 ### Android runtime
 
@@ -217,8 +227,8 @@ Contract source of truth: `source/store/persistSchema.ts` ↔ `android/.../Persi
 | `TrackingEngine`                | Poll loop (1s active / 2.5s idle), limit evaluation, block |
 | `UsageEventsForegroundObserver` | API 35+ wake on foreground change (poll stays fallback)    |
 | `BlockOverlayManager`           | Hard block UI                                              |
-| `WidgetUpdater`                 | Home-screen widget (throttled; skips when no widgets)      |
-| `LocalDayChangeScheduler`       | `AlarmManager` midnight + timezone receiver                |
+| `WidgetUpdater`                 | Home-screen widget (throttled + deferred coalescing)       |
+| `LocalDayChangeScheduler`       | `AlarmManager` midnight + clock/timezone receivers         |
 | `TurboModuleEventDispatchers`   | Routes native signals to Turbo Module listeners            |
 
 ### iOS runtime
@@ -262,7 +272,8 @@ Coverage focus:
 - Domain & stores — permissions, catalogs, MMKV snapshots, usage math
 - Navigation — entry route, deep links, bootstrap gate
 - Architecture guard — no `setTimeout` / `setInterval` in `source/`
-- Kotlin — `NextBlockResolver`, `LocalDayKey`, event dispatchers
+- Kotlin — `NextBlockResolver`, `LocalDayKey`, `DailyWarningStore`, `LocalDayChangeNotifier`, `ForegroundStabilizer`,
+  event dispatchers (Robolectric + in-memory MMKV)
 
 Jest defaults to `.ios.ts` resolution; Android modules are imported explicitly in tests.
 
@@ -284,6 +295,7 @@ Android runs only after **check** passes. Husky is disabled in CI (`HUSKY=0`).
 
 - Bump persist versions in `persistSchema.ts` and native counterparts when stored shapes change.
 - Prefer `syncNativeTrackingSnapshot()` over writing MMKV snapshot keys from JS.
-- Turbo Module spec files must keep `TurboModuleRegistry.get` in the same file as `Spec` (codegen requirement).
+- Turbo Module spec files must keep `TurboModuleRegistry.get` in the same file as `Spec` (codegen requirement) and use a
+  `Native*.ts` basename (RN codegen filter).
 - Do not add JS polling timers — use native events or `scheduleMicrotask`.
 - Do not rename legacy `com.focusguard` Kotlin package or `FocusGuard` Xcode target without a coordinated migration.

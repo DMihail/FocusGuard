@@ -24,29 +24,32 @@ type MonitorServiceStartResultCodegen = {
   reason?: string;
 };
 
-export type { LocalDayChangedEvent, MonitorServiceStateChangedEvent } from './types';
+export type { LocalDayChangedEvent, MonitorServiceStateChangedEvent, PermissionsChangedEvent } from './types';
 
 export interface Spec extends TurboModule {
   readonly onPermissionsChanged: EventEmitter<PermissionsChangedEventCodegen>;
   readonly onLocalDayChanged: EventEmitter<LocalDayChangedEventCodegen>;
   readonly onMonitorServiceStateChanged: EventEmitter<MonitorServiceStateChangedEventCodegen>;
   checkForPermission(): boolean;
+  checkForSystemAlertWindowPermission(): boolean;
   checkForNotificationsPermission(): boolean;
+  checkForIgnoreBatteryOptimizationsPermission(): boolean;
+  checkForManifestMonitorPermissions(): boolean;
   startMonitorService(): MonitorServiceStartResultCodegen;
   stopMonitorService(): void;
   isMonitorServiceRunning(): boolean;
   requestUsageStatsPermission(): void;
+  requestSystemAlertWindowPermission(): void;
   requestNotificationsPermission(): void;
   openNotificationsSettings(): void;
+  requestIgnoreBatteryOptimizationsPermission(): void;
   getPackagesUsageToday(packageNames: string[]): Promise<PackageUsage[]>;
   getInstalledApplications(): Promise<InstallApp[]>;
   getAppDisplayName(): string;
   getAppVersion(): string;
   invalidateNativeCatalogCaches(): void;
   syncTrackingConfig(snapshotJson: string): void;
-  requestScreenTimeAuthorization(): Promise<boolean>;
-  presentFamilyActivityPicker(): Promise<InstallApp[]>;
 }
 
 // Required by React Native codegen — must live in the same file as `Spec`.
-export default TurboModuleRegistry.get<Spec>('NativeUsageStats');
+export default TurboModuleRegistry.getEnforcing<Spec>('KeeptTurboModule');

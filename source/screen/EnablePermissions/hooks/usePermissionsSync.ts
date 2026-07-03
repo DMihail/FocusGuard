@@ -60,10 +60,6 @@ export const usePermissionsSync = () => {
   useRunOnFocusAndActive(syncStatuses);
 
   useEffect(() => {
-    syncStatuses();
-  }, [syncStatuses]);
-
-  useEffect(() => {
     const subscription = subscribePermissionsChanged(() => syncStatuses());
 
     return () => subscription.remove();

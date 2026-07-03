@@ -12,7 +12,7 @@ const mockUseLocalDayChangeRefresh = jest.fn();
 const mockRefreshUsage = jest.fn(() => Promise.resolve());
 const mockSeedUsageFromCache = jest.fn();
 
-jest.mock('@/hooks/useCoreStoresHydrated', () => ({
+jest.mock('@/context/CoreStoresHydrationProvider', () => ({
   useCoreStoresHydrated: () => mockUseCoreStoresHydrated(),
 }));
 

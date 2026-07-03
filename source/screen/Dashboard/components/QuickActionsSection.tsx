@@ -13,6 +13,7 @@ import { useDashboardStyles } from '../styles';
 
 type QuickActionsSectionProps = {
   isMonitoring: boolean;
+  isMonitoringReady: boolean;
   canStartFocusMode: boolean;
   monitoringSubtitle: string;
   onToggleMonitoring: () => void;
@@ -24,6 +25,7 @@ const areQuickActionsSectionPropsEqual = (
   next: QuickActionsSectionProps,
 ): boolean =>
   previous.isMonitoring === next.isMonitoring &&
+  previous.isMonitoringReady === next.isMonitoringReady &&
   previous.canStartFocusMode === next.canStartFocusMode &&
   previous.monitoringSubtitle === next.monitoringSubtitle &&
   previous.onToggleMonitoring === next.onToggleMonitoring &&
@@ -32,6 +34,7 @@ const areQuickActionsSectionPropsEqual = (
 export const QuickActionsSection = memo(
   ({
     isMonitoring,
+    isMonitoringReady,
     canStartFocusMode,
     monitoringSubtitle,
     onToggleMonitoring,
@@ -40,7 +43,7 @@ export const QuickActionsSection = memo(
     const styles = useDashboardStyles();
     const { colors } = useTheme();
     const { t } = useTranslation();
-    const isFocusModeDisabled = !canStartFocusMode && !isMonitoring;
+    const isFocusModeDisabled = !isMonitoringReady || (!canStartFocusMode && !isMonitoring);
 
     const handleToggle = () => {
       if (isFocusModeDisabled) {

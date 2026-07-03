@@ -1,5 +1,5 @@
 import { TurboModuleRegistry } from 'react-native';
 
-import type { Spec } from './NativeUsageStats.ios';
+import type { Spec } from './NativeKeeptTurboModule.ios';
 
-export const getNativeUsageStats = (): Spec | null => TurboModuleRegistry.get<Spec>('NativeUsageStats');
+export const getNativeUsageStats = (): Spec | null => TurboModuleRegistry.get<Spec>('KeeptTurboModule');

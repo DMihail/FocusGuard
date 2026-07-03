@@ -4,9 +4,9 @@ import { useCallback, useRef } from 'react';
 
 import { useFocusEffect, useIsFocused } from '@react-navigation/native';
 
-import { reportError } from '@/crashlytics/reportError';
 import { useAppStateOnActive } from '@/hooks/useAppStateOnActive';
 import { subscribeLocalDayChanged } from '@/specs';
+import { runCoalescedLocalDayChangeRefresh } from '@/store/usageDayChangeCoordinator';
 import { getLocalDayKey } from '@/utils/usage/localDayKey';
 
 /** Refreshes usage when the local calendar day changes while the screen stays open. */
@@ -23,7 +23,7 @@ export const useLocalDayChangeRefresh = (refresh: () => void | Promise<void>): v
     }
 
     dayKeyRef.current = currentDayKey;
-    Promise.resolve(refreshRef.current()).catch(reportError);
+    runCoalescedLocalDayChangeRefresh(currentDayKey, () => refreshRef.current());
   }, []);
 
   useFocusEffect(
@@ -36,7 +36,7 @@ export const useLocalDayChangeRefresh = (refresh: () => void | Promise<void>): v
         }
 
         dayKeyRef.current = event.dayKey;
-        Promise.resolve(refreshRef.current()).catch(reportError);
+        runCoalescedLocalDayChangeRefresh(event.dayKey, () => refreshRef.current());
       });
 
       return () => {

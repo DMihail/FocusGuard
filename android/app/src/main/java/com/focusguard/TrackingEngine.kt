@@ -9,9 +9,11 @@ import android.os.Looper
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.focusguard.crashlytics.NativeErrorReporter
+import com.focusguard.monitor.ForegroundStabilizer
 import com.focusguard.monitor.MonitorPermissions
 import com.focusguard.monitor.MonitoringStateRepository
 import com.focusguard.monitor.NotificationPermissions
+import com.focusguard.monitor.TrackingEnginePoll
 import com.focusguard.navigation.DeepLinks
 import com.focusguard.notification.KeeptNotifications
 import com.focusguard.overlay.BlockOverlayManager
@@ -45,10 +47,7 @@ class TrackingEngine(
     private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
     private var monitoringJob: Job? = null
 
-    private var stableForeground: String? = null
-    private var foregroundCandidate: String? = null
-    private var foregroundCandidateHits = 0
-    private var foregroundMisses = 0
+    private val foregroundStabilizer = ForegroundStabilizer()
 
     /** Package currently over its hard block limit; overlay should stay until snooze or user leaves. */
     private var activeBlockPackage: String? = null
@@ -62,7 +61,6 @@ class TrackingEngine(
         if (monitoringJob != null) return
 
         ensureWarningChannel()
-        DailyWarningStore.pruneStaleKeys()
 
         usageEventsObserver =
             UsageEventsForegroundObserver.createIfSupported(context) {
@@ -90,15 +88,12 @@ class TrackingEngine(
         }
     }
 
-    private fun resolvePollIntervalMs(): Long {
-        val foregroundPackage = stableForeground
-
-        return when {
-            activeBlockPackage != null -> POLL_INTERVAL_ACTIVE_MS
-            foregroundPackage != null && isTrackedApp(foregroundPackage) -> POLL_INTERVAL_ACTIVE_MS
-            else -> POLL_INTERVAL_IDLE_MS
-        }
-    }
+    private fun resolvePollIntervalMs(): Long =
+        TrackingEnginePoll.resolveIntervalMs(
+            activeBlockPackage = activeBlockPackage,
+            stableForeground = foregroundStabilizer.stableForeground,
+            trackedApps = trackedApps,
+        )
 
     /** Cancels the polling coroutine and dismisses any active block overlay. */
     fun stop() {
@@ -106,10 +101,7 @@ class TrackingEngine(
         usageEventsObserver = null
         monitoringJob?.cancel()
         monitoringJob = null
-        stableForeground = null
-        foregroundCandidate = null
-        foregroundCandidateHits = 0
-        foregroundMisses = 0
+        foregroundStabilizer.reset()
         activeBlockPackage = null
         liveUsageEstimator.clearSession()
         runOnMainThread { BlockOverlayManager.dismiss(context) }
@@ -127,15 +119,18 @@ class TrackingEngine(
             return
         }
 
-        trackedApps = TrackingConfigRepository.getTrackedApps().toSet()
+        trackedApps = TrackingConfigRepository.getTrackedAppsSet()
 
-        val previousStable = stableForeground
-        val foregroundApp = resolveStableForeground(detector.getForegroundApp())
+        val previousStable = foregroundStabilizer.stableForeground
+        val foregroundApp = foregroundStabilizer.resolve(detector.getForegroundApp())
 
         if (foregroundApp == null) {
             val blockedPackage = activeBlockPackage
             if (blockedPackage != null && isTrackedApp(blockedPackage)) {
-                evaluateTrackedApp(blockedPackage)
+                evaluateTrackedApp(
+                    blockedPackage,
+                    liveUsageEstimator.getEffectiveUsageMs(blockedPackage),
+                )
             }
             publishWidgetUpdate()
             return
@@ -145,7 +140,7 @@ class TrackingEngine(
 
         if (!isTrackedApp(foregroundApp)) {
             if (previousStable != null && isTrackedApp(previousStable)) {
-                usageRepository.invalidateCache()
+                usageRepository.invalidatePackages(setOf(previousStable))
             }
             liveUsageEstimator.clearSession()
 
@@ -160,15 +155,22 @@ class TrackingEngine(
             if (activeBlockPackage != null && activeBlockPackage != foregroundApp) {
                 clearActiveBlock()
             }
-            usageRepository.invalidateCache()
+            if (previousStable != null && isTrackedApp(previousStable)) {
+                usageRepository.invalidatePackages(setOf(previousStable))
+            }
+            usageRepository.invalidatePackages(setOf(foregroundApp))
             liveUsageEstimator.onTrackedAppForeground(foregroundApp)
         }
 
-        evaluateTrackedApp(foregroundApp)
+        evaluateTrackedApp(foregroundApp, liveUsageEstimator.getEffectiveUsageMs(foregroundApp))
         publishWidgetUpdate()
     }
 
     private fun publishWidgetUpdate() {
+        if (WidgetUpdater.shouldSkipUsagePrecomputation()) {
+            return
+        }
+
         val usageOverrides =
             if (trackedApps.isEmpty()) {
                 null
@@ -177,7 +179,7 @@ class TrackingEngine(
                     liveUsageEstimator.getEffectiveUsageMs(packageName)
                 }
             }
-        val foregroundPackage = stableForeground
+        val foregroundPackage = foregroundStabilizer.stableForeground
         val urgent =
             foregroundPackage != null &&
                 isTrackedApp(foregroundPackage) &&
@@ -192,9 +194,7 @@ class TrackingEngine(
         context.stopService(Intent(context, FocusGuardMonitorService::class.java))
     }
 
-    private fun evaluateTrackedApp(packageName: String) {
-        val usedTodayMs = liveUsageEstimator.getEffectiveUsageMs(packageName)
-
+    private fun evaluateTrackedApp(packageName: String, usedTodayMs: Long) {
         when (val blockState = NextBlockResolver.resolveAppBlockState(packageName, usedTodayMs)) {
             is NextBlockResolver.AppBlockState.SnoozeCountdown -> {
                 if (activeBlockPackage == packageName) {
@@ -206,7 +206,7 @@ class TrackingEngine(
                 val limits = TrackingConfigRepository.getLimitConfig(packageName)
                 DailyWarningStore.markWarningShownToday(packageName)
                 activeBlockPackage = packageName
-                ensureBlockOverlayVisible(packageName, limits)
+                ensureBlockOverlayVisible(packageName, limits, usedTodayMs)
             }
 
             is NextBlockResolver.AppBlockState.UnderLimit -> {
@@ -230,6 +230,7 @@ class TrackingEngine(
     private fun ensureBlockOverlayVisible(
         packageName: String,
         limits: TrackingConfigRepository.AppLimitConfig,
+        usedTodayMs: Long,
     ) {
         runOnMainThread {
             val alreadyVisible =
@@ -241,7 +242,7 @@ class TrackingEngine(
             }
 
             logDebug(
-                "Daily block for $packageName (${liveUsageEstimator.getEffectiveUsageMs(packageName) / 60_000}m / ${limits.hardBlockThresholdMs / 60_000}m)",
+                "Daily block for $packageName (${usedTodayMs / 60_000}m / ${limits.hardBlockThresholdMs / 60_000}m)",
             )
 
             val shown =
@@ -261,33 +262,6 @@ class TrackingEngine(
     private fun clearActiveBlock() {
         activeBlockPackage = null
         runOnMainThread { BlockOverlayManager.dismiss(context) }
-    }
-
-    private fun resolveStableForeground(raw: String?): String? {
-        if (raw == null) {
-            foregroundMisses++
-            if (foregroundMisses >= FOREGROUND_MISS_POLLS) {
-                stableForeground = null
-                foregroundCandidate = null
-                foregroundCandidateHits = 0
-            }
-            return stableForeground
-        }
-
-        foregroundMisses = 0
-
-        if (raw == foregroundCandidate) {
-            foregroundCandidateHits++
-        } else {
-            foregroundCandidate = raw
-            foregroundCandidateHits = 1
-        }
-
-        if (foregroundCandidateHits >= FOREGROUND_STABLE_POLLS) {
-            stableForeground = raw
-        }
-
-        return stableForeground
     }
 
     private fun isTrackedApp(packageName: String): Boolean = trackedApps.contains(packageName)
@@ -359,10 +333,6 @@ class TrackingEngine(
 
     companion object {
         private const val TAG = "TrackingEngine"
-        private const val POLL_INTERVAL_ACTIVE_MS = 1_000L
-        private const val POLL_INTERVAL_IDLE_MS = 2_500L
-        private const val FOREGROUND_STABLE_POLLS = 1
-        private const val FOREGROUND_MISS_POLLS = 3
         private const val WARNING_NOTIFICATION_ID_BASE = 2001
     }
 }

@@ -16,7 +16,7 @@ export const useManageAppsFocusRefresh = (refreshInstalledApps: () => void | Pro
       return;
     }
 
-    trackedUsageStore.getState().refreshUsage(appKeys, true).catch(reportError);
+    trackedUsageStore.getState().refreshUsage(appKeys, false).catch(reportError);
   }, [refreshInstalledApps]);
 
   useRefreshWhenVisible(refreshOnFocus, { onAppActive: false });

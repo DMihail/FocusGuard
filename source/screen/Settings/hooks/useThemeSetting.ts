@@ -2,6 +2,8 @@
 
 import { useCallback, useMemo } from 'react';
 
+import { useShallow } from 'zustand/react/shallow';
+
 import { useSystemColorScheme } from '@/hooks/useSystemColorScheme';
 import { settingsStore } from '@/store';
 
@@ -27,9 +29,13 @@ const resolveIsDark = (
 };
 
 export const useThemeSetting = () => {
-  const preference = settingsStore((state) => state.themePreference);
+  const { preference, setThemePreference } = settingsStore(
+    useShallow((state) => ({
+      preference: state.themePreference,
+      setThemePreference: state.setThemePreference,
+    })),
+  );
   const systemScheme = useSystemColorScheme();
-  const setThemePreference = settingsStore((state) => state.setThemePreference);
 
   const isDarkModeEnabled = useMemo(() => resolveIsDark(preference, systemScheme), [preference, systemScheme]);
 

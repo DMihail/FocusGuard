@@ -49,11 +49,9 @@ class LiveUsageEstimator(
             return
         }
 
-        val baselineMs =
-            baselineMsByPackage[activePackage]
-                ?: dailyUsageRepository.getTodayForegroundMs(activePackage)
-        val sessionMs = (System.currentTimeMillis() - sessionStartedAtMs).coerceAtLeast(0L)
         val persistedMs = dailyUsageRepository.getTodayForegroundMs(activePackage)
+        val baselineMs = baselineMsByPackage[activePackage] ?: persistedMs
+        val sessionMs = (System.currentTimeMillis() - sessionStartedAtMs).coerceAtLeast(0L)
         baselineMsByPackage[activePackage] = maxOf(baselineMs + sessionMs, persistedMs)
         sessionStartedAtMs = 0L
     }

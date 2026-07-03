@@ -1,7 +1,7 @@
 /** @format */
 
 import { reportError } from '@/crashlytics/reportError';
-import { syncTrackingConfig } from '@/specs/nativeUsageStatsApi';
+import { syncTrackingConfig } from '@/specs';
 import { getNativeUsageStats } from '@/specs/nativeUsageStatsClient';
 
 import { appLimitsStore } from './appLimitsStore';

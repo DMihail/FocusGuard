@@ -1,14 +1,14 @@
 package com.focusguard.overlay
 
-import com.focusguard.storage.KeeptMmkv
-import java.util.Calendar
+import com.focusguard.storage.KeeptStorage
+import com.focusguard.usage.getLocalDayKey
 import java.util.concurrent.ConcurrentHashMap
 
 /** Persists one warning notification per app per local calendar day. */
 internal object DailyWarningStore {
     private const val KEY_PREFIX = "daily-warning-"
 
-    private val mmkv get() = KeeptMmkv.instance
+    private val mmkv get() = KeeptStorage.mmkv
 
     private val warnedTodayCache = ConcurrentHashMap.newKeySet<String>()
     private var cacheDayKey: String? = null
@@ -33,9 +33,16 @@ internal object DailyWarningStore {
         mmkv.encode(keyForToday(packageName), true)
     }
 
+    /** @internal Unit-test reset. */
+    internal fun resetForTests() {
+        warnedTodayCache.clear()
+        cacheDayKey = null
+    }
+
     /** Drops MMKV keys from previous local calendar days. */
     fun pruneStaleKeys() {
-        val todayPrefix = "$KEY_PREFIX${dayKey(Calendar.getInstance())}-"
+        ensureDayCache()
+        val todayPrefix = "$KEY_PREFIX${cacheDayKey!!}-"
 
         mmkv.allKeys()?.forEach { key ->
             if (key.startsWith(KEY_PREFIX) && !key.startsWith(todayPrefix)) {
@@ -45,7 +52,7 @@ internal object DailyWarningStore {
     }
 
     private fun ensureDayCache() {
-        val dayKey = dayKey(Calendar.getInstance())
+        val dayKey = getLocalDayKey()
         if (cacheDayKey != dayKey) {
             warnedTodayCache.clear()
             cacheDayKey = dayKey
@@ -53,9 +60,7 @@ internal object DailyWarningStore {
     }
 
     private fun keyForToday(packageName: String): String {
-        return "$KEY_PREFIX${dayKey(Calendar.getInstance())}-$packageName"
+        ensureDayCache()
+        return "$KEY_PREFIX${cacheDayKey!!}-$packageName"
     }
-
-    private fun dayKey(calendar: Calendar): String =
-        "${calendar.get(Calendar.YEAR)}-${calendar.get(Calendar.MONTH)}-${calendar.get(Calendar.DAY_OF_MONTH)}"
 }

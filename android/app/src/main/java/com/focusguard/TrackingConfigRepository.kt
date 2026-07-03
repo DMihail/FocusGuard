@@ -22,14 +22,24 @@ internal object TrackingConfigRepository {
 
     private var cachedSelectedAppsRaw: String? = null
     private var cachedTrackedApps: List<String>? = null
+    private var cachedTrackedAppsSet: Set<String>? = null
     private var cachedLimitsRaw: String? = null
     private var cachedLimitsJson: JSONObject? = null
 
     fun invalidateCache() {
         cachedSelectedAppsRaw = null
         cachedTrackedApps = null
+        cachedTrackedAppsSet = null
         cachedLimitsRaw = null
         cachedLimitsJson = null
+    }
+
+    fun getTrackedAppsSet(): Set<String> {
+        cachedTrackedAppsSet?.let { return it }
+
+        return getTrackedApps().toSet().also { trackedApps ->
+            cachedTrackedAppsSet = trackedApps
+        }
     }
 
     fun getTrackedApps(): List<String> {
