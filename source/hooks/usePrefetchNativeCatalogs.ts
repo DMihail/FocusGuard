@@ -2,10 +2,10 @@
 
 import { useEffect } from 'react';
 
+import { useCoreStoresHydrated } from '@/context/CoreStoresHydrationProvider';
 import { prefetchInstalledApps } from '@/domain/installedAppsCatalog';
-import { useCoreStoresHydrated } from '@/hooks/useCoreStoresHydrated';
 
-/** Warms native catalogs during onboarding / permissions so later screens open instantly. */
+/** Warms native catalogs after core MMKV stores rehydrate so later screens open instantly. */
 export const usePrefetchNativeCatalogs = (): void => {
   const hasCoreStoresHydrated = useCoreStoresHydrated();
 

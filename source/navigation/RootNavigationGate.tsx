@@ -6,10 +6,9 @@ import { StyleSheet, View } from 'react-native';
 import type { NavigationContainerRef } from '@react-navigation/native';
 import Animated from 'react-native-reanimated';
 
-import { CoreStoresHydrationProvider } from '@/context/CoreStoresHydrationProvider';
+import { CoreStoresHydrationProvider, useCoreStoresHydrated } from '@/context/CoreStoresHydrationProvider';
 import { SelectedDashboardAppRowsProvider } from '@/context/SelectedDashboardAppRowsProvider';
 import { invalidatePermissionSnapshot } from '@/domain/permissionSnapshot';
-import { useCoreStoresHydrated } from '@/hooks/useCoreStoresHydrated';
 import { usePrefetchNativeCatalogs } from '@/hooks/usePrefetchNativeCatalogs';
 import { onboardingStore } from '@/store';
 import { startNativeTrackingSnapshotSync } from '@/store/nativeTrackingSnapshot';

@@ -7,6 +7,7 @@ import type {
   MonitorServiceStartResult,
   MonitorServiceStateChangedEvent,
   PackageUsage,
+  PermissionsChangedEvent,
 } from './types';
 
 export type {
@@ -15,11 +16,8 @@ export type {
   MonitorServiceStartResult,
   MonitorServiceStateChangedEvent,
   PackageUsage,
+  PermissionsChangedEvent,
 } from './types';
-
-type PermissionsChangedEvent = Readonly<{
-  changedAtMs: number;
-}>;
 
 const getModule = (): Spec | null => getNativeUsageStats();
 
@@ -112,10 +110,9 @@ export const syncTrackingConfig = (snapshotJson: string): void => {
 export const presentFamilyActivityPicker = async (): Promise<InstallApp[]> =>
   (await getModule()?.presentFamilyActivityPicker()) ?? [];
 
-export const subscribePermissionsChanged = (listener: () => void): { remove: () => void } =>
-  permissionsChangedHub.subscribe(() => {
-    listener();
-  });
+export const subscribePermissionsChanged = (
+  listener: (event: PermissionsChangedEvent) => void,
+): { remove: () => void } => permissionsChangedHub.subscribe(listener);
 
 export const subscribeLocalDayChanged = (listener: (event: LocalDayChangedEvent) => void): { remove: () => void } =>
   localDayChangedHub.subscribe(listener);

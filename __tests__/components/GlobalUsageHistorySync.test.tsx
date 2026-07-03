@@ -16,7 +16,7 @@ jest.mock('@/hooks/useUsageHistorySync', () => ({
   useUsageHistorySync: (...args: unknown[]) => mockUseUsageHistorySync(...args),
 }));
 
-jest.mock('@/hooks/useCoreStoresHydrated', () => ({
+jest.mock('@/context/CoreStoresHydrationProvider', () => ({
   useCoreStoresHydrated: () => mockUseCoreStoresHydrated(),
 }));
 

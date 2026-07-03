@@ -1,7 +1,7 @@
 /** @format */
 
+import { useCoreStoresHydrated } from '@/context/CoreStoresHydrationProvider';
 import { useSelectedDashboardAppRows } from '@/context/SelectedDashboardAppRowsProvider';
-import { useCoreStoresHydrated } from '@/hooks/useCoreStoresHydrated';
 import { usePersistHydrated } from '@/hooks/usePersistHydrated';
 import { useUsageHistorySync } from '@/hooks/useUsageHistorySync';
 import { usageHistoryStore } from '@/store';

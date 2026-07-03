@@ -87,6 +87,10 @@ jest.mock('@/hooks/usePrefetchNativeCatalogs', () => ({
   usePrefetchNativeCatalogs: jest.fn(),
 }));
 
+jest.mock('@/context/CoreStoresHydrationProvider', () => ({
+  useCoreStoresHydrated: () => true,
+}));
+
 import { SelectedDashboardAppRowsProvider } from '@/context/SelectedDashboardAppRowsProvider';
 import { invalidateUsageStatsCache } from '@/domain/usageStatsCatalog';
 import { useDashboard } from '@/screen/Dashboard/hooks/useDashboard';

@@ -5,7 +5,7 @@ import React, { createContext, type ReactNode, useContext } from 'react';
 import { usePersistHydrated } from '@/hooks/usePersistHydrated';
 import { appLimitsStore, onboardingStore, selectedAppsStore } from '@/store';
 
-const CoreStoresHydrationContext = createContext(true);
+const CoreStoresHydrationContext = createContext(false);
 
 const useCoreStoresHydratedState = (): boolean => {
   const hasOnboardingHydrated = usePersistHydrated(onboardingStore);
