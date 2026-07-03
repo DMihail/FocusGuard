@@ -49,6 +49,6 @@ object LocalDayChangeNotifier {
 
     private fun publishDayChange(context: Context, dayKey: String) {
         DailyUsageRepository.getInstance(context).invalidateCache()
-        TurboModuleEventDispatchers.emitLocalDayChanged(context.applicationContext as android.app.Application, dayKey)
+        TurboModuleEventDispatchers.emitLocalDayChanged(context, dayKey)
     }
 }

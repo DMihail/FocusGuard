@@ -1,7 +1,7 @@
 package com.focusguard.overlay
 
 import com.focusguard.storage.KeeptMmkv
-import java.util.Calendar
+import com.focusguard.usage.getLocalDayKey
 import java.util.concurrent.ConcurrentHashMap
 
 /** Persists one warning notification per app per local calendar day. */
@@ -35,7 +35,7 @@ internal object DailyWarningStore {
 
     /** Drops MMKV keys from previous local calendar days. */
     fun pruneStaleKeys() {
-        val todayPrefix = "$KEY_PREFIX${dayKey(Calendar.getInstance())}-"
+        val todayPrefix = "$KEY_PREFIX${getLocalDayKey()}-"
 
         mmkv.allKeys()?.forEach { key ->
             if (key.startsWith(KEY_PREFIX) && !key.startsWith(todayPrefix)) {
@@ -45,7 +45,7 @@ internal object DailyWarningStore {
     }
 
     private fun ensureDayCache() {
-        val dayKey = dayKey(Calendar.getInstance())
+        val dayKey = getLocalDayKey()
         if (cacheDayKey != dayKey) {
             warnedTodayCache.clear()
             cacheDayKey = dayKey
@@ -53,9 +53,6 @@ internal object DailyWarningStore {
     }
 
     private fun keyForToday(packageName: String): String {
-        return "$KEY_PREFIX${dayKey(Calendar.getInstance())}-$packageName"
+        return "$KEY_PREFIX${getLocalDayKey()}-$packageName"
     }
-
-    private fun dayKey(calendar: Calendar): String =
-        "${calendar.get(Calendar.YEAR)}-${calendar.get(Calendar.MONTH)}-${calendar.get(Calendar.DAY_OF_MONTH)}"
 }
