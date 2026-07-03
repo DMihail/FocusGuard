@@ -1,5 +1,5 @@
 import { createNativeEventHub } from './createNativeEventHub';
-import type { Spec } from './NativeUsageStats.ios';
+import type { Spec } from './NativeKeeptTurboModule.ios';
 import { getNativeUsageStats } from './nativeUsageStatsClient.ios';
 import type {
   InstallApp,

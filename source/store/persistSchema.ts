@@ -6,7 +6,7 @@
  *
  * ## JS ↔ native data flow
  *
- * - **Turbo Module (`NativeUsageStats`)** — permissions, usage catalogs, monitor control,
+ * - **Turbo Module (`KeeptTurboModule`)** — permissions, usage catalogs, monitor control,
  *   and `syncTrackingConfig` for the flat tracking snapshot.
  * - **Shared MMKV (`keept-storage`)** — Zustand persist blobs plus the flat
  *   `native-tracking-snapshot-v1` key. Native monitor code reads the snapshot first,

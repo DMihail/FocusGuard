@@ -61,7 +61,6 @@ class TrackingEngine(
         if (monitoringJob != null) return
 
         ensureWarningChannel()
-        DailyWarningStore.pruneStaleKeys()
 
         usageEventsObserver =
             UsageEventsForegroundObserver.createIfSupported(context) {
@@ -120,7 +119,7 @@ class TrackingEngine(
             return
         }
 
-        trackedApps = TrackingConfigRepository.getTrackedApps().toSet()
+        trackedApps = TrackingConfigRepository.getTrackedAppsSet()
 
         val previousStable = foregroundStabilizer.stableForeground
         val foregroundApp = foregroundStabilizer.resolve(detector.getForegroundApp())
@@ -128,7 +127,10 @@ class TrackingEngine(
         if (foregroundApp == null) {
             val blockedPackage = activeBlockPackage
             if (blockedPackage != null && isTrackedApp(blockedPackage)) {
-                evaluateTrackedApp(blockedPackage)
+                evaluateTrackedApp(
+                    blockedPackage,
+                    liveUsageEstimator.getEffectiveUsageMs(blockedPackage),
+                )
             }
             publishWidgetUpdate()
             return
@@ -160,11 +162,15 @@ class TrackingEngine(
             liveUsageEstimator.onTrackedAppForeground(foregroundApp)
         }
 
-        evaluateTrackedApp(foregroundApp)
+        evaluateTrackedApp(foregroundApp, liveUsageEstimator.getEffectiveUsageMs(foregroundApp))
         publishWidgetUpdate()
     }
 
     private fun publishWidgetUpdate() {
+        if (WidgetUpdater.shouldSkipUsagePrecomputation()) {
+            return
+        }
+
         val usageOverrides =
             if (trackedApps.isEmpty()) {
                 null
@@ -188,9 +194,7 @@ class TrackingEngine(
         context.stopService(Intent(context, FocusGuardMonitorService::class.java))
     }
 
-    private fun evaluateTrackedApp(packageName: String) {
-        val usedTodayMs = liveUsageEstimator.getEffectiveUsageMs(packageName)
-
+    private fun evaluateTrackedApp(packageName: String, usedTodayMs: Long) {
         when (val blockState = NextBlockResolver.resolveAppBlockState(packageName, usedTodayMs)) {
             is NextBlockResolver.AppBlockState.SnoozeCountdown -> {
                 if (activeBlockPackage == packageName) {
@@ -202,7 +206,7 @@ class TrackingEngine(
                 val limits = TrackingConfigRepository.getLimitConfig(packageName)
                 DailyWarningStore.markWarningShownToday(packageName)
                 activeBlockPackage = packageName
-                ensureBlockOverlayVisible(packageName, limits)
+                ensureBlockOverlayVisible(packageName, limits, usedTodayMs)
             }
 
             is NextBlockResolver.AppBlockState.UnderLimit -> {
@@ -226,6 +230,7 @@ class TrackingEngine(
     private fun ensureBlockOverlayVisible(
         packageName: String,
         limits: TrackingConfigRepository.AppLimitConfig,
+        usedTodayMs: Long,
     ) {
         runOnMainThread {
             val alreadyVisible =
@@ -237,7 +242,7 @@ class TrackingEngine(
             }
 
             logDebug(
-                "Daily block for $packageName (${liveUsageEstimator.getEffectiveUsageMs(packageName) / 60_000}m / ${limits.hardBlockThresholdMs / 60_000}m)",
+                "Daily block for $packageName (${usedTodayMs / 60_000}m / ${limits.hardBlockThresholdMs / 60_000}m)",
             )
 
             val shown =

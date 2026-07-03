@@ -61,7 +61,7 @@ source/                         # TypeScript / React application
 
 android/app/src/main/java/
 ├── com/focusguard/             # Monitor, overlay, widget, usage, receivers
-└── com/nativeusagestats/       # Codegen Turbo Module entry
+└── com/keept/turbomodule/       # Codegen Turbo Module entry
 
 ios/
 ├── FocusGuard/                 # Main app target (legacy name)
@@ -169,7 +169,7 @@ Agent rule with frozen native components: `.cursor/rules/native-events-architect
 
 ### JavaScript ↔ native bridge
 
-Turbo Module **`NativeUsageStats`** (`source/specs/`) exposes permissions, catalogs, monitor control, and
+Turbo Module **`KeeptTurboModule`** (`source/specs/`) exposes permissions, catalogs, monitor control, and
 `syncTrackingConfig(snapshotJson)`.
 
 App bootstrap (`index.js`):
@@ -295,6 +295,7 @@ Android runs only after **check** passes. Husky is disabled in CI (`HUSKY=0`).
 
 - Bump persist versions in `persistSchema.ts` and native counterparts when stored shapes change.
 - Prefer `syncNativeTrackingSnapshot()` over writing MMKV snapshot keys from JS.
-- Turbo Module spec files must keep `TurboModuleRegistry.get` in the same file as `Spec` (codegen requirement).
+- Turbo Module spec files must keep `TurboModuleRegistry.get` in the same file as `Spec` (codegen requirement) and use a
+  `Native*.ts` basename (RN codegen filter).
 - Do not add JS polling timers — use native events or `scheduleMicrotask`.
 - Do not rename legacy `com.focusguard` Kotlin package or `FocusGuard` Xcode target without a coordinated migration.

@@ -1,3 +1,7 @@
+/**
+ * Codegen-only Turbo Module schema (platform-agnostic filename).
+ * Runtime uses `NativeKeeptTurboModule.ios.ts` / `NativeKeeptTurboModule.android.ts` via moduleSuffixes.
+ */
 import { TurboModuleRegistry } from 'react-native';
 
 import type { TurboModule } from 'react-native';
@@ -24,8 +28,6 @@ type MonitorServiceStartResultCodegen = {
   reason?: string;
 };
 
-export type { LocalDayChangedEvent, MonitorServiceStateChangedEvent, PermissionsChangedEvent } from './types';
-
 export interface Spec extends TurboModule {
   readonly onPermissionsChanged: EventEmitter<PermissionsChangedEventCodegen>;
   readonly onLocalDayChanged: EventEmitter<LocalDayChangedEventCodegen>;
@@ -49,7 +51,9 @@ export interface Spec extends TurboModule {
   getAppVersion(): string;
   invalidateNativeCatalogCaches(): void;
   syncTrackingConfig(snapshotJson: string): void;
+  requestScreenTimeAuthorization(): Promise<boolean>;
+  presentFamilyActivityPicker(): Promise<InstallApp[]>;
 }
 
 // Required by React Native codegen — must live in the same file as `Spec`.
-export default TurboModuleRegistry.getEnforcing<Spec>('NativeUsageStats');
+export default TurboModuleRegistry.getEnforcing<Spec>('KeeptTurboModule');

@@ -66,12 +66,12 @@ describe('nativeUsageStatsApi.android', () => {
     jest.unmock('@/specs/nativeUsageStatsClient.android');
     jest.mock('@/specs/nativeUsageStatsClient.android', () => ({
       getNativeUsageStats: jest.fn(() => {
-        throw new Error('NativeUsageStats not found');
+        throw new Error('KeeptTurboModule not found');
       }),
     }));
     const specs = require('@/specs/nativeUsageStatsApi.android') as NativeUsageStatsApi;
 
-    expect(() => specs.checkForPermission()).toThrow('NativeUsageStats not found');
+    expect(() => specs.checkForPermission()).toThrow('KeeptTurboModule not found');
   });
 
   it('subscribes to onPermissionsChanged events', () => {

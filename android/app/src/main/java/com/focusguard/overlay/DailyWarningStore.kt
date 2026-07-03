@@ -41,7 +41,8 @@ internal object DailyWarningStore {
 
     /** Drops MMKV keys from previous local calendar days. */
     fun pruneStaleKeys() {
-        val todayPrefix = "$KEY_PREFIX${getLocalDayKey()}-"
+        ensureDayCache()
+        val todayPrefix = "$KEY_PREFIX${cacheDayKey!!}-"
 
         mmkv.allKeys()?.forEach { key ->
             if (key.startsWith(KEY_PREFIX) && !key.startsWith(todayPrefix)) {
@@ -59,6 +60,7 @@ internal object DailyWarningStore {
     }
 
     private fun keyForToday(packageName: String): String {
-        return "$KEY_PREFIX${getLocalDayKey()}-$packageName"
+        ensureDayCache()
+        return "$KEY_PREFIX${cacheDayKey!!}-$packageName"
     }
 }

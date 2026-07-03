@@ -55,6 +55,9 @@ object WidgetUpdater {
         cancelDeferredUpdate()
     }
 
+    /** Skips building usage maps when no widget is on the home screen. */
+    fun shouldSkipUsagePrecomputation(): Boolean = hasPlacedWidgets == false
+
     fun scheduleUpdate(
         context: Context,
         usageOverrides: Map<String, Long>? = null,

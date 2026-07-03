@@ -2,6 +2,7 @@ package com.focusguard.usage
 
 import android.content.Context
 import com.focusguard.DailyUsageRepository
+import com.focusguard.overlay.DailyWarningStore
 import com.focusguard.react.TurboModuleEventDispatchers
 import com.focusguard.storage.KeeptStorage
 import com.focusguard.storage.PersistSchema
@@ -55,6 +56,7 @@ object LocalDayChangeNotifier {
 
     private fun publishDayChange(context: Context, dayKey: String) {
         DailyUsageRepository.getInstance(context).invalidateCache()
+        DailyWarningStore.pruneStaleKeys()
         TurboModuleEventDispatchers.emitLocalDayChanged(context, dayKey)
     }
 }
