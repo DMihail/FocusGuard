@@ -272,7 +272,8 @@ Coverage focus:
 - Domain & stores — permissions, catalogs, MMKV snapshots, usage math
 - Navigation — entry route, deep links, bootstrap gate
 - Architecture guard — no `setTimeout` / `setInterval` in `source/`
-- Kotlin — `NextBlockResolver`, `LocalDayKey`, event dispatchers
+- Kotlin — `NextBlockResolver`, `LocalDayKey`, `DailyWarningStore`, `LocalDayChangeNotifier`, `ForegroundStabilizer`,
+  event dispatchers (Robolectric + in-memory MMKV)
 
 Jest defaults to `.ios.ts` resolution; Android modules are imported explicitly in tests.
 

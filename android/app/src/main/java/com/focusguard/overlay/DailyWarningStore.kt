@@ -1,6 +1,6 @@
 package com.focusguard.overlay
 
-import com.focusguard.storage.KeeptMmkv
+import com.focusguard.storage.KeeptStorage
 import com.focusguard.usage.getLocalDayKey
 import java.util.concurrent.ConcurrentHashMap
 
@@ -8,7 +8,7 @@ import java.util.concurrent.ConcurrentHashMap
 internal object DailyWarningStore {
     private const val KEY_PREFIX = "daily-warning-"
 
-    private val mmkv get() = KeeptMmkv.instance
+    private val mmkv get() = KeeptStorage.mmkv
 
     private val warnedTodayCache = ConcurrentHashMap.newKeySet<String>()
     private var cacheDayKey: String? = null
@@ -31,6 +31,12 @@ internal object DailyWarningStore {
         ensureDayCache()
         warnedTodayCache.add(packageName)
         mmkv.encode(keyForToday(packageName), true)
+    }
+
+    /** @internal Unit-test reset. */
+    internal fun resetForTests() {
+        warnedTodayCache.clear()
+        cacheDayKey = null
     }
 
     /** Drops MMKV keys from previous local calendar days. */

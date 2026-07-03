@@ -3,7 +3,7 @@ package com.focusguard.usage
 import android.content.Context
 import com.focusguard.DailyUsageRepository
 import com.focusguard.react.TurboModuleEventDispatchers
-import com.focusguard.storage.KeeptMmkv
+import com.focusguard.storage.KeeptStorage
 import com.focusguard.storage.PersistSchema
 
 /** Detects local day rollovers and notifies JS through [TurboModuleEventDispatchers]. */
@@ -11,7 +11,7 @@ object LocalDayChangeNotifier {
     @Volatile
     private var lastNotifiedDayKey: String? = null
 
-    private val mmkv get() = KeeptMmkv.instance
+    private val mmkv get() = KeeptStorage.mmkv
 
     fun checkAndNotify(context: Context) {
         notifyIfDayChanged(context, getLocalDayKey())
@@ -19,6 +19,12 @@ object LocalDayChangeNotifier {
 
     fun onMidnightAlarm(context: Context) {
         notifyIfDayChanged(context, getLocalDayKey())
+    }
+
+    /** @internal Unit-test reset. */
+    internal fun resetForTests() {
+        lastNotifiedDayKey = null
+        mmkv.removeValueForKey(PersistSchema.LAST_LOCAL_DAY_KEY)
     }
 
     /** Called after JS receives [onLocalDayChanged]; advances the notified-day cursor. */
