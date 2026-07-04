@@ -6,11 +6,14 @@ import android.content.Intent
 import com.focusguard.usage.LocalDayChangeNotifier
 import com.focusguard.usage.LocalDayChangeScheduler
 
-/** Reschedules the midnight alarm when the device timezone changes. */
+/** Reschedules the midnight alarm when the device clock or timezone changes. */
 class TimeZoneChangedReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent?) {
-        if (intent?.action != Intent.ACTION_TIMEZONE_CHANGED) {
-            return
+        when (intent?.action) {
+            Intent.ACTION_TIMEZONE_CHANGED,
+            "android.intent.action.TIME_SET",
+            "android.intent.action.DATE_CHANGED" -> Unit
+            else -> return
         }
 
         val appContext = context.applicationContext

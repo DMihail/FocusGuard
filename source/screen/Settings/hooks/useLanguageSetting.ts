@@ -3,6 +3,8 @@
 import { useCallback, useMemo } from 'react';
 import { Alert } from 'react-native';
 
+import { useShallow } from 'zustand/react/shallow';
+
 import { useTranslation } from '@/i18n';
 import type { LanguagePreference } from '@/i18n/types';
 import { settingsStore } from '@/store';
@@ -23,8 +25,12 @@ const languageOrder: LanguagePreference[] = ['system', 'en', 'ru'];
 
 export const useLanguageSetting = () => {
   const { t } = useTranslation();
-  const languagePreference = settingsStore((state) => state.languagePreference);
-  const setLanguagePreference = settingsStore((state) => state.setLanguagePreference);
+  const { languagePreference, setLanguagePreference } = settingsStore(
+    useShallow((state) => ({
+      languagePreference: state.languagePreference,
+      setLanguagePreference: state.setLanguagePreference,
+    })),
+  );
 
   const description = useMemo(() => t(languageDescriptionKey[languagePreference]), [languagePreference, t]);
 

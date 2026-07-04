@@ -1,6 +1,7 @@
 package com.focusguard.react
 
 import android.app.Application
+import android.content.Context
 import com.facebook.react.ReactApplication
 import java.util.concurrent.CopyOnWriteArraySet
 
@@ -28,6 +29,16 @@ object TurboModuleEventDispatchers {
         permissionsChangedListeners.remove(callback)
     }
 
+    fun emitPermissionsChanged(context: Context) {
+        val application = context.applicationContext as? Application
+        if (application != null) {
+            emitPermissionsChanged(application)
+            return
+        }
+
+        emitPermissionsChangedOrPending()
+    }
+
     fun emitPermissionsChanged(application: Application) {
         if (permissionsChangedListeners.isEmpty()) {
             pendingPermissionsChanged = true
@@ -49,6 +60,16 @@ object TurboModuleEventDispatchers {
 
     fun unregisterLocalDayChanged(callback: (dayKey: String) -> Unit) {
         localDayChangedListeners.remove(callback)
+    }
+
+    fun emitLocalDayChanged(context: Context, dayKey: String) {
+        val application = context.applicationContext as? Application
+        if (application != null) {
+            emitLocalDayChanged(application, dayKey)
+            return
+        }
+
+        emitLocalDayChangedOrPending(dayKey)
     }
 
     fun emitLocalDayChanged(application: Application, dayKey: String) {
@@ -82,6 +103,16 @@ object TurboModuleEventDispatchers {
         monitorServiceStateListeners.remove(callback)
     }
 
+    fun emitMonitorServiceState(context: Context, isRunning: Boolean) {
+        val application = context.applicationContext as? Application
+        if (application != null) {
+            emitMonitorServiceState(application, isRunning)
+            return
+        }
+
+        emitMonitorServiceStateOrPending(isRunning)
+    }
+
     fun emitMonitorServiceState(application: Application, isRunning: Boolean) {
         if (monitorServiceStateListeners.isEmpty()) {
             pendingMonitorServiceState = isRunning
@@ -108,6 +139,20 @@ object TurboModuleEventDispatchers {
 
     /** @internal Unit-test emit without a React [Application]. */
     internal fun emitPermissionsChanged() {
+        emitPermissionsChangedOrPending()
+    }
+
+    /** @internal Unit-test emit without a React [Application]. */
+    internal fun emitLocalDayChanged(dayKey: String) {
+        emitLocalDayChangedOrPending(dayKey)
+    }
+
+    /** @internal Unit-test emit without a React [Application]. */
+    internal fun emitMonitorServiceState(isRunning: Boolean) {
+        emitMonitorServiceStateOrPending(isRunning)
+    }
+
+    private fun emitPermissionsChangedOrPending() {
         if (permissionsChangedListeners.isEmpty()) {
             pendingPermissionsChanged = true
             return
@@ -118,8 +163,7 @@ object TurboModuleEventDispatchers {
         }
     }
 
-    /** @internal Unit-test emit without a React [Application]. */
-    internal fun emitLocalDayChanged(dayKey: String) {
+    private fun emitLocalDayChangedOrPending(dayKey: String) {
         if (localDayChangedListeners.isEmpty()) {
             pendingLocalDayKey = dayKey
             return
@@ -130,8 +174,7 @@ object TurboModuleEventDispatchers {
         }
     }
 
-    /** @internal Unit-test emit without a React [Application]. */
-    internal fun emitMonitorServiceState(isRunning: Boolean) {
+    private fun emitMonitorServiceStateOrPending(isRunning: Boolean) {
         if (monitorServiceStateListeners.isEmpty()) {
             pendingMonitorServiceState = isRunning
             return

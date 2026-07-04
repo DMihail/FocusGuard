@@ -5,14 +5,25 @@ import { AppState } from 'react-native';
 import ReactTestRenderer from 'react-test-renderer';
 
 const mockRestoreMonitoringSession = jest.fn();
+const mockGetMonitoringState = jest.fn(() => ({ isMonitoring: false }));
 
 jest.mock('@/store/monitoringStore', () => ({
   monitoringStore: {
     persist: {
       hasHydrated: jest.fn(() => true),
     },
+    getState: () => mockGetMonitoringState(),
   },
   restoreMonitoringSession: (...args: unknown[]) => mockRestoreMonitoringSession(...args),
+}));
+
+let monitorServiceStateListener: ((event: { isRunning: boolean }) => void) | undefined;
+
+jest.mock('@/specs', () => ({
+  subscribeMonitorServiceStateChanged: (listener: (event: { isRunning: boolean }) => void) => {
+    monitorServiceStateListener = listener;
+    return { remove: jest.fn() };
+  },
 }));
 
 import {
@@ -33,6 +44,8 @@ describe('useMonitoringServiceSync', () => {
     jest.clearAllMocks();
     resetMonitoringReconcileSchedulerForTests();
     __resetAppForegroundBusForTests();
+    monitorServiceStateListener = undefined;
+    mockGetMonitoringState.mockReturnValue({ isMonitoring: false });
     appStateListener = undefined;
 
     jest.spyOn(AppState, 'addEventListener').mockImplementation((event, listener) => {
@@ -66,5 +79,19 @@ describe('useMonitoringServiceSync', () => {
     appStateListener?.('active');
 
     expect(mockRestoreMonitoringSession).not.toHaveBeenCalled();
+  });
+
+  it('restores monitoring when native reports the service stopped while monitoring is enabled', () => {
+    mockGetMonitoringState.mockReturnValue({ isMonitoring: true });
+
+    ReactTestRenderer.act(() => {
+      ReactTestRenderer.create(<TestHarness enabled />);
+    });
+
+    ReactTestRenderer.act(() => {
+      monitorServiceStateListener?.({ isRunning: false });
+    });
+
+    expect(mockRestoreMonitoringSession).toHaveBeenCalledTimes(1);
   });
 });

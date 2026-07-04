@@ -8,9 +8,16 @@ import { getLocalDayKey } from '@/utils/usage/localDayKey';
 import { selectedAppsStore } from './selectedAppsStore';
 import type { TrackedUsageStore } from './types/trackedUsageStore';
 
+type TrackedUsageSetState = (
+  partial: Partial<TrackedUsageStore> | ((state: TrackedUsageStore) => Partial<TrackedUsageStore> | TrackedUsageStore),
+) => void;
+
 let hasSeededFromCache = false;
-let refreshInFlightCount = 0;
+let refreshWaiterCount = 0;
 let usageDayKey: string | null = null;
+let pendingRefreshKeys = new Set<string>();
+let pendingRefreshForce = false;
+let refreshDrainPromise: Promise<void> | null = null;
 
 export const resetTrackedUsageSeedForTests = (): void => {
   hasSeededFromCache = false;
@@ -18,7 +25,10 @@ export const resetTrackedUsageSeedForTests = (): void => {
 };
 
 export const resetTrackedUsageRefreshForTests = (): void => {
-  refreshInFlightCount = 0;
+  refreshWaiterCount = 0;
+  pendingRefreshKeys = new Set();
+  pendingRefreshForce = false;
+  refreshDrainPromise = null;
 };
 
 const resetUsageForNewDay = (): void => {
@@ -106,6 +116,43 @@ const mergeUsageForKeys = (
   return merged;
 };
 
+const runRefreshBatch = async (
+  packageNames: readonly string[],
+  force: boolean,
+  set: TrackedUsageSetState,
+): Promise<void> => {
+  const dayChanged = ensureCurrentUsageDay();
+
+  if (force || dayChanged) {
+    invalidateUsageStatsCache();
+  }
+
+  const shouldForce = force || dayChanged;
+  const nextUsage = await loadUsageByPackage(packageNames, shouldForce);
+
+  set((state) => {
+    const mergedUsage = mergeUsageForKeys(state.usageByPackage, nextUsage, packageNames, shouldForce);
+
+    return hasUsageChanged(state.usageByPackage, mergedUsage) ? { usageByPackage: mergedUsage } : state;
+  });
+};
+
+const drainPendingRefresh = (set: TrackedUsageSetState): Promise<void> => {
+  const run = async (): Promise<void> => {
+    while (pendingRefreshKeys.size > 0) {
+      const packageNames = [...pendingRefreshKeys];
+      const force = pendingRefreshForce;
+
+      pendingRefreshKeys = new Set();
+      pendingRefreshForce = false;
+
+      await runRefreshBatch(packageNames, force, set);
+    }
+  };
+
+  return run();
+};
+
 export const trackedUsageStore = create<TrackedUsageStore>((set) => ({
   usageByPackage: {},
   isRefreshingUsage: false,
@@ -117,28 +164,33 @@ export const trackedUsageStore = create<TrackedUsageStore>((set) => ({
       return;
     }
 
-    const dayChanged = ensureCurrentUsageDay();
+    for (const appKey of packageNames) {
+      pendingRefreshKeys.add(appKey);
+    }
 
-    refreshInFlightCount += 1;
-    set({ isRefreshingUsage: true });
+    pendingRefreshForce = pendingRefreshForce || force;
+
+    refreshWaiterCount += 1;
+
+    if (refreshWaiterCount === 1) {
+      set({ isRefreshingUsage: true });
+    }
+
+    if (!refreshDrainPromise) {
+      refreshDrainPromise = Promise.resolve()
+        .then(() => drainPendingRefresh(set))
+        .finally(() => {
+          refreshDrainPromise = null;
+        });
+    }
 
     try {
-      if (force || dayChanged) {
-        invalidateUsageStatsCache();
-      }
-
-      const nextUsage = await loadUsageByPackage(packageNames, force || dayChanged);
-
-      set((state) => {
-        const mergedUsage = mergeUsageForKeys(state.usageByPackage, nextUsage, packageNames, force || dayChanged);
-
-        return hasUsageChanged(state.usageByPackage, mergedUsage) ? { usageByPackage: mergedUsage } : state;
-      });
+      await refreshDrainPromise;
     } finally {
-      refreshInFlightCount -= 1;
+      refreshWaiterCount -= 1;
 
-      if (refreshInFlightCount <= 0) {
-        refreshInFlightCount = 0;
+      if (refreshWaiterCount <= 0) {
+        refreshWaiterCount = 0;
         set({ isRefreshingUsage: false });
       }
     }

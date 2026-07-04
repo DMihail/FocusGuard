@@ -1,12 +1,12 @@
-#import "RCTNativeUsageStats.h"
+#import "RCTKeeptTurboModule.h"
 
 #import <ReactCommon/RCTTurboModule.h>
-#import <ReactCodegen/NativeUsageStatsSpecJSI.h>
+#import <ReactCodegen/KeeptTurboModuleSpecJSI.h>
 
 #import "../ScreenTime/KeeptScreenTimeBridge.h"
 #import "FocusGuard-Swift.h"
 
-@implementation RCTNativeUsageStats {
+@implementation RCTKeeptTurboModule {
   BOOL _eventCallbacksRegistered;
   NSObject *_permissionsChangedToken;
   NSObject *_localDayChangedToken;
@@ -217,7 +217,7 @@
     (const facebook::react::ObjCTurboModule::InitParams &)params
 {
   [self ensureEventCallbacksRegistered];
-  return std::make_shared<facebook::react::NativeUsageStatsSpecJSI>(params);
+  return std::make_shared<facebook::react::NativeKeeptTurboModuleSpecJSI>(params);
 }
 
 @end

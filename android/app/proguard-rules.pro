@@ -27,9 +27,9 @@
 }
 
 # Codegen Turbo Module — loaded by name from the RN bridge
--keep class com.nativeusagestats.NativeUsageStatsPackage { *; }
--keep class com.nativeusagestats.NativeUsageStatsModule { *; }
--keep class com.nativeusagestats.NativeUsageStatsSpec { *; }
+-keep class com.keept.turbomodule.KeeptTurboModulePackage { *; }
+-keep class com.keept.turbomodule.KeeptTurboModule { *; }
+-keep class com.keept.turbomodule.NativeKeeptTurboModuleSpec { *; }
 
 # ---------------------------------------------------------------------------
 # MMKV (JNI)

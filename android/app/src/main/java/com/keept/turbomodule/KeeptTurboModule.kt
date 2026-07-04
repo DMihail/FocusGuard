@@ -1,4 +1,4 @@
-package com.nativeusagestats
+package com.keept.turbomodule
 
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.LifecycleEventListener
@@ -27,10 +27,10 @@ import com.focusguard.storage.NativeTrackingSnapshot
 import com.focusguard.widget.WidgetUpdater
 import java.util.concurrent.Executors
 
-/** Codegen Turbo Module — thin bridge over the FocusGuard Android domain layer. */
-class NativeUsageStatsModule(
+/** Codegen Turbo Module — thin bridge over the Keept Android domain layer. */
+class KeeptTurboModule(
     reactContext: ReactApplicationContext,
-) : NativeUsageStatsSpec(reactContext) {
+) : NativeKeeptTurboModuleSpec(reactContext) {
 
   private val appContext = reactContext.applicationContext
   private val permissionRequester =
@@ -236,6 +236,6 @@ class NativeUsageStatsModule(
   }
 
   companion object {
-    const val NAME = NativeUsageStatsSpec.NAME
+    const val NAME = NativeKeeptTurboModuleSpec.NAME
   }
 }

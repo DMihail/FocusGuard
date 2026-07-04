@@ -1,7 +1,5 @@
 package com.focusguard
 
-import android.app.usage.UsageEvents
-import android.app.usage.UsageEventsQuery
 import android.app.usage.UsageStatsManager
 import android.content.Context
 import android.os.Build
@@ -17,7 +15,8 @@ import kotlinx.coroutines.launch
 /**
  * Lightweight usage-events poll on API 35+ that wakes [TrackingEngine] when the resumed app changes.
  *
- * The main monitor loop stays as a fallback for usage metering and devices below API 35.
+ * Shares coalesced [ForegroundEventsQuery] reads with [ForegroundAppDetector] so the observer and
+ * main poll loop do not both scan UsageEvents on every tick.
  */
 @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
 internal class UsageEventsForegroundObserver(
@@ -41,7 +40,8 @@ internal class UsageEventsForegroundObserver(
         observerJob =
             scope.launch {
                 while (isActive) {
-                    val resumedPackage = queryLatestResumedPackage()
+                    val resumedPackage =
+                        ForegroundEventsQuery.queryLatestResumedPackage(usageStatsManager)
                     if (resumedPackage != lastNotifiedPackage) {
                         lastNotifiedPackage = resumedPackage
                         onForegroundMayHaveChanged()
@@ -57,37 +57,8 @@ internal class UsageEventsForegroundObserver(
         lastNotifiedPackage = null
     }
 
-    private fun queryLatestResumedPackage(): String? {
-        val endTime = System.currentTimeMillis()
-        val startTime = endTime - EVENTS_WINDOW_MS
-
-        val query =
-            UsageEventsQuery.Builder(startTime, endTime)
-                .setEventTypes(*FOREGROUND_QUERY_EVENT_TYPES)
-                .build()
-
-        val events = usageStatsManager.queryEvents(query) ?: return null
-        val event = UsageEvents.Event()
-        var currentApp: String? = null
-
-        while (events.hasNextEvent()) {
-            events.getNextEvent(event)
-            currentApp = event.packageName
-        }
-
-        return currentApp
-    }
-
     companion object {
-        @Suppress("DEPRECATION")
-        private val FOREGROUND_QUERY_EVENT_TYPES =
-            intArrayOf(
-                UsageEvents.Event.MOVE_TO_FOREGROUND,
-                UsageEvents.Event.ACTIVITY_RESUMED,
-            )
-
-        private const val POLL_INTERVAL_MS = 750L
-        private const val EVENTS_WINDOW_MS = 15_000L
+        private const val POLL_INTERVAL_MS = 1_500L
 
         fun createIfSupported(
             context: Context,

@@ -52,7 +52,7 @@ class FocusGuardMonitorService : Service() {
     if (!MonitorPermissions.canRunMonitorService(this)) {
       if (isRunning) {
         isRunning = false
-        TurboModuleEventDispatchers.emitMonitorServiceState(isRunning = false)
+        TurboModuleEventDispatchers.emitMonitorServiceState(this, isRunning = false)
       }
       stopSelf()
       return START_NOT_STICKY
@@ -72,7 +72,7 @@ class FocusGuardMonitorService : Service() {
 
     if (!isRunning) {
       isRunning = true
-      TurboModuleEventDispatchers.emitMonitorServiceState(isRunning = true)
+      TurboModuleEventDispatchers.emitMonitorServiceState(this, isRunning = true)
     }
 
     if (trackingEngine == null) {

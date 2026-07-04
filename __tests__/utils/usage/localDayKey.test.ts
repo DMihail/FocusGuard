@@ -1,9 +1,4 @@
-import {
-  compareLocalDayKeys,
-  getLocalDayKey,
-  getMsUntilNextLocalMidnight,
-  parseLocalDayKey,
-} from '@/utils/usage/localDayKey';
+import { compareLocalDayKeys, getLocalDayKey, parseLocalDayKey } from '@/utils/usage/localDayKey';
 
 describe('localDayKey', () => {
   it('builds a stable key from the local calendar date', () => {
@@ -14,12 +9,6 @@ describe('localDayKey', () => {
     expect(parseLocalDayKey('2026-6-22')).toBeGreaterThan(parseLocalDayKey('2026-6-20'));
     expect(compareLocalDayKeys('2026-6-20', '2026-10-5')).toBeGreaterThan(0);
     expect(compareLocalDayKeys('2026-10-5', '2026-6-20')).toBeLessThan(0);
-  });
-
-  it('computes milliseconds until the next local midnight', () => {
-    const noon = new Date(2026, 5, 22, 12, 0, 0, 0);
-
-    expect(getMsUntilNextLocalMidnight(noon)).toBe(12 * 60 * 60 * 1000);
   });
 
   it('treats malformed day keys as equal when comparing', () => {

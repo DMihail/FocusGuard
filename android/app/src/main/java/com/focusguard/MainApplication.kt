@@ -8,7 +8,7 @@ import com.facebook.react.ReactNativeApplicationEntryPoint.loadReactNative
 import com.facebook.react.defaults.DefaultReactHost.getDefaultReactHost
 import com.focusguard.react.KeeptUiThemePackage
 import com.focusguard.usage.LocalDayChangeScheduler
-import com.nativeusagestats.NativeUsageStatsPackage
+import com.keept.turbomodule.KeeptTurboModulePackage
 import com.tencent.mmkv.MMKV
 
 class MainApplication : Application(), ReactApplication {
@@ -18,7 +18,7 @@ class MainApplication : Application(), ReactApplication {
       context = applicationContext,
       packageList =
         PackageList(this).packages.apply {
-          add(NativeUsageStatsPackage())
+          add(KeeptTurboModulePackage())
           add(KeeptUiThemePackage())
         },
     )

@@ -52,7 +52,8 @@ jest.mock('../../source/specs', () => ({
   subscribeMonitorServiceStateChanged: jest.fn(() => ({ remove: jest.fn() })),
 }));
 
-jest.mock('../../source/hooks/useCoreStoresHydrated', () => ({
+jest.mock('@/context/CoreStoresHydrationProvider', () => ({
+  CoreStoresHydrationProvider: ({ children }: { children: React.ReactNode }) => children,
   useCoreStoresHydrated: () => mockOnboardingState.hasHydrated,
 }));
 

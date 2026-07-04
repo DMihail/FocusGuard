@@ -33,11 +33,12 @@ export const useConfigureLimits = (appKey: string): UseConfigureLimitsResult => 
     setDraft(storedLimits);
   }, [appKey, storedLimits]);
 
-  const refreshUsage = useCallback(() => trackedUsageStore.getState().refreshUsage([appKey], true), [appKey]);
+  const refreshUsageSoft = useCallback(() => trackedUsageStore.getState().refreshUsage([appKey], false), [appKey]);
+  const refreshUsageHard = useCallback(() => trackedUsageStore.getState().refreshUsage([appKey], true), [appKey]);
 
-  useRefreshWhenVisible(refreshUsage);
+  useRefreshWhenVisible(refreshUsageSoft);
 
-  useLocalDayChangeRefresh(refreshUsage);
+  useLocalDayChangeRefresh(refreshUsageHard);
 
   const hardBlockMin = Math.max(LIMIT_SLIDER_BOUNDS.hardBlock.min, draft.warningMinutes);
 
