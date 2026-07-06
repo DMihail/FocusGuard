@@ -85,6 +85,10 @@ const scheduleMonitoringStartHealthCheck = (): void => {
 
   let settled = false;
 
+  const cancel = (): void => {
+    settle();
+  };
+
   const settle = (): void => {
     if (settled) {
       return;
@@ -96,10 +100,6 @@ const scheduleMonitoringStartHealthCheck = (): void => {
     if (activeHealthCheckCancel === cancel) {
       activeHealthCheckCancel = null;
     }
-  };
-
-  const cancel = (): void => {
-    settle();
   };
 
   activeHealthCheckCancel = cancel;
