@@ -11,13 +11,13 @@ const { bootstrapCrashlytics } = require('@/crashlytics/bootstrapCrashlytics');
 bootstrapCrashlytics();
 
 if (Platform.OS === 'android') {
-  const { bootstrapNativeUsageEvents } = require('@/specs/nativeUsageStatsApi.android');
-  bootstrapNativeUsageEvents();
+  const { bootstrapKeeptTurboModuleEvents } = require('@/specs/keeptTurboModuleApi.android');
+  bootstrapKeeptTurboModuleEvents();
 }
 
 if (Platform.OS === 'ios') {
-  const { bootstrapNativeUsageEvents } = require('@/specs/nativeUsageStatsApi.ios');
-  bootstrapNativeUsageEvents();
+  const { bootstrapKeeptTurboModuleEvents } = require('@/specs/keeptTurboModuleApi.ios');
+  bootstrapKeeptTurboModuleEvents();
 }
 
 const App = require('@/App').default;

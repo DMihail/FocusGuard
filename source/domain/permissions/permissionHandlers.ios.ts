@@ -5,7 +5,7 @@ import {
   checkForPermission,
   requestNotificationsPermission,
   requestUsageStatsPermission,
-} from '@/specs/nativeUsageStatsApi.ios';
+} from '@/specs/keeptTurboModuleApi.ios';
 
 import type { PermissionId } from './types';
 

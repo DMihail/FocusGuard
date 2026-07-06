@@ -1,6 +1,6 @@
 /** @format */
 
-import { getAppDisplayName as getNativeAppDisplayName } from '@/specs/nativeUsageStatsApi';
+import { getAppDisplayName as getNativeAppDisplayName } from '@/specs/keeptTurboModuleApi';
 
 import { displayName, name } from '../../app.json';
 

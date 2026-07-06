@@ -1,6 +1,6 @@
 /** @format */
 
-import { checkForNotificationsPermission } from '@/specs/nativeUsageStatsApi.android';
+import { checkForNotificationsPermission } from '@/specs/keeptTurboModuleApi.android';
 
 export const readSystemNotificationsGranted = (): boolean => checkForNotificationsPermission();
 

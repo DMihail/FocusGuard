@@ -181,18 +181,18 @@ Agent rule with frozen native components: `.cursor/rules/native-events-architect
 
 Three naming layers (same module, different concerns):
 
-| Layer              | Name / path                                      | Role                                      |
-| ------------------ | ------------------------------------------------ | ----------------------------------------- |
-| Native runtime     | **`KeeptTurboModule`**                           | Turbo Module name on the bridge           |
-| Codegen spec files | **`NativeKeeptTurboModule*.ts`**                 | RN codegen schema (`Native*.ts` required) |
-| App imports        | **`@/specs`** → `nativeUsageStatsApi` / `client` | Typed wrappers + event hub bootstrap      |
+| Layer              | Name / path                                                      | Role                                      |
+| ------------------ | ---------------------------------------------------------------- | ----------------------------------------- |
+| Native runtime     | **`KeeptTurboModule`**                                           | Turbo Module name on the bridge           |
+| Codegen spec files | **`NativeKeeptTurboModule*.ts`**                                 | RN codegen schema (`Native*.ts` required) |
+| App imports        | **`@/specs`** → `keeptTurboModuleApi` / `keeptTurboModuleClient` | Typed wrappers + event hub bootstrap      |
 
 `KeeptTurboModule` exposes permissions, catalogs, monitor control, and `syncTrackingConfig(snapshotJson)`.
 
 App bootstrap (`index.js`):
 
 1. Crashlytics bootstrap
-2. `bootstrapNativeUsageEvents()` — registers native listeners via `createNativeEventHub`
+2. `bootstrapKeeptTurboModuleEvents()` — registers native listeners via `createNativeEventHub`
 
 Event subscriptions (production):
 
@@ -315,6 +315,6 @@ Android runs only after **check** passes. Husky is disabled in CI (`HUSKY=0`).
 - Bump persist versions in `persistSchema.ts` and native counterparts when stored shapes change.
 - Prefer `syncNativeTrackingSnapshot()` over writing MMKV snapshot keys from JS.
 - Turbo Module codegen files must be named `Native*.ts` and keep `TurboModuleRegistry.get` in the same file as `Spec`.
-- Import the module in app code via `@/specs`, not `NativeKeeptTurboModule*.ts` directly.
+- Import the module in app code via `@/specs` (`keeptTurboModuleApi`), not `NativeKeeptTurboModule*.ts` directly.
 - Do not add JS polling timers — use native events or `scheduleMicrotask`.
 - Do not rename legacy `com.focusguard` Kotlin package or `FocusGuard` Xcode target without a coordinated migration.
