@@ -221,8 +221,8 @@ jest.mock('@/i18n', () => {
 const mockPermissionsChangedSubscription = { remove: jest.fn() };
 const mockNativeEventSubscription = jest.fn();
 
-jest.mock('@/specs/nativeUsageStatsClient', () => ({
-  getNativeUsageStats: jest.fn(() => ({
+jest.mock('@/specs/keeptTurboModuleClient', () => ({
+  getKeeptTurboModule: jest.fn(() => ({
     onPermissionsChanged: jest.fn(() => mockPermissionsChangedSubscription),
     onLocalDayChanged: jest.fn((listener) => {
       mockNativeEventSubscription(listener);

@@ -1,6 +1,6 @@
 import { createNativeEventHub } from './createNativeEventHub';
+import { getKeeptTurboModule } from './keeptTurboModuleClient.ios';
 import type { Spec } from './NativeKeeptTurboModule.ios';
-import { getNativeUsageStats } from './nativeUsageStatsClient.ios';
 import type {
   InstallApp,
   LocalDayChangedEvent,
@@ -19,7 +19,7 @@ export type {
   PermissionsChangedEvent,
 } from './types';
 
-const getModule = (): Spec | null => getNativeUsageStats();
+const getModule = (): Spec | null => getKeeptTurboModule();
 
 const MONITOR_NOT_STARTED: MonitorServiceStartResult = {
   started: false,
@@ -56,7 +56,7 @@ const monitorServiceStateHub = createModuleEventHub<MonitorServiceStateChangedEv
   return true;
 });
 
-export const bootstrapNativeUsageEvents = (): void => {
+export const bootstrapKeeptTurboModuleEvents = (): void => {
   permissionsChangedHub.bootstrap();
   localDayChangedHub.bootstrap();
   monitorServiceStateHub.bootstrap();

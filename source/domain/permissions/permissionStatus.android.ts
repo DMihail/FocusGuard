@@ -1,6 +1,6 @@
 /** @format */
 
-import { checkForManifestMonitorPermissions, checkForPermission } from '@/specs/nativeUsageStatsApi.android';
+import { checkForManifestMonitorPermissions, checkForPermission } from '@/specs/keeptTurboModuleApi.android';
 import { storage } from '@/store/mmkv';
 import { USAGE_ACCESS_GRANTED_KEY } from '@/store/persistSchema';
 

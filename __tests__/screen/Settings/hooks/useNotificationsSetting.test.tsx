@@ -23,7 +23,7 @@ const mockStoreState = {
   setThemePreference: jest.fn(),
 };
 
-jest.mock('@/specs/nativeUsageStatsApi.android', () => ({
+jest.mock('@/specs/keeptTurboModuleApi.android', () => ({
   checkForNotificationsPermission: () => mockCheckForNotificationsPermission(),
   openNotificationsSettings: () => mockOpenNotificationsSettings(),
   subscribePermissionsChanged: () => ({ remove: jest.fn() }),

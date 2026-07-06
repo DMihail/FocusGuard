@@ -12,7 +12,7 @@ const mockRequestSystemAlertWindowPermission = jest.fn();
 const mockRequestNotificationsPermission = jest.fn();
 const mockRequestIgnoreBatteryOptimizationsPermission = jest.fn();
 
-jest.mock('@/specs/nativeUsageStatsApi.android', () => ({
+jest.mock('@/specs/keeptTurboModuleApi.android', () => ({
   checkForPermission: (...args: unknown[]) => mockCheckForPermission(...args),
   checkForSystemAlertWindowPermission: (...args: unknown[]) => mockCheckForSystemAlertWindowPermission(...args),
   checkForNotificationsPermission: (...args: unknown[]) => mockCheckForNotificationsPermission(...args),

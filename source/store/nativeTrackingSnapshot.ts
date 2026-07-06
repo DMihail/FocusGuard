@@ -2,7 +2,7 @@
 
 import { reportError } from '@/crashlytics/reportError';
 import { syncTrackingConfig } from '@/specs';
-import { getNativeUsageStats } from '@/specs/nativeUsageStatsClient';
+import { getKeeptTurboModule } from '@/specs/keeptTurboModuleClient';
 
 import { appLimitsStore } from './appLimitsStore';
 import { storage } from './mmkv';
@@ -23,7 +23,7 @@ export const syncNativeTrackingSnapshot = (): void => {
   }
 
   lastSnapshotJson = snapshotJson;
-  const nativeModule = getNativeUsageStats();
+  const nativeModule = getKeeptTurboModule();
 
   if (nativeModule) {
     syncTrackingConfig(snapshotJson);

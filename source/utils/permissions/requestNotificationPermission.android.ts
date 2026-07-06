@@ -3,7 +3,7 @@
 import { PermissionsAndroid, Platform } from 'react-native';
 
 import { getAppDisplayName } from '@/constants/appDisplayName';
-import { checkForNotificationsPermission } from '@/specs/nativeUsageStatsApi.android';
+import { checkForNotificationsPermission } from '@/specs/keeptTurboModuleApi.android';
 
 const ANDROID_API_TIRAMISU = 33;
 

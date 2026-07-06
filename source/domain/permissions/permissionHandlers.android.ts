@@ -9,7 +9,7 @@ import {
   requestNotificationsPermission,
   requestSystemAlertWindowPermission,
   requestUsageStatsPermission,
-} from '@/specs/nativeUsageStatsApi.android';
+} from '@/specs/keeptTurboModuleApi.android';
 
 import type { PermissionId } from './types';
 
