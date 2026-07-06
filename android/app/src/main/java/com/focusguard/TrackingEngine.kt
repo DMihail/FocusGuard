@@ -127,12 +127,12 @@ class TrackingEngine(
         if (foregroundApp == null) {
             val blockedPackage = activeBlockPackage
             if (blockedPackage != null && isTrackedApp(blockedPackage)) {
-                evaluateTrackedApp(
-                    blockedPackage,
-                    liveUsageEstimator.getEffectiveUsageMs(blockedPackage),
-                )
+                val usedTodayMs = liveUsageEstimator.getEffectiveUsageMs(blockedPackage)
+                evaluateTrackedApp(blockedPackage, usedTodayMs)
+                publishWidgetUpdate(blockedPackage to usedTodayMs)
+            } else {
+                publishWidgetUpdate()
             }
-            publishWidgetUpdate()
             return
         }
 
@@ -162,11 +162,12 @@ class TrackingEngine(
             liveUsageEstimator.onTrackedAppForeground(foregroundApp)
         }
 
-        evaluateTrackedApp(foregroundApp, liveUsageEstimator.getEffectiveUsageMs(foregroundApp))
-        publishWidgetUpdate()
+        val usedTodayMs = liveUsageEstimator.getEffectiveUsageMs(foregroundApp)
+        evaluateTrackedApp(foregroundApp, usedTodayMs)
+        publishWidgetUpdate(foregroundApp to usedTodayMs)
     }
 
-    private fun publishWidgetUpdate() {
+    private fun publishWidgetUpdate(foregroundUsageOverride: Pair<String, Long>? = null) {
         if (WidgetUpdater.shouldSkipUsagePrecomputation()) {
             return
         }
@@ -176,7 +177,11 @@ class TrackingEngine(
                 null
             } else {
                 trackedApps.associateWith { packageName ->
-                    liveUsageEstimator.getEffectiveUsageMs(packageName)
+                    if (foregroundUsageOverride?.first == packageName) {
+                        foregroundUsageOverride.second
+                    } else {
+                        liveUsageEstimator.getEffectiveUsageMs(packageName)
+                    }
                 }
             }
         val foregroundPackage = foregroundStabilizer.stableForeground

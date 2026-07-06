@@ -15,9 +15,11 @@ class DailyUsageRepository private constructor(
         appContext.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
 
     private val cacheLock = Any()
-    private var cachedUsageByPackage: Map<String, Long>? = null
+    private var completedUsageByPackage: Map<String, Long>? = null
     private var cachedDayStartMs: Long = 0L
     private var cachedAtMs: Long = 0L
+    private var eventScanEndMs: Long = 0L
+    private val openSessionStarts = mutableMapOf<String, Long>()
 
     companion object {
         /** Safety net when an event-driven invalidation is missed. */
@@ -62,45 +64,67 @@ class DailyUsageRepository private constructor(
         val nowMs = System.currentTimeMillis()
 
         synchronized(cacheLock) {
-            val cacheStale =
-                cachedUsageByPackage == null ||
-                    cachedDayStartMs != dayStartMs ||
-                    nowMs - cachedAtMs >= CACHE_TTL_MS
+            val dayChanged = cachedDayStartMs != 0L && cachedDayStartMs != dayStartMs
 
-            if (cacheStale) {
+            if (completedUsageByPackage == null || dayChanged) {
                 LocalDayChangeNotifier.checkAndNotify(appContext)
-                cachedUsageByPackage = emptyMap()
+                completedUsageByPackage = null
+                openSessionStarts.clear()
+                eventScanEndMs = dayStartMs
                 cachedDayStartMs = dayStartMs
             }
 
-            val cached = cachedUsageByPackage!!
-            val missing = packageFilter.filter { packageName -> packageName !in cached }.toSet()
+            var completed = completedUsageByPackage ?: emptyMap()
 
-            if (!cacheStale && missing.isEmpty()) {
-                return cached
+            val ttlStale = completed.isNotEmpty() && nowMs - cachedAtMs >= CACHE_TTL_MS
+            if (ttlStale) {
+                val refreshFilter = completed.keys + packageFilter
+                val refreshed =
+                    DailyUsageAggregator.appendUsageDelta(
+                        usageStatsManager,
+                        dayStartMs,
+                        eventScanEndMs,
+                        nowMs,
+                        refreshFilter,
+                        completed,
+                        openSessionStarts,
+                    )
+                completed = refreshed.usageByPackage
+                completedUsageByPackage = completed
+                openSessionStarts.clear()
+                openSessionStarts.putAll(refreshed.openSessionStartMs)
+                eventScanEndMs = nowMs
+                cachedAtMs = nowMs
             }
 
-            val toQuery = if (cacheStale) packageFilter else missing
-            val fresh =
-                DailyUsageAggregator.buildUsageByPackage(
-                    usageStatsManager,
-                    dayStartMs,
-                    nowMs,
-                    toQuery,
-                )
+            val missing = packageFilter.filter { packageName -> packageName !in completed }.toSet()
+            if (missing.isNotEmpty()) {
+                val freshState =
+                    DailyUsageAggregator.buildUsageWithState(
+                        usageStatsManager,
+                        dayStartMs,
+                        nowMs,
+                        missing,
+                    )
 
-            val merged = if (cacheStale) fresh else cached + fresh
-            cachedUsageByPackage = merged
-            cachedAtMs = nowMs
-            return merged
+                completed = completed + freshState.usageByPackage
+                completedUsageByPackage = completed
+                openSessionStarts.putAll(freshState.openSessionStartMs)
+                eventScanEndMs = nowMs
+                cachedAtMs = nowMs
+            }
+
+            return DailyUsageAggregator.projectUsageAt(completed, openSessionStarts, nowMs)
         }
     }
 
     fun invalidateCache() {
         synchronized(cacheLock) {
-            cachedUsageByPackage = null
+            completedUsageByPackage = null
             cachedDayStartMs = 0L
             cachedAtMs = 0L
+            eventScanEndMs = 0L
+            openSessionStarts.clear()
         }
     }
 
@@ -111,19 +135,22 @@ class DailyUsageRepository private constructor(
         }
 
         synchronized(cacheLock) {
-            val cached = cachedUsageByPackage ?: return
+            val completed = completedUsageByPackage ?: return
 
-            val next = cached.toMutableMap()
+            val next = completed.toMutableMap()
             var changed = false
 
             for (packageName in packageNames) {
                 if (next.remove(packageName) != null) {
                     changed = true
                 }
+                if (openSessionStarts.remove(packageName) != null) {
+                    changed = true
+                }
             }
 
             if (changed) {
-                cachedUsageByPackage = next
+                completedUsageByPackage = next
             }
         }
     }
