@@ -155,10 +155,19 @@ class TrackingEngine(
             if (activeBlockPackage != null && activeBlockPackage != foregroundApp) {
                 clearActiveBlock()
             }
-            if (previousStable != null && isTrackedApp(previousStable)) {
-                usageRepository.invalidatePackages(setOf(previousStable))
+
+            val packagesToRefresh =
+                buildSet {
+                    if (previousStable != null && isTrackedApp(previousStable)) {
+                        add(previousStable)
+                    }
+                    add(foregroundApp)
+                }
+
+            if (packagesToRefresh.isNotEmpty()) {
+                usageRepository.invalidatePackages(packagesToRefresh)
             }
-            usageRepository.invalidatePackages(setOf(foregroundApp))
+
             liveUsageEstimator.onTrackedAppForeground(foregroundApp)
         }
 
@@ -176,12 +185,12 @@ class TrackingEngine(
             if (trackedApps.isEmpty()) {
                 null
             } else {
-                trackedApps.associateWith { packageName ->
-                    if (foregroundUsageOverride?.first == packageName) {
-                        foregroundUsageOverride.second
-                    } else {
-                        liveUsageEstimator.getEffectiveUsageMs(packageName)
-                    }
+                val effectiveUsage = liveUsageEstimator.getEffectiveUsageMsForPackages(trackedApps)
+
+                if (foregroundUsageOverride != null) {
+                    effectiveUsage + mapOf(foregroundUsageOverride.first to foregroundUsageOverride.second)
+                } else {
+                    effectiveUsage
                 }
             }
         val foregroundPackage = foregroundStabilizer.stableForeground

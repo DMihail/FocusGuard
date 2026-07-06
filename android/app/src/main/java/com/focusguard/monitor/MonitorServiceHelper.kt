@@ -3,6 +3,7 @@ package com.focusguard.monitor
 import android.content.Context
 import android.content.Intent
 import androidx.core.content.ContextCompat
+import com.focusguard.crashlytics.NativeErrorReporter
 import com.focusguard.service.FocusGuardMonitorService
 
 /** Single entry point for starting and stopping [FocusGuardMonitorService]. */
@@ -28,9 +29,11 @@ object MonitorServiceHelper {
     return try {
       ContextCompat.startForegroundService(context, intent)
       MonitorServiceStartResult(started = true)
-    } catch (_: android.app.ForegroundServiceStartNotAllowedException) {
+    } catch (error: android.app.ForegroundServiceStartNotAllowedException) {
+      NativeErrorReporter.recordNonFatal(error, "MonitorServiceHelper.start.background_blocked")
       MonitorServiceStartResult(started = false, reason = "background_start_blocked")
     } catch (error: SecurityException) {
+      NativeErrorReporter.recordNonFatal(error, "MonitorServiceHelper.start.security")
       MonitorServiceStartResult(started = false, reason = "background_start_blocked")
     }
   }

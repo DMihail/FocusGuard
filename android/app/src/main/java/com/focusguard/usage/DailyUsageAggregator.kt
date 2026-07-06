@@ -23,16 +23,6 @@ internal object DailyUsageAggregator {
         val openSessionStartMs: Map<String, Long>,
     )
 
-    fun buildUsageByPackage(
-        usageStatsManager: UsageStatsManager,
-        dayStartMs: Long,
-        endMs: Long,
-        packageFilter: Set<String>,
-    ): Map<String, Long> {
-        val state = buildUsageWithState(usageStatsManager, dayStartMs, endMs, packageFilter)
-        return projectUsageAt(state.usageByPackage, state.openSessionStartMs, endMs)
-    }
-
     fun buildUsageWithState(
         usageStatsManager: UsageStatsManager,
         dayStartMs: Long,

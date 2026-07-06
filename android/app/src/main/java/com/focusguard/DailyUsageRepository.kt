@@ -79,7 +79,7 @@ class DailyUsageRepository private constructor(
             resetStateIfDayChanged(dayStartMs)
 
             var completed = completedUsageByPackage ?: emptyMap()
-            val activeFilter = completed.keys + packageFilter
+            val activeFilter = completed.keys + openSessionStarts.keys + packageFilter
 
             if (activeFilter.isNotEmpty()) {
                 completed = advanceEventCursor(activeFilter, dayStartMs, nowMs, completed)
@@ -207,7 +207,7 @@ class DailyUsageRepository private constructor(
             resetStateIfDayChanged(dayStartMs)
 
             val completed = completedUsageByPackage ?: return
-            val refreshFilter = completed.keys + packageNames
+            val refreshFilter = completed.keys + openSessionStarts.keys + packageNames
             advanceEventCursor(refreshFilter, dayStartMs, nowMs, completed)
         }
     }

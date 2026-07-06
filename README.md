@@ -233,20 +233,21 @@ subscription set across dashboard-related hooks.
 2. `useMonitoringServiceSync` — reconciles drift when app returns to foreground (`restoreMonitoringSession`).
 3. `monitoringStore` health check — settles the dashboard toggle while Android FGS starts asynchronously.
 
-**Usage refresh policy:** soft refresh on screen focus; hard refresh on pull-to-refresh, local day change, and Configure
-Limits day rollover. `trackedUsageStore` coalesces concurrent refreshes into one native load.
+**Usage refresh policy:** soft refresh on screen focus (`useRefreshWhenVisible`); hard refresh on pull-to-refresh, local
+day change, and Configure Limits day rollover. `trackedUsageStore` coalesces concurrent refreshes into one native load.
 
 ### Android runtime
 
-| Component                       | Role                                                       |
-| ------------------------------- | ---------------------------------------------------------- |
-| `FocusGuardMonitorService`      | Foreground service host                                    |
-| `TrackingEngine`                | Poll loop (1s active / 2.5s idle), limit evaluation, block |
-| `UsageEventsForegroundObserver` | API 35+ wake on foreground change (poll stays fallback)    |
-| `BlockOverlayManager`           | Hard block UI                                              |
-| `WidgetUpdater`                 | Home-screen widget (throttled + deferred coalescing)       |
-| `LocalDayChangeScheduler`       | `AlarmManager` midnight + clock/timezone receivers         |
-| `TurboModuleEventDispatchers`   | Routes native signals to Turbo Module listeners            |
+| Component                       | Role                                                                  |
+| ------------------------------- | --------------------------------------------------------------------- |
+| `FocusGuardMonitorService`      | Foreground service host                                               |
+| `TrackingEngine`                | Poll loop (1s active / 2.5s idle), limit evaluation, block            |
+| `DailyUsageRepository`          | Incremental `queryEvents` cursor — appends `[cursor+1, now]` per read |
+| `UsageEventsForegroundObserver` | API 35+ wake on foreground change (poll stays fallback)               |
+| `BlockOverlayManager`           | Hard block UI                                                         |
+| `WidgetUpdater`                 | Home-screen widget (throttled + deferred coalescing)                  |
+| `LocalDayChangeScheduler`       | `AlarmManager` midnight + clock/timezone receivers                    |
+| `TurboModuleEventDispatchers`   | Routes native signals to Turbo Module listeners                       |
 
 ### iOS runtime
 
@@ -291,8 +292,8 @@ Coverage focus:
 - Navigation — entry route, deep links, bootstrap gate
 - Architecture guard — no `setTimeout` / `setInterval` in `source/`
 - Specs — `createNativeEventHub` retry/fan-out
-- Kotlin — `NextBlockResolver`, `LocalDayKey`, `DailyWarningStore`, `LocalDayChangeNotifier`, `ForegroundStabilizer`,
-  `TrackingEnginePoll`, event dispatchers (Robolectric + in-memory MMKV)
+- Kotlin — `NextBlockResolver`, `LocalDayKey`, `DailyUsageAggregator`, `DailyWarningStore`, `LocalDayChangeNotifier`,
+  `ForegroundStabilizer`, `TrackingEnginePoll`, event dispatchers (Robolectric + in-memory MMKV)
 
 Jest defaults to `.ios.ts` resolution; Android modules are imported explicitly in tests.
 

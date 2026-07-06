@@ -1,10 +1,6 @@
 /** @format */
 
-import {
-  createGetItemLayout,
-  createScrollToIndexFailedHandler,
-  getStepFromOffset,
-} from '@/screen/Onboarding/utils/scroll';
+import { createScrollToIndexFailedHandler, getStepFromOffset } from '@/screen/Onboarding/utils/scroll';
 
 describe('scroll utils', () => {
   describe('getStepFromOffset', () => {
@@ -23,13 +19,6 @@ describe('scroll utils', () => {
 
     it('does not exceed the last step index', () => {
       expect(getStepFromOffset(9999, 300, lastStepIndex)).toBe(2);
-    });
-  });
-
-  describe('createGetItemLayout', () => {
-    it('offsets each page by its index', () => {
-      const getItemLayout = createGetItemLayout(300);
-      expect(getItemLayout(null, 2)).toEqual({ length: 300, offset: 600, index: 2 });
     });
   });
 

@@ -1,6 +1,7 @@
 package com.focusguard
 
 import android.app.Application
+import com.focusguard.DailyUsageRepository
 import com.focusguard.overlay.DailyWarningStore
 import com.focusguard.react.TurboModuleEventDispatchers
 import com.focusguard.storage.InMemoryMmkv
@@ -23,6 +24,7 @@ open class RobolectricKeeptTestCase {
         DailyWarningStore.resetForTests()
         LocalDayChangeNotifier.resetForTests()
         TurboModuleEventDispatchers.resetForTests()
+        DailyUsageRepository.resetForTests()
     }
 
     @After
@@ -31,6 +33,7 @@ open class RobolectricKeeptTestCase {
         DailyWarningStore.resetForTests()
         LocalDayChangeNotifier.resetForTests()
         KeeptStorage.resetForTests()
+        DailyUsageRepository.resetForTests()
     }
 
     protected fun encodeTestValue(key: String, value: Boolean) {

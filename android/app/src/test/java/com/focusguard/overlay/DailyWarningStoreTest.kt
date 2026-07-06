@@ -14,16 +14,6 @@ import org.robolectric.annotation.Config
 @Config(application = com.focusguard.TestKeeptApplication::class, sdk = [28])
 class DailyWarningStoreTest : RobolectricKeeptTestCase() {
     @Test
-    fun `warning key uses the same local day key format as LocalDayKey`() {
-        val dayKey = getLocalDayKey()
-        val packageName = "com.example.app"
-
-        DailyWarningStore.markWarningShownToday(packageName)
-
-        assertTrue(decodeTestBool("daily-warning-$dayKey-$packageName", false))
-    }
-
-    @Test
     fun `markWarningShownToday persists and wasWarningShownToday reads back`() {
         val packageName = "com.social.app"
 

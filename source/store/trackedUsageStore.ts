@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 
+import { reportError } from '@/crashlytics/reportError';
 import { getManageAppKey } from '@/domain/appKey';
 import type { UsageByPackage } from '@/domain/usageStatsCatalog';
 import { getCachedUsageByPackage, invalidateUsageStatsCache, loadUsageByPackage } from '@/domain/usageStatsCatalog';
@@ -128,7 +129,10 @@ const runRefreshBatch = async (
   }
 
   const shouldForce = force || dayChanged;
-  const nextUsage = await loadUsageByPackage(packageNames, shouldForce);
+  const nextUsage = await loadUsageByPackage(packageNames, shouldForce).catch((error) => {
+    reportError(error);
+    throw error;
+  });
 
   set((state) => {
     const mergedUsage = mergeUsageForKeys(state.usageByPackage, nextUsage, packageNames, shouldForce);

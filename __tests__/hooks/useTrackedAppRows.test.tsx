@@ -100,7 +100,7 @@ describe('useTrackedAppRows', () => {
     });
   };
 
-  it('seeds cache and soft-refreshes usage after core stores hydrate', async () => {
+  it('seeds cache after core stores hydrate without a duplicate mount refresh', async () => {
     act(() => {
       renderTrackedAppRowsHarness(() => undefined);
     });
@@ -108,13 +108,10 @@ describe('useTrackedAppRows', () => {
     await flushEffects();
 
     expect(mockSeedUsageFromCache).toHaveBeenCalledTimes(1);
-    expect(mockRefreshUsage).toHaveBeenCalledWith(
-      mockSelectedApps.map((app) => app.packageName),
-      false,
-    );
+    expect(mockRefreshUsage).not.toHaveBeenCalled();
   });
 
-  it('runs lifecycle refresh independently for each hook instance', async () => {
+  it('seeds cache independently for each hook instance', async () => {
     const DualHarness = () => {
       useTrackedAppRows();
       useTrackedAppRows();
@@ -132,7 +129,7 @@ describe('useTrackedAppRows', () => {
     await flushEffects();
 
     expect(mockSeedUsageFromCache).toHaveBeenCalledTimes(2);
-    expect(mockRefreshUsage).toHaveBeenCalledTimes(2);
+    expect(mockRefreshUsage).not.toHaveBeenCalled();
   });
 
   it('skips usage refresh while core stores are not hydrated', async () => {
