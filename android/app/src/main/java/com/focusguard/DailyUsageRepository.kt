@@ -6,7 +6,12 @@ import com.focusguard.usage.DailyUsageAggregator
 import com.focusguard.usage.LocalDayChangeNotifier
 import com.focusguard.usage.UsageStatsExtensions.startOfLocalDayMs
 
-/** Reads per-app foreground usage for the current local calendar day. */
+/**
+ * Reads per-app foreground usage for the current local calendar day.
+ *
+ * Maintains an incremental [eventScanCursorMs] so routine reads call
+ * `queryEvents(cursor+1, now)` instead of re-scanning from local midnight.
+ */
 class DailyUsageRepository private constructor(
     private val appContext: Context,
 ) {
@@ -18,7 +23,8 @@ class DailyUsageRepository private constructor(
     private var completedUsageByPackage: Map<String, Long>? = null
     private var cachedDayStartMs: Long = 0L
     private var cachedAtMs: Long = 0L
-    private var eventScanEndMs: Long = 0L
+    /** Exclusive end of the last processed `queryEvents` window; values `< dayStart` mean "not bootstrapped". */
+    private var eventScanCursorMs: Long = Long.MIN_VALUE
     private val openSessionStarts = mutableMapOf<String, Long>()
 
     companion object {
@@ -39,6 +45,12 @@ class DailyUsageRepository private constructor(
 
         fun invalidateCacheIfLoaded() {
             instance?.invalidateCache()
+        }
+
+        /** @internal Unit-test reset. */
+        internal fun resetForTests() {
+            instance?.invalidateCache()
+            instance = null
         }
     }
 
@@ -64,58 +76,110 @@ class DailyUsageRepository private constructor(
         val nowMs = System.currentTimeMillis()
 
         synchronized(cacheLock) {
-            val dayChanged = cachedDayStartMs != 0L && cachedDayStartMs != dayStartMs
-
-            if (completedUsageByPackage == null || dayChanged) {
-                LocalDayChangeNotifier.checkAndNotify(appContext)
-                completedUsageByPackage = null
-                openSessionStarts.clear()
-                eventScanEndMs = dayStartMs
-                cachedDayStartMs = dayStartMs
-            }
+            resetStateIfDayChanged(dayStartMs)
 
             var completed = completedUsageByPackage ?: emptyMap()
+            val activeFilter = completed.keys + packageFilter
 
-            val ttlStale = completed.isNotEmpty() && nowMs - cachedAtMs >= CACHE_TTL_MS
-            if (ttlStale) {
-                val refreshFilter = completed.keys + packageFilter
-                val refreshed =
-                    DailyUsageAggregator.appendUsageDelta(
-                        usageStatsManager,
-                        dayStartMs,
-                        eventScanEndMs,
-                        nowMs,
-                        refreshFilter,
-                        completed,
-                        openSessionStarts,
-                    )
-                completed = refreshed.usageByPackage
-                completedUsageByPackage = completed
-                openSessionStarts.clear()
-                openSessionStarts.putAll(refreshed.openSessionStartMs)
-                eventScanEndMs = nowMs
-                cachedAtMs = nowMs
+            if (activeFilter.isNotEmpty()) {
+                completed = advanceEventCursor(activeFilter, dayStartMs, nowMs, completed)
             }
 
             val missing = packageFilter.filter { packageName -> packageName !in completed }.toSet()
             if (missing.isNotEmpty()) {
-                val freshState =
-                    DailyUsageAggregator.buildUsageWithState(
-                        usageStatsManager,
-                        dayStartMs,
-                        nowMs,
-                        missing,
-                    )
-
-                completed = completed + freshState.usageByPackage
-                completedUsageByPackage = completed
-                openSessionStarts.putAll(freshState.openSessionStartMs)
-                eventScanEndMs = nowMs
-                cachedAtMs = nowMs
+                completed = bootstrapPackages(missing, completed, dayStartMs, nowMs)
             }
 
             return DailyUsageAggregator.projectUsageAt(completed, openSessionStarts, nowMs)
         }
+    }
+
+    private fun resetStateIfDayChanged(dayStartMs: Long) {
+        val dayChanged = cachedDayStartMs != 0L && cachedDayStartMs != dayStartMs
+
+        if (completedUsageByPackage == null || dayChanged) {
+            LocalDayChangeNotifier.checkAndNotify(appContext)
+            completedUsageByPackage = null
+            openSessionStarts.clear()
+            eventScanCursorMs = dayStartMs - 1L
+            cachedDayStartMs = dayStartMs
+        }
+    }
+
+    private fun nextScanFromMs(dayStartMs: Long): Long =
+        if (eventScanCursorMs < dayStartMs) {
+            dayStartMs
+        } else {
+            eventScanCursorMs + 1L
+        }
+
+    private fun advanceEventCursor(
+        packageFilter: Set<String>,
+        dayStartMs: Long,
+        nowMs: Long,
+        completed: Map<String, Long>,
+    ): Map<String, Long> {
+        val scanFromMs = nextScanFromMs(dayStartMs)
+        val ttlStale = completed.isNotEmpty() && nowMs - cachedAtMs >= CACHE_TTL_MS
+
+        if (nowMs < scanFromMs && !ttlStale) {
+            return completed
+        }
+
+        val refreshed =
+            DailyUsageAggregator.appendUsageDelta(
+                usageStatsManager,
+                dayStartMs,
+                scanFromMs,
+                nowMs,
+                packageFilter,
+                completed,
+                openSessionStarts,
+            )
+
+        completedUsageByPackage = refreshed.usageByPackage
+        openSessionStarts.clear()
+        openSessionStarts.putAll(refreshed.openSessionStartMs)
+        eventScanCursorMs = nowMs
+        cachedAtMs = nowMs
+        return refreshed.usageByPackage
+    }
+
+    private fun bootstrapPackages(
+        missing: Set<String>,
+        completed: Map<String, Long>,
+        dayStartMs: Long,
+        nowMs: Long,
+    ): Map<String, Long> {
+        val fromEvents =
+            DailyUsageAggregator.appendUsageDelta(
+                usageStatsManager,
+                dayStartMs,
+                dayStartMs,
+                nowMs,
+                missing,
+                emptyMap(),
+                emptyMap(),
+            )
+
+        val bootstrapped =
+            if (fromEvents.usageByPackage.isEmpty() && fromEvents.openSessionStartMs.isEmpty()) {
+                DailyUsageAggregator.buildUsageWithState(
+                    usageStatsManager,
+                    dayStartMs,
+                    nowMs,
+                    missing,
+                )
+            } else {
+                fromEvents
+            }
+
+        val merged = completed + bootstrapped.usageByPackage
+        completedUsageByPackage = merged
+        openSessionStarts.putAll(bootstrapped.openSessionStartMs)
+        eventScanCursorMs = maxOf(eventScanCursorMs, nowMs)
+        cachedAtMs = nowMs
+        return merged
     }
 
     fun invalidateCache() {
@@ -123,35 +187,28 @@ class DailyUsageRepository private constructor(
             completedUsageByPackage = null
             cachedDayStartMs = 0L
             cachedAtMs = 0L
-            eventScanEndMs = 0L
+            eventScanCursorMs = Long.MIN_VALUE
             openSessionStarts.clear()
         }
     }
 
-    /** Drops cached totals for [packageNames] so the next read re-queries only those apps. */
+    /**
+     * Advances the event cursor for [packageNames] so the next read reflects the latest
+     * `queryEvents` window without dropping cached totals for other packages.
+     */
     fun invalidatePackages(packageNames: Collection<String>) {
         if (packageNames.isEmpty()) {
             return
         }
 
         synchronized(cacheLock) {
+            val dayStartMs = startOfLocalDayMs()
+            val nowMs = System.currentTimeMillis()
+            resetStateIfDayChanged(dayStartMs)
+
             val completed = completedUsageByPackage ?: return
-
-            val next = completed.toMutableMap()
-            var changed = false
-
-            for (packageName in packageNames) {
-                if (next.remove(packageName) != null) {
-                    changed = true
-                }
-                if (openSessionStarts.remove(packageName) != null) {
-                    changed = true
-                }
-            }
-
-            if (changed) {
-                completedUsageByPackage = next
-            }
+            val refreshFilter = completed.keys + packageNames
+            advanceEventCursor(refreshFilter, dayStartMs, nowMs, completed)
         }
     }
 }
