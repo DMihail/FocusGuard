@@ -11,6 +11,7 @@ import android.view.View
 import android.view.WindowManager
 import android.widget.TextView
 import com.focusguard.R
+import com.focusguard.crashlytics.NativeErrorReporter
 import com.focusguard.monitor.OverlayAccess
 import com.focusguard.widget.WidgetUpdater
 
@@ -61,6 +62,7 @@ object BlockOverlayManager {
             attachOverlay(appContext, packageName, appName, strictMode)
             true
         } catch (error: Exception) {
+            NativeErrorReporter.recordNonFatal(error, "BlockOverlayManager.show")
             logDebug("Failed to attach block overlay: ${error.message}")
             detachOverlay()
             false
@@ -150,6 +152,7 @@ object BlockOverlayManager {
             wm.removeView(view)
             logDebug("Block overlay detached")
         } catch (error: Exception) {
+            NativeErrorReporter.recordNonFatal(error, "BlockOverlayManager.detach")
             logDebug("Failed to detach block overlay: ${error.message}")
         }
     }

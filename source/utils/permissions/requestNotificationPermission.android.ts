@@ -3,6 +3,7 @@
 import { PermissionsAndroid, Platform } from 'react-native';
 
 import { getAppDisplayName } from '@/constants/appDisplayName';
+import { reportError } from '@/crashlytics/reportError';
 import { checkForNotificationsPermission } from '@/specs/keeptTurboModuleApi.android';
 
 const ANDROID_API_TIRAMISU = 33;
@@ -26,7 +27,8 @@ export const requestPostNotificationsPermission = async (): Promise<boolean> => 
     });
 
     return result === PermissionsAndroid.RESULTS.GRANTED;
-  } catch {
+  } catch (error) {
+    reportError(error);
     return checkForNotificationsPermission();
   }
 };

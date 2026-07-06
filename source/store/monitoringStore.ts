@@ -3,6 +3,7 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
+import { reportError } from '@/crashlytics/reportError';
 import { areAllPermissionsGranted } from '@/domain/permissionSnapshot';
 import {
   isMonitorServiceRunning,
@@ -48,6 +49,7 @@ export const monitoringStore = create<MonitoringStore>()(
           const startResult = startMonitorService();
 
           if (!startResult.started) {
+            reportError(new Error(`Monitor service start failed: ${startResult.reason ?? 'unknown'}`));
             set({ isMonitoring: false });
             return {
               ok: false,
@@ -83,6 +85,10 @@ const scheduleMonitoringStartHealthCheck = (): void => {
 
   let settled = false;
 
+  const cancel = (): void => {
+    settle();
+  };
+
   const settle = (): void => {
     if (settled) {
       return;
@@ -94,10 +100,6 @@ const scheduleMonitoringStartHealthCheck = (): void => {
     if (activeHealthCheckCancel === cancel) {
       activeHealthCheckCancel = null;
     }
-  };
-
-  const cancel = (): void => {
-    settle();
   };
 
   activeHealthCheckCancel = cancel;
@@ -129,6 +131,7 @@ const scheduleMonitoringStartHealthCheck = (): void => {
       }
 
       monitoringStore.setState({ isMonitoring: false });
+      reportError(new Error('Monitor service stopped unexpectedly after start'));
       settle();
     });
   });
@@ -158,6 +161,7 @@ export const restoreMonitoringSession = (): void => {
   const startResult = startMonitorService();
 
   if (!startResult.started) {
+    reportError(new Error(`Monitor service restore failed: ${startResult.reason ?? 'unknown'}`));
     monitoringStore.setState({ isMonitoring: false });
     return;
   }

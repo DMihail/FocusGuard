@@ -12,6 +12,9 @@ import com.focusguard.usage.UsageStatsExtensions.foregroundTimeMs
  * [UsageStatsManager.queryEvents] from local midnight is the primary source so usage includes
  * sessions that happened before Keept was installed. Aggregated stats are used only as a
  * fallback when the event stream is empty (some OEM restrictions).
+ *
+ * Incremental reads append only `[scanFromMs, endMs]` onto a persisted cursor instead of
+ * re-scanning the full day on every cache miss or TTL refresh.
  */
 internal object DailyUsageAggregator {
 
@@ -19,16 +22,6 @@ internal object DailyUsageAggregator {
         val usageByPackage: Map<String, Long>,
         val openSessionStartMs: Map<String, Long>,
     )
-
-    fun buildUsageByPackage(
-        usageStatsManager: UsageStatsManager,
-        dayStartMs: Long,
-        endMs: Long,
-        packageFilter: Set<String>,
-    ): Map<String, Long> {
-        val state = buildUsageWithState(usageStatsManager, dayStartMs, endMs, packageFilter)
-        return projectUsageAt(state.usageByPackage, state.openSessionStartMs, endMs)
-    }
 
     fun buildUsageWithState(
         usageStatsManager: UsageStatsManager,
@@ -43,7 +36,7 @@ internal object DailyUsageAggregator {
         val fromEvents = aggregateFromEventsWithState(usageStatsManager, dayStartMs, endMs, packageFilter)
         val fromStats = aggregateFromUsageStats(usageStatsManager, dayStartMs, endMs, packageFilter)
 
-        if (fromEvents.usageByPackage.isEmpty()) {
+        if (fromEvents.usageByPackage.isEmpty() && fromEvents.openSessionStartMs.isEmpty()) {
             return EventAggregationState(fromStats, emptyMap())
         }
 
@@ -58,7 +51,7 @@ internal object DailyUsageAggregator {
         return EventAggregationState(completedUsageByPackage, fromEvents.openSessionStartMs)
     }
 
-    /** Appends usage from [scanFromMs] to [endMs] onto [priorUsage] without re-reading the full day. */
+    /** Appends usage from `[scanFromMs, endMs]` onto [priorUsage] without re-reading the full day. */
     fun appendUsageDelta(
         usageStatsManager: UsageStatsManager,
         dayStartMs: Long,
@@ -68,34 +61,31 @@ internal object DailyUsageAggregator {
         priorUsage: Map<String, Long>,
         priorOpenSessions: Map<String, Long>,
     ): EventAggregationState {
-        if (packageFilter.isEmpty() || endMs <= scanFromMs) {
+        if (packageFilter.isEmpty() || endMs < scanFromMs) {
             return EventAggregationState(
                 priorUsage.filterKeys { packageName -> packageName in packageFilter },
                 priorOpenSessions.filterKeys { packageName -> packageName in packageFilter },
             )
         }
 
-        val usageByPackage =
-            priorUsage
-                .filterKeys { packageName -> packageName in packageFilter }
-                .toMutableMap()
-        val openSessionStartMs =
-            priorOpenSessions
-                .filterKeys { packageName -> packageName in packageFilter }
-                .toMutableMap()
+        val accumulator =
+            UsageEventSessionAccumulator(
+                dayStartMs = dayStartMs,
+                packageFilter = packageFilter,
+                orphanSessionStartMs = scanFromMs,
+                initialCompleted = priorUsage,
+                initialOpenSessions = priorOpenSessions,
+            )
 
         applyEventsInRange(
             usageStatsManager = usageStatsManager,
             rangeStartMs = scanFromMs,
             rangeEndMs = endMs,
             dayStartMs = dayStartMs,
-            packageFilter = packageFilter,
-            usageByPackage = usageByPackage,
-            openSessionStartMs = openSessionStartMs,
-            orphanSessionStartMs = scanFromMs,
+            accumulator = accumulator,
         )
 
-        return EventAggregationState(usageByPackage, openSessionStartMs)
+        return accumulator.snapshot()
     }
 
     fun projectUsageAt(
@@ -126,25 +116,26 @@ internal object DailyUsageAggregator {
         endMs: Long,
         packageFilter: Set<String>,
     ): EventAggregationState {
-        if (endMs <= dayStartMs) {
+        if (endMs < dayStartMs) {
             return EventAggregationState(emptyMap(), emptyMap())
         }
 
-        val usageByPackage = mutableMapOf<String, Long>()
-        val openSessionStartMs = mutableMapOf<String, Long>()
+        val accumulator =
+            UsageEventSessionAccumulator(
+                dayStartMs = dayStartMs,
+                packageFilter = packageFilter,
+                orphanSessionStartMs = dayStartMs,
+            )
 
         applyEventsInRange(
             usageStatsManager = usageStatsManager,
             rangeStartMs = dayStartMs,
             rangeEndMs = endMs,
             dayStartMs = dayStartMs,
-            packageFilter = packageFilter,
-            usageByPackage = usageByPackage,
-            openSessionStartMs = openSessionStartMs,
-            orphanSessionStartMs = dayStartMs,
+            accumulator = accumulator,
         )
 
-        return EventAggregationState(usageByPackage, openSessionStartMs)
+        return accumulator.snapshot()
     }
 
     private fun applyEventsInRange(
@@ -152,10 +143,7 @@ internal object DailyUsageAggregator {
         rangeStartMs: Long,
         rangeEndMs: Long,
         dayStartMs: Long,
-        packageFilter: Set<String>,
-        usageByPackage: MutableMap<String, Long>,
-        openSessionStartMs: MutableMap<String, Long>,
-        orphanSessionStartMs: Long,
+        accumulator: UsageEventSessionAccumulator,
     ) {
         val events = usageStatsManager.queryEvents(rangeStartMs, rangeEndMs)
         val event = UsageEvents.Event()
@@ -163,23 +151,13 @@ internal object DailyUsageAggregator {
         while (events.hasNextEvent()) {
             events.getNextEvent(event)
             val packageName = event.packageName?.takeIf { it.isNotEmpty() } ?: continue
-            if (packageName !in packageFilter) {
-                continue
-            }
 
             when {
                 isForegroundStartEvent(event.eventType) -> {
-                    openSessionStartMs[packageName] = event.timeStamp.coerceAtLeast(dayStartMs)
+                    accumulator.applyForegroundStart(packageName, event.timeStamp)
                 }
                 isForegroundEndEvent(event.eventType) -> {
-                    val sessionStartMs = openSessionStartMs.remove(packageName)
-                    val durationMs =
-                        if (sessionStartMs != null) {
-                            (event.timeStamp - sessionStartMs).coerceAtLeast(0L)
-                        } else {
-                            (event.timeStamp - orphanSessionStartMs).coerceAtLeast(0L)
-                        }
-                    usageByPackage[packageName] = (usageByPackage[packageName] ?: 0L) + durationMs
+                    accumulator.applyForegroundEnd(packageName, event.timeStamp)
                 }
             }
         }
