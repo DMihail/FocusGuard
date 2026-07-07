@@ -252,6 +252,7 @@ Event subscriptions (production):
 | `onPermissionsChanged`         | MainActivity, module resume, auth callbacks | `usePermissionsSync`, `useNotificationsSetting` |
 | `onLocalDayChanged`            | AlarmManager midnight, timezone, foreground | `useLocalDayChangeRefresh`                      |
 | `onMonitorServiceStateChanged` | FGS start/stop / monitoring scheduler       | `useMonitoringServiceSync`                      |
+| `onTrackedUsageChanged`        | TrackingEngine poll (Android), usage report | `useTrackedAppRows`                             |
 
 Import `@/specs` in app code, not codegen files directly.
 

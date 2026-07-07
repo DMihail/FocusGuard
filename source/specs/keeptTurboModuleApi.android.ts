@@ -10,6 +10,7 @@ import type {
   MonitorServiceStateChangedEvent,
   PackageUsage,
   PermissionsChangedEvent,
+  TrackedUsageChangedEvent,
 } from './types';
 
 export type {
@@ -19,6 +20,7 @@ export type {
   MonitorServiceStateChangedEvent,
   PackageUsage,
   PermissionsChangedEvent,
+  TrackedUsageChangedEvent,
 } from './types';
 
 const getModule = (): Spec => getKeeptTurboModule();
@@ -45,11 +47,16 @@ const monitorServiceStateHub = createModuleEventHub<MonitorServiceStateChangedEv
   module.onMonitorServiceStateChanged(listener);
 });
 
+const trackedUsageChangedHub = createModuleEventHub<TrackedUsageChangedEvent>((module, listener) => {
+  module.onTrackedUsageChanged(listener);
+});
+
 /** Registers Turbo Module event callbacks before React mounts any screen. */
 export const bootstrapKeeptTurboModuleEvents = (): void => {
   permissionsChangedHub.bootstrap();
   localDayChangedHub.bootstrap();
   monitorServiceStateHub.bootstrap();
+  trackedUsageChangedHub.bootstrap();
 };
 
 export const checkForPermission = (): boolean => getModule().checkForPermission();
@@ -120,3 +127,7 @@ export const subscribeLocalDayChanged = (listener: (event: LocalDayChangedEvent)
 export const subscribeMonitorServiceStateChanged = (
   listener: (event: MonitorServiceStateChangedEvent) => void,
 ): { remove: () => void } => monitorServiceStateHub.subscribe(listener);
+
+export const subscribeTrackedUsageChanged = (
+  listener: (event: TrackedUsageChangedEvent) => void,
+): { remove: () => void } => trackedUsageChangedHub.subscribe(listener);

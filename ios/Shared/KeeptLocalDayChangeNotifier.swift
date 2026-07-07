@@ -95,6 +95,7 @@ import Foundation
 
   private static func publishDayChange(dayKey: String) {
     IosDailyUsageStore.resetForNewDayIfNeeded()
+    KeeptTrackedUsageChangeEmitter.onLocalDayChanged()
     KeeptTurboModuleEventDispatchers.emitLocalDayChanged(dayKey: dayKey)
   }
 }

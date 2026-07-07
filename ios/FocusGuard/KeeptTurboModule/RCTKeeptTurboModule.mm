@@ -11,6 +11,7 @@
   NSObject *_permissionsChangedToken;
   NSObject *_localDayChangedToken;
   NSObject *_monitorServiceStateToken;
+  NSObject *_trackedUsageChangedToken;
 }
 
 - (void)ensureEventCallbacksRegistered
@@ -58,6 +59,17 @@
     }];
   }];
 
+  _trackedUsageChangedToken = [KeeptTurboModuleEventDispatchers registerTrackedUsageChanged:^{
+    __typeof__(self) strongSelf = weakSelf;
+    if (!strongSelf) {
+      return;
+    }
+
+    [strongSelf emitOnTrackedUsageChanged:@{
+      @"changedAtMs" : @((NSInteger)(NSDate.date.timeIntervalSince1970 * 1000)),
+    }];
+  }];
+
   [KeeptAppLifecycleBridge start];
 }
 
@@ -78,6 +90,11 @@
   if (_monitorServiceStateToken != nil) {
     [KeeptTurboModuleEventDispatchers unregisterMonitorServiceState:_monitorServiceStateToken];
     _monitorServiceStateToken = nil;
+  }
+
+  if (_trackedUsageChangedToken != nil) {
+    [KeeptTurboModuleEventDispatchers unregisterTrackedUsageChanged:_trackedUsageChangedToken];
+    _trackedUsageChangedToken = nil;
   }
 
   _eventCallbacksRegistered = NO;

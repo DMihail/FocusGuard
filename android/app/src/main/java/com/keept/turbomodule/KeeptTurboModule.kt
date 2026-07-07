@@ -45,6 +45,7 @@ class KeeptTurboModule(
   private val emitMonitorServiceStateCallback = { isRunning: Boolean ->
     emitMonitorServiceStateChanged(isRunning)
   }
+  private val emitTrackedUsageChangedCallback = { emitTrackedUsageChanged() }
 
   private val emitPermissionsChangedCallback = { queuePermissionsChangedEmit() }
   private val permissionsLifecycleListener =
@@ -68,6 +69,7 @@ class KeeptTurboModule(
     TurboModuleEventDispatchers.registerPermissionsChanged(emitPermissionsChangedCallback)
     TurboModuleEventDispatchers.registerLocalDayChanged(emitLocalDayChangedCallback)
     TurboModuleEventDispatchers.registerMonitorServiceState(emitMonitorServiceStateCallback)
+    TurboModuleEventDispatchers.registerTrackedUsageChanged(emitTrackedUsageChangedCallback)
     reactApplicationContext.addLifecycleEventListener(permissionsLifecycleListener)
   }
 
@@ -76,6 +78,7 @@ class KeeptTurboModule(
     TurboModuleEventDispatchers.unregisterPermissionsChanged(emitPermissionsChangedCallback)
     TurboModuleEventDispatchers.unregisterLocalDayChanged(emitLocalDayChangedCallback)
     TurboModuleEventDispatchers.unregisterMonitorServiceState(emitMonitorServiceStateCallback)
+    TurboModuleEventDispatchers.unregisterTrackedUsageChanged(emitTrackedUsageChangedCallback)
     reactApplicationContext.removeLifecycleEventListener(permissionsLifecycleListener)
     ioExecutor.shutdown()
     super.invalidate()
@@ -240,6 +243,24 @@ class KeeptTurboModule(
         )
       }.onFailure { error ->
         NativeErrorReporter.recordNonFatal(error, "KeeptTurboModule.emitOnMonitorServiceStateChanged")
+      }
+    }
+  }
+
+  private fun emitTrackedUsageChanged() {
+    reactApplicationContext.runOnUiQueueThread {
+      if (!reactApplicationContext.hasActiveReactInstance()) {
+        return@runOnUiQueueThread
+      }
+
+      runCatching {
+        emitOnTrackedUsageChanged(
+            Arguments.createMap().apply {
+              putDouble("changedAtMs", System.currentTimeMillis().toDouble())
+            },
+        )
+      }.onFailure { error ->
+        NativeErrorReporter.recordNonFatal(error, "KeeptTurboModule.emitOnTrackedUsageChanged")
       }
     }
   }

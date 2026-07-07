@@ -232,6 +232,10 @@ jest.mock('@/specs/keeptTurboModuleClient', () => ({
       mockNativeEventSubscription(listener);
       return mockPermissionsChangedSubscription;
     }),
+    onTrackedUsageChanged: jest.fn((listener) => {
+      mockNativeEventSubscription(listener);
+      return mockPermissionsChangedSubscription;
+    }),
     checkForPermission: jest.fn(() => false),
     checkForSystemAlertWindowPermission: jest.fn(() => false),
     checkForNotificationsPermission: jest.fn(() => false),

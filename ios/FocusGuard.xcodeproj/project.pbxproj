@@ -41,6 +41,7 @@
 		E0P002021A680F5B00A75B9A /* KeeptLocalDayChangeNotifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0P002011A680F5B00A75B9A /* KeeptLocalDayChangeNotifier.swift */; };
 		E0P003021A680F5B00A75B9A /* KeeptLocalDayChangeScheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0P003011A680F5B00A75B9A /* KeeptLocalDayChangeScheduler.swift */; };
 		E0P004021A680F5B00A75B9A /* KeeptAppLifecycleBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0P004011A680F5B00A75B9A /* KeeptAppLifecycleBridge.swift */; };
+		E0P006021A680F5B00A75B9A /* KeeptTrackedUsageChangeEmitter.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0P006011A680F5B00A75B9A /* KeeptTrackedUsageChangeEmitter.swift */; };
 		E0P005021A680F5B00A75B9A /* BackgroundTasks.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E0P005011A680F5B00A75B9A /* BackgroundTasks.framework */; };
 		C2D3E5821A680F5B00A75B9A /* KeeptMonitorActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2D3E5811A680F5B00A75B9A /* KeeptMonitorActions.swift */; };
 		C2D3E5921A680F5B00A75B9A /* DeviceActivity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1B2C3D591A680F5B00A75B9A /* DeviceActivity.framework */; };
@@ -75,6 +76,7 @@
 		E0P002021A680F5B00A75B9A /* KeeptLocalDayChangeNotifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0P002011A680F5B00A75B9A /* KeeptLocalDayChangeNotifier.swift */; };
 		E0P003021A680F5B00A75B9A /* KeeptLocalDayChangeScheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0P003011A680F5B00A75B9A /* KeeptLocalDayChangeScheduler.swift */; };
 		E0P004021A680F5B00A75B9A /* KeeptAppLifecycleBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0P004011A680F5B00A75B9A /* KeeptAppLifecycleBridge.swift */; };
+		E0P006021A680F5B00A75B9A /* KeeptTrackedUsageChangeEmitter.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0P006011A680F5B00A75B9A /* KeeptTrackedUsageChangeEmitter.swift */; };
 		E0P005021A680F5B00A75B9A /* BackgroundTasks.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E0P005011A680F5B00A75B9A /* BackgroundTasks.framework */; };
 		E7CDC4C2890D475FA557F479 /* Inter-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 48B53B5AA62C4F62ADACAE00 /* Inter-Medium.ttf */; };
 		F1A2B3C42CA45674006654EE /* RCTKeeptTurboModule.mm in Sources */ = {isa = PBXBuildFile; fileRef = F1A2B3C32CA45674006654EE /* RCTKeeptTurboModule.mm */; };
@@ -153,6 +155,7 @@
 		E0P002011A680F5B00A75B9A /* KeeptLocalDayChangeNotifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeeptLocalDayChangeNotifier.swift; sourceTree = "<group>"; };
 		E0P003011A680F5B00A75B9A /* KeeptLocalDayChangeScheduler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeeptLocalDayChangeScheduler.swift; sourceTree = "<group>"; };
 		E0P004011A680F5B00A75B9A /* KeeptAppLifecycleBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeeptAppLifecycleBridge.swift; sourceTree = "<group>"; };
+		E0P006011A680F5B00A75B9A /* KeeptTrackedUsageChangeEmitter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeeptTrackedUsageChangeEmitter.swift; sourceTree = "<group>"; };
 		E0P005011A680F5B00A75B9A /* BackgroundTasks.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = BackgroundTasks.framework; path = System/Library/Frameworks/BackgroundTasks.framework; sourceTree = SDKROOT; };
 		C2D3E5811A680F5B00A75B9A /* KeeptMonitorActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeeptMonitorActions.swift; sourceTree = "<group>"; };
 		CB17F5AB88324B4D9C0E2215 /* Inter-SemiBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Inter-SemiBold.ttf"; path = "../source/assets/fonts/Inter-SemiBold.ttf"; sourceTree = "<group>"; };
@@ -170,6 +173,7 @@
 		E0P002011A680F5B00A75B9A /* KeeptLocalDayChangeNotifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeeptLocalDayChangeNotifier.swift; sourceTree = "<group>"; };
 		E0P003011A680F5B00A75B9A /* KeeptLocalDayChangeScheduler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeeptLocalDayChangeScheduler.swift; sourceTree = "<group>"; };
 		E0P004011A680F5B00A75B9A /* KeeptAppLifecycleBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeeptAppLifecycleBridge.swift; sourceTree = "<group>"; };
+		E0P006011A680F5B00A75B9A /* KeeptTrackedUsageChangeEmitter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeeptTrackedUsageChangeEmitter.swift; sourceTree = "<group>"; };
 		E0P005011A680F5B00A75B9A /* BackgroundTasks.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = BackgroundTasks.framework; path = System/Library/Frameworks/BackgroundTasks.framework; sourceTree = SDKROOT; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		F1A2B3C22CA45674006654EE /* RCTKeeptTurboModule.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = RCTKeeptTurboModule.h; path = FocusGuard/KeeptTurboModule/RCTKeeptTurboModule.h; sourceTree = "<group>"; };
@@ -308,6 +312,7 @@
 				E0P002011A680F5B00A75B9A /* KeeptLocalDayChangeNotifier.swift */,
 				E0P003011A680F5B00A75B9A /* KeeptLocalDayChangeScheduler.swift */,
 				E0P004011A680F5B00A75B9A /* KeeptAppLifecycleBridge.swift */,
+				E0P006011A680F5B00A75B9A /* KeeptTrackedUsageChangeEmitter.swift */,
 				C2D3E5811A680F5B00A75B9A /* KeeptMonitorActions.swift */,
 				D2E3F5011A680F5B00A75B9A /* IosDailyUsageStore.swift */,
 				D2E3F5111A680F5B00A75B9A /* KeeptUsageReader.swift */,
@@ -620,6 +625,7 @@
 				E0P002021A680F5B00A75B9A /* KeeptLocalDayChangeNotifier.swift in Sources */,
 				E0P003021A680F5B00A75B9A /* KeeptLocalDayChangeScheduler.swift in Sources */,
 				E0P004021A680F5B00A75B9A /* KeeptAppLifecycleBridge.swift in Sources */,
+				E0P006021A680F5B00A75B9A /* KeeptTrackedUsageChangeEmitter.swift in Sources */,
 				C2D3E5821A680F5B00A75B9A /* KeeptMonitorActions.swift in Sources */,
 				B1C2D3E461A680F5B00A75B9A /* SelectedAppsPayloadBuilder.swift in Sources */,
 				B1C2D3E481A680F5B00A75B9A /* KeeptFamilyActivityPickerPresenter.swift in Sources */,

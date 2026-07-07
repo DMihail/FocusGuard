@@ -43,6 +43,7 @@ enum KeeptUsageReportCollector {
     refreshTask = task
     await task.value
     refreshTask = nil
+    KeeptTrackedUsageChangeEmitter.maybeEmit()
   }
 
   private static func mountReport(filter: DeviceActivityFilter) {

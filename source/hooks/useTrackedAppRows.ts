@@ -9,6 +9,7 @@ import { useSelectedDashboardAppRows } from '@/context/SelectedDashboardAppRowsP
 import { getManageAppKey } from '@/domain/appKey';
 import { useLocalDayChangeRefresh } from '@/hooks/useLocalDayChangeRefresh';
 import { useRefreshWhenVisible } from '@/hooks/useRefreshWhenVisible';
+import { subscribeTrackedUsageChanged } from '@/specs';
 import { trackedUsageStore } from '@/store';
 
 export type UseTrackedAppRowsOptions = {
@@ -59,6 +60,20 @@ export const useTrackedAppRows = (
 
   useRefreshWhenVisible(refreshUsageSoft);
   useLocalDayChangeRefresh(refreshUsageHard);
+
+  useEffect(() => {
+    if (!hasCoreStoresHydrated) {
+      return undefined;
+    }
+
+    const subscription = subscribeTrackedUsageChanged(() => {
+      refreshUsageSoft().catch(() => undefined);
+    });
+
+    return () => {
+      subscription.remove();
+    };
+  }, [hasCoreStoresHydrated, refreshUsageSoft]);
 
   return {
     appRows,
