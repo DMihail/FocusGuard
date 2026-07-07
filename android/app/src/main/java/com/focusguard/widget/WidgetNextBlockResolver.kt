@@ -40,12 +40,7 @@ internal object WidgetNextBlockResolver {
         val usageRepository = DailyUsageRepository.getInstance(context)
         val packageManager = context.packageManager
         val trackedAppList = trackedApps.toList()
-        val persistedUsageByPackage =
-            if (trackedAppList.isEmpty()) {
-                emptyMap()
-            } else {
-                usageRepository.getTodayForegroundMsForPackages(trackedAppList)
-            }
+        val persistedUsageByPackage = usageRepository.getTodayForegroundMsForPackages(trackedAppList)
 
         val (nearest, blockedLabel) =
             NextBlockResolver.findNearestNextBlock(

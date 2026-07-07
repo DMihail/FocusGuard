@@ -109,10 +109,6 @@ export const getAppDisplayName = (): string => getModule().getAppDisplayName()?.
 
 export const getAppVersion = (): string => getModule().getAppVersion()?.trim() ?? '';
 
-export const invalidateNativeCatalogCaches = (): void => {
-  getModule().invalidateNativeCatalogCaches();
-};
-
 export const invalidateNativeInstalledAppsCache = (): void => {
   getModule().invalidateNativeInstalledAppsCache();
 };

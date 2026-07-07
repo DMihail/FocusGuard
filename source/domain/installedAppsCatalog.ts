@@ -7,7 +7,7 @@ import { createNativeCatalogLoader } from './createNativeCatalogLoader';
 const installedAppsCatalog = createNativeCatalogLoader<ManageApp[]>({
   fallback: [],
   read: async () => mapInstalledApps(await NativeSpecs.getInstalledApplications()),
-  onInvalidate: () => NativeSpecs.invalidateNativeInstalledAppsCache?.(),
+  onInvalidate: () => NativeSpecs.invalidateNativeInstalledAppsCache(),
 });
 
 export const getCachedInstalledApps = installedAppsCatalog.getCached;

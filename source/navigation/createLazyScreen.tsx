@@ -2,6 +2,8 @@
 
 import React, { type ComponentType, lazy, Suspense } from 'react';
 
+import { ScreenLoadingFallback } from './ScreenLoadingFallback';
+
 type ScreenModule<P extends object> = Record<string, ComponentType<P>>;
 
 /**
@@ -24,7 +26,7 @@ export const createLazyScreen = <P extends object>(
   });
 
   const LazyScreen = (props: P) => (
-    <Suspense fallback={null}>
+    <Suspense fallback={<ScreenLoadingFallback />}>
       <LazyComponent {...props} />
     </Suspense>
   );

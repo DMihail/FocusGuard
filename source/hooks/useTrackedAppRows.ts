@@ -8,7 +8,6 @@ import { useCoreStoresHydrated } from '@/context/CoreStoresHydrationProvider';
 import { useSelectedDashboardAppRows } from '@/context/SelectedDashboardAppRowsProvider';
 import { getManageAppKey } from '@/domain/appKey';
 import { useScreenRefresh } from '@/hooks/useScreenRefresh';
-import { subscribeTrackedUsageChanged } from '@/specs';
 import { trackedUsageStore } from '@/store';
 
 export type UseTrackedAppRowsOptions = {
@@ -58,20 +57,6 @@ export const useTrackedAppRows = (
   const refreshUsageHard = useCallback(() => refreshUsage(true), [refreshUsage]);
 
   useScreenRefresh(refreshUsageSoft, refreshUsageHard);
-
-  useEffect(() => {
-    if (!hasCoreStoresHydrated) {
-      return undefined;
-    }
-
-    const subscription = subscribeTrackedUsageChanged(() => {
-      refreshUsageSoft().catch(() => undefined);
-    });
-
-    return () => {
-      subscription.remove();
-    };
-  }, [hasCoreStoresHydrated, refreshUsageSoft]);
 
   return {
     appRows,
