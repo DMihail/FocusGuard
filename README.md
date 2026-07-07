@@ -56,11 +56,11 @@ FocusGuard/                          # repo folder (product / store ID: Keept)
 │   ├── context/                     # CoreStoresHydrationProvider, SelectedDashboardAppRowsProvider
 │   ├── crashlytics/                 # bootstrapCrashlytics, reportError
 │   ├── domain/                      # permissions, catalogs, reconcile, app keys, usage loaders
-│   ├── hooks/                       # useTrackedAppRows, useRefreshWhenVisible, useUsageHistorySync, …
+│   ├── hooks/                       # useTrackedAppRows, useScreenRefresh, useUsageHistorySync, …
 │   ├── i18n/                        # locales (en/ru), legal copy
 │   ├── layout/                      # tablet column width metrics
 │   ├── list/                        # FlatList key extractors + render helpers
-│   ├── navigation/                  # stack, linking, RootNavigationGate, native sync hooks
+│   ├── navigation/                  # stack, linking, lazyScreens, RootNavigationGate, sync hooks
 │   ├── runtime/                     # appForegroundBus (shared AppState subscription)
 │   ├── screen/                      # feature screens
 │   │   ├── Onboarding/
@@ -250,7 +250,7 @@ Event subscriptions (production):
 | Event                          | Native emitters (Android / iOS)             | JS consumers                                    |
 | ------------------------------ | ------------------------------------------- | ----------------------------------------------- |
 | `onPermissionsChanged`         | MainActivity, module resume, auth callbacks | `usePermissionsSync`, `useNotificationsSetting` |
-| `onLocalDayChanged`            | AlarmManager midnight, timezone, foreground | `useLocalDayChangeRefresh`                      |
+| `onLocalDayChanged`            | AlarmManager midnight, timezone, foreground | `useScreenRefresh` (hard on day change)         |
 | `onMonitorServiceStateChanged` | FGS start/stop / monitoring scheduler       | `useMonitoringServiceSync`                      |
 | `onTrackedUsageChanged`        | TrackingEngine poll (Android), usage report | `useTrackedAppRows`                             |
 
@@ -258,6 +258,41 @@ Import `@/specs` in app code, not codegen files directly.
 
 `appForegroundBus` (`source/runtime/`) is a shared `AppState` subscription for UI-only foreground refresh (language,
 monitoring reconcile) — not a substitute for missing native events.
+
+### Navigation
+
+Static native stack (`createStaticNavigation` + `RootStack`). Entry route is chosen after MMKV rehydration:
+
+| Condition                | Initial screen      |
+| ------------------------ | ------------------- |
+| Onboarding not confirmed | `Onboarding`        |
+| Permissions missing      | `EnablePermissions` |
+| Ready                    | `Dashboard`         |
+
+**Lazy loading** (`createLazyScreen` → `lazyScreens.ts`): secondary screens are code-split and fetched on first
+navigation, not at cold start. This keeps the main bundle smaller and defers heavy UI (e.g. `react-native-gifted-charts`
+on Statistics, large Manage Apps lists) until the user opens them.
+
+| Bundle        | Screens                                                                                   |
+| ------------- | ----------------------------------------------------------------------------------------- |
+| Eager (main)  | `Onboarding`, `EnablePermissions`, `Dashboard`                                            |
+| Lazy (chunks) | `ManageApps`, `TrackedApps`, `Statistics`, `ConfigureLimits`, `Settings`, `LegalDocument` |
+
+Deep links (`source/navigation/linking.ts`): `keept://dashboard`, `keept://tracked-apps`, `keept://configure/:appKey`.
+Cold-start targets stack `Dashboard` underneath so back navigation returns to the hub.
+
+`RootNavigationGate` wires splash, catalog prefetch, permission guard, monitoring restore, usage history sync
+(`GlobalUsageHistorySync`), and native snapshot sync. `CoreStoresHydrationProvider` shares one MMKV hydration
+subscription set across dashboard-related hooks.
+
+**Monitoring sync (three layers):**
+
+1. Native — FGS emits `onMonitorServiceStateChanged`; pending events replay on JS resume.
+2. `useMonitoringServiceSync` — reconciles drift when app returns to foreground (`restoreMonitoringSession`).
+3. `monitoringStore` health check — settles the dashboard toggle while Android FGS starts asynchronously.
+
+**Usage refresh policy:** soft refresh on screen focus (`useScreenRefresh`); hard refresh on pull-to-refresh, local day
+change, and Configure Limits day rollover. `trackedUsageStore` coalesces concurrent refreshes into one native load.
 
 ### Storage
 
@@ -274,19 +309,6 @@ iOS extensions read App Group UserDefaults written by main app.
 
 Contract source of truth: `source/store/persistSchema.ts` ↔ `android/.../PersistSchema.kt` ↔
 `ios/Shared/KeeptAppGroup.swift`.
-
-`RootNavigationGate` wires splash, catalog prefetch, permission guard, monitoring restore, usage history sync
-(`GlobalUsageHistorySync`), and native snapshot sync. `CoreStoresHydrationProvider` shares one MMKV hydration
-subscription set across dashboard-related hooks.
-
-**Monitoring sync (three layers):**
-
-1. Native — FGS emits `onMonitorServiceStateChanged`; pending events replay on JS resume.
-2. `useMonitoringServiceSync` — reconciles drift when app returns to foreground (`restoreMonitoringSession`).
-3. `monitoringStore` health check — settles the dashboard toggle while Android FGS starts asynchronously.
-
-**Usage refresh policy:** soft refresh on screen focus (`useRefreshWhenVisible`); hard refresh on pull-to-refresh, local
-day change, and Configure Limits day rollover. `trackedUsageStore` coalesces concurrent refreshes into one native load.
 
 ### Android runtime
 

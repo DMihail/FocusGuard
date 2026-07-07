@@ -2,19 +2,25 @@
 
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
-import { ConfigureLimitsScreen } from '@/screen/ConfigureLimits/ConfigureLimitsScreen';
 import { DashboardScreen } from '@/screen/Dashboard/DashboardScreen';
 import { EnablePermissionsScreen } from '@/screen/EnablePermissions/EnablePermissionsScreen';
-import { LegalDocumentScreen } from '@/screen/Legal/LegalDocumentScreen';
-import { ManageAppsScreen } from '@/screen/ManageApps/ManageAppsScreen';
 import { OnboardingScreen } from '@/screen/Onboarding/OnboardingScreen';
-import { SettingsScreen } from '@/screen/Settings/SettingsScreen';
-import { LazyStatisticsScreen } from '@/screen/Statistics/LazyStatisticsScreen';
-import { TrackedAppsScreen } from '@/screen/TrackedApps/TrackedAppsScreen';
 
+import {
+  ConfigureLimitsScreen,
+  LegalDocumentScreen,
+  ManageAppsScreen,
+  SettingsScreen,
+  StatisticsScreen,
+  TrackedAppsScreen,
+} from './lazyScreens';
 import { rootScreenTransitionOptions } from './screenTransitionOptions';
 import type { RootStackParamList } from './types';
 
+/**
+ * Eager screens (Onboarding, EnablePermissions, Dashboard) stay in the main bundle — they are
+ * entry routes or the primary hub. All other stack screens are lazy-loaded on first navigation.
+ */
 const createRootScreens = () =>
   ({
     Onboarding: {
@@ -38,7 +44,7 @@ const createRootScreens = () =>
       options: rootScreenTransitionOptions.trackedApps,
     },
     Statistics: {
-      screen: LazyStatisticsScreen,
+      screen: StatisticsScreen,
       options: rootScreenTransitionOptions.statistics,
     },
     ConfigureLimits: {
