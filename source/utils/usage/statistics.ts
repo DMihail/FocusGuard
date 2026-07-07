@@ -9,7 +9,7 @@ import { getLocalDayKey } from '@/utils/usage/localDayKey';
 
 export type StatisticsPeriod = 'week' | 'month';
 
-export type WeekRangeLabelFormatter = (weekDates: readonly Date[]) => string;
+type WeekRangeLabelFormatter = (weekDates: readonly Date[]) => string;
 
 export type UsageChartPoint = {
   label: string;
