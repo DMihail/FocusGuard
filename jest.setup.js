@@ -254,6 +254,8 @@ jest.mock('@/specs/keeptTurboModuleClient', () => ({
     getAppDisplayName: jest.fn(() => ''),
     getAppVersion: jest.fn(() => ''),
     invalidateNativeCatalogCaches: jest.fn(),
+    invalidateNativeInstalledAppsCache: jest.fn(),
+    invalidateNativeUsageCache: jest.fn(),
     syncTrackingConfig: jest.fn(),
     requestScreenTimeAuthorization: jest.fn(async () => true),
     presentFamilyActivityPicker: jest.fn(async () => []),

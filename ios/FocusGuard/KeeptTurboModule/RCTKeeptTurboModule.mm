@@ -215,6 +215,16 @@
   [KeeptScreenTimeBridge invalidateNativeCatalogCaches];
 }
 
+- (void)invalidateNativeInstalledAppsCache
+{
+  [KeeptScreenTimeBridge invalidateNativeInstalledAppsCache];
+}
+
+- (void)invalidateNativeUsageCache
+{
+  [KeeptScreenTimeBridge invalidateNativeUsageCache];
+}
+
 - (void)syncTrackingConfig:(NSString *)snapshotJson
 {
   [KeeptScreenTimeBridge syncTrackingConfig:snapshotJson];

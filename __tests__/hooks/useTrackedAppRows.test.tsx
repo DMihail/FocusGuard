@@ -16,6 +16,13 @@ jest.mock('@/context/CoreStoresHydrationProvider', () => ({
   useCoreStoresHydrated: () => mockUseCoreStoresHydrated(),
 }));
 
+jest.mock('@/hooks/useScreenRefresh', () => ({
+  useScreenRefresh: (refreshSoft: () => void, refreshHard: () => void) => {
+    mockUseRefreshWhenVisible(refreshSoft);
+    mockUseLocalDayChangeRefresh(refreshHard);
+  },
+}));
+
 jest.mock('@/hooks/useRefreshWhenVisible', () => ({
   useRefreshWhenVisible: (refresh: () => void) => mockUseRefreshWhenVisible(refresh),
 }));

@@ -114,6 +114,14 @@ export const invalidateNativeCatalogCaches = (): void => {
   getModule()?.invalidateNativeCatalogCaches();
 };
 
+export const invalidateNativeInstalledAppsCache = (): void => {
+  getModule()?.invalidateNativeInstalledAppsCache();
+};
+
+export const invalidateNativeUsageCache = (): void => {
+  getModule()?.invalidateNativeUsageCache();
+};
+
 export const syncTrackingConfig = (snapshotJson: string): void => {
   getModule()?.syncTrackingConfig(snapshotJson);
 };
