@@ -76,7 +76,10 @@ class FocusGuardMonitorService : Service() {
     }
 
     if (trackingEngine == null) {
-      trackingEngine = TrackingEngine(applicationContext).also { it.start() }
+      trackingEngine = TrackingEngine(applicationContext).also { engine ->
+        activeTrackingEngine = engine
+        engine.start()
+      }
     }
 
     WidgetUpdater.scheduleUpdate(applicationContext, force = true)
@@ -90,6 +93,7 @@ class FocusGuardMonitorService : Service() {
     TurboModuleEventDispatchers.emitMonitorServiceState(isRunning = false)
     trackingEngine?.stop()
     trackingEngine = null
+    activeTrackingEngine = null
     WidgetUpdater.scheduleUpdate(applicationContext, force = true)
     stopForeground(STOP_FOREGROUND_REMOVE)
     super.onDestroy()
@@ -120,5 +124,12 @@ class FocusGuardMonitorService : Service() {
 
     @Volatile var isRunning: Boolean = false
       private set
+
+    @Volatile
+    private var activeTrackingEngine: TrackingEngine? = null
+
+    fun onLocalDayChanged() {
+      activeTrackingEngine?.onLocalDayChanged()
+    }
   }
 }

@@ -31,6 +31,14 @@ class LiveUsageEstimator(
         sessionStartedAtMs = 0L
     }
 
+    /** Clears stale per-package baselines after a local day rollover. */
+    fun clearBaselinesForNewDay() {
+        flushActiveSession()
+        baselineMsByPackage.clear()
+        sessionPackage = null
+        sessionStartedAtMs = 0L
+    }
+
     fun getEffectiveUsageMs(packageName: String): Long =
         getEffectiveUsageMsForPackages(setOf(packageName))[packageName] ?: 0L
 

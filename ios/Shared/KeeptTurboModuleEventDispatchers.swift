@@ -29,6 +29,7 @@ private final class MonitorStateListenerToken: NSObject {
   private static var permissionsChangedListeners: [ListenerToken] = []
   private static var localDayChangedListeners: [DayKeyListenerToken] = []
   private static var monitorServiceStateListeners: [MonitorStateListenerToken] = []
+  private static var trackedUsageChangedListeners: [ListenerToken] = []
   private static var pendingPermissionsChanged = false
   private static var pendingLocalDayKey: String?
   private static var pendingMonitorServiceState: Bool?
@@ -78,10 +79,25 @@ private final class MonitorStateListenerToken: NSObject {
     monitorServiceStateListeners.removeAll { $0 === token }
   }
 
+  @objc static func registerTrackedUsageChanged(_ callback: @escaping () -> Void) -> NSObject {
+    let token = ListenerToken(callback)
+    trackedUsageChangedListeners.append(token)
+    return token
+  }
+
+  @objc static func unregisterTrackedUsageChanged(_ token: NSObject) {
+    guard let token = token as? ListenerToken else {
+      return
+    }
+
+    trackedUsageChangedListeners.removeAll { $0 === token }
+  }
+
   @objc static func clearAll() {
     permissionsChangedListeners.removeAll()
     localDayChangedListeners.removeAll()
     monitorServiceStateListeners.removeAll()
+    trackedUsageChangedListeners.removeAll()
     pendingPermissionsChanged = false
     pendingLocalDayKey = nil
     pendingMonitorServiceState = nil
@@ -112,6 +128,10 @@ private final class MonitorStateListenerToken: NSObject {
     }
 
     monitorServiceStateListeners.forEach { $0.handler(isRunning) }
+  }
+
+  @objc static func emitTrackedUsageChanged() {
+    trackedUsageChangedListeners.forEach { $0.handler() }
   }
 
   private static func replayPendingPermissionsChanged() {

@@ -7,8 +7,7 @@ import { useIsFocused } from '@react-navigation/native';
 import { useCoreStoresHydrated } from '@/context/CoreStoresHydrationProvider';
 import { useSelectedDashboardAppRows } from '@/context/SelectedDashboardAppRowsProvider';
 import { getManageAppKey } from '@/domain/appKey';
-import { useLocalDayChangeRefresh } from '@/hooks/useLocalDayChangeRefresh';
-import { useRefreshWhenVisible } from '@/hooks/useRefreshWhenVisible';
+import { useScreenRefresh } from '@/hooks/useScreenRefresh';
 import { trackedUsageStore } from '@/store';
 
 export type UseTrackedAppRowsOptions = {
@@ -57,8 +56,7 @@ export const useTrackedAppRows = (
   const refreshUsageSoft = useCallback(() => refreshUsage(false), [refreshUsage]);
   const refreshUsageHard = useCallback(() => refreshUsage(true), [refreshUsage]);
 
-  useRefreshWhenVisible(refreshUsageSoft);
-  useLocalDayChangeRefresh(refreshUsageHard);
+  useScreenRefresh(refreshUsageSoft, refreshUsageHard);
 
   return {
     appRows,

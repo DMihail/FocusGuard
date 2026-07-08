@@ -17,6 +17,11 @@ export type MonitorServiceStateChangedEvent = Readonly<{
   changedAtMs: number;
 }>;
 
+/** Emitted when tracked-app usage totals change while monitoring is active. */
+export type TrackedUsageChangedEvent = Readonly<{
+  changedAtMs: number;
+}>;
+
 /** Daily foreground usage for a single tracked package. */
 export type PackageUsage = Readonly<{
   packageName: string;

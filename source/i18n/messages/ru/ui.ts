@@ -15,6 +15,7 @@ export const ruUi: TranslationTree = {
     increase: 'Увеличить',
     decrease: 'Уменьшить',
     loading: 'Загрузка {{appName}}',
+    loadingScreen: 'Загрузка экрана',
     updatingUsage: 'Обновляем статистику',
     retry: 'Повторить',
     openSettings: 'Открыть настройки',

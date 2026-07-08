@@ -4,7 +4,7 @@ import type { RefObject } from 'react';
 
 import type { WalkthroughStepData } from '../data/walkthroughSteps';
 
-export type WalkthroughListRef = RefObject<{
+type WalkthroughListRef = RefObject<{
   scrollToOffset: (options: { offset: number; animated?: boolean }) => void;
 } | null>;
 

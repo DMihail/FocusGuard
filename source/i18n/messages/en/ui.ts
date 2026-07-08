@@ -15,6 +15,7 @@ export const enUi: TranslationTree = {
     increase: 'Increase',
     decrease: 'Decrease',
     loading: 'Loading {{appName}}',
+    loadingScreen: 'Loading screen',
     updatingUsage: 'Updating usage stats',
     retry: 'Try again',
     openSettings: 'Open settings',

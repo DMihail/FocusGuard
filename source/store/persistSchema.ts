@@ -17,7 +17,7 @@
  *
  * ## iOS (Screen Time)
  *
- * - App Group: `group.com.keept.shared` (`IOS_APP_GROUP_ID`)
+ * - App Group: `group.com.keept.shared`
  * - Flat snapshot: `ios-tracking-snapshot-v2` with opaque `trackedAppTokenIds`
  * - Selection blob: `ios-family-activity-selection-v1` (phase 1 picker)
  * - Daily usage totals: `ios-daily-usage-v1` (phase 3 report + monitor floors)
@@ -56,20 +56,11 @@ export const NATIVE_TRACKING_SNAPSHOT_KEY = 'native-tracking-snapshot-v1';
 /** Bump when the flat native snapshot JSON shape changes. */
 export const NATIVE_TRACKING_SNAPSHOT_VERSION = 2;
 
-/** App Group shared between the iOS app and DeviceActivity extensions (`KeeptAppGroup.swift`). */
-export const IOS_APP_GROUP_ID = 'group.com.keept.shared';
-
 /** iOS flat snapshot for Screen Time monitoring (`IosTrackingSnapshot.swift`). */
 export const IOS_TRACKING_SNAPSHOT_KEY = 'ios-tracking-snapshot-v2';
 
 /** Bump when `IosTrackingSnapshot` JSON shape changes. */
 export const IOS_TRACKING_SNAPSHOT_VERSION = 2;
-
-/** Base64-encoded `FamilyActivitySelection` blob written by native picker (phase 1). */
-export const IOS_FAMILY_ACTIVITY_SELECTION_KEY = 'ios-family-activity-selection-v1';
-
-/** Per-token daily usage milliseconds written by KeeptReport + KeeptMonitor (`IosDailyUsageStore.swift`). */
-export const IOS_DAILY_USAGE_KEY = 'ios-daily-usage-v1';
 
 /** Native-only latch: Usage Stats was confirmed granted (`UsageAccessGrantStore.kt`). */
 export const USAGE_ACCESS_GRANTED_KEY = 'usage-access-granted-v1';
@@ -80,6 +71,6 @@ export const USAGE_ACCESS_GRANTED_KEY = 'usage-access-granted-v1';
  * - Android `last-local-day-key-v1` — last notified local day (`LocalDayChangeNotifier.kt`)
  * - iOS App Group `last-local-day-key-v1` — last notified local day (`KeeptLocalDayChangeNotifier.swift`)
  * - Android daily warning keys — `DailyWarningStore.kt`
- * - iOS `{IOS_APP_GROUP_ID}/ios-block-snooze-{tokenId}` — `IosTrackingSnoozeStore.swift`
+ * - iOS App Group `ios-block-snooze-{tokenId}` — `IosTrackingSnoozeStore.swift`
  * - iOS daily warning keys — `IosDailyWarningStore.swift`
  */

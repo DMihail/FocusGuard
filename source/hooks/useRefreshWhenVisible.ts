@@ -6,7 +6,7 @@ import { reportError } from '@/crashlytics/reportError';
 
 import { useAppStateOnActive } from './useAppStateOnActive';
 
-type RefreshWhenVisibleOptions = {
+export type RefreshWhenVisibleOptions = {
   onFocus?: boolean;
   onAppActive?: boolean;
   onlyWhenFocusedOnAppActive?: boolean;
