@@ -132,8 +132,8 @@ Platform-specific TypeScript resolves via Metro / `moduleSuffixes`: `.ios.ts`, `
 | ----------------------------- | ------------------------------------------------------------------------ |
 | Product name                  | Keept                                                                    |
 | npm / JS version              | `1.0.2` (`package.json`)                                                 |
-| Android store version         | `1.0.5` (`versionName` in `android/app/build.gradle`)                    |
-| Android build number          | `9` (`versionCode` in `android/app/build.gradle`)                        |
+| Android store version         | `1.0.6` (`versionName` in `android/app/build.gradle`)                    |
+| Android build number          | `10` (`versionCode` in `android/app/build.gradle`)                       |
 | Store bundle / application ID | `com.keept`                                                              |
 | Android namespace (Kotlin)    | `com.focusguard` (legacy)                                                |
 | iOS App Group                 | `group.com.keept.shared`                                                 |
