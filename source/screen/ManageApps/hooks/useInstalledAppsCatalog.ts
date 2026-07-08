@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react';
 import { Platform } from 'react-native';
 
+import { reportError } from '@/crashlytics/reportError';
 import { getCachedInstalledApps, invalidateInstalledAppsCache, loadInstalledApps } from '@/domain/installedAppsCatalog';
 import type { ManageApp } from '@/domain/types';
 import { selectedAppsStore } from '@/store';
@@ -24,6 +25,9 @@ export const useInstalledAppsCatalog = () => {
       const apps = await loadInstalledApps(force);
       selectedAppsStore.getState().syncSelectedAppsMetadata(apps);
       setInstalledApps(apps);
+    } catch (error) {
+      reportError(error);
+      throw error;
     } finally {
       if (trackCatalogLoading) {
         setIsLoadingApps(false);

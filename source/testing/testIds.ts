@@ -9,6 +9,9 @@ export const testIds = {
     loader: 'app-loader',
     usageLoader: 'app-usage-loader',
   },
+  navigation: {
+    lazyScreenLoader: 'lazy-screen-loader',
+  },
   errorBoundary: {
     screen: 'error-boundary-screen',
     retryButton: 'error-boundary-retry-button',

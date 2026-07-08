@@ -66,4 +66,16 @@ class TurboModuleEventDispatchersTest {
 
         assertEquals(false, receivedState)
     }
+
+    @Test
+    fun deliversTrackedUsageChangedToRegisteredListener() {
+        var received = false
+        TurboModuleEventDispatchers.registerTrackedUsageChanged {
+            received = true
+        }
+
+        TurboModuleEventDispatchers.emitTrackedUsageChanged()
+
+        assertTrue(received)
+    }
 }

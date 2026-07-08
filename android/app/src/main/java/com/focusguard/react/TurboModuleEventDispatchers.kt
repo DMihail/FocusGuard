@@ -10,6 +10,7 @@ object TurboModuleEventDispatchers {
     private val permissionsChangedListeners = CopyOnWriteArraySet<() -> Unit>()
     private val localDayChangedListeners = CopyOnWriteArraySet<(dayKey: String) -> Unit>()
     private val monitorServiceStateListeners = CopyOnWriteArraySet<(isRunning: Boolean) -> Unit>()
+    private val trackedUsageChangedListeners = CopyOnWriteArraySet<() -> Unit>()
 
     @Volatile
     private var pendingPermissionsChanged = false
@@ -127,11 +128,40 @@ object TurboModuleEventDispatchers {
         }
     }
 
+    fun registerTrackedUsageChanged(callback: () -> Unit) {
+        trackedUsageChangedListeners.add(callback)
+    }
+
+    fun unregisterTrackedUsageChanged(callback: () -> Unit) {
+        trackedUsageChangedListeners.remove(callback)
+    }
+
+    fun emitTrackedUsageChanged(context: Context) {
+        val application = context.applicationContext as? Application
+        if (application != null) {
+            emitTrackedUsageChanged(application)
+            return
+        }
+
+        emitTrackedUsageChangedOrPending()
+    }
+
+    fun emitTrackedUsageChanged(application: Application) {
+        if (trackedUsageChangedListeners.isEmpty()) {
+            return
+        }
+
+        trackedUsageChangedListeners.forEach { listener ->
+            listener()
+        }
+    }
+
     /** @internal Unit-test reset. */
     internal fun resetForTests() {
         permissionsChangedListeners.clear()
         localDayChangedListeners.clear()
         monitorServiceStateListeners.clear()
+        trackedUsageChangedListeners.clear()
         pendingPermissionsChanged = false
         pendingLocalDayKey = null
         pendingMonitorServiceState = null
@@ -150,6 +180,11 @@ object TurboModuleEventDispatchers {
     /** @internal Unit-test emit without a React [Application]. */
     internal fun emitMonitorServiceState(isRunning: Boolean) {
         emitMonitorServiceStateOrPending(isRunning)
+    }
+
+    /** @internal Unit-test emit without a React [Application]. */
+    internal fun emitTrackedUsageChanged() {
+        emitTrackedUsageChangedOrPending()
     }
 
     private fun emitPermissionsChangedOrPending() {
@@ -182,6 +217,16 @@ object TurboModuleEventDispatchers {
 
         monitorServiceStateListeners.forEach { listener ->
             listener(isRunning)
+        }
+    }
+
+    private fun emitTrackedUsageChangedOrPending() {
+        if (trackedUsageChangedListeners.isEmpty()) {
+            return
+        }
+
+        trackedUsageChangedListeners.forEach { listener ->
+            listener()
         }
     }
 

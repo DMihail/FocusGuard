@@ -62,6 +62,8 @@ jest.mock('@react-navigation/native', () => {
 
 jest.mock('../../../source/specs', () => ({
   getInstalledApplications: async () => mockGetInstalledApplications(),
+  invalidateNativeInstalledAppsCache: jest.fn(),
+  invalidateNativeUsageCache: jest.fn(),
 }));
 
 jest.mock('../../../source/store', () => ({

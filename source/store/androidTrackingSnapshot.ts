@@ -5,7 +5,7 @@ import { NATIVE_TRACKING_SNAPSHOT_KEY, NATIVE_TRACKING_SNAPSHOT_VERSION } from '
 import { selectedAppsStore } from './selectedAppsStore';
 import type { AppLimits } from './types';
 
-export type AndroidTrackingSnapshot = {
+type AndroidTrackingSnapshot = {
   version: number;
   trackedApps: string[];
   limitsByAppKey: Record<string, AppLimits>;

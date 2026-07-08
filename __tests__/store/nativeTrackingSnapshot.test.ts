@@ -10,20 +10,20 @@ jest.mock('@/store/mmkv', () => ({
   zustandStorage: require('../helpers/mockZustandMmkv').mockZustandStorage,
 }));
 
-jest.mock('@/specs/nativeUsageStatsClient', () => ({
-  getNativeUsageStats: jest.fn(),
+jest.mock('@/specs/keeptTurboModuleClient', () => ({
+  getKeeptTurboModule: jest.fn(),
 }));
 
 jest.mock('@/store/platformTrackingSnapshot', () => jest.requireActual('@/store/platformTrackingSnapshot.android'));
 
-import { getNativeUsageStats } from '@/specs/nativeUsageStatsClient';
+import { getKeeptTurboModule } from '@/specs/keeptTurboModuleClient';
 import { buildAndroidTrackingSnapshot } from '@/store/androidTrackingSnapshot';
 import { appLimitsStore } from '@/store/appLimitsStore';
 import { resetNativeTrackingSnapshotSyncForTests, syncNativeTrackingSnapshot } from '@/store/nativeTrackingSnapshot';
 import { NATIVE_TRACKING_SNAPSHOT_KEY } from '@/store/persistSchema';
 import { selectedAppsStore } from '@/store/selectedAppsStore';
 
-const mockGetNativeUsageStats = getNativeUsageStats as jest.MockedFunction<typeof getNativeUsageStats>;
+const mockGetKeeptTurboModule = getKeeptTurboModule as jest.MockedFunction<typeof getKeeptTurboModule>;
 
 describe('nativeTrackingSnapshot (Android)', () => {
   beforeEach(() => {
@@ -31,7 +31,7 @@ describe('nativeTrackingSnapshot (Android)', () => {
     resetNativeTrackingSnapshotSyncForTests();
     selectedAppsStore.setState({ apps: [] });
     appLimitsStore.setState({ limitsByAppKey: {} });
-    mockGetNativeUsageStats.mockReturnValue({ syncTrackingConfig: mockSyncTrackingConfig } as never);
+    mockGetKeeptTurboModule.mockReturnValue({ syncTrackingConfig: mockSyncTrackingConfig } as never);
   });
 
   it('writes a flat snapshot through syncTrackingConfig when the turbo module is available', () => {
@@ -60,7 +60,7 @@ describe('nativeTrackingSnapshot (Android)', () => {
   });
 
   it('falls back to MMKV when the turbo module is unavailable', () => {
-    mockGetNativeUsageStats.mockReturnValue(null);
+    mockGetKeeptTurboModule.mockReturnValue(null);
 
     syncNativeTrackingSnapshot();
 

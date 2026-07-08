@@ -8,13 +8,13 @@ import { selectedAppsStore } from './selectedAppsStore';
 import type { AppLimits } from './types';
 
 /** Per-app limits keyed by a stable token id generated when the user picks apps on iOS. */
-export type IosAppLimits = AppLimits;
+type IosAppLimits = AppLimits;
 
 /**
  * Flat tracking snapshot for iOS DeviceActivity / ManagedSettings.
  * Synced to the App Group via Turbo Module in later phases.
  */
-export type IosTrackingSnapshot = {
+type IosTrackingSnapshot = {
   version: typeof IOS_TRACKING_SNAPSHOT_VERSION;
   platform: 'ios';
   authMode: 'individual';
@@ -22,7 +22,7 @@ export type IosTrackingSnapshot = {
   limitsByTokenId: Record<string, IosAppLimits>;
 };
 
-export const buildIosTrackingSnapshot = (): IosTrackingSnapshot => {
+const buildIosTrackingSnapshot = (): IosTrackingSnapshot => {
   const apps = selectedAppsStore.getState().apps;
   const limitsByAppKey = appLimitsStore.getState().limitsByAppKey;
 

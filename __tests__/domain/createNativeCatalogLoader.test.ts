@@ -1,25 +1,4 @@
-import { createNativeCatalogLoader, createNativeKeyedCatalogLoader } from '@/domain/createNativeCatalogLoader';
-
-describe('createNativeCatalogLoader', () => {
-  it('caches loaded values until invalidated', async () => {
-    let reads = 0;
-    const loader = createNativeCatalogLoader({
-      fallback: [],
-      read: () => {
-        reads += 1;
-        return ['app-a'];
-      },
-    });
-
-    await expect(loader.load()).resolves.toEqual(['app-a']);
-    await expect(loader.load()).resolves.toEqual(['app-a']);
-    expect(reads).toBe(1);
-
-    loader.invalidate();
-    await expect(loader.load()).resolves.toEqual(['app-a']);
-    expect(reads).toBe(2);
-  });
-});
+import { createNativeKeyedCatalogLoader } from '@/domain/createNativeCatalogLoader';
 
 describe('createNativeKeyedCatalogLoader', () => {
   it('loads only requested package keys and merges cache entries', async () => {

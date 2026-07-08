@@ -12,7 +12,7 @@ const readUsageForPackages = async (packageNames: readonly string[]): Promise<Us
 
 const usageStatsCatalog = createNativeKeyedCatalogLoader<UsageByPackage>({
   readKeys: readUsageForPackages,
-  onInvalidate: () => NativeSpecs.invalidateNativeCatalogCaches?.(),
+  onInvalidate: () => NativeSpecs.invalidateNativeUsageCache(),
 });
 
 export const getCachedUsageByPackage = usageStatsCatalog.getCached;

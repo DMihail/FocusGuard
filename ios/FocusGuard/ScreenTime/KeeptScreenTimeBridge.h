@@ -25,6 +25,8 @@ NS_ASSUME_NONNULL_BEGIN
                       resolve:(RCTPromiseResolveBlock)resolve
                        reject:(RCTPromiseRejectBlock)reject;
 + (void)invalidateNativeCatalogCaches;
++ (void)invalidateNativeInstalledAppsCache;
++ (void)invalidateNativeUsageCache;
 
 @end
 

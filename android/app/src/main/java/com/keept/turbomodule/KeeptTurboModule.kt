@@ -24,6 +24,7 @@ import com.focusguard.react.TurboModuleEventDispatchers
 import com.focusguard.usage.LocalDayChangeNotifier
 import com.focusguard.react.ReactNativeMappers
 import com.focusguard.storage.NativeTrackingSnapshot
+import com.focusguard.crashlytics.NativeErrorReporter
 import com.focusguard.widget.WidgetUpdater
 import java.util.concurrent.Executors
 
@@ -44,6 +45,7 @@ class KeeptTurboModule(
   private val emitMonitorServiceStateCallback = { isRunning: Boolean ->
     emitMonitorServiceStateChanged(isRunning)
   }
+  private val emitTrackedUsageChangedCallback = { emitTrackedUsageChanged() }
 
   private val emitPermissionsChangedCallback = { queuePermissionsChangedEmit() }
   private val permissionsLifecycleListener =
@@ -67,6 +69,7 @@ class KeeptTurboModule(
     TurboModuleEventDispatchers.registerPermissionsChanged(emitPermissionsChangedCallback)
     TurboModuleEventDispatchers.registerLocalDayChanged(emitLocalDayChangedCallback)
     TurboModuleEventDispatchers.registerMonitorServiceState(emitMonitorServiceStateCallback)
+    TurboModuleEventDispatchers.registerTrackedUsageChanged(emitTrackedUsageChangedCallback)
     reactApplicationContext.addLifecycleEventListener(permissionsLifecycleListener)
   }
 
@@ -75,6 +78,7 @@ class KeeptTurboModule(
     TurboModuleEventDispatchers.unregisterPermissionsChanged(emitPermissionsChangedCallback)
     TurboModuleEventDispatchers.unregisterLocalDayChanged(emitLocalDayChangedCallback)
     TurboModuleEventDispatchers.unregisterMonitorServiceState(emitMonitorServiceStateCallback)
+    TurboModuleEventDispatchers.unregisterTrackedUsageChanged(emitTrackedUsageChangedCallback)
     reactApplicationContext.removeLifecycleEventListener(permissionsLifecycleListener)
     ioExecutor.shutdown()
     super.invalidate()
@@ -128,6 +132,7 @@ class KeeptTurboModule(
         val apps = installedAppsRepository.getLaunchableApps()
         promise.resolve(ReactNativeMappers.toInstalledAppsArray(apps))
       } catch (error: Exception) {
+        NativeErrorReporter.recordNonFatal(error, "KeeptTurboModule.getInstalledApplications")
         promise.reject("installed_apps_failed", error.message, error)
       }
     }
@@ -146,6 +151,7 @@ class KeeptTurboModule(
             ),
         )
       } catch (error: Exception) {
+        NativeErrorReporter.recordNonFatal(error, "KeeptTurboModule.getPackagesUsageToday")
         promise.reject("usage_stats_failed", error.message, error)
       }
     }
@@ -156,7 +162,15 @@ class KeeptTurboModule(
   override fun getAppVersion(): String = AppInfo.getVersionName()
 
   override fun invalidateNativeCatalogCaches() {
+    invalidateNativeInstalledAppsCache()
+    invalidateNativeUsageCache()
+  }
+
+  override fun invalidateNativeInstalledAppsCache() {
     installedAppsRepository.invalidateCache()
+  }
+
+  override fun invalidateNativeUsageCache() {
     dailyUsageRepository.invalidateCache()
   }
 
@@ -193,6 +207,8 @@ class KeeptTurboModule(
               putDouble("changedAtMs", System.currentTimeMillis().toDouble())
             },
         )
+      }.onFailure { error ->
+        NativeErrorReporter.recordNonFatal(error, "KeeptTurboModule.emitOnPermissionsChanged")
       }
     }
   }
@@ -213,6 +229,8 @@ class KeeptTurboModule(
         )
       }.onSuccess {
         LocalDayChangeNotifier.markDayChangeNotified(dayKey)
+      }.onFailure { error ->
+        NativeErrorReporter.recordNonFatal(error, "KeeptTurboModule.emitOnLocalDayChanged")
       }
     }
   }
@@ -231,6 +249,26 @@ class KeeptTurboModule(
               putDouble("changedAtMs", System.currentTimeMillis().toDouble())
             },
         )
+      }.onFailure { error ->
+        NativeErrorReporter.recordNonFatal(error, "KeeptTurboModule.emitOnMonitorServiceStateChanged")
+      }
+    }
+  }
+
+  private fun emitTrackedUsageChanged() {
+    reactApplicationContext.runOnUiQueueThread {
+      if (!reactApplicationContext.hasActiveReactInstance()) {
+        return@runOnUiQueueThread
+      }
+
+      runCatching {
+        emitOnTrackedUsageChanged(
+            Arguments.createMap().apply {
+              putDouble("changedAtMs", System.currentTimeMillis().toDouble())
+            },
+        )
+      }.onFailure { error ->
+        NativeErrorReporter.recordNonFatal(error, "KeeptTurboModule.emitOnTrackedUsageChanged")
       }
     }
   }

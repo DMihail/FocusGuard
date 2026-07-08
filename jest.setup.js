@@ -221,14 +221,18 @@ jest.mock('@/i18n', () => {
 const mockPermissionsChangedSubscription = { remove: jest.fn() };
 const mockNativeEventSubscription = jest.fn();
 
-jest.mock('@/specs/nativeUsageStatsClient', () => ({
-  getNativeUsageStats: jest.fn(() => ({
+jest.mock('@/specs/keeptTurboModuleClient', () => ({
+  getKeeptTurboModule: jest.fn(() => ({
     onPermissionsChanged: jest.fn(() => mockPermissionsChangedSubscription),
     onLocalDayChanged: jest.fn((listener) => {
       mockNativeEventSubscription(listener);
       return mockPermissionsChangedSubscription;
     }),
     onMonitorServiceStateChanged: jest.fn((listener) => {
+      mockNativeEventSubscription(listener);
+      return mockPermissionsChangedSubscription;
+    }),
+    onTrackedUsageChanged: jest.fn((listener) => {
       mockNativeEventSubscription(listener);
       return mockPermissionsChangedSubscription;
     }),
@@ -250,6 +254,8 @@ jest.mock('@/specs/nativeUsageStatsClient', () => ({
     getAppDisplayName: jest.fn(() => ''),
     getAppVersion: jest.fn(() => ''),
     invalidateNativeCatalogCaches: jest.fn(),
+    invalidateNativeInstalledAppsCache: jest.fn(),
+    invalidateNativeUsageCache: jest.fn(),
     syncTrackingConfig: jest.fn(),
     requestScreenTimeAuthorization: jest.fn(async () => true),
     presentFamilyActivityPicker: jest.fn(async () => []),

@@ -26,7 +26,7 @@ class MainActivity : ReactActivity() {
     installSplashScreen()
     supportFragmentManager.fragmentFactory = RNScreensFragmentFactory()
     // Screen fragments must not be restored from saved state (react-native-screens).
-    super.onCreate(null)
+    super.onCreate(savedInstanceState)
     applySystemChromeColors()
     resumeMonitoringAfterBootIfNeeded()
   }

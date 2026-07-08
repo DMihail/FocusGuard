@@ -31,15 +31,42 @@ class LiveUsageEstimator(
         sessionStartedAtMs = 0L
     }
 
-    fun getEffectiveUsageMs(packageName: String): Long {
-        if (sessionPackage == packageName && sessionStartedAtMs > 0L) {
-            val baselineMs = baselineMsByPackage[packageName] ?: 0L
-            val sessionMs = (System.currentTimeMillis() - sessionStartedAtMs).coerceAtLeast(0L)
-            return baselineMs + sessionMs
+    /** Clears stale per-package baselines after a local day rollover. */
+    fun clearBaselinesForNewDay() {
+        flushActiveSession()
+        baselineMsByPackage.clear()
+        sessionPackage = null
+        sessionStartedAtMs = 0L
+    }
+
+    fun getEffectiveUsageMs(packageName: String): Long =
+        getEffectiveUsageMsForPackages(setOf(packageName))[packageName] ?: 0L
+
+    /** Batches one [DailyUsageRepository] read for all non-active packages. */
+    fun getEffectiveUsageMsForPackages(packageNames: Set<String>): Map<String, Long> {
+        if (packageNames.isEmpty()) {
+            return emptyMap()
         }
 
-        val persistedMs = dailyUsageRepository.getTodayForegroundMs(packageName)
-        return maxOf(persistedMs, baselineMsByPackage[packageName] ?: 0L)
+        val activePackage = sessionPackage
+        val inactivePackages = packageNames.filter { packageName -> packageName != activePackage }
+        val persistedByPackage =
+            if (inactivePackages.isEmpty()) {
+                emptyMap()
+            } else {
+                dailyUsageRepository.getTodayForegroundMsForPackages(inactivePackages)
+            }
+
+        return packageNames.associateWith { packageName ->
+            if (packageName == activePackage && sessionStartedAtMs > 0L) {
+                val baselineMs = baselineMsByPackage[packageName] ?: 0L
+                val sessionMs = (System.currentTimeMillis() - sessionStartedAtMs).coerceAtLeast(0L)
+                baselineMs + sessionMs
+            } else {
+                val persistedMs = persistedByPackage[packageName] ?: 0L
+                maxOf(persistedMs, baselineMsByPackage[packageName] ?: 0L)
+            }
+        }
     }
 
     private fun flushActiveSession() {

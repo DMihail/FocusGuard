@@ -108,6 +108,15 @@ final class KeeptScreenTimeBridge: NSObject {
   }
 
   @objc static func invalidateNativeCatalogCaches() {
+    invalidateNativeInstalledAppsCache()
+    invalidateNativeUsageCache()
+  }
+
+  @objc static func invalidateNativeInstalledAppsCache() {
+    // Selection payload is rebuilt on the next getInstalledApplications call.
+  }
+
+  @objc static func invalidateNativeUsageCache() {
     // Usage totals are refreshed on the next getPackagesUsageToday call.
   }
 }

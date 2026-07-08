@@ -13,6 +13,7 @@ import com.focusguard.monitor.ForegroundStabilizer
 import com.focusguard.monitor.MonitorPermissions
 import com.focusguard.monitor.MonitoringStateRepository
 import com.focusguard.monitor.NotificationPermissions
+import com.focusguard.monitor.TrackedUsageChangeEmitter
 import com.focusguard.monitor.TrackingEnginePoll
 import com.focusguard.navigation.DeepLinks
 import com.focusguard.notification.KeeptNotifications
@@ -27,6 +28,8 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
 /**
  * Monitors tracked apps using **daily** usage from [DailyUsageRepository] and
@@ -46,6 +49,7 @@ class TrackingEngine(
 
     private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
     private var monitoringJob: Job? = null
+    private val monitorMutex = Mutex()
 
     private val foregroundStabilizer = ForegroundStabilizer()
 
@@ -66,7 +70,9 @@ class TrackingEngine(
             UsageEventsForegroundObserver.createIfSupported(context) {
                 scope.launch {
                     try {
-                        monitorForegroundApp()
+                        monitorMutex.withLock {
+                            monitorForegroundApp()
+                        }
                     } catch (error: Exception) {
                         handleMonitorFailure(error)
                     }
@@ -78,7 +84,9 @@ class TrackingEngine(
         monitoringJob = scope.launch {
             while (isActive) {
                 try {
-                    monitorForegroundApp()
+                    monitorMutex.withLock {
+                        monitorForegroundApp()
+                    }
                 } catch (error: Exception) {
                     handleMonitorFailure(error)
                     break
@@ -86,6 +94,12 @@ class TrackingEngine(
                 delay(resolvePollIntervalMs())
             }
         }
+    }
+
+    /** Clears live-session baselines after a local day rollover. */
+    fun onLocalDayChanged() {
+        liveUsageEstimator.clearBaselinesForNewDay()
+        TrackedUsageChangeEmitter.onLocalDayChanged()
     }
 
     private fun resolvePollIntervalMs(): Long =
@@ -127,12 +141,13 @@ class TrackingEngine(
         if (foregroundApp == null) {
             val blockedPackage = activeBlockPackage
             if (blockedPackage != null && isTrackedApp(blockedPackage)) {
-                evaluateTrackedApp(
-                    blockedPackage,
-                    liveUsageEstimator.getEffectiveUsageMs(blockedPackage),
-                )
+                val usedTodayMs = liveUsageEstimator.getEffectiveUsageMs(blockedPackage)
+                evaluateTrackedApp(blockedPackage, usedTodayMs)
+                publishWidgetUpdate(blockedPackage to usedTodayMs)
+                publishTrackedUsageChanged(urgent = false)
+            } else {
+                publishWidgetUpdate()
             }
-            publishWidgetUpdate()
             return
         }
 
@@ -155,18 +170,38 @@ class TrackingEngine(
             if (activeBlockPackage != null && activeBlockPackage != foregroundApp) {
                 clearActiveBlock()
             }
-            if (previousStable != null && isTrackedApp(previousStable)) {
-                usageRepository.invalidatePackages(setOf(previousStable))
+
+            val packagesToRefresh =
+                buildSet {
+                    if (previousStable != null && isTrackedApp(previousStable)) {
+                        add(previousStable)
+                    }
+                    add(foregroundApp)
+                }
+
+            if (packagesToRefresh.isNotEmpty()) {
+                usageRepository.invalidatePackages(packagesToRefresh)
             }
-            usageRepository.invalidatePackages(setOf(foregroundApp))
+
             liveUsageEstimator.onTrackedAppForeground(foregroundApp)
         }
 
-        evaluateTrackedApp(foregroundApp, liveUsageEstimator.getEffectiveUsageMs(foregroundApp))
-        publishWidgetUpdate()
+        val usedTodayMs = liveUsageEstimator.getEffectiveUsageMs(foregroundApp)
+        evaluateTrackedApp(foregroundApp, usedTodayMs)
+        publishWidgetUpdate(foregroundApp to usedTodayMs)
+        publishTrackedUsageChanged(enteredNewForeground)
     }
 
-    private fun publishWidgetUpdate() {
+    private fun publishTrackedUsageChanged(urgent: Boolean) {
+        if (trackedApps.isEmpty()) {
+            return
+        }
+
+        val usageByPackage = liveUsageEstimator.getEffectiveUsageMsForPackages(trackedApps)
+        TrackedUsageChangeEmitter.maybeEmit(context, usageByPackage, urgent = urgent)
+    }
+
+    private fun publishWidgetUpdate(foregroundUsageOverride: Pair<String, Long>? = null) {
         if (WidgetUpdater.shouldSkipUsagePrecomputation()) {
             return
         }
@@ -175,8 +210,12 @@ class TrackingEngine(
             if (trackedApps.isEmpty()) {
                 null
             } else {
-                trackedApps.associateWith { packageName ->
-                    liveUsageEstimator.getEffectiveUsageMs(packageName)
+                val effectiveUsage = liveUsageEstimator.getEffectiveUsageMsForPackages(trackedApps)
+
+                if (foregroundUsageOverride != null) {
+                    effectiveUsage + mapOf(foregroundUsageOverride.first to foregroundUsageOverride.second)
+                } else {
+                    effectiveUsage
                 }
             }
         val foregroundPackage = foregroundStabilizer.stableForeground

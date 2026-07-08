@@ -1,20 +1,17 @@
 /** @format */
 
-import React, { Activity, memo, useMemo } from 'react';
+import React, { memo, useMemo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-
-import Animated, { interpolate, type SharedValue, useAnimatedStyle } from 'react-native-reanimated';
 
 import { Shield } from '@/assets/svg/Onboarding';
 import { getAppDisplayName } from '@/constants/appDisplayName';
-import { splashDotPulseMin, useSplashDotPulse } from '@/hooks/useSplashDotPulse';
 import { useTranslation } from '@/i18n';
 import { testIds } from '@/testing/testIds';
 import { borderRadius, fontSize, lineHeight, spacing, typography } from '@/theme';
 import type { Theme } from '@/theme/types';
 import { useSystemTheme } from '@/theme/useSystemTheme';
 
-const SPLASH_DOT_COUNT = 3;
+import { LoadingDots } from '@/components/LoadingDots';
 
 const createSplashBrandingStyles = ({ colors }: Theme) =>
   StyleSheet.create({
@@ -60,66 +57,7 @@ const createSplashBrandingStyles = ({ colors }: Theme) =>
     dots: {
       marginTop: spacing.md,
     },
-    dotsRow: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: spacing.sm,
-    },
-    dot: {
-      width: 8,
-      height: 8,
-      borderRadius: borderRadius.pill,
-      backgroundColor: colors.accent,
-    },
   });
-
-type SplashPulseDotProps = {
-  pulse: SharedValue<number>;
-  dotStyle: { width: number; height: number; borderRadius: number; backgroundColor: string };
-};
-
-const SplashPulseDot = memo(({ pulse, dotStyle }: SplashPulseDotProps) => {
-  const animatedStyle = useAnimatedStyle(() => ({
-    opacity: pulse.value,
-    transform: [
-      {
-        scale: interpolate(pulse.value, [splashDotPulseMin, 1], [0.85, 1.15]),
-      },
-    ],
-  }));
-
-  return <Animated.View style={[dotStyle, animatedStyle]} />;
-});
-
-SplashPulseDot.displayName = 'SplashPulseDot';
-
-type SplashLoadingDotsProps = {
-  dotStyle: SplashPulseDotProps['dotStyle'];
-  dotsRowStyle: { flexDirection: 'row'; alignItems: 'center'; gap: number };
-};
-
-const SplashLoadingDots = ({ dotStyle, dotsRowStyle }: SplashLoadingDotsProps) => {
-  const { isReducedMotion, pulseValues } = useSplashDotPulse(SPLASH_DOT_COUNT);
-
-  return (
-    <View accessible={false}>
-      <Activity mode={isReducedMotion ? 'hidden' : 'visible'}>
-        <View style={dotsRowStyle}>
-          {pulseValues.map((pulse, index) => (
-            <SplashPulseDot key={index} pulse={pulse} dotStyle={dotStyle} />
-          ))}
-        </View>
-      </Activity>
-      <Activity mode={isReducedMotion ? 'visible' : 'hidden'}>
-        <View style={dotsRowStyle}>
-          {Array.from({ length: SPLASH_DOT_COUNT }, (_, index) => (
-            <View key={index} style={dotStyle} />
-          ))}
-        </View>
-      </Activity>
-    </View>
-  );
-};
 
 export const SplashBranding = memo(() => {
   const theme = useSystemTheme();
@@ -148,7 +86,7 @@ export const SplashBranding = memo(() => {
         <Text style={styles.subtitle}>{t('branding.tagline')}</Text>
 
         <View style={styles.dots}>
-          <SplashLoadingDots dotStyle={styles.dot} dotsRowStyle={styles.dotsRow} />
+          <LoadingDots />
         </View>
       </View>
     </View>

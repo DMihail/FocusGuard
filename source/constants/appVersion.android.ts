@@ -1,6 +1,6 @@
 /** @format */
 
-import { getAppVersion as getNativeAppVersion } from '@/specs/nativeUsageStatsApi';
+import { getAppVersion as getNativeAppVersion } from '@/specs/keeptTurboModuleApi';
 
 import { version } from '../../package.json';
 

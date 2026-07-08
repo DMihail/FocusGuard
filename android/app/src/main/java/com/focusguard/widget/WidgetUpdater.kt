@@ -139,9 +139,7 @@ object WidgetUpdater {
         now: Long,
         snapshot: PendingWidgetUpdate,
     ) {
-        if (deferredRunnable != null) {
-            return
-        }
+        cancelDeferredUpdate()
 
         val delayMs = remainingThrottleMs(now, snapshot).coerceAtLeast(0L)
         val appContext = context.applicationContext

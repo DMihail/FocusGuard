@@ -4,7 +4,7 @@ const mockCheckForPermission = jest.fn();
 const mockCheckForNotificationsPermission = jest.fn();
 const mockRequestUsageStatsPermission = jest.fn();
 
-jest.mock('@/specs/nativeUsageStatsApi.ios', () => ({
+jest.mock('@/specs/keeptTurboModuleApi.ios', () => ({
   checkForPermission: (...args: unknown[]) => mockCheckForPermission(...args),
   checkForSystemAlertWindowPermission: jest.fn(() => false),
   checkForNotificationsPermission: (...args: unknown[]) => mockCheckForNotificationsPermission(...args),

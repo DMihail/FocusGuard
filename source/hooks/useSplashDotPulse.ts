@@ -18,8 +18,6 @@ const DOT_PULSE_MIN = 0.35;
 const DOT_PULSE_DURATION_MS = 360;
 const DOT_STAGGER_MS = 120;
 
-export const splashDotPulseMin = DOT_PULSE_MIN;
-
 const pulseTimingConfig = {
   duration: DOT_PULSE_DURATION_MS,
   easing: Easing.inOut(Easing.ease),
@@ -27,6 +25,7 @@ const pulseTimingConfig = {
 
 type SplashDotPulseResult = {
   isReducedMotion: boolean;
+  pulseMin: number;
   pulseValues: SharedValue<number>[];
 };
 
@@ -63,6 +62,7 @@ export const useSplashDotPulse = (dotCount: number): SplashDotPulseResult => {
 
   return {
     isReducedMotion,
+    pulseMin: DOT_PULSE_MIN,
     pulseValues: pulseValues.current ?? [],
   };
 };
