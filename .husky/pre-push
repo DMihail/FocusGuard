@@ -11,4 +11,4 @@ if [ -z "$files" ]; then
 fi
 
 # shellcheck disable=SC2086
-npm test -- --watchman=false --forceExit --findRelatedTests --passWithNoTests $files
+npm test -- --watchman=false --findRelatedTests --passWithNoTests $files

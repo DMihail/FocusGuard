@@ -13,27 +13,40 @@ type TrackedUsageSetState = (
   partial: Partial<TrackedUsageStore> | ((state: TrackedUsageStore) => Partial<TrackedUsageStore> | TrackedUsageStore),
 ) => void;
 
-let hasSeededFromCache = false;
-let refreshWaiterCount = 0;
-let usageDayKey: string | null = null;
-let pendingRefreshKeys = new Set<string>();
-let pendingRefreshForce = false;
-let refreshDrainPromise: Promise<void> | null = null;
+type RefreshCoordinatorState = {
+  hasSeededFromCache: boolean;
+  refreshWaiterCount: number;
+  usageDayKey: string | null;
+  pendingRefreshKeys: Set<string>;
+  pendingRefreshForce: boolean;
+  refreshDrainPromise: Promise<void> | null;
+};
+
+const createCoordinatorState = (): RefreshCoordinatorState => ({
+  hasSeededFromCache: false,
+  refreshWaiterCount: 0,
+  usageDayKey: null,
+  pendingRefreshKeys: new Set<string>(),
+  pendingRefreshForce: false,
+  refreshDrainPromise: null,
+});
+
+const coordinatorState: RefreshCoordinatorState = createCoordinatorState();
 
 export const resetTrackedUsageSeedForTests = (): void => {
-  hasSeededFromCache = false;
-  usageDayKey = null;
+  coordinatorState.hasSeededFromCache = false;
+  coordinatorState.usageDayKey = null;
 };
 
 export const resetTrackedUsageRefreshForTests = (): void => {
-  refreshWaiterCount = 0;
-  pendingRefreshKeys = new Set();
-  pendingRefreshForce = false;
-  refreshDrainPromise = null;
+  coordinatorState.refreshWaiterCount = 0;
+  coordinatorState.pendingRefreshKeys = new Set();
+  coordinatorState.pendingRefreshForce = false;
+  coordinatorState.refreshDrainPromise = null;
 };
 
 const resetUsageForNewDay = (): void => {
-  hasSeededFromCache = false;
+  coordinatorState.hasSeededFromCache = false;
   invalidateUsageStatsCache();
   trackedUsageStore.setState({ usageByPackage: {} });
 };
@@ -42,11 +55,11 @@ const resetUsageForNewDay = (): void => {
 export const ensureCurrentUsageDay = (): boolean => {
   const today = getLocalDayKey();
 
-  if (usageDayKey === today) {
+  if (coordinatorState.usageDayKey === today) {
     return false;
   }
 
-  usageDayKey = today;
+  coordinatorState.usageDayKey = today;
   resetUsageForNewDay();
 
   return true;
@@ -55,11 +68,11 @@ export const ensureCurrentUsageDay = (): boolean => {
 const seedUsageFromCache = (): void => {
   ensureCurrentUsageDay();
 
-  if (hasSeededFromCache) {
+  if (coordinatorState.hasSeededFromCache) {
     return;
   }
 
-  hasSeededFromCache = true;
+  coordinatorState.hasSeededFromCache = true;
 
   const cached = getCachedUsageByPackage();
   const appKeys = selectedAppsStore.getState().apps.map((app) => getManageAppKey(app));
@@ -143,12 +156,12 @@ const runRefreshBatch = async (
 
 const drainPendingRefresh = (set: TrackedUsageSetState): Promise<void> => {
   const run = async (): Promise<void> => {
-    while (pendingRefreshKeys.size > 0) {
-      const packageNames = [...pendingRefreshKeys];
-      const force = pendingRefreshForce;
+    while (coordinatorState.pendingRefreshKeys.size > 0) {
+      const packageNames = [...coordinatorState.pendingRefreshKeys];
+      const force = coordinatorState.pendingRefreshForce;
 
-      pendingRefreshKeys = new Set();
-      pendingRefreshForce = false;
+      coordinatorState.pendingRefreshKeys = new Set();
+      coordinatorState.pendingRefreshForce = false;
 
       await runRefreshBatch(packageNames, force, set);
     }
@@ -169,32 +182,32 @@ export const trackedUsageStore = create<TrackedUsageStore>((set) => ({
     }
 
     for (const appKey of packageNames) {
-      pendingRefreshKeys.add(appKey);
+      coordinatorState.pendingRefreshKeys.add(appKey);
     }
 
-    pendingRefreshForce = pendingRefreshForce || force;
+    coordinatorState.pendingRefreshForce = coordinatorState.pendingRefreshForce || force;
 
-    refreshWaiterCount += 1;
+    coordinatorState.refreshWaiterCount += 1;
 
-    if (refreshWaiterCount === 1) {
+    if (coordinatorState.refreshWaiterCount === 1) {
       set({ isRefreshingUsage: true });
     }
 
-    if (!refreshDrainPromise) {
-      refreshDrainPromise = Promise.resolve()
+    if (!coordinatorState.refreshDrainPromise) {
+      coordinatorState.refreshDrainPromise = Promise.resolve()
         .then(() => drainPendingRefresh(set))
         .finally(() => {
-          refreshDrainPromise = null;
+          coordinatorState.refreshDrainPromise = null;
         });
     }
 
     try {
-      await refreshDrainPromise;
+      await coordinatorState.refreshDrainPromise;
     } finally {
-      refreshWaiterCount -= 1;
+      coordinatorState.refreshWaiterCount -= 1;
 
-      if (refreshWaiterCount <= 0) {
-        refreshWaiterCount = 0;
+      if (coordinatorState.refreshWaiterCount <= 0) {
+        coordinatorState.refreshWaiterCount = 0;
         set({ isRefreshingUsage: false });
       }
     }

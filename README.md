@@ -335,18 +335,15 @@ Contract source of truth: `source/store/persistSchema.ts` ↔ `android/.../Persi
 
 ## npm scripts
 
-| Script                              | Description                              |
-| ----------------------------------- | ---------------------------------------- |
-| `npm start`                         | Metro bundler                            |
-| `npm run android` / `npm run ios`   | Run on device / simulator                |
-| `npm run check`                     | CI gate: lint, format, types, tests      |
-| `npm test`                          | Jest                                     |
-| `npm run lint` / `npm run lint:fix` | ESLint                                   |
-| `npm run format` / `format:check`   | Prettier                                 |
-| `npm run typecheck`                 | `tsc --noEmit`                           |
-| `npm run android:bundle:release`    | Release AAB                              |
-| `npm run android:assemble:release`  | Release APK                              |
-| `npm run android:release:check`     | Requires `keystore.properties` + `check` |
+| Script                             | Description                              |
+| ---------------------------------- | ---------------------------------------- |
+| `npm start`                        | Metro bundler                            |
+| `npm run android` / `npm run ios`  | Run on device / simulator                |
+| `npm run check`                    | CI gate: lint, format, types, tests      |
+| `npm test`                         | Jest                                     |
+| `npm run android:bundle:release`   | Release AAB                              |
+| `npm run android:assemble:release` | Release APK                              |
+| `npm run android:release:check`    | Requires `keystore.properties` + `check` |
 
 **Git hooks:** pre-commit runs lint-staged on staged files; pre-push runs Jest `--findRelatedTests` for changed TS/JS
 only (full gate is in CI).
