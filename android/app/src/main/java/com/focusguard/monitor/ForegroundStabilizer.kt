@@ -47,7 +47,8 @@ internal class ForegroundStabilizer(
     }
 
     companion object {
-        const val STABLE_POLLS = 1
+        /** Require two consecutive polls before switching to a different package. */
+        const val STABLE_POLLS = 2
         const val MISS_POLLS = 3
     }
 }

@@ -14,9 +14,18 @@ class ForegroundStabilizerTest {
     }
 
     @Test
+    fun `default stabilizer requires two polls before switching package`() {
+        val stabilizer = ForegroundStabilizer()
+
+        assertNull(stabilizer.resolve("com.example.app"))
+        assertEquals("com.example.app", stabilizer.resolve("com.example.app"))
+    }
+
+    @Test
     fun `clears stable foreground after consecutive misses`() {
         val stabilizer = ForegroundStabilizer()
 
+        stabilizer.resolve("com.example.app")
         stabilizer.resolve("com.example.app")
         assertEquals("com.example.app", stabilizer.stableForeground)
 
@@ -31,6 +40,7 @@ class ForegroundStabilizerTest {
     @Test
     fun `reset clears debounce state`() {
         val stabilizer = ForegroundStabilizer()
+        stabilizer.resolve("com.example.app")
         stabilizer.resolve("com.example.app")
 
         stabilizer.reset()

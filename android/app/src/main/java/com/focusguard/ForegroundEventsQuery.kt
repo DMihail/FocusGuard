@@ -15,11 +15,14 @@ internal object ForegroundEventsQuery {
     private var cachedPackage: String? = null
 
     @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
-    fun queryLatestResumedPackage(usageStatsManager: UsageStatsManager): String? {
+    fun queryLatestResumedPackage(
+        usageStatsManager: UsageStatsManager,
+        bypassCoalesce: Boolean = false,
+    ): String? {
         val now = System.currentTimeMillis()
         val cached = cachedPackage
 
-        if (cached != null && now - cachedAtMs <= COALESCE_MS) {
+        if (!bypassCoalesce && cached != null && now - cachedAtMs <= COALESCE_MS) {
             return cached
         }
 

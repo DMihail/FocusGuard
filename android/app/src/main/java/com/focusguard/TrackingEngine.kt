@@ -134,62 +134,112 @@ class TrackingEngine(
         }
 
         trackedApps = TrackingConfigRepository.getTrackedAppsSet()
+        detector.aggressivePolling = activeBlockPackage != null
+
+        val openSessions = detector.getOpenForegroundPackages()
+        val trackedOpenSessions = openSessions.filter { packageName -> isTrackedApp(packageName) }.toSet()
 
         val previousStable = foregroundStabilizer.stableForeground
         val foregroundApp = foregroundStabilizer.resolve(detector.getForegroundApp())
+        val enteredNewForeground = foregroundApp != null && foregroundApp != previousStable
 
-        if (foregroundApp == null) {
-            val blockedPackage = activeBlockPackage
-            if (blockedPackage != null && isTrackedApp(blockedPackage)) {
-                val usedTodayMs = liveUsageEstimator.getEffectiveUsageMs(blockedPackage)
-                evaluateTrackedApp(blockedPackage, usedTodayMs)
-                publishWidgetUpdate(blockedPackage to usedTodayMs)
-                publishTrackedUsageChanged(urgent = false)
-            } else {
-                publishWidgetUpdate()
-            }
-            return
+        val packagesToEvaluate = linkedSetOf<String>()
+        packagesToEvaluate.addAll(trackedOpenSessions)
+        if (foregroundApp != null && isTrackedApp(foregroundApp)) {
+            packagesToEvaluate.add(foregroundApp)
         }
 
-        val enteredNewForeground = foregroundApp != previousStable
-
-        if (!isTrackedApp(foregroundApp)) {
-            if (previousStable != null && isTrackedApp(previousStable)) {
-                usageRepository.invalidatePackages(setOf(previousStable))
-            }
-            liveUsageEstimator.clearSession()
-
-            if (activeBlockPackage != null && foregroundApp != activeBlockPackage) {
-                clearActiveBlock()
-            }
-            publishWidgetUpdate()
-            return
+        for (packageName in packagesToEvaluate) {
+            ensureLiveSession(packageName)
+            val usedTodayMs = liveUsageEstimator.getEffectiveUsageMs(packageName)
+            evaluateTrackedApp(packageName, usedTodayMs)
         }
 
-        if (enteredNewForeground) {
-            if (activeBlockPackage != null && activeBlockPackage != foregroundApp) {
-                clearActiveBlock()
-            }
+        if (
+            activeBlockPackage != null &&
+            activeBlockPackage !in openSessions &&
+            activeBlockPackage != foregroundApp
+        ) {
+            clearActiveBlock()
+        }
 
-            val packagesToRefresh =
-                buildSet {
-                    if (previousStable != null && isTrackedApp(previousStable)) {
-                        add(previousStable)
+        when {
+            foregroundApp != null && isTrackedApp(foregroundApp) -> {
+                if (enteredNewForeground) {
+                    if (
+                        activeBlockPackage != null &&
+                        activeBlockPackage != foregroundApp &&
+                        activeBlockPackage !in openSessions
+                    ) {
+                        clearActiveBlock()
                     }
-                    add(foregroundApp)
+                    invalidateUsageOnForegroundSwitch(previousStable, foregroundApp)
                 }
-
-            if (packagesToRefresh.isNotEmpty()) {
-                usageRepository.invalidatePackages(packagesToRefresh)
             }
 
-            liveUsageEstimator.onTrackedAppForeground(foregroundApp)
+            foregroundApp != null && !isTrackedApp(foregroundApp) -> {
+                handleUntrackedForeground(previousStable, openSessions)
+            }
+
+            foregroundApp == null && trackedOpenSessions.isEmpty() && activeBlockPackage == null -> {
+                liveUsageEstimator.clearSession()
+            }
         }
 
-        val usedTodayMs = liveUsageEstimator.getEffectiveUsageMs(foregroundApp)
-        evaluateTrackedApp(foregroundApp, usedTodayMs)
-        publishWidgetUpdate(foregroundApp to usedTodayMs)
-        publishTrackedUsageChanged(enteredNewForeground)
+        val widgetPackage =
+            foregroundApp?.takeIf { packageName -> isTrackedApp(packageName) }
+                ?: trackedOpenSessions.firstOrNull()
+                ?: activeBlockPackage?.takeIf { packageName -> isTrackedApp(packageName) }
+
+        if (widgetPackage != null) {
+            publishWidgetUpdate(widgetPackage to liveUsageEstimator.getEffectiveUsageMs(widgetPackage))
+        } else {
+            publishWidgetUpdate()
+        }
+
+        publishTrackedUsageChanged(
+            enteredNewForeground && foregroundApp?.let(::isTrackedApp) == true,
+        )
+    }
+
+    private fun handleUntrackedForeground(
+        previousStable: String?,
+        openSessions: Set<String>,
+    ) {
+        if (previousStable != null && isTrackedApp(previousStable) && previousStable !in openSessions) {
+            usageRepository.invalidatePackages(setOf(previousStable))
+        }
+
+        if (activeBlockPackage != null && activeBlockPackage !in openSessions) {
+            clearActiveBlock()
+        }
+
+        if (openSessions.none { packageName -> isTrackedApp(packageName) }) {
+            liveUsageEstimator.clearSession()
+        }
+    }
+
+    private fun invalidateUsageOnForegroundSwitch(
+        previousStable: String?,
+        foregroundApp: String,
+    ) {
+        val packagesToRefresh =
+            buildSet {
+                if (previousStable != null && isTrackedApp(previousStable)) {
+                    add(previousStable)
+                }
+                add(foregroundApp)
+            }
+
+        if (packagesToRefresh.isNotEmpty()) {
+            usageRepository.invalidatePackages(packagesToRefresh)
+        }
+    }
+
+    private fun ensureLiveSession(packageName: String) {
+        if (!liveUsageEstimator.isSessionActiveFor(packageName)) {
+            liveUsageEstimator.onTrackedAppForeground(packageName)
+        }
     }
 
     private fun publishTrackedUsageChanged(urgent: Boolean) {
@@ -292,7 +342,9 @@ class TrackingEngine(
                     limits.strictMode,
                 )
 
-            if (!shown) {
+            if (shown) {
+                BlockOverlayManager.sendUserHome(context)
+            } else {
                 logDebug("Block overlay not visible for $packageName — will retry on next poll")
             }
         }

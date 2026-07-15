@@ -73,6 +73,16 @@ object BlockOverlayManager {
         detachOverlay()
     }
 
+    /** Sends the user to the home screen to reduce PiP / multi-window bypass of the overlay. */
+    fun sendUserHome(context: Context) {
+        context.applicationContext.startActivity(
+            Intent(Intent.ACTION_MAIN).apply {
+                addCategory(Intent.CATEGORY_HOME)
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            },
+        )
+    }
+
     private fun attachOverlay(
         context: Context,
         packageName: String,
