@@ -12,6 +12,12 @@ internal class ForegroundStabilizer(
     private var foregroundCandidateHits = 0
     private var foregroundMisses = 0
 
+    /** True while a new package is debouncing before promotion to [stableForeground]. */
+    fun hasPendingSwitch(): Boolean =
+        foregroundCandidate != null &&
+            foregroundCandidate != stableForeground &&
+            foregroundCandidateHits > 0
+
     fun resolve(raw: String?): String? {
         if (raw == null) {
             foregroundMisses++
@@ -47,7 +53,8 @@ internal class ForegroundStabilizer(
     }
 
     companion object {
-        const val STABLE_POLLS = 1
+        /** Require two consecutive polls before switching to a different package. */
+        const val STABLE_POLLS = 2
         const val MISS_POLLS = 3
     }
 }

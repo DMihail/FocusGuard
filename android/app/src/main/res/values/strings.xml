@@ -1,7 +1,5 @@
 <resources>
     <string name="app_name" translatable="false">Keept</string>
-    <string name="app_short_description">Reduce screen time with per-app limits, warnings, and focus blocks.</string>
-    <string name="app_full_description">Keept helps you stay focused by tracking distracting apps, warning you before limits are reached, and blocking access when daily limits are exceeded. Set per-app warning and hard-block thresholds, enable strict mode, and monitor your focus score from a simple dashboard. All limits and usage data stay on your device — no account required.</string>
     <string name="monitor_notification_channel_name">Focus monitoring</string>
     <string name="monitor_notification_channel_description">Keeps Keept active to enforce app limits</string>
     <string name="monitor_notification_title">Keept is active</string>
@@ -17,6 +15,13 @@
     <string name="block_overlay_message">Step away for a moment and restore your focus.</string>
     <string name="block_overlay_snooze">5 more minutes</string>
     <string name="block_overlay_home">Go to Home</string>
+    <string name="block_overlay_pip_note">If the app still appears in a small window or split screen, close it manually — Android may keep it above the block screen.</string>
+    <string name="block_notification_channel_name">App blocks</string>
+    <string name="block_notification_channel_description">Alerts when a daily limit is reached and the block screen needs attention</string>
+    <string name="block_notification_title">Daily limit reached</string>
+    <string name="block_notification_text">%s is blocked for today</string>
+    <string name="block_notification_details">%s reached its daily limit. Close the app or return to Home. If it stays in picture-in-picture or split screen, dismiss that window manually.</string>
+    <string name="block_notification_supplemental_text">%s may still be visible — close PiP or split screen</string>
     <string name="boot_resume_notification_channel_name">Monitoring resume</string>
     <string name="boot_resume_notification_channel_description">Alerts when Keept needs to be opened after a device restart</string>
     <string name="boot_resume_notification_title">Resume focus monitoring</string>

@@ -1,6 +1,7 @@
 package com.focusguard
 
 import android.app.NotificationManager
+import android.app.usage.UsageStatsManager
 import android.content.Context
 import android.content.Intent
 import android.os.Build
@@ -9,14 +10,17 @@ import android.os.Looper
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.focusguard.crashlytics.NativeErrorReporter
+import com.focusguard.monitor.ForegroundPollWake
 import com.focusguard.monitor.ForegroundStabilizer
 import com.focusguard.monitor.MonitorPermissions
 import com.focusguard.monitor.MonitoringStateRepository
 import com.focusguard.monitor.NotificationPermissions
 import com.focusguard.monitor.TrackedUsageChangeEmitter
 import com.focusguard.monitor.TrackingEnginePoll
+import com.focusguard.monitor.TrackingEnginePollRecovery
 import com.focusguard.navigation.DeepLinks
 import com.focusguard.notification.KeeptNotifications
+import com.focusguard.overlay.BlockFallbackNotifier
 import com.focusguard.overlay.BlockOverlayManager
 import com.focusguard.overlay.DailyWarningStore
 import com.focusguard.service.FocusGuardMonitorService
@@ -45,6 +49,8 @@ class TrackingEngine(
     private val settingsRepository = SettingsRepository
     private val notificationManager =
         context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+    private val usageStatsManager =
+        context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
     private val mainHandler = Handler(Looper.getMainLooper())
 
     private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
@@ -56,30 +62,19 @@ class TrackingEngine(
     /** Package currently over its hard block limit; overlay should stay until snooze or user leaves. */
     private var activeBlockPackage: String? = null
 
+    /** One supplemental PiP nudge per active block session. */
+    private var pipFallbackNotifiedFor: String? = null
+
     private var trackedApps: Set<String> = emptySet()
 
-    private var usageEventsObserver: UsageEventsForegroundObserver? = null
+    private var consecutivePollFailures = 0
 
     /** Starts the polling loop. No-op if already running. */
     fun start() {
         if (monitoringJob != null) return
 
         ensureWarningChannel()
-
-        usageEventsObserver =
-            UsageEventsForegroundObserver.createIfSupported(context) {
-                scope.launch {
-                    try {
-                        monitorMutex.withLock {
-                            monitorForegroundApp()
-                        }
-                    } catch (error: Exception) {
-                        handleMonitorFailure(error)
-                    }
-                }
-            }?.also { observer ->
-                observer.start()
-            }
+        consecutivePollFailures = 0
 
         monitoringJob = scope.launch {
             while (isActive) {
@@ -87,11 +82,24 @@ class TrackingEngine(
                     monitorMutex.withLock {
                         monitorForegroundApp()
                     }
+                    consecutivePollFailures = 0
                 } catch (error: Exception) {
-                    handleMonitorFailure(error)
-                    break
+                    consecutivePollFailures += 1
+                    handleMonitorFailure(
+                        error,
+                        stopService = TrackingEnginePollRecovery.shouldStopService(consecutivePollFailures),
+                    )
+
+                    if (TrackingEnginePollRecovery.shouldStopService(consecutivePollFailures)) {
+                        break
+                    }
+
+                    delay(TrackingEnginePollRecovery.BACKOFF_MS)
+                    continue
                 }
-                delay(resolvePollIntervalMs())
+
+                val intervalMs = resolvePollIntervalMs()
+                ForegroundPollWake.delayUntilNextPoll(usageStatsManager, intervalMs)
             }
         }
     }
@@ -107,18 +115,25 @@ class TrackingEngine(
             activeBlockPackage = activeBlockPackage,
             stableForeground = foregroundStabilizer.stableForeground,
             trackedApps = trackedApps,
+            pendingForegroundSwitch = foregroundStabilizer.hasPendingSwitch(),
         )
 
     /** Cancels the polling coroutine and dismisses any active block overlay. */
     fun stop() {
-        usageEventsObserver?.stop()
-        usageEventsObserver = null
         monitoringJob?.cancel()
         monitoringJob = null
+        consecutivePollFailures = 0
+        val blockedPackage = activeBlockPackage
         foregroundStabilizer.reset()
         activeBlockPackage = null
+        pipFallbackNotifiedFor = null
         liveUsageEstimator.clearSession()
-        runOnMainThread { BlockOverlayManager.dismiss(context) }
+        runOnMainThread {
+            BlockOverlayManager.dismiss(context)
+            if (blockedPackage != null) {
+                BlockFallbackNotifier.dismiss(context, blockedPackage)
+            }
+        }
     }
 
     private fun monitorForegroundApp() {
@@ -134,62 +149,116 @@ class TrackingEngine(
         }
 
         trackedApps = TrackingConfigRepository.getTrackedAppsSet()
+        detector.aggressivePolling = activeBlockPackage != null
+
+        val openSessions = detector.getOpenForegroundPackages()
+        val trackedOpenSessions = openSessions.filter { packageName -> isTrackedApp(packageName) }.toSet()
 
         val previousStable = foregroundStabilizer.stableForeground
         val foregroundApp = foregroundStabilizer.resolve(detector.getForegroundApp())
+        val enteredNewForeground = foregroundApp != null && foregroundApp != previousStable
 
-        if (foregroundApp == null) {
-            val blockedPackage = activeBlockPackage
-            if (blockedPackage != null && isTrackedApp(blockedPackage)) {
-                val usedTodayMs = liveUsageEstimator.getEffectiveUsageMs(blockedPackage)
-                evaluateTrackedApp(blockedPackage, usedTodayMs)
-                publishWidgetUpdate(blockedPackage to usedTodayMs)
-                publishTrackedUsageChanged(urgent = false)
-            } else {
-                publishWidgetUpdate()
-            }
-            return
+        val packagesToEvaluate = linkedSetOf<String>()
+        packagesToEvaluate.addAll(trackedOpenSessions)
+        if (foregroundApp != null && isTrackedApp(foregroundApp)) {
+            packagesToEvaluate.add(foregroundApp)
         }
 
-        val enteredNewForeground = foregroundApp != previousStable
-
-        if (!isTrackedApp(foregroundApp)) {
-            if (previousStable != null && isTrackedApp(previousStable)) {
-                usageRepository.invalidatePackages(setOf(previousStable))
-            }
-            liveUsageEstimator.clearSession()
-
-            if (activeBlockPackage != null && foregroundApp != activeBlockPackage) {
-                clearActiveBlock()
-            }
-            publishWidgetUpdate()
-            return
+        for (packageName in packagesToEvaluate) {
+            ensureLiveSession(packageName)
+            val usedTodayMs = liveUsageEstimator.getEffectiveUsageMs(packageName)
+            evaluateTrackedApp(packageName, usedTodayMs)
         }
 
-        if (enteredNewForeground) {
-            if (activeBlockPackage != null && activeBlockPackage != foregroundApp) {
-                clearActiveBlock()
-            }
+        if (
+            activeBlockPackage != null &&
+            activeBlockPackage !in openSessions &&
+            activeBlockPackage != foregroundApp
+        ) {
+            clearActiveBlock()
+        }
 
-            val packagesToRefresh =
-                buildSet {
-                    if (previousStable != null && isTrackedApp(previousStable)) {
-                        add(previousStable)
+        maybeShowPipFallbackNotification(openSessions)
+
+        when {
+            foregroundApp != null && isTrackedApp(foregroundApp) -> {
+                if (enteredNewForeground) {
+                    if (
+                        activeBlockPackage != null &&
+                        activeBlockPackage != foregroundApp &&
+                        activeBlockPackage !in openSessions
+                    ) {
+                        clearActiveBlock()
                     }
-                    add(foregroundApp)
+                    invalidateUsageOnForegroundSwitch(previousStable, foregroundApp, openSessions)
                 }
-
-            if (packagesToRefresh.isNotEmpty()) {
-                usageRepository.invalidatePackages(packagesToRefresh)
             }
 
-            liveUsageEstimator.onTrackedAppForeground(foregroundApp)
+            foregroundApp != null && !isTrackedApp(foregroundApp) -> {
+                handleUntrackedForeground(previousStable, openSessions)
+            }
+
+            foregroundApp == null && trackedOpenSessions.isEmpty() && activeBlockPackage == null -> {
+                liveUsageEstimator.clearSession()
+            }
         }
 
-        val usedTodayMs = liveUsageEstimator.getEffectiveUsageMs(foregroundApp)
-        evaluateTrackedApp(foregroundApp, usedTodayMs)
-        publishWidgetUpdate(foregroundApp to usedTodayMs)
-        publishTrackedUsageChanged(enteredNewForeground)
+        val widgetPackage =
+            foregroundApp?.takeIf { packageName -> isTrackedApp(packageName) }
+                ?: trackedOpenSessions.firstOrNull()
+                ?: activeBlockPackage?.takeIf { packageName -> isTrackedApp(packageName) }
+
+        if (widgetPackage != null) {
+            publishWidgetUpdate(widgetPackage to liveUsageEstimator.getEffectiveUsageMs(widgetPackage))
+        } else {
+            publishWidgetUpdate()
+        }
+
+        publishTrackedUsageChanged(
+            enteredNewForeground && foregroundApp?.let(::isTrackedApp) == true,
+        )
+    }
+
+    private fun handleUntrackedForeground(
+        previousStable: String?,
+        openSessions: Set<String>,
+    ) {
+        if (previousStable != null && isTrackedApp(previousStable) && previousStable !in openSessions) {
+            usageRepository.invalidatePackages(setOf(previousStable))
+        }
+
+        if (activeBlockPackage != null && activeBlockPackage !in openSessions) {
+            clearActiveBlock()
+        }
+
+        if (openSessions.none { packageName -> isTrackedApp(packageName) }) {
+            liveUsageEstimator.clearSession()
+        }
+    }
+
+    private fun invalidateUsageOnForegroundSwitch(
+        previousStable: String?,
+        foregroundApp: String,
+        openSessions: Set<String>,
+    ) {
+        val packagesToRefresh = linkedSetOf(foregroundApp)
+
+        if (
+            previousStable != null &&
+            isTrackedApp(previousStable) &&
+            previousStable != foregroundApp &&
+            previousStable !in openSessions
+        ) {
+            packagesToRefresh.add(previousStable)
+        }
+
+        usageRepository.invalidatePackages(packagesToRefresh)
+    }
+
+    private fun ensureLiveSession(packageName: String) {
+        if (!liveUsageEstimator.isSessionActiveFor(packageName)) {
+            liveUsageEstimator.onTrackedAppForeground(packageName)
+        }
     }
 
     private fun publishTrackedUsageChanged(urgent: Boolean) {
@@ -226,9 +295,14 @@ class TrackingEngine(
         WidgetUpdater.scheduleUpdate(context, usageOverrides, urgent = urgent)
     }
 
-    private fun handleMonitorFailure(error: Exception) {
+    private fun handleMonitorFailure(error: Exception, stopService: Boolean) {
         logDebug("Monitor loop failed: ${error.message}")
         NativeErrorReporter.recordNonFatal(error, "TrackingEngine.monitorForegroundApp")
+
+        if (!stopService) {
+            return
+        }
+
         monitoringJob = null
         context.stopService(Intent(context, FocusGuardMonitorService::class.java))
     }
@@ -292,21 +366,57 @@ class TrackingEngine(
                     limits.strictMode,
                 )
 
-            if (!shown) {
+            if (shown) {
+                BlockOverlayManager.sendUserHome(context)
+                BlockFallbackNotifier.dismiss(context, packageName)
+            } else if (canPostBlockNotifications()) {
+                logDebug("Block overlay not visible for $packageName — showing notification fallback")
+                BlockFallbackNotifier.showPrimaryFallback(
+                    context,
+                    packageName,
+                    getAppLabel(packageName),
+                    limits.strictMode,
+                )
+            } else {
                 logDebug("Block overlay not visible for $packageName — will retry on next poll")
             }
         }
     }
 
     private fun clearActiveBlock() {
+        val blockedPackage = activeBlockPackage
         activeBlockPackage = null
+        pipFallbackNotifiedFor = null
         runOnMainThread { BlockOverlayManager.dismiss(context) }
+        if (blockedPackage != null) {
+            BlockFallbackNotifier.dismiss(context, blockedPackage)
+        }
     }
+
+    private fun maybeShowPipFallbackNotification(openSessions: Set<String>) {
+        val blockedPackage = activeBlockPackage ?: return
+        if (blockedPackage !in openSessions) return
+        if (!BlockOverlayManager.isShowing()) return
+        if (pipFallbackNotifiedFor == blockedPackage) return
+        if (!canPostBlockNotifications()) return
+
+        BlockFallbackNotifier.showSupplemental(
+            context,
+            blockedPackage,
+            getAppLabel(blockedPackage),
+        )
+        pipFallbackNotifiedFor = blockedPackage
+    }
+
+    private fun canPostBlockNotifications(): Boolean =
+        settingsRepository.areNotificationsEnabled() &&
+            NotificationPermissions.hasPostNotificationsPermission(context)
 
     private fun isTrackedApp(packageName: String): Boolean = trackedApps.contains(packageName)
 
     private fun ensureWarningChannel() {
         KeeptNotifications.ensureWarningChannel(context, notificationManager)
+        KeeptNotifications.ensureBlockChannel(context, notificationManager)
     }
 
     private fun showWarningNotification(packageName: String) {

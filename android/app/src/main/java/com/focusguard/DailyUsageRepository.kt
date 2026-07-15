@@ -43,11 +43,6 @@ class DailyUsageRepository private constructor(
                         }
                 }
 
-        fun invalidateCacheIfLoaded() {
-            instance?.invalidateCache()
-        }
-
-        /** @internal Unit-test reset. */
         internal fun resetForTests() {
             instance?.invalidateCache()
             instance = null

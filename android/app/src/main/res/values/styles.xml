@@ -60,6 +60,15 @@
         <item name="android:gravity">center</item>
     </style>
 
+    <style name="BlockOverlay.Caption" parent="BlockOverlay">
+        <item name="android:textColor">@color/text_secondary</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:lineSpacingExtra">3sp</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:gravity">center</item>
+        <item name="android:alpha">0.85</item>
+    </style>
+
     <style name="BlockOverlay.Button" />
 
     <style name="BlockOverlay.Button.Primary" parent="BlockOverlay.Button">
@@ -78,6 +87,12 @@
         <item name="android:fontFamily">sans-serif-medium</item>
         <item name="android:clickable">true</item>
         <item name="android:focusable">true</item>
+    </style>
+
+    <style name="Theme.BlockFallback" parent="Theme.AppCompat.DayNight.NoActionBar">
+        <item name="android:windowBackground">@color/background</item>
+        <item name="android:statusBarColor">@color/background</item>
+        <item name="android:navigationBarColor">@color/background</item>
     </style>
 
 </resources>

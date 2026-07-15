@@ -1,7 +1,5 @@
 /** @format */
 
-import { AppState } from 'react-native';
-
 jest.mock('@/domain/permissions', () => ({
   ...jest.requireActual('@/domain/permissions/permissionIds.android'),
   ...jest.requireActual('@/domain/permissions/permissionStatus.android'),
@@ -31,8 +29,6 @@ const mockRequestUsageStatsPermission = jest.fn();
 const mockRequestSystemAlertWindowPermission = jest.fn();
 const mockRequestNotificationsPermission = jest.fn();
 const mockRequestIgnoreBatteryOptimizationsPermission = jest.fn();
-let appStateListener: ((state: string) => void) | undefined;
-const mockRemoveAppStateListener = jest.fn();
 
 jest.mock('@react-navigation/native', () => ({
   useFocusEffect: (callback: () => void | (() => void)) => {
@@ -47,6 +43,9 @@ jest.mock('../../../source/navigation', () => ({
   }),
 }));
 
+let triggerPermissionsChanged: (() => void) | undefined;
+const mockRemovePermissionsListener = jest.fn();
+
 jest.mock('@/specs/keeptTurboModuleApi.android', () => ({
   checkForPermission: (...args: unknown[]) => mockCheckForPermission(...args),
   checkForSystemAlertWindowPermission: (...args: unknown[]) => mockCheckForSystemAlertWindowPermission(...args),
@@ -59,8 +58,13 @@ jest.mock('@/specs/keeptTurboModuleApi.android', () => ({
   requestNotificationsPermission: (...args: unknown[]) => mockRequestNotificationsPermission(...args),
   requestIgnoreBatteryOptimizationsPermission: (...args: unknown[]) =>
     mockRequestIgnoreBatteryOptimizationsPermission(...args),
-  subscribePermissionsChanged: () => ({ remove: jest.fn() }),
+  subscribePermissionsChanged: (listener: () => void) => {
+    triggerPermissionsChanged = listener;
+    return { remove: mockRemovePermissionsListener };
+  },
 }));
+
+jest.mock('@/specs', () => jest.requireMock('@/specs/keeptTurboModuleApi.android'));
 
 jest.mock('react-native-safe-area-context', () => {
   const React = require('react');
@@ -85,11 +89,8 @@ jest.mock('@/hooks/usePrefetchNativeCatalogs', () => ({
   usePrefetchNativeCatalogs: jest.fn(),
 }));
 
-jest.spyOn(AppState, 'addEventListener').mockImplementation((_, listener) => {
-  appStateListener = listener as (state: string) => void;
-  return { remove: mockRemoveAppStateListener };
-});
-
+import { resetUsageAccessUiLatchForTests } from '@/domain/permissions/permissionStatus.android';
+import { invalidatePermissionSnapshot } from '@/domain/permissionSnapshot';
 import { EnablePermissionsScreen } from '@/screen/EnablePermissions/EnablePermissionsScreen';
 
 const grantAllNativePermissions = () => {
@@ -104,7 +105,9 @@ describe('EnablePermissionsScreen', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     jest.useFakeTimers();
-    appStateListener = undefined;
+    triggerPermissionsChanged = undefined;
+    resetUsageAccessUiLatchForTests();
+    invalidatePermissionSnapshot();
     mockCheckForPermission.mockReturnValue(false);
     mockCheckForSystemAlertWindowPermission.mockReturnValue(false);
     mockCheckForNotificationsPermission.mockReturnValue(false);
@@ -149,7 +152,7 @@ describe('EnablePermissionsScreen', () => {
     expect(mockRequestUsageStatsPermission).not.toHaveBeenCalled();
   });
 
-  it('opens system settings on grant and syncs status on AppState active', () => {
+  it('opens system settings on grant and syncs status on permissions changed event', () => {
     const tree = renderTestTree(<EnablePermissionsScreen />);
     flushVirtualizedListTimers();
 
@@ -163,20 +166,20 @@ describe('EnablePermissionsScreen', () => {
     grantAllNativePermissions();
 
     runTestAct(() => {
-      appStateListener?.('active');
+      triggerPermissionsChanged?.();
     });
     flushVirtualizedListTimers();
 
     expect(tree.root.findByProps({ accessibilityLabel: 'Continue' }).props.disabled).toBe(false);
   });
 
-  it('removes AppState listener on unmount', () => {
+  it('removes permissions listener on unmount', () => {
     renderTestTree(<EnablePermissionsScreen />);
     flushVirtualizedListTimers();
 
     cleanupTestTrees();
 
-    expect(mockRemoveAppStateListener).toHaveBeenCalled();
+    expect(mockRemovePermissionsListener).toHaveBeenCalled();
   });
 
   it('navigates to Dashboard when Continue is pressed and all permissions are granted', () => {

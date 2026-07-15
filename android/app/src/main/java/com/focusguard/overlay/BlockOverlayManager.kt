@@ -9,11 +9,9 @@ import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.WindowManager
-import android.widget.TextView
 import com.focusguard.R
 import com.focusguard.crashlytics.NativeErrorReporter
 import com.focusguard.monitor.OverlayAccess
-import com.focusguard.widget.WidgetUpdater
 
 /**
  * Draws a full-screen block UI above other apps using [WindowManager].
@@ -26,7 +24,6 @@ object BlockOverlayManager {
     const val EXTRA_PACKAGE_NAME = "extra_package_name"
     const val EXTRA_APP_NAME = "extra_app_name"
     const val EXTRA_STRICT_MODE = "extra_strict_mode"
-    const val EXTRA_SNOOZE_MINUTES = "extra_snooze_minutes"
 
     @Volatile
     private var overlayView: View? = null
@@ -73,6 +70,16 @@ object BlockOverlayManager {
         detachOverlay()
     }
 
+    /** Sends the user to the home screen to reduce PiP / multi-window bypass of the overlay. */
+    fun sendUserHome(context: Context) {
+        context.applicationContext.startActivity(
+            Intent(Intent.ACTION_MAIN).apply {
+                addCategory(Intent.CATEGORY_HOME)
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            },
+        )
+    }
+
     private fun attachOverlay(
         context: Context,
         packageName: String,
@@ -83,33 +90,15 @@ object BlockOverlayManager {
             ?: throw IllegalStateException("WindowManager unavailable")
 
         val view = LayoutInflater.from(context).inflate(R.layout.activity_block_overlay, null)
-        val resolvedAppName = appName.ifEmpty { context.getString(R.string.app_name) }
 
-        view.findViewById<TextView>(R.id.block_overlay_app_name).text = resolvedAppName
-
-        val snoozeButton = view.findViewById<TextView>(R.id.block_overlay_snooze)
-        if (strictMode) {
-            snoozeButton.visibility = View.GONE
-        } else {
-            snoozeButton.setOnClickListener {
-                TrackingSnoozeStore.setSnooze(
-                    packageName,
-                    SNOOZE_MINUTES * 60_000L,
-                )
-                WidgetUpdater.scheduleUpdate(context, force = true)
-                dismiss(context)
-            }
-        }
-
-        view.findViewById<TextView>(R.id.block_overlay_home).setOnClickListener {
-            context.startActivity(
-                Intent(Intent.ACTION_MAIN).apply {
-                    addCategory(Intent.CATEGORY_HOME)
-                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                },
-            )
-            dismiss(context)
-        }
+        BlockOverlayUi.bind(
+            root = view,
+            context = context,
+            packageName = packageName,
+            appName = appName,
+            strictMode = strictMode,
+            onDismiss = { dismiss(context) },
+        )
 
         val layoutParams =
             WindowManager.LayoutParams(
@@ -187,5 +176,4 @@ object BlockOverlayManager {
     }
 
     private const val TAG = "BlockOverlayManager"
-    private const val SNOOZE_MINUTES = 5
 }
