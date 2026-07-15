@@ -6,6 +6,7 @@
     "android": "react-native run-android",
     "ios": "react-native run-ios",
     "check": "eslint . --max-warnings 0 && prettier --check . && tsc --noEmit && jest --watchman=false --ci",
+    "test": "jest",
     "android:bundle:release": "cd android && ./gradlew bundleRelease",
     "android:assemble:release": "cd android && ./gradlew assembleRelease",
     "android:release:check": "test -f android/keystore.properties && npm run check",
