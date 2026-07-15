@@ -2,6 +2,10 @@
 
 /* eslint-env jest */
 
+jest.mock('@/crashlytics/reportError', () => ({
+  reportError: jest.fn(),
+}));
+
 jest.mock('react-native-reanimated', () => {
   const { View } = require('react-native');
 
