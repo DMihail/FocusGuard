@@ -93,6 +93,10 @@ export const enUi: TranslationTree = {
         title: 'Notifications',
         description: 'Optional — limit warnings and reminders. You can turn this on later in Settings.',
       },
+      accessibilityService: {
+        title: 'App switching detection',
+        description: 'Optional — detects app switches faster for more reliable blocking. Does not read screen content.',
+      },
     },
     ios: {
       screenTime: {

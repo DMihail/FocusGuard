@@ -122,6 +122,11 @@
   return @YES;
 }
 
+- (NSNumber *)checkForAccessibilityServicePermission
+{
+  return @YES;
+}
+
 - (NSNumber *)checkForManifestMonitorPermissions
 {
   return @YES;
@@ -177,6 +182,10 @@
 }
 
 - (void)requestIgnoreBatteryOptimizationsPermission
+{
+}
+
+- (void)requestAccessibilityServicePermission
 {
 }
 

@@ -5,6 +5,8 @@ import android.app.usage.UsageStatsManager
 import android.content.Context
 import android.os.Build
 import androidx.annotation.RequiresApi
+import com.focusguard.accessibility.AccessibilityAccess
+import com.focusguard.accessibility.ForegroundAccessibilityBridge
 import com.focusguard.monitor.OpenSessionTracker
 
 /**
@@ -46,7 +48,25 @@ class ForegroundAppDetector(
      * Returns the package name of the app that most recently moved to the foreground,
      * or `null` if detection fails and no recent sticky value is available.
      */
-    fun getForegroundApp(): String? = queryLatestResumedPackage(useStickyCache = !aggressivePolling)
+    fun getForegroundApp(): String? {
+        getForegroundFromAccessibility()?.let { return it }
+        return queryLatestResumedPackage(useStickyCache = !aggressivePolling)
+    }
+
+    private fun getForegroundFromAccessibility(): String? {
+        if (!AccessibilityAccess.isEnabled(context)) {
+            return null
+        }
+
+        val maxAgeMs =
+            if (aggressivePolling) {
+                ACCESSIBILITY_MAX_AGE_AGGRESSIVE_MS
+            } else {
+                ACCESSIBILITY_MAX_AGE_MS
+            }
+
+        return ForegroundAccessibilityBridge.getRecentForegroundPackage(maxAgeMs)
+    }
 
     private fun queryLatestResumedPackage(useStickyCache: Boolean): String? {
         val now = System.currentTimeMillis()
@@ -151,5 +171,7 @@ class ForegroundAppDetector(
         private const val STICKY_FOREGROUND_MS = 90_000L
         private const val STICKY_QUERY_SKIP_MS = 5_000L
         private const val STATS_FALLBACK_EVERY_N_POLLS = 3
+        private const val ACCESSIBILITY_MAX_AGE_MS = 10_000L
+        private const val ACCESSIBILITY_MAX_AGE_AGGRESSIVE_MS = 30_000L
     }
 }
