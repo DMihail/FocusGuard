@@ -1,7 +1,5 @@
 <resources>
     <string name="app_name" translatable="false">Keept</string>
-    <string name="app_short_description">Reduce screen time with per-app limits, warnings, and focus blocks.</string>
-    <string name="app_full_description">Keept helps you stay focused by tracking distracting apps, warning you before limits are reached, and blocking access when daily limits are exceeded. Set per-app warning and hard-block thresholds, enable strict mode, and monitor your focus score from a simple dashboard. All limits and usage data stay on your device — no account required.</string>
     <string name="monitor_notification_channel_name">Focus monitoring</string>
     <string name="monitor_notification_channel_description">Keeps Keept active to enforce app limits</string>
     <string name="monitor_notification_title">Keept is active</string>

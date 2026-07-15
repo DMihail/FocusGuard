@@ -6,7 +6,7 @@ import android.app.usage.UsageStatsManager
 import android.os.Build
 import androidx.annotation.RequiresApi
 
-/** Coalesced API 35+ foreground detection shared by the monitor poll loop and wake observer. */
+/** Coalesced API 35+ foreground detection shared by the monitor poll loop and [ForegroundPollWake]. */
 internal object ForegroundEventsQuery {
     @Volatile
     private var cachedAtMs = 0L

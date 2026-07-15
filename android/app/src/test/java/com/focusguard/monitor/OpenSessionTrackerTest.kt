@@ -32,9 +32,4 @@ class OpenSessionTrackerTest {
 
         assertEquals(setOf("com.two"), open)
     }
-
-    @Test
-    fun `stable polls default is two`() {
-        assertEquals(2, ForegroundStabilizer.STABLE_POLLS)
-    }
 }

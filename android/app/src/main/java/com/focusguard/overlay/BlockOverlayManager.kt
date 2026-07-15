@@ -24,7 +24,6 @@ object BlockOverlayManager {
     const val EXTRA_PACKAGE_NAME = "extra_package_name"
     const val EXTRA_APP_NAME = "extra_app_name"
     const val EXTRA_STRICT_MODE = "extra_strict_mode"
-    const val EXTRA_SNOOZE_MINUTES = "extra_snooze_minutes"
 
     @Volatile
     private var overlayView: View? = null

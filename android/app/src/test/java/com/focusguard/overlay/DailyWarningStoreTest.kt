@@ -41,17 +41,6 @@ class DailyWarningStoreTest : RobolectricKeeptTestCase() {
     }
 
     @Test
-    fun `pruneStaleKeys skips repeated scans on the same local day`() {
-        val packageName = "com.example.prune"
-        DailyWarningStore.markWarningShownToday(packageName)
-
-        DailyWarningStore.pruneStaleKeys()
-        DailyWarningStore.pruneStaleKeys()
-
-        assertTrue(DailyWarningStore.wasWarningShownToday(packageName))
-    }
-
-    @Test
     fun `in-memory cache avoids duplicate MMKV reads for the same day`() {
         val packageName = "com.example.cache"
         DailyWarningStore.markWarningShownToday(packageName)

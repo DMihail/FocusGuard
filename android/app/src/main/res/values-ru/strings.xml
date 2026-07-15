@@ -1,6 +1,4 @@
 <resources>
-    <string name="app_short_description">Меньше экранного времени: лимиты, предупреждения и блокировки по приложениям.</string>
-    <string name="app_full_description">Keept помогает сохранять фокус: отслеживает отвлекающие приложения, предупреждает перед лимитом и блокирует доступ при его превышении. Настройте пороги предупреждения и жёсткой блокировки, включите строгий режим и следите за focus score на главном экране. Все лимиты и данные об использовании остаются на устройстве — аккаунт не нужен.</string>
     <string name="monitor_notification_channel_name">Мониторинг фокуса</string>
     <string name="monitor_notification_channel_description">Keept работает в фоне и следит за лимитами приложений</string>
     <string name="monitor_notification_title">Keept активен</string>

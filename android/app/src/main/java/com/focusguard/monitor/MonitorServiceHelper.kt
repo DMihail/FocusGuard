@@ -18,7 +18,7 @@ object MonitorServiceHelper {
    */
   fun start(context: Context): MonitorServiceStartResult {
     MonitorPermissions.invalidateCache()
-    val failureReason = MonitorServiceStartResult.resolveStartFailureReason(context)
+    val failureReason = MonitorPermissions.resolveStartFailureReason(context)
 
     if (failureReason != null) {
       return MonitorServiceStartResult(started = false, reason = failureReason)
