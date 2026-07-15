@@ -1,13 +1,12 @@
 /** @format */
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 
-import { useRunOnFocusAndActive } from '@/hooks/useRunOnFocusAndActive';
+import { useNativePermissionsChangedRefresh } from '@/hooks/useNativePermissionsChangedRefresh';
 import {
   checkForAccessibilityServicePermission,
   openAccessibilityServiceSettings,
   requestAccessibilityServicePermission,
-  subscribePermissionsChanged,
 } from '@/specs/keeptTurboModuleApi.android';
 
 export const useAccessibilityServiceSetting = () => {
@@ -17,13 +16,7 @@ export const useAccessibilityServiceSetting = () => {
     setSystemGranted(checkForAccessibilityServicePermission());
   }, []);
 
-  useEffect(() => {
-    const subscription = subscribePermissionsChanged(refreshSystemGrant);
-
-    return () => subscription.remove();
-  }, [refreshSystemGrant]);
-
-  useRunOnFocusAndActive(refreshSystemGrant);
+  useNativePermissionsChangedRefresh(refreshSystemGrant);
 
   const setEnabled = useCallback((value: boolean) => {
     if (value) {

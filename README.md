@@ -89,7 +89,7 @@ FocusGuard/                          # repo folder (product / store ID: Keept)
 │   ├── theme/                       # ThemeProvider, palettes, typography
 │   └── utils/                       # usage math, permissions, scheduleMicrotask
 │
-├── __tests__/                       # Jest (30 suites; mirrors source/ layout)
+├── __tests__/                       # Jest (32 suites; mirrors source/ layout)
 │   ├── architecture/                # productionTimers guard (no JS polling)
 │   ├── domain/ / store/ / hooks/ / navigation/ / specs/
 │   └── screen/                      # screen-level hook + component tests
@@ -362,7 +362,7 @@ only (full gate is in CI).
 ## Testing
 
 ```sh
-npm test              # local (30 suites, ~122 tests)
+npm test              # local (32 suites, ~129 tests)
 npm run check         # lint + format + types + Jest (CI gate)
 cd android && ./gradlew testDebugUnitTest   # Kotlin unit tests (Robolectric)
 ```
