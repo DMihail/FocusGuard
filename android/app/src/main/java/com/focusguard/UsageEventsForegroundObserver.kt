@@ -13,24 +13,29 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 /**
- * Lightweight usage-events poll on API 35+ that wakes [TrackingEngine] when the resumed app changes.
+ * Supplemental wake on API 35+ when the main poll loop is idle (2.5s).
  *
- * Shares coalesced [ForegroundEventsQuery] reads with [ForegroundAppDetector] so the observer and
- * main poll loop do not both scan UsageEvents on every tick.
+ * Does not poll while [TrackingEngine] is already on the active 1s interval — the main loop
+ * is sufficient and shares coalesced [ForegroundEventsQuery] reads with [ForegroundAppDetector].
  */
 @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
 internal class UsageEventsForegroundObserver(
-    private val context: Context,
+    private val usageStatsManager: UsageStatsManager,
     private val onForegroundMayHaveChanged: () -> Unit,
 ) {
-
-    private val usageStatsManager =
-        context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
 
     private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
     private var observerJob: Job? = null
 
     private var lastNotifiedPackage: String? = null
+
+    @Volatile
+    private var supplementalPollingEnabled: Boolean = true
+
+    /** When false, the observer sleeps without querying UsageEvents (active poll loop handles detection). */
+    fun setSupplementalPollingEnabled(enabled: Boolean) {
+        supplementalPollingEnabled = enabled
+    }
 
     fun start() {
         if (observerJob != null) {
@@ -40,13 +45,15 @@ internal class UsageEventsForegroundObserver(
         observerJob =
             scope.launch {
                 while (isActive) {
-                    val resumedPackage =
-                        ForegroundEventsQuery.queryLatestResumedPackage(usageStatsManager)
-                    if (resumedPackage != lastNotifiedPackage) {
-                        lastNotifiedPackage = resumedPackage
-                        onForegroundMayHaveChanged()
+                    if (supplementalPollingEnabled) {
+                        val resumedPackage =
+                            ForegroundEventsQuery.queryLatestResumedPackage(usageStatsManager)
+                        if (resumedPackage != lastNotifiedPackage) {
+                            lastNotifiedPackage = resumedPackage
+                            onForegroundMayHaveChanged()
+                        }
                     }
-                    delay(POLL_INTERVAL_MS)
+                    delay(WAKE_POLL_INTERVAL_MS)
                 }
             }
     }
@@ -55,10 +62,12 @@ internal class UsageEventsForegroundObserver(
         observerJob?.cancel()
         observerJob = null
         lastNotifiedPackage = null
+        supplementalPollingEnabled = true
     }
 
     companion object {
-        private const val POLL_INTERVAL_MS = 1_500L
+        /** Matches [com.focusguard.monitor.TrackingEnginePoll.IDLE_MS]. */
+        private const val WAKE_POLL_INTERVAL_MS = 2_500L
 
         fun createIfSupported(
             context: Context,
@@ -68,7 +77,9 @@ internal class UsageEventsForegroundObserver(
                 return null
             }
 
-            return UsageEventsForegroundObserver(context, onForegroundMayHaveChanged)
+            val usageStatsManager =
+                context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
+            return UsageEventsForegroundObserver(usageStatsManager, onForegroundMayHaveChanged)
         }
     }
 }

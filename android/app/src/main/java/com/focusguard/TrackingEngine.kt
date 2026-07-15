@@ -78,7 +78,7 @@ class TrackingEngine(
                             monitorForegroundApp()
                         }
                     } catch (error: Exception) {
-                        handleMonitorFailure(error)
+                        handleMonitorFailure(error, stopService = false)
                     }
                 }
             }?.also { observer ->
@@ -92,8 +92,7 @@ class TrackingEngine(
                         monitorForegroundApp()
                     }
                 } catch (error: Exception) {
-                    handleMonitorFailure(error)
-                    break
+                    handleMonitorFailure(error, stopService = true)
                 }
                 delay(resolvePollIntervalMs())
             }
@@ -186,7 +185,7 @@ class TrackingEngine(
                     ) {
                         clearActiveBlock()
                     }
-                    invalidateUsageOnForegroundSwitch(previousStable, foregroundApp)
+                    invalidateUsageOnForegroundSwitch(previousStable, foregroundApp, openSessions)
                 }
             }
 
@@ -213,6 +212,10 @@ class TrackingEngine(
         publishTrackedUsageChanged(
             enteredNewForeground && foregroundApp?.let(::isTrackedApp) == true,
         )
+
+        usageEventsObserver?.setSupplementalPollingEnabled(
+            resolvePollIntervalMs() == TrackingEnginePoll.IDLE_MS,
+        )
     }
 
     private fun handleUntrackedForeground(
@@ -235,18 +238,20 @@ class TrackingEngine(
     private fun invalidateUsageOnForegroundSwitch(
         previousStable: String?,
         foregroundApp: String,
+        openSessions: Set<String>,
     ) {
-        val packagesToRefresh =
-            buildSet {
-                if (previousStable != null && isTrackedApp(previousStable)) {
-                    add(previousStable)
-                }
-                add(foregroundApp)
-            }
+        val packagesToRefresh = linkedSetOf(foregroundApp)
 
-        if (packagesToRefresh.isNotEmpty()) {
-            usageRepository.invalidatePackages(packagesToRefresh)
+        if (
+            previousStable != null &&
+            isTrackedApp(previousStable) &&
+            previousStable != foregroundApp &&
+            previousStable !in openSessions
+        ) {
+            packagesToRefresh.add(previousStable)
         }
+
+        usageRepository.invalidatePackages(packagesToRefresh)
     }
 
     private fun ensureLiveSession(packageName: String) {
@@ -289,9 +294,14 @@ class TrackingEngine(
         WidgetUpdater.scheduleUpdate(context, usageOverrides, urgent = urgent)
     }
 
-    private fun handleMonitorFailure(error: Exception) {
+    private fun handleMonitorFailure(error: Exception, stopService: Boolean) {
         logDebug("Monitor loop failed: ${error.message}")
         NativeErrorReporter.recordNonFatal(error, "TrackingEngine.monitorForegroundApp")
+
+        if (!stopService) {
+            return
+        }
+
         monitoringJob = null
         context.stopService(Intent(context, FocusGuardMonitorService::class.java))
     }

@@ -21,15 +21,23 @@ export const useAppPermissionGuard = (
   const redirectIfPermissionsMissing = useCallback(() => {
     const { isConfirm } = onboardingStore.getState();
 
-    if (!isConfirm || areAllPermissionsGranted()) {
+    if (!isConfirm) {
       return;
     }
 
     const currentRoute = navigationRef.current?.getCurrentRoute()?.name;
 
-    if (currentRoute !== 'EnablePermissions') {
-      navigationRef.current?.navigate('EnablePermissions');
+    if (currentRoute === 'EnablePermissions') {
+      return;
     }
+
+    invalidatePermissionSnapshot();
+
+    if (areAllPermissionsGranted()) {
+      return;
+    }
+
+    navigationRef.current?.navigate('EnablePermissions');
   }, [navigationRef]);
 
   useEffect(() => {
@@ -42,7 +50,6 @@ export const useAppPermissionGuard = (
 
   const handleAppBecomeActive = useCallback(() => {
     if (isEnabled) {
-      invalidatePermissionSnapshot();
       redirectIfPermissionsMissing();
     }
   }, [isEnabled, redirectIfPermissionsMissing]);
