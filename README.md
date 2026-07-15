@@ -89,7 +89,7 @@ FocusGuard/                          # repo folder (product / store ID: Keept)
 │   ├── theme/                       # ThemeProvider, palettes, typography
 │   └── utils/                       # usage math, permissions, scheduleMicrotask
 │
-├── __tests__/                       # Jest (30 suites; mirrors source/ layout)
+├── __tests__/                       # Jest (32 suites; mirrors source/ layout)
 │   ├── architecture/                # productionTimers guard (no JS polling)
 │   ├── domain/ / store/ / hooks/ / navigation/ / specs/
 │   └── screen/                      # screen-level hook + component tests
@@ -103,6 +103,7 @@ FocusGuard/                          # repo folder (product / store ID: Keept)
 │   │   ├── apps/                    # InstalledAppsRepository, AppIconCache
 │   │   ├── crashlytics/             # NativeErrorReporter
 │   │   ├── monitor/                 # FGS helper, ForegroundPollWake, poll policy
+│   │   ├── accessibility/           # optional FocusGuardAccessibilityService + bridge
 │   │   ├── overlay/                 # BlockOverlayManager, snooze + warning stores
 │   │   ├── permissions/             # system settings intents
 │   │   ├── react/                   # TurboModuleEventDispatchers, KeeptUiThemeModule
@@ -167,8 +168,8 @@ npx react-native start --reset-cache
    cp android/app/google-services.ci.json android/app/google-services.json
    ```
    For Play Store builds, use the real `google-services.json` from Firebase Console for `com.keept`.
-3. Grant special permissions in-app (Usage Access, Display over other apps, battery exemption). Notifications are
-   optional.
+3. Grant special permissions in-app (Usage Access, Display over other apps, battery exemption). Notifications and the
+   optional accessibility service (app switching detection) are optional but improve warnings and blocking speed.
 
 **Release builds**
 
@@ -186,14 +187,23 @@ Regenerate launcher PNG mipmaps after changing shield artwork:
 android/scripts/generate-launcher-icons.sh
 ```
 
-| Permission                             | Role                         |
-| -------------------------------------- | ---------------------------- |
-| `PACKAGE_USAGE_STATS`                  | Detect foreground app        |
-| `SYSTEM_ALERT_WINDOW`                  | Block overlay                |
-| `POST_NOTIFICATIONS`                   | Limit warnings (API 33+)     |
-| `REQUEST_IGNORE_BATTERY_OPTIMIZATIONS` | Reduce Doze kills            |
-| `FOREGROUND_SERVICE` / `SPECIAL_USE`   | Monitoring service           |
-| `RECEIVE_BOOT_COMPLETED`               | Restart monitor after reboot |
+| Permission                             | Role                                     |
+| -------------------------------------- | ---------------------------------------- |
+| `PACKAGE_USAGE_STATS`                  | Detect foreground app                    |
+| `SYSTEM_ALERT_WINDOW`                  | Block overlay                            |
+| `POST_NOTIFICATIONS`                   | Limit warnings (API 33+)                 |
+| Accessibility service (optional)       | Faster foreground detection for blocking |
+| `REQUEST_IGNORE_BATTERY_OPTIMIZATIONS` | Reduce Doze kills                        |
+| `FOREGROUND_SERVICE` / `SPECIAL_USE`   | Monitoring service                       |
+| `RECEIVE_BOOT_COMPLETED`               | Restart monitor after reboot             |
+
+**Play Console — accessibility disclosure (optional service)**
+
+Use this wording when declaring the accessibility service in Play Console / Data safety:
+
+> Keept offers an optional accessibility service to detect when you switch apps so daily limits and block screens can
+> react faster. The service listens to window-change events only. It does not read screen text, record keystrokes, or
+> capture screenshots. Usage time and limits still come from Android Usage Access.
 
 ### iOS
 
@@ -352,7 +362,7 @@ only (full gate is in CI).
 ## Testing
 
 ```sh
-npm test              # local (30 suites, ~122 tests)
+npm test              # local (32 suites, ~129 tests)
 npm run check         # lint + format + types + Jest (CI gate)
 cd android && ./gradlew testDebugUnitTest   # Kotlin unit tests (Robolectric)
 ```

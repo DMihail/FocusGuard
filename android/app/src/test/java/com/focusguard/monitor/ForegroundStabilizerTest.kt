@@ -6,11 +6,20 @@ import org.junit.Test
 
 class ForegroundStabilizerTest {
     @Test
-    fun `promotes a foreground package after stable polls`() {
-        val stabilizer = ForegroundStabilizer(stablePollsRequired = 2)
+    fun `reports pending switch before stable promotion`() {
+        val stabilizer = ForegroundStabilizer()
 
-        assertNull(stabilizer.resolve("com.example.app"))
-        assertEquals("com.example.app", stabilizer.resolve("com.example.app"))
+        assertEquals(false, stabilizer.hasPendingSwitch())
+
+        stabilizer.resolve("com.example.app")
+
+        assertEquals(true, stabilizer.hasPendingSwitch())
+        assertNull(stabilizer.stableForeground)
+
+        stabilizer.resolve("com.example.app")
+
+        assertEquals(false, stabilizer.hasPendingSwitch())
+        assertEquals("com.example.app", stabilizer.stableForeground)
     }
 
     @Test

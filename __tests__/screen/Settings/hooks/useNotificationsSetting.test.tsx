@@ -11,7 +11,7 @@ jest.mock('@/screen/Settings/notificationGrant', () =>
 const mockCheckForNotificationsPermission = jest.fn(() => false);
 const mockOpenNotificationsSettings = jest.fn();
 const mockRequestPostNotificationsPermission = jest.fn(async () => true);
-const mockSyncFromSystem = jest.fn();
+let triggerPermissionsChanged: (() => void) | undefined;
 
 const mockStoreState = {
   notificationsEnabled: true,
@@ -26,7 +26,10 @@ const mockStoreState = {
 jest.mock('@/specs/keeptTurboModuleApi.android', () => ({
   checkForNotificationsPermission: () => mockCheckForNotificationsPermission(),
   openNotificationsSettings: () => mockOpenNotificationsSettings(),
-  subscribePermissionsChanged: () => ({ remove: jest.fn() }),
+  subscribePermissionsChanged: (listener: () => void) => {
+    triggerPermissionsChanged = listener;
+    return { remove: jest.fn() };
+  },
 }));
 
 jest.mock('@/utils/permissions/requestNotificationPermission', () => ({
@@ -37,23 +40,17 @@ jest.mock('@/store', () => ({
   settingsStore: (selector: (state: typeof mockStoreState) => unknown) => selector(mockStoreState),
 }));
 
-jest.mock('@/hooks/useAppStateOnActive', () => ({
-  useAppStateOnActive: (callback: () => void) => {
-    mockSyncFromSystem.mockImplementation(callback);
+jest.mock('@/hooks/useNativePermissionsChangedRefresh', () => ({
+  useNativePermissionsChangedRefresh: (refresh: () => void) => {
+    const react = require('react');
+    react.useEffect(() => {
+      triggerPermissionsChanged = refresh;
+      return () => {
+        triggerPermissionsChanged = undefined;
+      };
+    }, [refresh]);
   },
 }));
-
-jest.mock('@react-navigation/native', () => {
-  const { useEffect: mockUseEffect } = require('react');
-
-  return {
-    useFocusEffect: (callback: () => void) => {
-      mockUseEffect(() => {
-        callback();
-      }, [callback]);
-    },
-  };
-});
 
 import { useNotificationsSetting } from '@/screen/Settings/hooks/useNotificationsSetting';
 
@@ -77,6 +74,7 @@ const UseNotificationsSettingHarness = ({ onReady }: HarnessProps) => {
 describe('useNotificationsSetting', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    triggerPermissionsChanged = undefined;
     mockStoreState.notificationsEnabled = true;
     mockCheckForNotificationsPermission.mockReturnValue(false);
     mockRequestPostNotificationsPermission.mockResolvedValue(true);
@@ -91,6 +89,26 @@ describe('useNotificationsSetting', () => {
     });
 
     expect(result.isEnabled).toBe(true);
+  });
+
+  it('turns the toggle off when native permission is revoked', () => {
+    mockCheckForNotificationsPermission.mockReturnValue(true);
+    let result!: ReturnType<typeof useNotificationsSetting>;
+
+    act(() => {
+      ReactTestRenderer.create(<UseNotificationsSettingHarness onReady={(value) => (result = value)} />);
+    });
+
+    expect(result.isEnabled).toBe(true);
+
+    mockCheckForNotificationsPermission.mockReturnValue(false);
+
+    act(() => {
+      triggerPermissionsChanged?.();
+    });
+
+    expect(result.isEnabled).toBe(false);
+    expect(mockStoreState.notificationsEnabled).toBe(false);
   });
 
   it('updates isEnabled after the permission dialog grants access', async () => {

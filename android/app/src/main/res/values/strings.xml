@@ -39,4 +39,5 @@
     <string name="widget_no_apps">No tracked apps</string>
     <string name="widget_no_apps_subtitle">Open Keept to choose apps</string>
     <string name="widget_monitoring_off">Monitoring off</string>
+    <string name="accessibility_service_description">Detects when you switch apps so Keept can block distracting apps faster. Does not read screen content.</string>
 </resources>

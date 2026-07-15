@@ -2,6 +2,10 @@
 
 /* eslint-env jest */
 
+jest.mock('@/crashlytics/reportError', () => ({
+  reportError: jest.fn(),
+}));
+
 jest.mock('react-native-reanimated', () => {
   const { View } = require('react-native');
 
@@ -240,6 +244,7 @@ jest.mock('@/specs/keeptTurboModuleClient', () => ({
     checkForSystemAlertWindowPermission: jest.fn(() => false),
     checkForNotificationsPermission: jest.fn(() => false),
     checkForIgnoreBatteryOptimizationsPermission: jest.fn(() => false),
+    checkForAccessibilityServicePermission: jest.fn(() => false),
     checkForManifestMonitorPermissions: jest.fn(() => false),
     startMonitorService: jest.fn(() => ({ started: false, reason: 'manifest_permissions_missing' })),
     stopMonitorService: jest.fn(),
@@ -249,6 +254,8 @@ jest.mock('@/specs/keeptTurboModuleClient', () => ({
     requestNotificationsPermission: jest.fn(),
     openNotificationsSettings: jest.fn(),
     requestIgnoreBatteryOptimizationsPermission: jest.fn(),
+    requestAccessibilityServicePermission: jest.fn(),
+    openAccessibilityServiceSettings: jest.fn(),
     getPackagesUsageToday: jest.fn(async () => []),
     getInstalledApplications: jest.fn(async () => []),
     getAppDisplayName: jest.fn(() => ''),
