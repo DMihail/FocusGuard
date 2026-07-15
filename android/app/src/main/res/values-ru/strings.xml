@@ -15,6 +15,13 @@
     <string name="block_overlay_message">Сделайте паузу и верните внимание к важному.</string>
     <string name="block_overlay_snooze">Ещё 5 минут</string>
     <string name="block_overlay_home">На главный экран</string>
+    <string name="block_overlay_pip_note">Если приложение всё ещё видно в маленьком окне или в режиме разделения экрана, закройте его вручную — Android может держать его поверх блокировки.</string>
+    <string name="block_notification_channel_name">Блокировки</string>
+    <string name="block_notification_channel_description">Когда дневной лимит достигнут и нужно показать блокировку</string>
+    <string name="block_notification_title">Дневной лимит исчерпан</string>
+    <string name="block_notification_text">%s заблокировано на сегодня</string>
+    <string name="block_notification_details">%s достигло дневного лимита. Закройте приложение или вернитесь на главный экран. Если оно остаётся в PiP или split-screen, закройте это окно вручную.</string>
+    <string name="block_notification_supplemental_text">%s может быть ещё видно — закройте PiP или split-screen</string>
     <string name="boot_resume_notification_channel_name">Возобновление мониторинга</string>
     <string name="boot_resume_notification_channel_description">Напоминание открыть Keept после перезагрузки телефона</string>
     <string name="boot_resume_notification_title">Включите мониторинг снова</string>

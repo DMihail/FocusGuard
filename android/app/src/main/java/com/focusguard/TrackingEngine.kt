@@ -17,6 +17,7 @@ import com.focusguard.monitor.TrackedUsageChangeEmitter
 import com.focusguard.monitor.TrackingEnginePoll
 import com.focusguard.navigation.DeepLinks
 import com.focusguard.notification.KeeptNotifications
+import com.focusguard.overlay.BlockFallbackNotifier
 import com.focusguard.overlay.BlockOverlayManager
 import com.focusguard.overlay.DailyWarningStore
 import com.focusguard.service.FocusGuardMonitorService
@@ -55,6 +56,9 @@ class TrackingEngine(
 
     /** Package currently over its hard block limit; overlay should stay until snooze or user leaves. */
     private var activeBlockPackage: String? = null
+
+    /** One supplemental PiP nudge per active block session. */
+    private var pipFallbackNotifiedFor: String? = null
 
     private var trackedApps: Set<String> = emptySet()
 
@@ -115,10 +119,17 @@ class TrackingEngine(
         usageEventsObserver = null
         monitoringJob?.cancel()
         monitoringJob = null
+        val blockedPackage = activeBlockPackage
         foregroundStabilizer.reset()
         activeBlockPackage = null
+        pipFallbackNotifiedFor = null
         liveUsageEstimator.clearSession()
-        runOnMainThread { BlockOverlayManager.dismiss(context) }
+        runOnMainThread {
+            BlockOverlayManager.dismiss(context)
+            if (blockedPackage != null) {
+                BlockFallbackNotifier.dismiss(context, blockedPackage)
+            }
+        }
     }
 
     private fun monitorForegroundApp() {
@@ -162,6 +173,8 @@ class TrackingEngine(
         ) {
             clearActiveBlock()
         }
+
+        maybeShowPipFallbackNotification(openSessions)
 
         when {
             foregroundApp != null && isTrackedApp(foregroundApp) -> {
@@ -344,6 +357,15 @@ class TrackingEngine(
 
             if (shown) {
                 BlockOverlayManager.sendUserHome(context)
+                BlockFallbackNotifier.dismiss(context, packageName)
+            } else if (canPostBlockNotifications()) {
+                logDebug("Block overlay not visible for $packageName — showing notification fallback")
+                BlockFallbackNotifier.showPrimaryFallback(
+                    context,
+                    packageName,
+                    getAppLabel(packageName),
+                    limits.strictMode,
+                )
             } else {
                 logDebug("Block overlay not visible for $packageName — will retry on next poll")
             }
@@ -351,14 +373,39 @@ class TrackingEngine(
     }
 
     private fun clearActiveBlock() {
+        val blockedPackage = activeBlockPackage
         activeBlockPackage = null
+        pipFallbackNotifiedFor = null
         runOnMainThread { BlockOverlayManager.dismiss(context) }
+        if (blockedPackage != null) {
+            BlockFallbackNotifier.dismiss(context, blockedPackage)
+        }
     }
+
+    private fun maybeShowPipFallbackNotification(openSessions: Set<String>) {
+        val blockedPackage = activeBlockPackage ?: return
+        if (blockedPackage !in openSessions) return
+        if (!BlockOverlayManager.isShowing()) return
+        if (pipFallbackNotifiedFor == blockedPackage) return
+        if (!canPostBlockNotifications()) return
+
+        BlockFallbackNotifier.showSupplemental(
+            context,
+            blockedPackage,
+            getAppLabel(blockedPackage),
+        )
+        pipFallbackNotifiedFor = blockedPackage
+    }
+
+    private fun canPostBlockNotifications(): Boolean =
+        settingsRepository.areNotificationsEnabled() &&
+            NotificationPermissions.hasPostNotificationsPermission(context)
 
     private fun isTrackedApp(packageName: String): Boolean = trackedApps.contains(packageName)
 
     private fun ensureWarningChannel() {
         KeeptNotifications.ensureWarningChannel(context, notificationManager)
+        KeeptNotifications.ensureBlockChannel(context, notificationManager)
     }
 
     private fun showWarningNotification(packageName: String) {

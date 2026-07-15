@@ -84,7 +84,8 @@ export const ruUi: TranslationTree = {
       },
       displayOverApps: {
         title: 'Поверх других приложений',
-        description: 'Чтобы показать экран блокировки, когда дневной лимит исчерпан',
+        description:
+          'Показывает экран блокировки при достижении дневного лимита. В PiP и split-screen приложение может оставаться видимым — закройте окно вручную.',
       },
       batteryOptimization: {
         title: 'Работа в фоне',
@@ -212,7 +213,8 @@ export const ruUi: TranslationTree = {
     dailyWarningTitle: 'Предупреждение',
     dailyWarningDescription: 'Уведомить, когда за день наберётся столько экранного времени',
     dailyLimitTitle: 'Дневной лимит',
-    dailyLimitDescription: 'Заблокировать приложение при открытии после превышения этого лимита за день',
+    dailyLimitDescription:
+      'Заблокировать приложение при открытии после превышения лимита за день. Окна PiP и split-screen может понадобиться закрыть вручную.',
     strictModeTitle: 'Строгий режим',
     strictModeDescription: 'Без 5-минутной отсрочки при блокировке',
     strictModeA11y: 'Строгий режим',

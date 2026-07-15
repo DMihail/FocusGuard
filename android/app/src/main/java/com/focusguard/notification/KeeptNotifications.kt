@@ -14,6 +14,7 @@ import com.focusguard.R
 internal object KeeptNotifications {
     const val MONITOR_CHANNEL_ID = "keept_monitor"
     const val WARNING_CHANNEL_ID = "keept_warnings"
+    const val BLOCK_CHANNEL_ID = "keept_blocks"
 
     private const val LARGE_ICON_SIZE_PX = 128
 
@@ -64,6 +65,31 @@ internal object KeeptNotifications {
 
     fun warningBuilder(context: Context): NotificationCompat.Builder =
         brandBuilder(context, WARNING_CHANNEL_ID).setLargeIcon(largeIcon(context))
+
+    fun ensureBlockChannel(
+        context: Context,
+        notificationManager: NotificationManager,
+    ) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
+
+        val channel =
+            NotificationChannel(
+                BLOCK_CHANNEL_ID,
+                context.getString(R.string.block_notification_channel_name),
+                NotificationManager.IMPORTANCE_HIGH,
+            ).apply {
+                description = context.getString(R.string.block_notification_channel_description)
+                enableVibration(true)
+                enableLights(true)
+                lightColor = ContextCompat.getColor(context, R.color.over_limit)
+                lockscreenVisibility = Notification.VISIBILITY_PUBLIC
+            }
+
+        notificationManager.createNotificationChannel(channel)
+    }
+
+    fun blockBuilder(context: Context): NotificationCompat.Builder =
+        brandBuilder(context, BLOCK_CHANNEL_ID).setLargeIcon(largeIcon(context))
 
     private fun brandBuilder(
         context: Context,
