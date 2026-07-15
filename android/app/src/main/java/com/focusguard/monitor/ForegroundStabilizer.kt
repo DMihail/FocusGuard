@@ -12,6 +12,12 @@ internal class ForegroundStabilizer(
     private var foregroundCandidateHits = 0
     private var foregroundMisses = 0
 
+    /** True while a new package is debouncing before promotion to [stableForeground]. */
+    fun hasPendingSwitch(): Boolean =
+        foregroundCandidate != null &&
+            foregroundCandidate != stableForeground &&
+            foregroundCandidateHits > 0
+
     fun resolve(raw: String?): String? {
         if (raw == null) {
             foregroundMisses++

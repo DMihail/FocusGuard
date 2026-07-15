@@ -1,6 +1,7 @@
 package com.focusguard
 
 import android.app.NotificationManager
+import android.app.usage.UsageStatsManager
 import android.content.Context
 import android.content.Intent
 import android.os.Build
@@ -9,12 +10,14 @@ import android.os.Looper
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.focusguard.crashlytics.NativeErrorReporter
+import com.focusguard.monitor.ForegroundPollWake
 import com.focusguard.monitor.ForegroundStabilizer
 import com.focusguard.monitor.MonitorPermissions
 import com.focusguard.monitor.MonitoringStateRepository
 import com.focusguard.monitor.NotificationPermissions
 import com.focusguard.monitor.TrackedUsageChangeEmitter
 import com.focusguard.monitor.TrackingEnginePoll
+import com.focusguard.monitor.TrackingEnginePollRecovery
 import com.focusguard.navigation.DeepLinks
 import com.focusguard.notification.KeeptNotifications
 import com.focusguard.overlay.BlockFallbackNotifier
@@ -46,6 +49,8 @@ class TrackingEngine(
     private val settingsRepository = SettingsRepository
     private val notificationManager =
         context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+    private val usageStatsManager =
+        context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
     private val mainHandler = Handler(Looper.getMainLooper())
 
     private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
@@ -62,28 +67,14 @@ class TrackingEngine(
 
     private var trackedApps: Set<String> = emptySet()
 
-    private var usageEventsObserver: UsageEventsForegroundObserver? = null
+    private var consecutivePollFailures = 0
 
     /** Starts the polling loop. No-op if already running. */
     fun start() {
         if (monitoringJob != null) return
 
         ensureWarningChannel()
-
-        usageEventsObserver =
-            UsageEventsForegroundObserver.createIfSupported(context) {
-                scope.launch {
-                    try {
-                        monitorMutex.withLock {
-                            monitorForegroundApp()
-                        }
-                    } catch (error: Exception) {
-                        handleMonitorFailure(error, stopService = false)
-                    }
-                }
-            }?.also { observer ->
-                observer.start()
-            }
+        consecutivePollFailures = 0
 
         monitoringJob = scope.launch {
             while (isActive) {
@@ -91,10 +82,24 @@ class TrackingEngine(
                     monitorMutex.withLock {
                         monitorForegroundApp()
                     }
+                    consecutivePollFailures = 0
                 } catch (error: Exception) {
-                    handleMonitorFailure(error, stopService = true)
+                    consecutivePollFailures += 1
+                    handleMonitorFailure(
+                        error,
+                        stopService = TrackingEnginePollRecovery.shouldStopService(consecutivePollFailures),
+                    )
+
+                    if (TrackingEnginePollRecovery.shouldStopService(consecutivePollFailures)) {
+                        break
+                    }
+
+                    delay(TrackingEnginePollRecovery.BACKOFF_MS)
+                    continue
                 }
-                delay(resolvePollIntervalMs())
+
+                val intervalMs = resolvePollIntervalMs()
+                ForegroundPollWake.delayUntilNextPoll(usageStatsManager, intervalMs)
             }
         }
     }
@@ -110,14 +115,14 @@ class TrackingEngine(
             activeBlockPackage = activeBlockPackage,
             stableForeground = foregroundStabilizer.stableForeground,
             trackedApps = trackedApps,
+            pendingForegroundSwitch = foregroundStabilizer.hasPendingSwitch(),
         )
 
     /** Cancels the polling coroutine and dismisses any active block overlay. */
     fun stop() {
-        usageEventsObserver?.stop()
-        usageEventsObserver = null
         monitoringJob?.cancel()
         monitoringJob = null
+        consecutivePollFailures = 0
         val blockedPackage = activeBlockPackage
         foregroundStabilizer.reset()
         activeBlockPackage = null
@@ -211,10 +216,6 @@ class TrackingEngine(
 
         publishTrackedUsageChanged(
             enteredNewForeground && foregroundApp?.let(::isTrackedApp) == true,
-        )
-
-        usageEventsObserver?.setSupplementalPollingEnabled(
-            resolvePollIntervalMs() == TrackingEnginePoll.IDLE_MS,
         )
     }
 

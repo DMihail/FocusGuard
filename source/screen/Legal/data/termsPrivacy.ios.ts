@@ -51,6 +51,7 @@ export const buildTermsPrivacyDocument = (appDisplayName: string): LegalDocument
       paragraphs: [
         'The app is provided “as is” and “as available” without warranties of any kind, whether express or implied, including fitness for a particular purpose, accuracy of usage statistics, or uninterrupted operation.',
         `iOS updates, Low Power Mode, and Screen Time system behavior may affect monitoring. ${appDisplayName} may not detect or block every app interaction in all circumstances. Blocks use Apple’s system shields, not a custom overlay.`,
+        'On iPad, Split View and Slide Over may keep a shielded app partially visible until you close that window manually.',
       ],
     },
     {

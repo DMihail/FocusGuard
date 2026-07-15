@@ -29,6 +29,19 @@ class TrackingEnginePollTest {
     }
 
     @Test
+    fun `uses active interval while foreground switch is debouncing`() {
+        val interval =
+            TrackingEnginePoll.resolveIntervalMs(
+                activeBlockPackage = null,
+                stableForeground = "com.old",
+                trackedApps = setOf("com.tracked"),
+                pendingForegroundSwitch = true,
+            )
+
+        assertEquals(TrackingEnginePoll.ACTIVE_MS, interval)
+    }
+
+    @Test
     fun `uses idle interval when foreground is untracked`() {
         val interval =
             TrackingEnginePoll.resolveIntervalMs(

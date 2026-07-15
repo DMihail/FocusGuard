@@ -99,10 +99,10 @@ FocusGuard/                          # repo folder (product / store ID: Keept)
 │   │   ├── TrackingEngine.kt      # poll loop, block evaluation
 │   │   ├── DailyUsageRepository.kt  # incremental queryEvents cursor
 │   │   ├── LiveUsageEstimator.kt    # live session overlay on persisted usage
-│   │   ├── ForegroundAppDetector.kt / UsageEventsForegroundObserver.kt
+│   │   ├── ForegroundAppDetector.kt
 │   │   ├── apps/                    # InstalledAppsRepository, AppIconCache
 │   │   ├── crashlytics/             # NativeErrorReporter
-│   │   ├── monitor/                 # FGS helper, permissions, poll policy
+│   │   ├── monitor/                 # FGS helper, ForegroundPollWake, poll policy
 │   │   ├── overlay/                 # BlockOverlayManager, snooze + warning stores
 │   │   ├── permissions/             # system settings intents
 │   │   ├── react/                   # TurboModuleEventDispatchers, KeeptUiThemeModule
@@ -312,16 +312,17 @@ Contract source of truth: `source/store/persistSchema.ts` ↔ `android/.../Persi
 
 ### Android runtime
 
-| Component                       | Role                                                                  |
-| ------------------------------- | --------------------------------------------------------------------- |
-| `FocusGuardMonitorService`      | Foreground service host                                               |
-| `TrackingEngine`                | Poll loop (1s active / 2.5s idle), limit evaluation, block            |
-| `DailyUsageRepository`          | Incremental `queryEvents` cursor — appends `[cursor+1, now]` per read |
-| `UsageEventsForegroundObserver` | API 35+ wake on foreground change (poll stays fallback)               |
-| `BlockOverlayManager`           | Hard block UI                                                         |
-| `WidgetUpdater`                 | Home-screen widget (throttled + deferred coalescing)                  |
-| `LocalDayChangeScheduler`       | `AlarmManager` midnight + clock/timezone receivers                    |
-| `TurboModuleEventDispatchers`   | Routes native signals to Turbo Module listeners                       |
+| Component                     | Role                                                                  |
+| ----------------------------- | --------------------------------------------------------------------- |
+| `FocusGuardMonitorService`    | Foreground service host                                               |
+| `TrackingEngine`              | Poll loop (1s active / 2.5s idle), limit evaluation, block            |
+| `TrackingEnginePollRecovery`  | Retries transient poll failures; stops FGS after 5 consecutive errors |
+| `DailyUsageRepository`        | Incremental `queryEvents` cursor — appends `[cursor+1, now]` per read |
+| `ForegroundPollWake`          | API 35+ idle wait slices (500ms) — early wake, no second scanner      |
+| `BlockOverlayManager`         | Hard block UI                                                         |
+| `WidgetUpdater`               | Home-screen widget (throttled + deferred coalescing)                  |
+| `LocalDayChangeScheduler`     | `AlarmManager` midnight + clock/timezone receivers                    |
+| `TurboModuleEventDispatchers` | Routes native signals to Turbo Module listeners                       |
 
 ### iOS runtime
 
