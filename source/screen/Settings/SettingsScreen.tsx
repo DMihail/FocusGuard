@@ -10,6 +10,7 @@ import { useTranslation } from '@/i18n';
 import { useRootNavigation } from '@/navigation';
 import { testIds } from '@/testing/testIds';
 
+import { useAccessibilityServiceSetting } from './hooks/useAccessibilityServiceSetting';
 import { useNotificationsSetting } from './hooks/useNotificationsSetting';
 import { useSettingsPreferences } from './hooks/useSettingsPreferences';
 import { useSettingsStyles } from './styles';
@@ -30,10 +31,16 @@ export const SettingsScreen = () => {
   const { t } = useTranslation();
   const { isEnabled: notificationsEnabled, setEnabled: setNotificationsEnabled } = useNotificationsSetting();
   const {
+    isEnabled: accessibilityServiceEnabled,
+    setEnabled: setAccessibilityServiceEnabled,
+    isSupported: isAccessibilityServiceSupported,
+  } = useAccessibilityServiceSetting();
+  const {
     isDarkModeEnabled,
     setDarkModeEnabled,
     darkModeToggle,
     notificationsToggle,
+    accessibilityToggle,
     languageLink,
     dataPrivacyLink,
     openLanguagePicker,
@@ -68,6 +75,16 @@ export const SettingsScreen = () => {
               value={notificationsEnabled}
               onValueChange={setNotificationsEnabled}
             />
+            {isAccessibilityServiceSupported && accessibilityToggle ? (
+              <>
+                <View style={styles.rowDivider} />
+                <SettingsToggleRow
+                  {...accessibilityToggle}
+                  value={accessibilityServiceEnabled}
+                  onValueChange={setAccessibilityServiceEnabled}
+                />
+              </>
+            ) : null}
             <View style={styles.rowDivider} />
             <SettingsLinkRow {...languageLink} onPress={openLanguagePicker} />
           </SettingsSection>

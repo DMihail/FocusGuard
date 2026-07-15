@@ -1,6 +1,6 @@
 /** @format */
 
-import { BellIcon, GlobeIcon, LockPrivacyIcon, MoonIcon } from '@/assets/svg/Settings';
+import { AccessibilityIcon, BellIcon, GlobeIcon, LockPrivacyIcon, MoonIcon } from '@/assets/svg/Settings';
 import type { TranslateFn } from '@/i18n/types';
 import { testIds } from '@/testing/testIds';
 import type { ColorPalette } from '@/theme/types';
@@ -12,6 +12,15 @@ export const createNotificationsToggle = (colors: ColorPalette, t: TranslateFn):
   description: t('settings.notifications.description'),
   Icon: BellIcon,
   iconBackgroundColor: colors.accentIconBg,
+});
+
+export const createAccessibilityServiceToggle = (colors: ColorPalette, t: TranslateFn): SettingsToggleItem => ({
+  title: t('settings.accessibilityService.title'),
+  description: t('settings.accessibilityService.description'),
+  Icon: AccessibilityIcon,
+  iconBackgroundColor: colors.accentIconBg,
+  rowTestID: testIds.settings.accessibilityServiceRow,
+  toggleTestID: testIds.settings.accessibilityServiceToggle,
 });
 
 export const createDarkModeToggle = (colors: ColorPalette, t: TranslateFn): SettingsToggleItem => ({

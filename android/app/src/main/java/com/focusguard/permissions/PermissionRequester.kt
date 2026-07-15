@@ -90,4 +90,9 @@ internal class PermissionRequester(
 
         AccessibilityAccess.openSettings(context)
     }
+
+    fun openAccessibilityServiceSettings() {
+        UsageAccess.pinGrantBeforeOtherPermissionSettings(context)
+        AccessibilityAccess.openSettingsScreen(context)
+    }
 }

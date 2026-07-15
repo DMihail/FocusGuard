@@ -55,6 +55,7 @@ export interface Spec extends TurboModule {
   openNotificationsSettings(): void;
   requestIgnoreBatteryOptimizationsPermission(): void;
   requestAccessibilityServicePermission(): void;
+  openAccessibilityServiceSettings(): void;
   getPackagesUsageToday(packageNames: string[]): Promise<PackageUsage[]>;
   getInstalledApplications(): Promise<InstallApp[]>;
   getAppDisplayName(): string;

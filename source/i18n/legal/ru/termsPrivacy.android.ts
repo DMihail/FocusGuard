@@ -6,7 +6,7 @@ import type { LegalDocument } from '@/screen/Legal/types';
 export const buildTermsPrivacyDocument = (appDisplayName: string): LegalDocument => ({
   title: 'Условия и конфиденциальность',
   subtitle: `Правила использования ${appDisplayName}`,
-  lastUpdated: '19 мая 2026 г.',
+  lastUpdated: '15 июля 2026 г.',
   sections: [
     {
       title: 'Соглашение',
@@ -25,7 +25,7 @@ export const buildTermsPrivacyDocument = (appDisplayName: string): LegalDocument
     {
       title: 'Разрешения и ваша ответственность',
       paragraphs: [
-        'Вы отвечаете за выдачу и управление разрешениями Android, необходимыми для мониторинга, оверлеев, уведомлений и фоновой работы.',
+        'Вы отвечаете за выдачу и управление разрешениями Android, необходимыми для мониторинга, оверлеев, уведомлений, необязательной службы специальных возможностей и фоновой работы.',
         `Используйте ${appDisplayName} только на устройствах, которыми вы владеете или которыми уполномочены управлять. Не используйте приложение для мониторинга чужого устройства без ведома и согласия, если это требуется законом.`,
       ],
     },

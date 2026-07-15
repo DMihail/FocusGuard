@@ -239,6 +239,10 @@ export const enUi: TranslationTree = {
       title: 'Notifications',
       description: 'Limit warnings and reminders',
     },
+    accessibilityService: {
+      title: 'App switching detection',
+      description: 'Optional — faster blocking when you change apps',
+    },
     darkMode: {
       title: 'Dark mode',
       descriptionDefault: 'Light or dark appearance',

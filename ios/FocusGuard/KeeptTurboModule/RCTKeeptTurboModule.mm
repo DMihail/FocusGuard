@@ -189,6 +189,10 @@
 {
 }
 
+- (void)openAccessibilityServiceSettings
+{
+}
+
 - (void)getPackagesUsageToday:(NSArray *)packageNames
                       resolve:(RCTPromiseResolveBlock)resolve
                        reject:(RCTPromiseRejectBlock)reject

@@ -134,6 +134,10 @@ class KeeptTurboModule(
     permissionRequester.requestAccessibilityService()
   }
 
+  override fun openAccessibilityServiceSettings() {
+    permissionRequester.openAccessibilityServiceSettings()
+  }
+
   override fun getInstalledApplications(promise: Promise) {
     ioExecutor.execute {
       try {

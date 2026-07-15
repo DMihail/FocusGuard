@@ -106,6 +106,10 @@ export const requestAccessibilityServicePermission = (): void => {
   getModule().requestAccessibilityServicePermission();
 };
 
+export const openAccessibilityServiceSettings = (): void => {
+  getModule().openAccessibilityServiceSettings();
+};
+
 export const getPackagesUsageToday = async (packageNames: readonly string[]): Promise<PackageUsage[]> =>
   (await getModule().getPackagesUsageToday([...packageNames])) ?? [];
 

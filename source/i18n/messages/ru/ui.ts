@@ -244,6 +244,10 @@ export const ruUi: TranslationTree = {
       title: 'Уведомления',
       description: 'Предупреждения о лимитах и напоминания',
     },
+    accessibilityService: {
+      title: 'Переключение приложений',
+      description: 'Необязательно — быстрее блокирует при смене приложения',
+    },
     darkMode: {
       title: 'Тёмная тема',
       descriptionDefault: 'Светлая или тёмная',

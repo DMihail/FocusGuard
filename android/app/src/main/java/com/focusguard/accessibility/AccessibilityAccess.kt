@@ -40,6 +40,10 @@ internal object AccessibilityAccess {
             return
         }
 
+        openSettingsScreen(context)
+    }
+
+    fun openSettingsScreen(context: Context) {
         val intents =
             listOf(
                 Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS),

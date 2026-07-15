@@ -66,4 +66,12 @@ internal object ForegroundAccessibilityBridge {
         wakeListeners.add(listener)
         return { wakeListeners.remove(listener) }
     }
+
+    /** @internal Resets bridge state between unit tests. */
+    fun resetForTests() {
+        latestForegroundPackage = null
+        latestForegroundAtMs = 0L
+        serviceConnected = false
+        wakeListeners.clear()
+    }
 }

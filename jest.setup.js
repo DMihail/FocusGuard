@@ -251,6 +251,7 @@ jest.mock('@/specs/keeptTurboModuleClient', () => ({
     openNotificationsSettings: jest.fn(),
     requestIgnoreBatteryOptimizationsPermission: jest.fn(),
     requestAccessibilityServicePermission: jest.fn(),
+    openAccessibilityServiceSettings: jest.fn(),
     getPackagesUsageToday: jest.fn(async () => []),
     getInstalledApplications: jest.fn(async () => []),
     getAppDisplayName: jest.fn(() => ''),
