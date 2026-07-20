@@ -41,7 +41,6 @@ export interface Spec extends TurboModule {
   checkForSystemAlertWindowPermission(): boolean;
   checkForNotificationsPermission(): boolean;
   checkForIgnoreBatteryOptimizationsPermission(): boolean;
-  checkForAccessibilityServicePermission(): boolean;
   checkForManifestMonitorPermissions(): boolean;
   startMonitorService(): MonitorServiceStartResultCodegen;
   stopMonitorService(): void;
@@ -51,13 +50,10 @@ export interface Spec extends TurboModule {
   requestNotificationsPermission(): void;
   openNotificationsSettings(): void;
   requestIgnoreBatteryOptimizationsPermission(): void;
-  requestAccessibilityServicePermission(): void;
-  openAccessibilityServiceSettings(): void;
   getPackagesUsageToday(packageNames: string[]): Promise<PackageUsage[]>;
   getInstalledApplications(): Promise<InstallApp[]>;
   getAppDisplayName(): string;
   getAppVersion(): string;
-  invalidateNativeCatalogCaches(): void;
   invalidateNativeInstalledAppsCache(): void;
   invalidateNativeUsageCache(): void;
   syncTrackingConfig(snapshotJson: string): void;

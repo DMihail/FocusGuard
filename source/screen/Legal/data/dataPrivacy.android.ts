@@ -37,7 +37,6 @@ export const buildDataPrivacyDocument = (appDisplayName: string): LegalDocument 
         '• Usage Access — to read app usage statistics for apps you manage.',
         '• Display over other apps — to show blocking or warning overlays when limits apply.',
         '• Notifications — for reminders and limit alerts (you can turn these off in Settings).',
-        '• Accessibility service (optional) — to detect when you switch apps so blocking can react faster. The service observes window changes only; it does not read screen text, record keystrokes, or capture screenshots.',
         '• Run in background / battery optimization exemption — so monitoring can continue after you leave the app or restart the device.',
         '• Foreground service — to keep focus monitoring active with a visible ongoing notification while protection is enabled.',
         '• Installed apps visibility — to list apps you can select for limits on supported Android versions.',
@@ -57,7 +56,6 @@ export const buildDataPrivacyDocument = (appDisplayName: string): LegalDocument 
         `${appDisplayName} does not:`,
         '• Collect your contacts, messages, photos, or browsing history.',
         '• Record keystrokes or screen contents outside what Android Usage Access provides for app usage metrics.',
-        '• Read screen text or UI content through the optional accessibility service (window-change events only).',
         '• Share your usage data with third parties for marketing.',
         '• Require an account to use the core on-device experience described in this policy.',
       ],
@@ -65,7 +63,7 @@ export const buildDataPrivacyDocument = (appDisplayName: string): LegalDocument 
     {
       title: 'Your choices and controls',
       paragraphs: [
-        'You can change which apps are tracked, adjust notification and accessibility preferences in Settings, and revoke Android permissions in system settings.',
+        'You can change which apps are tracked, adjust notification preferences in Settings, and revoke Android permissions in system settings.',
         'Because processing happens on your device, you remain in control of whether monitoring and overlays stay active by managing permissions and app settings.',
       ],
     },

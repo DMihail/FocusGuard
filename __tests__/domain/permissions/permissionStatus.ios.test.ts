@@ -36,7 +36,6 @@ describe('permissionStatus.ios', () => {
       notifications: 'granted',
       'display-over-apps': 'granted',
       'battery-optimization': 'granted',
-      'accessibility-service': 'granted',
     });
     expect(mockCheckForPermission).toHaveBeenCalled();
   });

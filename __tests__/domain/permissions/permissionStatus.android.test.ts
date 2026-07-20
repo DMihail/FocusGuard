@@ -6,13 +6,11 @@ const mockCheckForPermission = jest.fn();
 const mockCheckForSystemAlertWindowPermission = jest.fn();
 const mockCheckForNotificationsPermission = jest.fn();
 const mockCheckForIgnoreBatteryOptimizationsPermission = jest.fn();
-const mockCheckForAccessibilityServicePermission = jest.fn();
 const mockCheckForManifestMonitorPermissions = jest.fn();
 const mockRequestUsageStatsPermission = jest.fn();
 const mockRequestSystemAlertWindowPermission = jest.fn();
 const mockRequestNotificationsPermission = jest.fn();
 const mockRequestIgnoreBatteryOptimizationsPermission = jest.fn();
-const mockRequestAccessibilityServicePermission = jest.fn();
 
 jest.mock('@/specs/keeptTurboModuleApi.android', () => ({
   checkForPermission: (...args: unknown[]) => mockCheckForPermission(...args),
@@ -20,14 +18,12 @@ jest.mock('@/specs/keeptTurboModuleApi.android', () => ({
   checkForNotificationsPermission: (...args: unknown[]) => mockCheckForNotificationsPermission(...args),
   checkForIgnoreBatteryOptimizationsPermission: (...args: unknown[]) =>
     mockCheckForIgnoreBatteryOptimizationsPermission(...args),
-  checkForAccessibilityServicePermission: (...args: unknown[]) => mockCheckForAccessibilityServicePermission(...args),
   checkForManifestMonitorPermissions: (...args: unknown[]) => mockCheckForManifestMonitorPermissions(...args),
   requestUsageStatsPermission: (...args: unknown[]) => mockRequestUsageStatsPermission(...args),
   requestSystemAlertWindowPermission: (...args: unknown[]) => mockRequestSystemAlertWindowPermission(...args),
   requestNotificationsPermission: (...args: unknown[]) => mockRequestNotificationsPermission(...args),
   requestIgnoreBatteryOptimizationsPermission: (...args: unknown[]) =>
     mockRequestIgnoreBatteryOptimizationsPermission(...args),
-  requestAccessibilityServicePermission: (...args: unknown[]) => mockRequestAccessibilityServicePermission(...args),
 }));
 
 import {
@@ -42,7 +38,6 @@ const allPending = {
   'display-over-apps': 'pending',
   notifications: 'pending',
   'battery-optimization': 'pending',
-  'accessibility-service': 'pending',
 } as const;
 
 const allGranted = {
@@ -50,7 +45,6 @@ const allGranted = {
   'display-over-apps': 'granted',
   notifications: 'granted',
   'battery-optimization': 'granted',
-  'accessibility-service': 'granted',
 } as const;
 
 const grantRequiredChecks = () => {
@@ -62,7 +56,6 @@ const grantRequiredChecks = () => {
 const grantAllCardChecks = () => {
   grantRequiredChecks();
   mockCheckForNotificationsPermission.mockReturnValue(true);
-  mockCheckForAccessibilityServicePermission.mockReturnValue(true);
 };
 
 describe('permissionStatus.android', () => {
@@ -74,7 +67,6 @@ describe('permissionStatus.android', () => {
     mockCheckForSystemAlertWindowPermission.mockReturnValue(false);
     mockCheckForNotificationsPermission.mockReturnValue(false);
     mockCheckForIgnoreBatteryOptimizationsPermission.mockReturnValue(false);
-    mockCheckForAccessibilityServicePermission.mockReturnValue(false);
     mockCheckForManifestMonitorPermissions.mockReturnValue(false);
   });
 
@@ -108,15 +100,6 @@ describe('permissionStatus.android', () => {
 
     expect(areRequiredPermissionsGranted(readPermissionStatuses())).toBe(true);
     expect(readPermissionStatuses()['battery-optimization']).toBe('pending');
-  });
-
-  it('does not require accessibility service to continue', () => {
-    grantRequiredChecks();
-    mockCheckForAccessibilityServicePermission.mockReturnValue(false);
-    mockCheckForManifestMonitorPermissions.mockReturnValue(true);
-
-    expect(areRequiredPermissionsGranted(readPermissionStatuses())).toBe(true);
-    expect(readPermissionStatuses()['accessibility-service']).toBe('pending');
   });
 
   it('reads granted statuses when visible checks pass', () => {

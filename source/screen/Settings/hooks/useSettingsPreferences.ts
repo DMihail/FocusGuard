@@ -1,13 +1,11 @@
 /** @format */
 
 import { useMemo } from 'react';
-import { Platform } from 'react-native';
 
 import { useTheme } from '@/hooks/useTheme';
 import { useTranslation } from '@/i18n';
 
 import {
-  createAccessibilityServiceToggle,
   createDarkModeToggle,
   createDataPrivacyLink,
   createLanguageLink,
@@ -28,7 +26,6 @@ export const useSettingsPreferences = () => {
       setDarkModeEnabled,
       openLanguagePicker,
       notificationsToggle: createNotificationsToggle(colors, t),
-      accessibilityToggle: Platform.OS === 'android' ? createAccessibilityServiceToggle(colors, t) : undefined,
       darkModeToggle: {
         ...createDarkModeToggle(colors, t),
         description: t(descriptionKey),

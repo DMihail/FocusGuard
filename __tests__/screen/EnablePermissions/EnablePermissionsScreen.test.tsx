@@ -24,13 +24,11 @@ const mockCheckForPermission = jest.fn();
 const mockCheckForSystemAlertWindowPermission = jest.fn();
 const mockCheckForNotificationsPermission = jest.fn();
 const mockCheckForIgnoreBatteryOptimizationsPermission = jest.fn();
-const mockCheckForAccessibilityServicePermission = jest.fn();
 const mockCheckForManifestMonitorPermissions = jest.fn();
 const mockRequestUsageStatsPermission = jest.fn();
 const mockRequestSystemAlertWindowPermission = jest.fn();
 const mockRequestNotificationsPermission = jest.fn();
 const mockRequestIgnoreBatteryOptimizationsPermission = jest.fn();
-const mockRequestAccessibilityServicePermission = jest.fn();
 
 jest.mock('@react-navigation/native', () => ({
   useFocusEffect: (callback: () => void | (() => void)) => {
@@ -54,14 +52,12 @@ jest.mock('@/specs/keeptTurboModuleApi.android', () => ({
   checkForNotificationsPermission: (...args: unknown[]) => mockCheckForNotificationsPermission(...args),
   checkForIgnoreBatteryOptimizationsPermission: (...args: unknown[]) =>
     mockCheckForIgnoreBatteryOptimizationsPermission(...args),
-  checkForAccessibilityServicePermission: (...args: unknown[]) => mockCheckForAccessibilityServicePermission(...args),
   checkForManifestMonitorPermissions: (...args: unknown[]) => mockCheckForManifestMonitorPermissions(...args),
   requestUsageStatsPermission: (...args: unknown[]) => mockRequestUsageStatsPermission(...args),
   requestSystemAlertWindowPermission: (...args: unknown[]) => mockRequestSystemAlertWindowPermission(...args),
   requestNotificationsPermission: (...args: unknown[]) => mockRequestNotificationsPermission(...args),
   requestIgnoreBatteryOptimizationsPermission: (...args: unknown[]) =>
     mockRequestIgnoreBatteryOptimizationsPermission(...args),
-  requestAccessibilityServicePermission: (...args: unknown[]) => mockRequestAccessibilityServicePermission(...args),
   subscribePermissionsChanged: (listener: () => void) => {
     triggerPermissionsChanged = listener;
     return { remove: mockRemovePermissionsListener };

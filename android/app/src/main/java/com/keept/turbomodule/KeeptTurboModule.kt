@@ -17,7 +17,6 @@ import com.focusguard.monitor.MonitorServiceHelper
 import com.focusguard.monitor.NotificationPermissions
 import com.focusguard.monitor.OverlayAccess
 import com.focusguard.monitor.UsageAccess
-import com.focusguard.accessibility.AccessibilityAccess
 import com.focusguard.permissions.BatteryOptimizationAccess
 import com.focusguard.permissions.PermissionRequester
 import com.focusguard.platform.AppInfo
@@ -95,9 +94,6 @@ class KeeptTurboModule(
   override fun checkForIgnoreBatteryOptimizationsPermission(): Boolean =
       BatteryOptimizationAccess.isExempt(appContext)
 
-  override fun checkForAccessibilityServicePermission(): Boolean =
-      AccessibilityAccess.isEnabled(appContext)
-
   override fun checkForManifestMonitorPermissions(): Boolean =
       MonitorPermissions.hasManifestMonitorPermissions(appContext)
 
@@ -128,14 +124,6 @@ class KeeptTurboModule(
 
   override fun requestIgnoreBatteryOptimizationsPermission() {
     permissionRequester.requestBatteryOptimizationExemption()
-  }
-
-  override fun requestAccessibilityServicePermission() {
-    permissionRequester.requestAccessibilityService()
-  }
-
-  override fun openAccessibilityServiceSettings() {
-    permissionRequester.openAccessibilityServiceSettings()
   }
 
   override fun getInstalledApplications(promise: Promise) {
@@ -172,11 +160,6 @@ class KeeptTurboModule(
   override fun getAppDisplayName(): String = AppInfo.getDisplayName(appContext)
 
   override fun getAppVersion(): String = AppInfo.getVersionName()
-
-  override fun invalidateNativeCatalogCaches() {
-    invalidateNativeInstalledAppsCache()
-    invalidateNativeUsageCache()
-  }
 
   override fun invalidateNativeInstalledAppsCache() {
     installedAppsRepository.invalidateCache()

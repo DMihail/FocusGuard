@@ -1,12 +1,10 @@
 /** @format */
 
 import {
-  checkForAccessibilityServicePermission,
   checkForIgnoreBatteryOptimizationsPermission,
   checkForNotificationsPermission,
   checkForPermission,
   checkForSystemAlertWindowPermission,
-  requestAccessibilityServicePermission,
   requestIgnoreBatteryOptimizationsPermission,
   requestNotificationsPermission,
   requestSystemAlertWindowPermission,
@@ -20,7 +18,6 @@ export const permissionChecks: Record<PermissionId, () => boolean> = {
   'display-over-apps': checkForSystemAlertWindowPermission,
   notifications: checkForNotificationsPermission,
   'battery-optimization': checkForIgnoreBatteryOptimizationsPermission,
-  'accessibility-service': checkForAccessibilityServicePermission,
 };
 
 export const permissionRequests: Record<PermissionId, () => void> = {
@@ -28,5 +25,4 @@ export const permissionRequests: Record<PermissionId, () => void> = {
   'display-over-apps': requestSystemAlertWindowPermission,
   notifications: requestNotificationsPermission,
   'battery-optimization': requestIgnoreBatteryOptimizationsPermission,
-  'accessibility-service': requestAccessibilityServicePermission,
 };

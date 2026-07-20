@@ -7,7 +7,6 @@ const ANDROID_PERMISSION_IDS: PermissionId[] = [
   'display-over-apps',
   'battery-optimization',
   'notifications',
-  'accessibility-service',
 ];
 
 /** Android permission cards shown on Enable Permissions. */

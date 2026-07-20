@@ -8,7 +8,6 @@ import android.net.Uri
 import android.os.Build
 import android.provider.Settings
 import androidx.core.app.ActivityCompat
-import com.focusguard.accessibility.AccessibilityAccess
 import com.focusguard.monitor.NotificationPermissions
 import com.focusguard.monitor.OverlayAccess
 import com.focusguard.monitor.UsageAccess
@@ -79,20 +78,5 @@ internal class PermissionRequester(
             )
 
         ActivityIntents.startFirstAvailable(context, intents, activityProvider())
-    }
-
-    fun requestAccessibilityService() {
-        UsageAccess.pinGrantBeforeOtherPermissionSettings(context)
-
-        if (AccessibilityAccess.isEnabled(context)) {
-            return
-        }
-
-        AccessibilityAccess.openSettings(context)
-    }
-
-    fun openAccessibilityServiceSettings() {
-        UsageAccess.pinGrantBeforeOtherPermissionSettings(context)
-        AccessibilityAccess.openSettingsScreen(context)
     }
 }

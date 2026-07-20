@@ -96,11 +96,6 @@ export const ruUi: TranslationTree = {
         title: 'Уведомления',
         description: 'Необязательно — предупреждения о лимитах и напоминания. Можно включить позже в настройках.',
       },
-      accessibilityService: {
-        title: 'Переключение приложений',
-        description:
-          'Необязательно — быстрее определяет смену приложения для более надёжной блокировки. Не читает содержимое экрана.',
-      },
     },
     ios: {
       screenTime: {
@@ -243,10 +238,6 @@ export const ruUi: TranslationTree = {
     notifications: {
       title: 'Уведомления',
       description: 'Предупреждения о лимитах и напоминания',
-    },
-    accessibilityService: {
-      title: 'Переключение приложений',
-      description: 'Необязательно — быстрее блокирует при смене приложения',
     },
     darkMode: {
       title: 'Тёмная тема',
