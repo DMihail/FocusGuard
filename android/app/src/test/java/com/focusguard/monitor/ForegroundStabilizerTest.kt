@@ -31,23 +31,6 @@ class ForegroundStabilizerTest {
     }
 
     @Test
-    fun `reports pending switch before stable promotion`() {
-        val stabilizer = ForegroundStabilizer()
-
-        assertEquals(false, stabilizer.hasPendingSwitch())
-
-        stabilizer.resolve("com.example.app")
-
-        assertEquals(true, stabilizer.hasPendingSwitch())
-        assertNull(stabilizer.stableForeground)
-
-        stabilizer.resolve("com.example.app")
-
-        assertEquals(false, stabilizer.hasPendingSwitch())
-        assertEquals("com.example.app", stabilizer.stableForeground)
-    }
-
-    @Test
     fun `clears stable foreground after consecutive misses`() {
         val stabilizer = ForegroundStabilizer()
 

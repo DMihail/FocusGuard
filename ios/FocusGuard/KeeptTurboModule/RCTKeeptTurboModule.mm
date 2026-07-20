@@ -122,11 +122,6 @@
   return @YES;
 }
 
-- (NSNumber *)checkForAccessibilityServicePermission
-{
-  return @YES;
-}
-
 - (NSNumber *)checkForManifestMonitorPermissions
 {
   return @YES;
@@ -185,14 +180,6 @@
 {
 }
 
-- (void)requestAccessibilityServicePermission
-{
-}
-
-- (void)openAccessibilityServiceSettings
-{
-}
-
 - (void)getPackagesUsageToday:(NSArray *)packageNames
                       resolve:(RCTPromiseResolveBlock)resolve
                        reject:(RCTPromiseRejectBlock)reject
@@ -221,11 +208,6 @@
 - (NSString *)getAppVersion
 {
   return [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"] ?: @"";
-}
-
-- (void)invalidateNativeCatalogCaches
-{
-  [KeeptScreenTimeBridge invalidateNativeCatalogCaches];
 }
 
 - (void)invalidateNativeInstalledAppsCache

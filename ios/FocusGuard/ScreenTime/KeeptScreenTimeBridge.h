@@ -24,7 +24,6 @@ NS_ASSUME_NONNULL_BEGIN
 + (void)getPackagesUsageToday:(NSArray<NSString *> *)packageNames
                       resolve:(RCTPromiseResolveBlock)resolve
                        reject:(RCTPromiseRejectBlock)reject;
-+ (void)invalidateNativeCatalogCaches;
 + (void)invalidateNativeInstalledAppsCache;
 + (void)invalidateNativeUsageCache;
 

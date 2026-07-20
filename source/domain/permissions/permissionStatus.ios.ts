@@ -17,7 +17,6 @@ export const readPermissionStatuses = (): Record<PermissionId, PermissionStatus>
     ...visibleStatuses,
     'display-over-apps': 'granted',
     'battery-optimization': 'granted',
-    'accessibility-service': 'granted',
   };
 };
 

@@ -37,5 +37,4 @@
     <string name="widget_no_apps">Нет отслеживаемых приложений</string>
     <string name="widget_no_apps_subtitle">Откройте Keept и выберите приложения</string>
     <string name="widget_monitoring_off">Мониторинг выкл.</string>
-    <string name="accessibility_service_description">Определяет переключение приложений, чтобы Keept быстрее блокировал отвлекающие приложения. Не читает содержимое экрана.</string>
 </resources>

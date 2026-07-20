@@ -1,12 +1,6 @@
 /** @format */
 
-import {
-  AccessibilityServiceIcon,
-  BatteryOptimization,
-  DisplayOverApps,
-  NotificationsIcon,
-  UsageAccess,
-} from '@/assets/svg/EnablePermissions';
+import { BatteryOptimization, DisplayOverApps, NotificationsIcon, UsageAccess } from '@/assets/svg/EnablePermissions';
 import type { TranslateFn } from '@/i18n';
 
 import type { PermissionItem } from '../types';
@@ -39,12 +33,5 @@ export const createPermissions = (appName: string, t: TranslateFn): PermissionIt
     description: t('permissions.android.notifications.description'),
     status: 'pending',
     Icon: NotificationsIcon,
-  },
-  {
-    id: 'accessibility-service',
-    title: t('permissions.android.accessibilityService.title'),
-    description: t('permissions.android.accessibilityService.description'),
-    status: 'pending',
-    Icon: AccessibilityServiceIcon,
   },
 ];

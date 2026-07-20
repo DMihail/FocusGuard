@@ -26,7 +26,7 @@ export const buildTermsPrivacyDocument = (appDisplayName: string): LegalDocument
     {
       title: 'Permissions and your responsibility',
       paragraphs: [
-        'You are responsible for granting and managing Android permissions required for monitoring, overlays, notifications, optional accessibility detection, and background operation.',
+        'You are responsible for granting and managing Android permissions required for monitoring, overlays, notifications, and background operation.',
         `You must use ${appDisplayName} only on devices you own or are authorized to manage. Do not use the app to monitor another person’s device without their knowledge and consent where required by law.`,
       ],
     },

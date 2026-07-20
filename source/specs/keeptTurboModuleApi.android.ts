@@ -68,9 +68,6 @@ export const checkForNotificationsPermission = (): boolean => getModule().checkF
 export const checkForIgnoreBatteryOptimizationsPermission = (): boolean =>
   getModule().checkForIgnoreBatteryOptimizationsPermission();
 
-export const checkForAccessibilityServicePermission = (): boolean =>
-  getModule().checkForAccessibilityServicePermission();
-
 export const checkForManifestMonitorPermissions = (): boolean => getModule().checkForManifestMonitorPermissions();
 
 export const startMonitorService = (): MonitorServiceStartResult =>
@@ -100,14 +97,6 @@ export const openNotificationsSettings = (): void => {
 
 export const requestIgnoreBatteryOptimizationsPermission = (): void => {
   getModule().requestIgnoreBatteryOptimizationsPermission();
-};
-
-export const requestAccessibilityServicePermission = (): void => {
-  getModule().requestAccessibilityServicePermission();
-};
-
-export const openAccessibilityServiceSettings = (): void => {
-  getModule().openAccessibilityServiceSettings();
 };
 
 export const getPackagesUsageToday = async (packageNames: readonly string[]): Promise<PackageUsage[]> =>
