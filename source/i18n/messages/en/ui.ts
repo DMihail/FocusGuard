@@ -82,7 +82,8 @@ export const enUi: TranslationTree = {
       },
       displayOverApps: {
         title: 'Display over other apps',
-        description: 'Shows the block screen when a daily limit is reached',
+        description:
+          'Shows the block screen when a daily limit is reached. Picture-in-picture and split screen may still show the app — close those windows manually.',
       },
       batteryOptimization: {
         title: 'Run in background',
@@ -208,7 +209,8 @@ export const enUi: TranslationTree = {
     dailyWarningTitle: 'Warning',
     dailyWarningDescription: 'Notify me when I reach this much screen time today',
     dailyLimitTitle: 'Daily limit',
-    dailyLimitDescription: 'Block the app when I open it after reaching this limit today',
+    dailyLimitDescription:
+      'Block the app when I open it after reaching this limit today. PiP and split-screen windows may need to be closed manually.',
     strictModeTitle: 'Strict mode',
     strictModeDescription: 'No 5-minute snooze when blocked',
     strictModeA11y: 'Strict mode',

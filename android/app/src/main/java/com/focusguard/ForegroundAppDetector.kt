@@ -5,6 +5,7 @@ import android.app.usage.UsageStatsManager
 import android.content.Context
 import android.os.Build
 import androidx.annotation.RequiresApi
+import com.focusguard.monitor.OpenSessionTracker
 
 /**
  * Determines which application is currently in the foreground.
@@ -33,43 +34,55 @@ class ForegroundAppDetector(
     private var stickyForegroundAt = 0L
     private var statsFallbackPollCounter = 0
 
+    /** When true, skips sticky caches and queries UsageEvents every poll (used during active blocks). */
+    @Volatile
+    var aggressivePolling: Boolean = false
+
+    /** Packages with an open foreground session (split-screen, PiP, multi-window). */
+    fun getOpenForegroundPackages(): Set<String> =
+        OpenSessionTracker.scanOpenPackages(usageStatsManager)
+
     /**
      * Returns the package name of the app that most recently moved to the foreground,
      * or `null` if detection fails and no recent sticky value is available.
      */
-    fun getForegroundApp(): String? {
+    fun getForegroundApp(): String? = queryLatestResumedPackage(useStickyCache = !aggressivePolling)
+
+    private fun queryLatestResumedPackage(useStickyCache: Boolean): String? {
         val now = System.currentTimeMillis()
         val cached = stickyForeground
 
-        if (cached != null && now - stickyForegroundAt <= STICKY_QUERY_SKIP_MS) {
+        if (useStickyCache && cached != null && now - stickyForegroundAt <= STICKY_QUERY_SKIP_MS) {
             return cached
         }
 
-        val detected = getForegroundAppFromEvents() ?: getForegroundAppFromStatsThrottled()
+        val detected =
+            getForegroundAppFromEvents(bypassCoalesce = !useStickyCache) ?:
+                getForegroundAppFromStatsThrottled(force = !useStickyCache)
         if (detected != null) {
             stickyForeground = detected
             stickyForegroundAt = now
             return detected
         }
 
-        if (cached != null && now - stickyForegroundAt <= STICKY_FOREGROUND_MS) {
+        if (useStickyCache && cached != null && now - stickyForegroundAt <= STICKY_FOREGROUND_MS) {
             return cached
         }
 
         return null
     }
 
-    private fun getForegroundAppFromEvents(): String? {
+    private fun getForegroundAppFromEvents(bypassCoalesce: Boolean): String? {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
-            return getForegroundAppFromEventsQuery()
+            return getForegroundAppFromEventsQuery(bypassCoalesce)
         }
 
         return getForegroundAppFromLegacyEvents()
     }
 
     @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
-    private fun getForegroundAppFromEventsQuery(): String? {
-        return ForegroundEventsQuery.queryLatestResumedPackage(usageStatsManager)
+    private fun getForegroundAppFromEventsQuery(bypassCoalesce: Boolean): String? {
+        return ForegroundEventsQuery.queryLatestResumedPackage(usageStatsManager, bypassCoalesce)
     }
 
     private fun getForegroundAppFromLegacyEvents(): String? {
@@ -94,11 +107,13 @@ class ForegroundAppDetector(
      * Fallback: queries aggregated usage stats and returns the package
      * whose `lastTimeUsed` is closest to now (within [STATS_RECENCY_MS]).
      */
-    private fun getForegroundAppFromStatsThrottled(): String? {
-        statsFallbackPollCounter += 1
+    private fun getForegroundAppFromStatsThrottled(force: Boolean = false): String? {
+        if (!force) {
+            statsFallbackPollCounter += 1
 
-        if (statsFallbackPollCounter % STATS_FALLBACK_EVERY_N_POLLS != 0) {
-            return null
+            if (statsFallbackPollCounter % STATS_FALLBACK_EVERY_N_POLLS != 0) {
+                return null
+            }
         }
 
         return getForegroundAppFromStats()

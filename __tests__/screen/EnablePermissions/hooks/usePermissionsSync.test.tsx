@@ -1,7 +1,7 @@
 /** @format */
 
 import React from 'react';
-import { AppState, Platform } from 'react-native';
+import { Platform } from 'react-native';
 
 import ReactTestRenderer from 'react-test-renderer';
 
@@ -60,9 +60,6 @@ const grantedStatuses: Record<PermissionId, PermissionStatus> = {
   'battery-optimization': 'granted',
 };
 
-let appStateListener: ((state: string) => void) | undefined;
-const mockRemoveAppStateListener = jest.fn();
-
 const PermissionsProbe = ({ onReady }: { onReady: (value: ReturnType<typeof usePermissionsSync>) => void }) => {
   const value = usePermissionsSync();
   onReady(value);
@@ -73,31 +70,36 @@ describe('usePermissionsSync', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     triggerPermissionsChanged = undefined;
-    appStateListener = undefined;
     mockGetPermissionStatuses.mockReturnValue(pendingStatuses);
     jest.replaceProperty(Platform, 'OS', 'android');
-
-    jest.spyOn(AppState, 'addEventListener').mockImplementation((_, listener) => {
-      appStateListener = listener as (state: string) => void;
-      return { remove: mockRemoveAppStateListener };
-    });
   });
 
-  it('does not sync when AppState is not active', () => {
+  it('syncs statuses on screen focus', () => {
+    mockGetPermissionStatuses.mockReturnValue(grantedStatuses);
+
     ReactTestRenderer.act(() => {
       ReactTestRenderer.create(<PermissionsProbe onReady={() => undefined} />);
     });
 
-    const callsBefore = mockGetPermissionStatuses.mock.calls.length;
-
-    ReactTestRenderer.act(() => {
-      appStateListener?.('background');
-    });
-
-    expect(mockGetPermissionStatuses).toHaveBeenCalledTimes(callsBefore);
+    expect(mockInvalidatePermissionSnapshot).toHaveBeenCalled();
+    expect(mockGetPermissionStatuses).toHaveBeenCalledWith(true);
   });
 
-  it('keeps usage-access granted in UI after a transient native false read', () => {
+  it('re-syncs when native permissions changed event fires after mount', () => {
+    ReactTestRenderer.act(() => {
+      ReactTestRenderer.create(<PermissionsProbe onReady={() => undefined} />);
+    });
+
+    const callsAfterMount = mockGetPermissionStatuses.mock.calls.length;
+
+    ReactTestRenderer.act(() => {
+      triggerPermissionsChanged?.();
+    });
+
+    expect(mockGetPermissionStatuses.mock.calls.length).toBe(callsAfterMount + 1);
+  });
+
+  it('keeps usage-access granted in UI after a transient native false read via native event', () => {
     let hook: ReturnType<typeof usePermissionsSync> | undefined;
 
     ReactTestRenderer.act(() => {
@@ -113,7 +115,7 @@ describe('usePermissionsSync', () => {
     mockGetPermissionStatuses.mockReturnValue(grantedStatuses);
 
     ReactTestRenderer.act(() => {
-      appStateListener?.('active');
+      triggerPermissionsChanged?.();
     });
 
     mockGetPermissionStatuses.mockReturnValue({
@@ -122,7 +124,7 @@ describe('usePermissionsSync', () => {
     });
 
     ReactTestRenderer.act(() => {
-      appStateListener?.('active');
+      triggerPermissionsChanged?.();
     });
 
     expect(hook!.permissions.find((item) => item.id === 'usage-access')?.status).toBe('granted');

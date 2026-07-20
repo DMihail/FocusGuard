@@ -7,7 +7,7 @@ import type { LegalDocument } from '../types';
 export const buildTermsPrivacyDocument = (appDisplayName: string): LegalDocument => ({
   title: 'Terms & Privacy',
   subtitle: `Rules for using ${appDisplayName}`,
-  lastUpdated: 'May 19, 2026',
+  lastUpdated: 'July 15, 2026',
   sections: [
     {
       title: 'Agreement',
@@ -51,6 +51,7 @@ export const buildTermsPrivacyDocument = (appDisplayName: string): LegalDocument
       paragraphs: [
         'The app is provided “as is” and “as available” without warranties of any kind, whether express or implied, including fitness for a particular purpose, accuracy of usage statistics, or uninterrupted operation.',
         `Device manufacturers, OS updates, and battery optimizations may affect monitoring. ${appDisplayName} may not detect or block every app interaction in all circumstances.`,
+        'Picture-in-picture, split-screen, and other multi-window modes may keep a blocked app visible above the block screen until you close that window manually.',
       ],
     },
     {

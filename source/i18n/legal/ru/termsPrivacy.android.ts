@@ -6,7 +6,7 @@ import type { LegalDocument } from '@/screen/Legal/types';
 export const buildTermsPrivacyDocument = (appDisplayName: string): LegalDocument => ({
   title: 'Условия и конфиденциальность',
   subtitle: `Правила использования ${appDisplayName}`,
-  lastUpdated: '19 мая 2026 г.',
+  lastUpdated: '15 июля 2026 г.',
   sections: [
     {
       title: 'Соглашение',
@@ -50,6 +50,7 @@ export const buildTermsPrivacyDocument = (appDisplayName: string): LegalDocument
       paragraphs: [
         'Приложение предоставляется «как есть» и «по мере доступности» без каких-либо гарантий, явных или подразумеваемых, включая пригодность для конкретной цели, точность статистики или бесперебойную работу.',
         `Производители устройств, обновления ОС и оптимизация батареи могут влиять на мониторинг. ${appDisplayName} может не обнаруживать или не блокировать каждое взаимодействие с приложением во всех случаях.`,
+        'Режимы «картинка в картинке», split-screen и другие форматы multi-window могут оставлять заблокированное приложение видимым поверх экрана блокировки, пока вы не закроете это окно вручную.',
       ],
     },
     {

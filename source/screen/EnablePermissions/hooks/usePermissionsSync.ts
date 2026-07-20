@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Platform } from 'react-native';
 
+import { useFocusEffect } from '@react-navigation/native';
+
 import { getAppDisplayName } from '@/constants/appDisplayName';
 import type { PermissionId, PermissionStatus } from '@/domain/permissions';
 import { areRequiredPermissionsGranted, getPermissionIds, requestPermissionById } from '@/domain/permissions';
 import { getPermissionStatuses, invalidatePermissionSnapshot } from '@/domain/permissionSnapshot';
-import { useRunOnFocusAndActive } from '@/hooks/useRunOnFocusAndActive';
 import { useTranslation } from '@/i18n';
 import { subscribePermissionsChanged } from '@/specs';
 
@@ -57,7 +58,11 @@ export const usePermissionsSync = () => {
     applyStatuses();
   }, [applyStatuses]);
 
-  useRunOnFocusAndActive(syncStatuses);
+  useFocusEffect(
+    useCallback(() => {
+      syncStatuses();
+    }, [syncStatuses]),
+  );
 
   useEffect(() => {
     const subscription = subscribePermissionsChanged(() => syncStatuses());

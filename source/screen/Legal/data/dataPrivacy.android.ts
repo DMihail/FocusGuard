@@ -5,7 +5,7 @@ import type { LegalDocument } from '../types';
 export const buildDataPrivacyDocument = (appDisplayName: string): LegalDocument => ({
   title: 'Data Privacy',
   subtitle: `How ${appDisplayName} handles information on your device`,
-  lastUpdated: 'May 19, 2026',
+  lastUpdated: 'July 15, 2026',
   sections: [
     {
       title: 'Our commitment',

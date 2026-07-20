@@ -2,9 +2,8 @@ import { useCallback, useRef } from 'react';
 
 import { useFocusEffect, useIsFocused } from '@react-navigation/native';
 
-import { reportError } from '@/crashlytics/reportError';
-
 import { useAppStateOnActive } from './useAppStateOnActive';
+import { useCoalescedAsyncRunner } from './useCoalescedAsyncRunner';
 
 export type RefreshWhenVisibleOptions = {
   onFocus?: boolean;
@@ -21,31 +20,7 @@ export const useRefreshWhenVisible = (
   const refreshRef = useRef(refresh);
   refreshRef.current = refresh;
 
-  const inFlightRef = useRef<Promise<void> | null>(null);
-  const hasPendingRef = useRef(false);
-
-  const run = useCallback(() => {
-    if (inFlightRef.current) {
-      hasPendingRef.current = true;
-      return;
-    }
-
-    const execute = async () => {
-      await refreshRef.current();
-    };
-
-    inFlightRef.current = Promise.resolve()
-      .then(execute)
-      .catch(reportError)
-      .finally(() => {
-        inFlightRef.current = null;
-
-        if (hasPendingRef.current) {
-          hasPendingRef.current = false;
-          run();
-        }
-      });
-  }, []);
+  const run = useCoalescedAsyncRunner(() => refreshRef.current());
 
   const runWhenFocused = useCallback(() => {
     if (!isFocused) {

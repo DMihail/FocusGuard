@@ -1,11 +1,11 @@
 /** @format */
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 
 import { useShallow } from 'zustand/react/shallow';
 
-import { useRunOnFocusAndActive } from '@/hooks/useRunOnFocusAndActive';
-import { openNotificationsSettings, subscribePermissionsChanged } from '@/specs';
+import { useNativePermissionsChangedRefresh } from '@/hooks/useNativePermissionsChangedRefresh';
+import { openNotificationsSettings } from '@/specs';
 import { settingsStore } from '@/store';
 import { requestPostNotificationsPermission } from '@/utils/permissions/requestNotificationPermission';
 
@@ -21,10 +21,6 @@ export const useNotificationsSetting = () => {
   const [systemGranted, setSystemGranted] = useState(readSystemNotificationsGranted);
   const permissionRequestInFlightRef = useRef(false);
 
-  const refreshSystemGrant = useCallback(() => {
-    setSystemGranted(readSystemNotificationsGranted());
-  }, []);
-
   const reconcileRevokedPermission = useCallback(() => {
     const granted = readSystemNotificationsGranted();
     setSystemGranted(granted);
@@ -38,17 +34,7 @@ export const useNotificationsSetting = () => {
     }
   }, [notificationsEnabled, setNotificationsEnabled]);
 
-  useEffect(() => {
-    refreshSystemGrant();
-  }, [refreshSystemGrant]);
-
-  useEffect(() => {
-    const subscription = subscribePermissionsChanged(reconcileRevokedPermission);
-
-    return () => subscription.remove();
-  }, [reconcileRevokedPermission]);
-
-  useRunOnFocusAndActive(reconcileRevokedPermission);
+  useNativePermissionsChangedRefresh(reconcileRevokedPermission);
 
   const isEnabled = notificationsEnabled && (!isSystemNotificationGrantRequired || systemGranted);
 
@@ -75,10 +61,10 @@ export const useNotificationsSetting = () => {
 
       permissionRequestInFlightRef.current = false;
       setNotificationsEnabled(false);
-      refreshSystemGrant();
+      setSystemGranted(readSystemNotificationsGranted());
       openNotificationsSettings();
     },
-    [refreshSystemGrant, setNotificationsEnabled],
+    [setNotificationsEnabled],
   );
 
   return { isEnabled, setEnabled };

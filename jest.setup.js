@@ -2,6 +2,10 @@
 
 /* eslint-env jest */
 
+jest.mock('@/crashlytics/reportError', () => ({
+  reportError: jest.fn(),
+}));
+
 jest.mock('react-native-reanimated', () => {
   const { View } = require('react-native');
 
@@ -253,7 +257,6 @@ jest.mock('@/specs/keeptTurboModuleClient', () => ({
     getInstalledApplications: jest.fn(async () => []),
     getAppDisplayName: jest.fn(() => ''),
     getAppVersion: jest.fn(() => ''),
-    invalidateNativeCatalogCaches: jest.fn(),
     invalidateNativeInstalledAppsCache: jest.fn(),
     invalidateNativeUsageCache: jest.fn(),
     syncTrackingConfig: jest.fn(),

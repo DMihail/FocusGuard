@@ -12,6 +12,7 @@ internal object DailyWarningStore {
 
     private val warnedTodayCache = ConcurrentHashMap.newKeySet<String>()
     private var cacheDayKey: String? = null
+    private var lastPrunedDayKey: String? = null
 
     fun wasWarningShownToday(packageName: String): Boolean {
         ensureDayCache()
@@ -37,12 +38,19 @@ internal object DailyWarningStore {
     internal fun resetForTests() {
         warnedTodayCache.clear()
         cacheDayKey = null
+        lastPrunedDayKey = null
     }
 
     /** Drops MMKV keys from previous local calendar days. */
     fun pruneStaleKeys() {
         ensureDayCache()
-        val todayPrefix = "$KEY_PREFIX${cacheDayKey!!}-"
+        val dayKey = cacheDayKey!!
+        if (lastPrunedDayKey == dayKey) {
+            return
+        }
+
+        lastPrunedDayKey = dayKey
+        val todayPrefix = "$KEY_PREFIX$dayKey-"
 
         mmkv.allKeys()?.forEach { key ->
             if (key.startsWith(KEY_PREFIX) && !key.startsWith(todayPrefix)) {

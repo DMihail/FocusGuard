@@ -89,7 +89,7 @@ FocusGuard/                          # repo folder (product / store ID: Keept)
 │   ├── theme/                       # ThemeProvider, palettes, typography
 │   └── utils/                       # usage math, permissions, scheduleMicrotask
 │
-├── __tests__/                       # Jest (30 suites; mirrors source/ layout)
+├── __tests__/                       # Jest (31 suites; mirrors source/ layout)
 │   ├── architecture/                # productionTimers guard (no JS polling)
 │   ├── domain/ / store/ / hooks/ / navigation/ / specs/
 │   └── screen/                      # screen-level hook + component tests
@@ -99,10 +99,10 @@ FocusGuard/                          # repo folder (product / store ID: Keept)
 │   │   ├── TrackingEngine.kt      # poll loop, block evaluation
 │   │   ├── DailyUsageRepository.kt  # incremental queryEvents cursor
 │   │   ├── LiveUsageEstimator.kt    # live session overlay on persisted usage
-│   │   ├── ForegroundAppDetector.kt / UsageEventsForegroundObserver.kt
+│   │   ├── ForegroundAppDetector.kt
 │   │   ├── apps/                    # InstalledAppsRepository, AppIconCache
 │   │   ├── crashlytics/             # NativeErrorReporter
-│   │   ├── monitor/                 # FGS helper, permissions, poll policy
+│   │   ├── monitor/                 # FGS helper, ForegroundPollWake, poll policy
 │   │   ├── overlay/                 # BlockOverlayManager, snooze + warning stores
 │   │   ├── permissions/             # system settings intents
 │   │   ├── react/                   # TurboModuleEventDispatchers, KeeptUiThemeModule
@@ -132,8 +132,8 @@ Platform-specific TypeScript resolves via Metro / `moduleSuffixes`: `.ios.ts`, `
 | ----------------------------- | ------------------------------------------------------------------------ |
 | Product name                  | Keept                                                                    |
 | npm / JS version              | `1.0.2` (`package.json`)                                                 |
-| Android store version         | `1.0.6` (`versionName` in `android/app/build.gradle`)                    |
-| Android build number          | `10` (`versionCode` in `android/app/build.gradle`)                       |
+| Android store version         | `1.0.7` (`versionName` in `android/app/build.gradle`)                    |
+| Android build number          | `11` (`versionCode` in `android/app/build.gradle`)                       |
 | Store bundle / application ID | `com.keept`                                                              |
 | Android namespace (Kotlin)    | `com.focusguard` (legacy)                                                |
 | iOS App Group                 | `group.com.keept.shared`                                                 |
@@ -168,7 +168,7 @@ npx react-native start --reset-cache
    ```
    For Play Store builds, use the real `google-services.json` from Firebase Console for `com.keept`.
 3. Grant special permissions in-app (Usage Access, Display over other apps, battery exemption). Notifications are
-   optional.
+   optional but improve limit warnings.
 
 **Release builds**
 
@@ -312,16 +312,17 @@ Contract source of truth: `source/store/persistSchema.ts` ↔ `android/.../Persi
 
 ### Android runtime
 
-| Component                       | Role                                                                  |
-| ------------------------------- | --------------------------------------------------------------------- |
-| `FocusGuardMonitorService`      | Foreground service host                                               |
-| `TrackingEngine`                | Poll loop (1s active / 2.5s idle), limit evaluation, block            |
-| `DailyUsageRepository`          | Incremental `queryEvents` cursor — appends `[cursor+1, now]` per read |
-| `UsageEventsForegroundObserver` | API 35+ wake on foreground change (poll stays fallback)               |
-| `BlockOverlayManager`           | Hard block UI                                                         |
-| `WidgetUpdater`                 | Home-screen widget (throttled + deferred coalescing)                  |
-| `LocalDayChangeScheduler`       | `AlarmManager` midnight + clock/timezone receivers                    |
-| `TurboModuleEventDispatchers`   | Routes native signals to Turbo Module listeners                       |
+| Component                     | Role                                                                  |
+| ----------------------------- | --------------------------------------------------------------------- |
+| `FocusGuardMonitorService`    | Foreground service host                                               |
+| `TrackingEngine`              | Poll loop (1s active / 2.5s idle), limit evaluation, block            |
+| `TrackingEnginePollRecovery`  | Retries transient poll failures; stops FGS after 5 consecutive errors |
+| `DailyUsageRepository`        | Incremental `queryEvents` cursor — appends `[cursor+1, now]` per read |
+| `ForegroundPollWake`          | API 35+ idle wait slices (500ms) — early wake, no second scanner      |
+| `BlockOverlayManager`         | Hard block UI                                                         |
+| `WidgetUpdater`               | Home-screen widget (throttled + deferred coalescing)                  |
+| `LocalDayChangeScheduler`     | `AlarmManager` midnight + clock/timezone receivers                    |
+| `TurboModuleEventDispatchers` | Routes native signals to Turbo Module listeners                       |
 
 ### iOS runtime
 
@@ -351,7 +352,7 @@ only (full gate is in CI).
 ## Testing
 
 ```sh
-npm test              # local (30 suites, ~122 tests)
+npm test              # local (31 suites, ~125 tests)
 npm run check         # lint + format + types + Jest (CI gate)
 cd android && ./gradlew testDebugUnitTest   # Kotlin unit tests (Robolectric)
 ```

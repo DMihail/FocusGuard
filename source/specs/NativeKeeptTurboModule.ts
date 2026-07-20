@@ -54,7 +54,6 @@ export interface Spec extends TurboModule {
   getInstalledApplications(): Promise<InstallApp[]>;
   getAppDisplayName(): string;
   getAppVersion(): string;
-  invalidateNativeCatalogCaches(): void;
   invalidateNativeInstalledAppsCache(): void;
   invalidateNativeUsageCache(): void;
   syncTrackingConfig(snapshotJson: string): void;

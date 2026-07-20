@@ -210,11 +210,6 @@
   return [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"] ?: @"";
 }
 
-- (void)invalidateNativeCatalogCaches
-{
-  [KeeptScreenTimeBridge invalidateNativeCatalogCaches];
-}
-
 - (void)invalidateNativeInstalledAppsCache
 {
   [KeeptScreenTimeBridge invalidateNativeInstalledAppsCache];

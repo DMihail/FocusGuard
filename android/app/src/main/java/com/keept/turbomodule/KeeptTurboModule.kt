@@ -161,11 +161,6 @@ class KeeptTurboModule(
 
   override fun getAppVersion(): String = AppInfo.getVersionName()
 
-  override fun invalidateNativeCatalogCaches() {
-    invalidateNativeInstalledAppsCache()
-    invalidateNativeUsageCache()
-  }
-
   override fun invalidateNativeInstalledAppsCache() {
     installedAppsRepository.invalidateCache()
   }

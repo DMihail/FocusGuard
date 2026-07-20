@@ -25,6 +25,9 @@ class LiveUsageEstimator(
         baselineMsByPackage[packageName] = maxOf(previousEstimate, persistedMs)
     }
 
+    fun isSessionActiveFor(packageName: String): Boolean =
+        sessionPackage == packageName && sessionStartedAtMs > 0L
+
     fun clearSession() {
         flushActiveSession()
         sessionPackage = null

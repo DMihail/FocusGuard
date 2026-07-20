@@ -1,6 +1,5 @@
 package com.focusguard.monitor
 
-import android.content.Context
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.WritableMap
 
@@ -15,9 +14,4 @@ data class MonitorServiceStartResult(
                 putString("reason", reason)
             }
         }
-
-    companion object {
-        fun resolveStartFailureReason(context: Context): String? =
-            MonitorPermissions.resolveStartFailureReason(context)
-    }
 }

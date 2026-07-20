@@ -8,10 +8,12 @@ internal object TrackingEnginePoll {
         activeBlockPackage: String?,
         stableForeground: String?,
         trackedApps: Set<String>,
+        pendingForegroundSwitch: Boolean = false,
     ): Long =
         when {
             activeBlockPackage != null -> ACTIVE_MS
             stableForeground != null && stableForeground in trackedApps -> ACTIVE_MS
+            pendingForegroundSwitch -> ACTIVE_MS
             else -> IDLE_MS
         }
 }
