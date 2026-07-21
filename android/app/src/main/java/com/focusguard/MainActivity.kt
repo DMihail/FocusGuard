@@ -3,6 +3,8 @@ package com.focusguard
 import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
@@ -19,6 +21,8 @@ import com.focusguard.react.TurboModuleEventDispatchers
 import com.swmansion.rnscreens.fragment.restoration.RNScreensFragmentFactory
 
 class MainActivity : ReactActivity() {
+
+  private val mainHandler = Handler(Looper.getMainLooper())
 
   override fun getMainComponentName(): String = "Keept"
 
@@ -50,6 +54,11 @@ class MainActivity : ReactActivity() {
   }
 
   private fun applySystemChromeColors() {
+    if (Looper.myLooper() != Looper.getMainLooper()) {
+      mainHandler.post { applySystemChromeColors() }
+      return
+    }
+
     val backgroundColor = ContextCompat.getColor(this, R.color.background)
     val isDark =
         (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) ==
