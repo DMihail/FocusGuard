@@ -34,7 +34,7 @@ internal object WidgetTheme {
         )
     }
 
-    fun themedContext(context: Context): Context {
+    private fun themedContext(context: Context): Context {
         val appContext = context.applicationContext
         val config = Configuration(appContext.resources.configuration)
         config.uiMode =

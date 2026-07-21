@@ -6,7 +6,7 @@ import type { DashboardAppRow } from '@/utils/usage/dashboardStats';
 
 import { type ManageAppFixture, mockManageApps } from './manageApps';
 
-export const mockUsageByPackage = {
+const mockUsageByPackage = {
   'com.social.chat': 15 * 60_000,
   'com.game.puzzle': 45 * 60_000,
   'com.news.reader': 5 * 60_000,

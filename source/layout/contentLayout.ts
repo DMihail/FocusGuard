@@ -7,11 +7,11 @@ import { spacing } from '@/theme';
 const TABLET_MIN_WIDTH = 600;
 
 /** Readable content column on phones and tablets (Material / HIG ~560dp). */
-export const CONTENT_MAX_WIDTH = 560;
+const CONTENT_MAX_WIDTH = 560;
 
-export const isTabletLayout = (width: number): boolean => width >= TABLET_MIN_WIDTH;
+const isTabletLayout = (width: number): boolean => width >= TABLET_MIN_WIDTH;
 
-export const getContentHorizontalPadding = (width: number): number => {
+const getContentHorizontalPadding = (width: number): number => {
   if (width >= 840) {
     return spacing.xxxl;
   }
