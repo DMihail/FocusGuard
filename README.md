@@ -372,8 +372,8 @@ Jest defaults to `.ios.ts` resolution; Android-specific modules are imported exp
 
 ## Localization
 
-English and Russian via i18next (`source/i18n/`). Settings → Language (`system` | `en` | `ru`). Legal: English under
-`source/screen/Legal/data/`, Russian under `source/i18n/legal/ru/`.
+English and Russian via i18next (`source/i18n/`). Settings → Language (`system` | `en` | `ru`). Legal documents live
+under `source/screen/Legal/data/` (EN/RU + Android/iOS in one builder per document).
 
 ## CI
 
