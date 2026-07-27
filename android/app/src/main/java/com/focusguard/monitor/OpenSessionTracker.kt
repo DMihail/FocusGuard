@@ -2,7 +2,7 @@ package com.focusguard.monitor
 
 import android.app.usage.UsageEvents
 import android.app.usage.UsageStatsManager
-import android.os.Build
+import com.focusguard.usage.UsageEventTypes
 
 /**
  * Derives packages with an open foreground session from UsageEvents start/end pairing.
@@ -50,26 +50,14 @@ internal object OpenSessionTracker {
         val resolvedPackage = packageName?.takeIf { it.isNotEmpty() } ?: return
 
         when {
-            isForegroundStartEvent(eventType) -> {
+            UsageEventTypes.isForegroundStart(eventType) -> {
                 openSessions[resolvedPackage] = 0L
             }
-            isForegroundEndEvent(eventType) -> {
+            UsageEventTypes.isForegroundEnd(eventType) -> {
                 openSessions.remove(resolvedPackage)
             }
         }
     }
-
-    @Suppress("DEPRECATION")
-    private fun isForegroundStartEvent(eventType: Int): Boolean =
-        eventType == UsageEvents.Event.MOVE_TO_FOREGROUND ||
-            (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q &&
-                eventType == UsageEvents.Event.ACTIVITY_RESUMED)
-
-    @Suppress("DEPRECATION")
-    private fun isForegroundEndEvent(eventType: Int): Boolean =
-        eventType == UsageEvents.Event.MOVE_TO_BACKGROUND ||
-            (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q &&
-                eventType == UsageEvents.Event.ACTIVITY_PAUSED)
 }
 
 internal data class OpenSessionEvent(

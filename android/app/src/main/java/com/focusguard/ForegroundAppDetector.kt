@@ -5,6 +5,7 @@ import android.app.usage.UsageStatsManager
 import android.content.Context
 import android.os.Build
 import androidx.annotation.RequiresApi
+import com.focusguard.usage.UsageEventTypes
 import com.focusguard.monitor.OpenSessionTracker
 
 /**
@@ -95,7 +96,7 @@ class ForegroundAppDetector(
 
         while (events.hasNextEvent()) {
             events.getNextEvent(event)
-            if (isForegroundEvent(event.eventType)) {
+            if (UsageEventTypes.isForegroundStart(event.eventType)) {
                 currentApp = event.packageName
             }
         }
@@ -137,12 +138,6 @@ class ForegroundAppDetector(
 
         return recent.packageName
     }
-
-    @Suppress("DEPRECATION")
-    private fun isForegroundEvent(eventType: Int): Boolean =
-        eventType == UsageEvents.Event.MOVE_TO_FOREGROUND ||
-            (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q &&
-                eventType == UsageEvents.Event.ACTIVITY_RESUMED)
 
     companion object {
         private const val EVENTS_WINDOW_MS = 60_000L

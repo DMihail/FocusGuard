@@ -19,8 +19,8 @@
  *
  * - App Group: `group.com.keept.shared`
  * - Flat snapshot: `ios-tracking-snapshot-v2` with opaque `trackedAppTokenIds`
- * - Selection blob: `ios-family-activity-selection-v1` (phase 1 picker)
- * - Daily usage totals: `ios-daily-usage-v1` (phase 3 report + monitor floors)
+ * - Selection blob: `ios-family-activity-selection-v1` (FamilyActivityPicker)
+ * - Daily usage totals: `ios-daily-usage-v1` (DeviceActivity report + monitor floors)
  * - Auth mode: `individual` (self-control only)
  */
 /** Shared MMKV instance for Zustand persistence and native monitor reads. */

@@ -153,10 +153,10 @@ internal object DailyUsageAggregator {
             val packageName = event.packageName?.takeIf { it.isNotEmpty() } ?: continue
 
             when {
-                isForegroundStartEvent(event.eventType) -> {
+                UsageEventTypes.isForegroundStart(event.eventType) -> {
                     accumulator.applyForegroundStart(packageName, event.timeStamp)
                 }
-                isForegroundEndEvent(event.eventType) -> {
+                UsageEventTypes.isForegroundEnd(event.eventType) -> {
                     accumulator.applyForegroundEnd(packageName, event.timeStamp)
                 }
             }
@@ -193,16 +193,4 @@ internal object DailyUsageAggregator {
                 packageStats.sumOf { stat -> stat.foregroundTimeMs() }
             }
     }
-
-    @Suppress("DEPRECATION")
-    private fun isForegroundStartEvent(eventType: Int): Boolean =
-        eventType == UsageEvents.Event.MOVE_TO_FOREGROUND ||
-            (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q &&
-                eventType == UsageEvents.Event.ACTIVITY_RESUMED)
-
-    @Suppress("DEPRECATION")
-    private fun isForegroundEndEvent(eventType: Int): Boolean =
-        eventType == UsageEvents.Event.MOVE_TO_BACKGROUND ||
-            (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q &&
-                eventType == UsageEvents.Event.ACTIVITY_PAUSED)
 }

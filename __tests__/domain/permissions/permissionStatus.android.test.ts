@@ -1,7 +1,5 @@
 /** @format */
 
-import { mockMmkvStorage } from '../../helpers/mockMmkvStorage';
-
 const mockCheckForPermission = jest.fn();
 const mockCheckForSystemAlertWindowPermission = jest.fn();
 const mockCheckForNotificationsPermission = jest.fn();
@@ -30,7 +28,6 @@ import {
   areRequiredPermissionsGranted,
   readPermissionStatuses,
   requestPermissionById,
-  resetUsageAccessUiLatchForTests,
 } from '@/domain/permissions/permissionStatus.android';
 
 const allPending = {
@@ -61,8 +58,6 @@ const grantAllCardChecks = () => {
 describe('permissionStatus.android', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    mockMmkvStorage.clear();
-    resetUsageAccessUiLatchForTests();
     mockCheckForPermission.mockReturnValue(false);
     mockCheckForSystemAlertWindowPermission.mockReturnValue(false);
     mockCheckForNotificationsPermission.mockReturnValue(false);
@@ -107,46 +102,19 @@ describe('permissionStatus.android', () => {
     expect(readPermissionStatuses()).toEqual(allGranted);
   });
 
-  it('shows usage-access pending when native reports revoked and persistence was cleared', () => {
+  it('mirrors native usage-access status without a JS MMKV latch', () => {
     grantAllCardChecks();
-    readPermissionStatuses();
-
-    mockCheckForPermission.mockReturnValue(false);
-    mockMmkvStorage.remove('usage-access-granted-v1');
-
-    expect(readPermissionStatuses()['usage-access']).toBe('pending');
-    expect(mockMmkvStorage.getBoolean('usage-access-granted-v1')).toBe(false);
-  });
-
-  it('keeps usage-access granted when native flickers but persistence remains', () => {
-    grantAllCardChecks();
-    readPermissionStatuses();
-
-    mockCheckForPermission.mockReturnValue(false);
-
     expect(readPermissionStatuses()['usage-access']).toBe('granted');
-  });
-
-  it('pins usage-access latch before opening another permission settings screen', () => {
-    grantAllCardChecks();
-    readPermissionStatuses();
 
     mockCheckForPermission.mockReturnValue(false);
+    expect(readPermissionStatuses()['usage-access']).toBe('pending');
+  });
+
+  it('forwards permission requests to native without JS latch side effects', () => {
     requestPermissionById('battery-optimization');
-
-    expect(mockCheckForPermission).toHaveBeenCalled();
-    expect(readPermissionStatuses()['usage-access']).toBe('granted');
     expect(mockRequestIgnoreBatteryOptimizationsPermission).toHaveBeenCalledTimes(1);
-  });
 
-  it('clears the usage-access latch when the user re-opens usage settings', () => {
-    grantAllCardChecks();
-    readPermissionStatuses();
-
-    mockCheckForPermission.mockReturnValue(false);
     requestPermissionById('usage-access');
-
-    expect(readPermissionStatuses()['usage-access']).toBe('pending');
     expect(mockRequestUsageStatsPermission).toHaveBeenCalledTimes(1);
   });
 });

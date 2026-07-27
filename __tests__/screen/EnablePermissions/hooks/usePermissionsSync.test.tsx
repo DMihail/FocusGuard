@@ -99,7 +99,7 @@ describe('usePermissionsSync', () => {
     expect(mockGetPermissionStatuses.mock.calls.length).toBe(callsAfterMount + 1);
   });
 
-  it('keeps usage-access granted in UI after a transient native false read via native event', () => {
+  it('surfaces transient native usage-access pending reads without a JS UI latch', () => {
     let hook: ReturnType<typeof usePermissionsSync> | undefined;
 
     ReactTestRenderer.act(() => {
@@ -127,8 +127,8 @@ describe('usePermissionsSync', () => {
       triggerPermissionsChanged?.();
     });
 
-    expect(hook!.permissions.find((item) => item.id === 'usage-access')?.status).toBe('granted');
-    expect(hook!.canContinue).toBe(true);
+    expect(hook!.permissions.find((item) => item.id === 'usage-access')?.status).toBe('pending');
+    expect(hook!.canContinue).toBe(false);
   });
 
   it('syncs statuses when native permissions changed event is emitted', () => {
