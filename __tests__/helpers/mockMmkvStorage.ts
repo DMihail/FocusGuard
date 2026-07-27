@@ -1,18 +1,20 @@
 /** @format */
 
-const booleans = new Map<string, boolean>();
+const values = new Map<string, string | boolean | number>();
 
+/** In-memory stand-in for `createMMKV()` used by Jest via `jest.setup.js`. */
 export const mockMmkvStorage = {
-  getBoolean: (key: string) => booleans.get(key) ?? false,
   set: (key: string, value: boolean | string | number) => {
-    if (typeof value === 'boolean') {
-      booleans.set(key, value);
-    }
+    values.set(key, value);
+  },
+  getString: (key: string) => {
+    const value = values.get(key);
+    return typeof value === 'string' ? value : undefined;
   },
   remove: (key: string) => {
-    booleans.delete(key);
+    values.delete(key);
   },
   clear: () => {
-    booleans.clear();
+    values.clear();
   },
 };

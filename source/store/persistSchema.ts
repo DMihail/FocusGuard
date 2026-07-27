@@ -62,11 +62,9 @@ export const IOS_TRACKING_SNAPSHOT_KEY = 'ios-tracking-snapshot-v2';
 /** Bump when `IosTrackingSnapshot` JSON shape changes. */
 export const IOS_TRACKING_SNAPSHOT_VERSION = 2;
 
-/** Native-only latch: Usage Stats was confirmed granted (`UsageAccessGrantStore.kt`). */
-export const USAGE_ACCESS_GRANTED_KEY = 'usage-access-granted-v1';
-
 /**
  * Native-only ephemeral keys (not Zustand persist). Documented here for cross-platform reference:
+ * - Android `usage-access-granted-v1` — Usage Stats latch (`UsageAccessGrantStore.kt`)
  * - Android `block-snooze-{packageName}` — overlay snooze (`TrackingSnoozeStore.kt`)
  * - Android `last-local-day-key-v1` — last notified local day (`LocalDayChangeNotifier.kt`)
  * - iOS App Group `last-local-day-key-v1` — last notified local day (`KeeptLocalDayChangeNotifier.swift`)

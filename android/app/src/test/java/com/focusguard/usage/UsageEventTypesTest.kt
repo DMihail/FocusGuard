@@ -1,7 +1,7 @@
 package com.focusguard.usage
 
 import android.app.usage.UsageEvents
-import android.os.Build
+import com.focusguard.RobolectricKeeptTestCase
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -10,27 +10,21 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
-@Config(application = com.focusguard.TestKeeptApplication::class, sdk = [28])
-class UsageEventTypesTest {
+@Config(application = com.focusguard.TestKeeptApplication::class, sdk = [29])
+class UsageEventTypesTest : RobolectricKeeptTestCase() {
 
     @Test
     fun recognizesLegacyAndModernForegroundStartEvents() {
         @Suppress("DEPRECATION")
         assertTrue(UsageEventTypes.isForegroundStart(UsageEvents.Event.MOVE_TO_FOREGROUND))
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            assertTrue(UsageEventTypes.isForegroundStart(UsageEvents.Event.ACTIVITY_RESUMED))
-        }
+        assertTrue(UsageEventTypes.isForegroundStart(UsageEvents.Event.ACTIVITY_RESUMED))
     }
 
     @Test
     fun recognizesLegacyAndModernForegroundEndEvents() {
         @Suppress("DEPRECATION")
         assertTrue(UsageEventTypes.isForegroundEnd(UsageEvents.Event.MOVE_TO_BACKGROUND))
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            assertTrue(UsageEventTypes.isForegroundEnd(UsageEvents.Event.ACTIVITY_PAUSED))
-        }
+        assertTrue(UsageEventTypes.isForegroundEnd(UsageEvents.Event.ACTIVITY_PAUSED))
     }
 
     @Test

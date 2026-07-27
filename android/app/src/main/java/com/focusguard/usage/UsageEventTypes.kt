@@ -18,6 +18,7 @@ internal object UsageEventTypes {
             (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q &&
                 eventType == UsageEvents.Event.ACTIVITY_PAUSED)
 
+    /** Event types for API 35+ `UsageEventsQuery` (caller must be @RequiresApi 35). */
     @Suppress("DEPRECATION")
     val FOREGROUND_START_EVENT_TYPES: IntArray =
         intArrayOf(

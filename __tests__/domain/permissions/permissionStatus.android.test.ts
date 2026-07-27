@@ -47,12 +47,6 @@ const allGranted = {
 const grantRequiredChecks = () => {
   mockCheckForPermission.mockReturnValue(true);
   mockCheckForSystemAlertWindowPermission.mockReturnValue(true);
-  mockCheckForIgnoreBatteryOptimizationsPermission.mockReturnValue(true);
-};
-
-const grantAllCardChecks = () => {
-  grantRequiredChecks();
-  mockCheckForNotificationsPermission.mockReturnValue(true);
 };
 
 describe('permissionStatus.android', () => {
@@ -69,52 +63,44 @@ describe('permissionStatus.android', () => {
     expect(readPermissionStatuses()).toEqual(allPending);
   });
 
-  it('requires manifest monitor permissions for areAllPermissionsGranted', () => {
+  it('reads granted statuses when visible checks pass', () => {
+    grantRequiredChecks();
+    mockCheckForNotificationsPermission.mockReturnValue(true);
+    mockCheckForIgnoreBatteryOptimizationsPermission.mockReturnValue(true);
+    expect(readPermissionStatuses()).toEqual(allGranted);
+  });
+
+  it('requires usage-access, display-over-apps, and manifest monitor permissions', () => {
     grantRequiredChecks();
     mockCheckForManifestMonitorPermissions.mockReturnValue(true);
     expect(areRequiredPermissionsGranted(readPermissionStatuses())).toBe(true);
 
-    grantRequiredChecks();
     mockCheckForManifestMonitorPermissions.mockReturnValue(false);
     expect(areRequiredPermissionsGranted(readPermissionStatuses())).toBe(false);
   });
 
-  it('does not require notifications permission to continue', () => {
+  it('does not require notifications or battery optimization to continue', () => {
     grantRequiredChecks();
     mockCheckForNotificationsPermission.mockReturnValue(false);
-    mockCheckForManifestMonitorPermissions.mockReturnValue(true);
-
-    expect(areRequiredPermissionsGranted(readPermissionStatuses())).toBe(true);
-    expect(readPermissionStatuses().notifications).toBe('pending');
-  });
-
-  it('does not require battery optimization to continue', () => {
-    grantRequiredChecks();
     mockCheckForIgnoreBatteryOptimizationsPermission.mockReturnValue(false);
     mockCheckForManifestMonitorPermissions.mockReturnValue(true);
 
     expect(areRequiredPermissionsGranted(readPermissionStatuses())).toBe(true);
+    expect(readPermissionStatuses().notifications).toBe('pending');
     expect(readPermissionStatuses()['battery-optimization']).toBe('pending');
   });
 
-  it('reads granted statuses when visible checks pass', () => {
-    grantAllCardChecks();
-    expect(readPermissionStatuses()).toEqual(allGranted);
-  });
-
-  it('mirrors native usage-access status without a JS MMKV latch', () => {
-    grantAllCardChecks();
-    expect(readPermissionStatuses()['usage-access']).toBe('granted');
-
-    mockCheckForPermission.mockReturnValue(false);
-    expect(readPermissionStatuses()['usage-access']).toBe('pending');
-  });
-
-  it('forwards permission requests to native without JS latch side effects', () => {
+  it('forwards permission requests to native', () => {
     requestPermissionById('battery-optimization');
     expect(mockRequestIgnoreBatteryOptimizationsPermission).toHaveBeenCalledTimes(1);
 
     requestPermissionById('usage-access');
     expect(mockRequestUsageStatsPermission).toHaveBeenCalledTimes(1);
+
+    requestPermissionById('display-over-apps');
+    expect(mockRequestSystemAlertWindowPermission).toHaveBeenCalledTimes(1);
+
+    requestPermissionById('notifications');
+    expect(mockRequestNotificationsPermission).toHaveBeenCalledTimes(1);
   });
 });

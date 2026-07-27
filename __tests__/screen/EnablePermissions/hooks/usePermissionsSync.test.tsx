@@ -1,7 +1,6 @@
 /** @format */
 
 import React from 'react';
-import { Platform } from 'react-native';
 
 import ReactTestRenderer from 'react-test-renderer';
 
@@ -9,24 +8,11 @@ import type { PermissionId, PermissionStatus } from '@/domain/permissions';
 
 const mockGetPermissionStatuses = jest.fn<Record<PermissionId, PermissionStatus>, [boolean?]>();
 const mockInvalidatePermissionSnapshot = jest.fn();
-const mockRequestPermissionById = jest.fn();
 
 jest.mock('@/domain/permissionSnapshot', () => ({
   getPermissionStatuses: (force?: boolean) => mockGetPermissionStatuses(force),
   invalidatePermissionSnapshot: () => mockInvalidatePermissionSnapshot(),
 }));
-
-jest.mock('@/domain/permissions', () => {
-  const actual = jest.requireActual('@/domain/permissions');
-  return {
-    ...actual,
-    requestPermissionById: (id: PermissionId) => mockRequestPermissionById(id),
-    areRequiredPermissionsGranted: (statuses: Record<PermissionId, PermissionStatus>) =>
-      (['usage-access', 'display-over-apps', 'battery-optimization'] as PermissionId[]).every(
-        (id) => statuses[id] === 'granted',
-      ),
-  };
-});
 
 let triggerPermissionsChanged: (() => void) | undefined;
 
@@ -71,7 +57,6 @@ describe('usePermissionsSync', () => {
     jest.clearAllMocks();
     triggerPermissionsChanged = undefined;
     mockGetPermissionStatuses.mockReturnValue(pendingStatuses);
-    jest.replaceProperty(Platform, 'OS', 'android');
   });
 
   it('syncs statuses on screen focus', () => {
@@ -85,18 +70,27 @@ describe('usePermissionsSync', () => {
     expect(mockGetPermissionStatuses).toHaveBeenCalledWith(true);
   });
 
-  it('re-syncs when native permissions changed event fires after mount', () => {
+  it('syncs statuses when native permissions changed event is emitted', () => {
+    let hook: ReturnType<typeof usePermissionsSync> | undefined;
+
     ReactTestRenderer.act(() => {
-      ReactTestRenderer.create(<PermissionsProbe onReady={() => undefined} />);
+      ReactTestRenderer.create(
+        <PermissionsProbe
+          onReady={(value) => {
+            hook = value;
+          }}
+        />,
+      );
     });
 
-    const callsAfterMount = mockGetPermissionStatuses.mock.calls.length;
+    mockGetPermissionStatuses.mockReturnValue(grantedStatuses);
 
     ReactTestRenderer.act(() => {
       triggerPermissionsChanged?.();
     });
 
-    expect(mockGetPermissionStatuses.mock.calls.length).toBe(callsAfterMount + 1);
+    expect(hook!.permissions.every((item) => item.status === 'granted')).toBe(true);
+    expect(hook!.canContinue).toBe(true);
   });
 
   it('surfaces transient native usage-access pending reads without a JS UI latch', () => {
@@ -129,28 +123,5 @@ describe('usePermissionsSync', () => {
 
     expect(hook!.permissions.find((item) => item.id === 'usage-access')?.status).toBe('pending');
     expect(hook!.canContinue).toBe(false);
-  });
-
-  it('syncs statuses when native permissions changed event is emitted', () => {
-    let hook: ReturnType<typeof usePermissionsSync> | undefined;
-
-    ReactTestRenderer.act(() => {
-      ReactTestRenderer.create(
-        <PermissionsProbe
-          onReady={(value) => {
-            hook = value;
-          }}
-        />,
-      );
-    });
-
-    mockGetPermissionStatuses.mockReturnValue(grantedStatuses);
-
-    ReactTestRenderer.act(() => {
-      triggerPermissionsChanged?.();
-    });
-
-    expect(hook!.permissions.every((item) => item.status === 'granted')).toBe(true);
-    expect(hook!.canContinue).toBe(true);
   });
 });

@@ -20,30 +20,30 @@ internal object OpenSessionTracker {
         val startTime = nowMs - WINDOW_MS
         val events = usageStatsManager.queryEvents(startTime, nowMs)
         val event = UsageEvents.Event()
-        val openSessions = mutableMapOf<String, Long>()
+        val openSessions = mutableSetOf<String>()
 
         while (events.hasNextEvent()) {
             events.getNextEvent(event)
             applyEvent(openSessions, event.packageName, event.eventType)
         }
 
-        return openSessions.keys.toSet()
+        return openSessions.toSet()
     }
 
     internal fun openPackagesFromEvents(
         events: List<OpenSessionEvent>,
     ): Set<String> {
-        val openSessions = mutableMapOf<String, Long>()
+        val openSessions = mutableSetOf<String>()
 
         for (event in events) {
             applyEvent(openSessions, event.packageName, event.eventType)
         }
 
-        return openSessions.keys.toSet()
+        return openSessions.toSet()
     }
 
     private fun applyEvent(
-        openSessions: MutableMap<String, Long>,
+        openSessions: MutableSet<String>,
         packageName: String?,
         eventType: Int,
     ) {
@@ -51,7 +51,7 @@ internal object OpenSessionTracker {
 
         when {
             UsageEventTypes.isForegroundStart(eventType) -> {
-                openSessions[resolvedPackage] = 0L
+                openSessions.add(resolvedPackage)
             }
             UsageEventTypes.isForegroundEnd(eventType) -> {
                 openSessions.remove(resolvedPackage)
