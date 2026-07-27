@@ -8,11 +8,12 @@ import org.junit.Test
 class OpenSessionTrackerTest {
     @Test
     fun `resume then pause closes session`() {
+        @Suppress("DEPRECATION")
         val open =
             OpenSessionTracker.openPackagesFromEvents(
                 listOf(
-                    OpenSessionEvent("com.example.app", UsageEvents.Event.ACTIVITY_RESUMED),
-                    OpenSessionEvent("com.example.app", UsageEvents.Event.ACTIVITY_PAUSED),
+                    OpenSessionEvent("com.example.app", UsageEvents.Event.MOVE_TO_FOREGROUND),
+                    OpenSessionEvent("com.example.app", UsageEvents.Event.MOVE_TO_BACKGROUND),
                 ),
             )
 
@@ -21,12 +22,13 @@ class OpenSessionTrackerTest {
 
     @Test
     fun `multiple apps stay open until paused`() {
+        @Suppress("DEPRECATION")
         val open =
             OpenSessionTracker.openPackagesFromEvents(
                 listOf(
-                    OpenSessionEvent("com.one", UsageEvents.Event.ACTIVITY_RESUMED),
-                    OpenSessionEvent("com.two", UsageEvents.Event.ACTIVITY_RESUMED),
-                    OpenSessionEvent("com.one", UsageEvents.Event.ACTIVITY_PAUSED),
+                    OpenSessionEvent("com.one", UsageEvents.Event.MOVE_TO_FOREGROUND),
+                    OpenSessionEvent("com.two", UsageEvents.Event.MOVE_TO_FOREGROUND),
+                    OpenSessionEvent("com.one", UsageEvents.Event.MOVE_TO_BACKGROUND),
                 ),
             )
 

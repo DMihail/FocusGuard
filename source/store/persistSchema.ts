@@ -19,8 +19,8 @@
  *
  * - App Group: `group.com.keept.shared`
  * - Flat snapshot: `ios-tracking-snapshot-v2` with opaque `trackedAppTokenIds`
- * - Selection blob: `ios-family-activity-selection-v1` (phase 1 picker)
- * - Daily usage totals: `ios-daily-usage-v1` (phase 3 report + monitor floors)
+ * - Selection blob: `ios-family-activity-selection-v1` (FamilyActivityPicker)
+ * - Daily usage totals: `ios-daily-usage-v1` (DeviceActivity report + monitor floors)
  * - Auth mode: `individual` (self-control only)
  */
 /** Shared MMKV instance for Zustand persistence and native monitor reads. */
@@ -62,11 +62,9 @@ export const IOS_TRACKING_SNAPSHOT_KEY = 'ios-tracking-snapshot-v2';
 /** Bump when `IosTrackingSnapshot` JSON shape changes. */
 export const IOS_TRACKING_SNAPSHOT_VERSION = 2;
 
-/** Native-only latch: Usage Stats was confirmed granted (`UsageAccessGrantStore.kt`). */
-export const USAGE_ACCESS_GRANTED_KEY = 'usage-access-granted-v1';
-
 /**
  * Native-only ephemeral keys (not Zustand persist). Documented here for cross-platform reference:
+ * - Android `usage-access-granted-v1` — Usage Stats latch (`UsageAccessGrantStore.kt`)
  * - Android `block-snooze-{packageName}` — overlay snooze (`TrackingSnoozeStore.kt`)
  * - Android `last-local-day-key-v1` — last notified local day (`LocalDayChangeNotifier.kt`)
  * - iOS App Group `last-local-day-key-v1` — last notified local day (`KeeptLocalDayChangeNotifier.swift`)

@@ -152,6 +152,16 @@ internal object UsageAccess {
     awaitingUsageGrantFromSettings = false
   }
 
+  /** @internal Resets session + persisted latch between unit tests. */
+  fun resetForTests() {
+    clearGrantState()
+  }
+
+  /** @internal Marks Usage Access as confirmed without AppOps (unit tests). */
+  fun markGrantedForTests() {
+    confirmGrant()
+  }
+
   private fun isExplicitlyDenied(appOps: AppOpsManager, packageName: String): Boolean {
     val strictMode = readUsageAppOpMode(appOps, packageName, useUnsafeCheck = false)
     if (strictMode == AppOpsManager.MODE_IGNORED || strictMode == AppOpsManager.MODE_ERRORED) {

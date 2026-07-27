@@ -161,23 +161,13 @@ jest.mock('@/i18n', () => {
 });
 
 const mockPermissionsChangedSubscription = { remove: jest.fn() };
-const mockNativeEventSubscription = jest.fn();
 
 jest.mock('@/specs/keeptTurboModuleClient', () => ({
   getKeeptTurboModule: jest.fn(() => ({
     onPermissionsChanged: jest.fn(() => mockPermissionsChangedSubscription),
-    onLocalDayChanged: jest.fn((listener) => {
-      mockNativeEventSubscription(listener);
-      return mockPermissionsChangedSubscription;
-    }),
-    onMonitorServiceStateChanged: jest.fn((listener) => {
-      mockNativeEventSubscription(listener);
-      return mockPermissionsChangedSubscription;
-    }),
-    onTrackedUsageChanged: jest.fn((listener) => {
-      mockNativeEventSubscription(listener);
-      return mockPermissionsChangedSubscription;
-    }),
+    onLocalDayChanged: jest.fn(() => mockPermissionsChangedSubscription),
+    onMonitorServiceStateChanged: jest.fn(() => mockPermissionsChangedSubscription),
+    onTrackedUsageChanged: jest.fn(() => mockPermissionsChangedSubscription),
     checkForPermission: jest.fn(() => false),
     checkForSystemAlertWindowPermission: jest.fn(() => false),
     checkForNotificationsPermission: jest.fn(() => false),
