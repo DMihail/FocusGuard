@@ -1,0 +1,9 @@
+# Manual Android smoke (Maestro). Requires a device/emulator with the Debug build installed.
+# Run: maestro test .maestro/android-smoke.yaml
+#
+# Not wired into CI yet — special permissions and overlay blocking need a prepared device profile.
+appId: com.keept
+---
+- launchApp
+- assertVisible:
+    text: '.*Keept.*|.*Dashboard.*|.*Continue.*|.*Get started.*|.*Начать.*|.*Продолжить.*'

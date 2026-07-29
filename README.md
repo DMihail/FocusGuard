@@ -131,9 +131,11 @@ Platform-specific TypeScript resolves via Metro / `moduleSuffixes`: `.ios.ts`, `
 | Layer                         | Value                                                                    |
 | ----------------------------- | ------------------------------------------------------------------------ |
 | Product name                  | Keept                                                                    |
-| npm / JS version              | `1.0.2` (`package.json`)                                                 |
-| Android store version         | `1.0.7` (`versionName` in `android/app/build.gradle`)                    |
-| Android build number          | `11` (`versionCode` in `android/app/build.gradle`)                       |
+| npm / JS version              | `1.0.8` (`package.json`)                                                 |
+| Android store version         | `1.0.8` (`versionName` in `android/app/build.gradle`)                    |
+| Android build number          | `13` (`versionCode` in `android/app/build.gradle`)                       |
+| iOS marketing version         | `1.0.0` (`MARKETING_VERSION` in Xcode)                                   |
+| iOS build number              | `1` (`CURRENT_PROJECT_VERSION` — first App Store cut may stay at 1)      |
 | Store bundle / application ID | `com.keept`                                                              |
 | Android namespace (Kotlin)    | `com.focusguard` (legacy)                                                |
 | iOS App Group                 | `group.com.keept.shared`                                                 |
@@ -141,9 +143,9 @@ Platform-specific TypeScript resolves via Metro / `moduleSuffixes`: `.ios.ts`, `
 | Report extension              | `com.keept.report`                                                       |
 | Deep links                    | `keept://dashboard`, `keept://tracked-apps`, `keept://configure/:appKey` |
 
-> **Version sources:** Play Store reads `android/app/build.gradle`. In-app version on iOS reads `package.json` via
-> `source/constants/appVersion.ios.ts`. Xcode `MARKETING_VERSION` / `CURRENT_PROJECT_VERSION` may lag until an App Store
-> release bump.
+> **Version sources:** Keep `package.json`, Android `versionName`, and iOS `MARKETING_VERSION` on the same marketing
+> version. Play Store uses `versionCode`; App Store uses `CURRENT_PROJECT_VERSION`. In-app version: Android reads native
+> build config; iOS reads `package.json` via `source/constants/appVersion.ios.ts`.
 
 ## Getting started
 
@@ -352,24 +354,26 @@ only (full gate is in CI).
 ## Testing
 
 ```sh
-npm test              # local (31 suites, ~125 tests)
+npm test              # local (31 suites)
 npm run check         # lint + format + types + Jest (CI gate)
 cd android && ./gradlew testDebugUnitTest   # Kotlin unit tests (Robolectric)
+maestro test .maestro/android-smoke.yaml    # optional device smoke (not in CI)
 ```
 
 **`__tests__/` layout** mirrors `source/`: `domain/`, `store/`, `hooks/`, `navigation/`, `specs/`, `screen/`, plus
 `architecture/productionTimers.test.js` (guards against JS polling timers).
 
 **Kotlin tests** (`android/app/src/test/`): `DailyUsageAggregator`, `LocalDayKey`, `LocalDayChangeNotifier`,
-`DailyWarningStore`, `NextBlockResolver`, `ForegroundStabilizer`, `TrackingEnginePoll`, `TurboModuleEventDispatchers` —
-Robolectric with in-memory MMKV via `RobolectricKeeptTestCase`.
+`DailyWarningStore`, `NextBlockResolver`, `ForegroundStabilizer`, `TrackingEnginePoll`, `OpenSessionTracker`,
+`LiveUsageEstimator`, `TrackedUsageChangeEmitter`, `UsageAccess`, `UsageAccessGrantStore`, `TurboModuleEventDispatchers`
+— Robolectric with in-memory MMKV via `RobolectricKeeptTestCase`.
 
 Jest defaults to `.ios.ts` resolution; Android-specific modules are imported explicitly in tests.
 
 ## Localization
 
-English and Russian via i18next (`source/i18n/`). Settings → Language (`system` | `en` | `ru`). Legal: English under
-`source/screen/Legal/data/`, Russian under `source/i18n/legal/ru/`.
+English and Russian via i18next (`source/i18n/`). Settings → Language (`system` | `en` | `ru`). Legal documents live
+under `source/screen/Legal/data/` (EN/RU + Android/iOS in one builder per document).
 
 ## CI
 
@@ -377,8 +381,9 @@ GitHub Actions (`.github/workflows/ci.yml`), New Architecture enabled:
 
 1. **check** — `npm run check` on Node 22
 2. **android** — `assembleDebug` + `testDebugUnitTest` (API 36, NDK 27.1.12297006)
+3. **ios** — `pod install` + `xcodebuild` Debug for iPhone simulator (no code signing)
 
-Android runs only after **check** passes. Husky is disabled in CI (`HUSKY=0`).
+Android and iOS run only after **check** passes. Husky is disabled in CI (`HUSKY=0`).
 
 ## Contributing notes
 

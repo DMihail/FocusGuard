@@ -5,6 +5,7 @@ import android.app.usage.UsageEventsQuery
 import android.app.usage.UsageStatsManager
 import android.os.Build
 import androidx.annotation.RequiresApi
+import com.focusguard.usage.UsageEventTypes
 
 /** Coalesced API 35+ foreground detection shared by the monitor poll loop and [ForegroundPollWake]. */
 internal object ForegroundEventsQuery {
@@ -39,7 +40,7 @@ internal object ForegroundEventsQuery {
 
         val query =
             UsageEventsQuery.Builder(startTime, endTime)
-                .setEventTypes(*FOREGROUND_QUERY_EVENT_TYPES)
+                .setEventTypes(*UsageEventTypes.FOREGROUND_START_EVENT_TYPES)
                 .build()
 
         val events = usageStatsManager.queryEvents(query) ?: return null
@@ -53,13 +54,6 @@ internal object ForegroundEventsQuery {
 
         return currentApp
     }
-
-    @Suppress("DEPRECATION")
-    private val FOREGROUND_QUERY_EVENT_TYPES =
-        intArrayOf(
-            UsageEvents.Event.MOVE_TO_FOREGROUND,
-            UsageEvents.Event.ACTIVITY_RESUMED,
-        )
 
     private val COALESCE_MS = 500L
     private val EVENTS_WINDOW_MS = 60_000L

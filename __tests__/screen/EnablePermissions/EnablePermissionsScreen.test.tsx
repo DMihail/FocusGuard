@@ -89,7 +89,6 @@ jest.mock('@/hooks/usePrefetchNativeCatalogs', () => ({
   usePrefetchNativeCatalogs: jest.fn(),
 }));
 
-import { resetUsageAccessUiLatchForTests } from '@/domain/permissions/permissionStatus.android';
 import { invalidatePermissionSnapshot } from '@/domain/permissionSnapshot';
 import { EnablePermissionsScreen } from '@/screen/EnablePermissions/EnablePermissionsScreen';
 
@@ -106,7 +105,6 @@ describe('EnablePermissionsScreen', () => {
     jest.clearAllMocks();
     jest.useFakeTimers();
     triggerPermissionsChanged = undefined;
-    resetUsageAccessUiLatchForTests();
     invalidatePermissionSnapshot();
     mockCheckForPermission.mockReturnValue(false);
     mockCheckForSystemAlertWindowPermission.mockReturnValue(false);

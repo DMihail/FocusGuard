@@ -2,7 +2,7 @@ package com.focusguard.monitor
 
 import android.app.usage.UsageEvents
 import android.app.usage.UsageStatsManager
-import android.os.Build
+import com.focusguard.usage.UsageEventTypes
 
 /**
  * Derives packages with an open foreground session from UsageEvents start/end pairing.
@@ -20,56 +20,44 @@ internal object OpenSessionTracker {
         val startTime = nowMs - WINDOW_MS
         val events = usageStatsManager.queryEvents(startTime, nowMs)
         val event = UsageEvents.Event()
-        val openSessions = mutableMapOf<String, Long>()
+        val openSessions = mutableSetOf<String>()
 
         while (events.hasNextEvent()) {
             events.getNextEvent(event)
             applyEvent(openSessions, event.packageName, event.eventType)
         }
 
-        return openSessions.keys.toSet()
+        return openSessions.toSet()
     }
 
     internal fun openPackagesFromEvents(
         events: List<OpenSessionEvent>,
     ): Set<String> {
-        val openSessions = mutableMapOf<String, Long>()
+        val openSessions = mutableSetOf<String>()
 
         for (event in events) {
             applyEvent(openSessions, event.packageName, event.eventType)
         }
 
-        return openSessions.keys.toSet()
+        return openSessions.toSet()
     }
 
     private fun applyEvent(
-        openSessions: MutableMap<String, Long>,
+        openSessions: MutableSet<String>,
         packageName: String?,
         eventType: Int,
     ) {
         val resolvedPackage = packageName?.takeIf { it.isNotEmpty() } ?: return
 
         when {
-            isForegroundStartEvent(eventType) -> {
-                openSessions[resolvedPackage] = 0L
+            UsageEventTypes.isForegroundStart(eventType) -> {
+                openSessions.add(resolvedPackage)
             }
-            isForegroundEndEvent(eventType) -> {
+            UsageEventTypes.isForegroundEnd(eventType) -> {
                 openSessions.remove(resolvedPackage)
             }
         }
     }
-
-    @Suppress("DEPRECATION")
-    private fun isForegroundStartEvent(eventType: Int): Boolean =
-        eventType == UsageEvents.Event.MOVE_TO_FOREGROUND ||
-            (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q &&
-                eventType == UsageEvents.Event.ACTIVITY_RESUMED)
-
-    @Suppress("DEPRECATION")
-    private fun isForegroundEndEvent(eventType: Int): Boolean =
-        eventType == UsageEvents.Event.MOVE_TO_BACKGROUND ||
-            (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q &&
-                eventType == UsageEvents.Event.ACTIVITY_PAUSED)
 }
 
 internal data class OpenSessionEvent(
