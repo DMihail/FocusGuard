@@ -6,6 +6,9 @@ import org.json.JSONObject
 /**
  * Reads tracked apps and per-app limits from the flat native tracking snapshot
  * (`syncTrackingConfig` / [NativeTrackingSnapshot]). No Zustand persist fallback.
+ *
+ * Negative lookups (missing snapshot) are not cached so a later JS sync can populate
+ * tracked apps / limits without waiting for [invalidateCache].
  */
 internal object TrackingConfigRepository {
 
@@ -19,27 +22,31 @@ internal object TrackingConfigRepository {
     private var cachedTrackedApps: List<String>? = null
     private var cachedTrackedAppsSet: Set<String>? = null
     private var cachedLimitsJson: JSONObject? = null
-    private var limitsLoaded = false
 
     fun invalidateCache() {
         cachedTrackedApps = null
         cachedTrackedAppsSet = null
         cachedLimitsJson = null
-        limitsLoaded = false
     }
 
     fun getTrackedAppsSet(): Set<String> {
         cachedTrackedAppsSet?.let { return it }
 
-        return getTrackedApps().toSet().also { trackedApps ->
-            cachedTrackedAppsSet = trackedApps
+        val trackedApps = getTrackedApps()
+        // Only cache after a successful snapshot read (non-null cache in getTrackedApps).
+        if (cachedTrackedApps != null) {
+            cachedTrackedAppsSet = trackedApps.toSet()
+            return cachedTrackedAppsSet!!
         }
+
+        return trackedApps.toSet()
     }
 
     fun getTrackedApps(): List<String> {
         cachedTrackedApps?.let { return it }
 
-        return NativeTrackingSnapshot.read()?.trackedApps.orEmpty().also { trackedApps ->
+        val snapshot = NativeTrackingSnapshot.read() ?: return emptyList()
+        return snapshot.trackedApps.also { trackedApps ->
             cachedTrackedApps = trackedApps
         }
     }
@@ -63,13 +70,11 @@ internal object TrackingConfigRepository {
     }
 
     private fun loadLimitsJson(): JSONObject? {
-        if (limitsLoaded) {
-            return cachedLimitsJson
-        }
+        cachedLimitsJson?.let { return it }
 
-        cachedLimitsJson = NativeTrackingSnapshot.read()?.limitsJson
-        limitsLoaded = true
-        return cachedLimitsJson
+        val limitsJson = NativeTrackingSnapshot.read()?.limitsJson ?: return null
+        cachedLimitsJson = limitsJson
+        return limitsJson
     }
 
     data class AppLimitConfig(
