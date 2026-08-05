@@ -2,7 +2,7 @@ package com.focusguard.storage
 
 import org.json.JSONObject
 
-/** Flat tracking snapshot written via Turbo Module [syncTrackingConfig] or JS MMKV fallback. */
+/** Flat tracking snapshot written via Turbo Module [syncTrackingConfig] (or JS MMKV when native is unavailable). */
 internal object NativeTrackingSnapshot {
 
     data class Snapshot(

@@ -8,6 +8,8 @@ import org.junit.Before
 import org.junit.Test
 
 class OpenSessionTrackerTest {
+    private val t0 = 1_000_000L
+
     @Before
     fun setUp() {
         OpenSessionTracker.clear()
@@ -27,6 +29,7 @@ class OpenSessionTrackerTest {
                     OpenSessionEvent("com.example.app", UsageEvents.Event.MOVE_TO_FOREGROUND),
                     OpenSessionEvent("com.example.app", UsageEvents.Event.MOVE_TO_BACKGROUND),
                 ),
+                nowMs = t0,
             )
 
         assertTrue(open.isEmpty())
@@ -42,6 +45,7 @@ class OpenSessionTrackerTest {
                     OpenSessionEvent("com.two", UsageEvents.Event.MOVE_TO_FOREGROUND),
                     OpenSessionEvent("com.one", UsageEvents.Event.MOVE_TO_BACKGROUND),
                 ),
+                nowMs = t0,
             )
 
         assertEquals(setOf("com.two"), open)
@@ -52,9 +56,14 @@ class OpenSessionTrackerTest {
         @Suppress("DEPRECATION")
         OpenSessionTracker.openPackagesFromEvents(
             listOf(OpenSessionEvent("com.example.app", UsageEvents.Event.MOVE_TO_FOREGROUND)),
+            nowMs = t0,
         )
 
-        val stillOpen = OpenSessionTracker.openPackagesFromEvents(emptyList())
+        val stillOpen =
+            OpenSessionTracker.openPackagesFromEvents(
+                emptyList(),
+                nowMs = t0 + 5 * 60_000L,
+            )
 
         assertEquals(setOf("com.example.app"), stillOpen)
     }
@@ -64,14 +73,33 @@ class OpenSessionTrackerTest {
         @Suppress("DEPRECATION")
         OpenSessionTracker.openPackagesFromEvents(
             listOf(OpenSessionEvent("com.example.app", UsageEvents.Event.MOVE_TO_FOREGROUND)),
+            nowMs = t0,
         )
 
         @Suppress("DEPRECATION")
         val closed =
             OpenSessionTracker.openPackagesFromEvents(
                 listOf(OpenSessionEvent("com.example.app", UsageEvents.Event.MOVE_TO_BACKGROUND)),
+                nowMs = t0 + 1_000L,
             )
 
         assertTrue(closed.isEmpty())
+    }
+
+    @Test
+    fun `sticky expires after retain window without confirming start`() {
+        @Suppress("DEPRECATION")
+        OpenSessionTracker.openPackagesFromEvents(
+            listOf(OpenSessionEvent("com.example.app", UsageEvents.Event.MOVE_TO_FOREGROUND)),
+            nowMs = t0,
+        )
+
+        val expired =
+            OpenSessionTracker.openPackagesFromEvents(
+                emptyList(),
+                nowMs = t0 + OpenSessionTracker.STICKY_RETAIN_MS + 1L,
+            )
+
+        assertTrue(expired.isEmpty())
     }
 }
