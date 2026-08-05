@@ -210,4 +210,15 @@ describe('monitoringStore', () => {
     expect(mockSubscribeMonitorServiceStateChanged).not.toHaveBeenCalled();
     expect(monitoringStore.getState().isMonitoring).toBe(false);
   });
+
+  it('keeps monitoring on when restore is blocked by background FGS rules', () => {
+    monitoringStore.setState({ isMonitoring: true });
+    mockIsMonitorServiceRunning.mockReturnValue(false);
+    mockStartMonitorService.mockReturnValue({ started: false, reason: 'background_start_blocked' });
+
+    restoreMonitoringSession();
+
+    expect(mockStartMonitorService).toHaveBeenCalledTimes(1);
+    expect(monitoringStore.getState().isMonitoring).toBe(true);
+  });
 });
