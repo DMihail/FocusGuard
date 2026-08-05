@@ -15,6 +15,7 @@ import com.focusguard.monitor.ForegroundStabilizer
 import com.focusguard.monitor.MonitorPermissions
 import com.focusguard.monitor.MonitoringStateRepository
 import com.focusguard.monitor.NotificationPermissions
+import com.focusguard.monitor.OpenSessionTracker
 import com.focusguard.monitor.TrackedUsageChangeEmitter
 import com.focusguard.monitor.TrackingEnginePoll
 import com.focusguard.monitor.TrackingEnginePollRecovery
@@ -107,6 +108,7 @@ class TrackingEngine(
     /** Clears live-session baselines after a local day rollover. */
     fun onLocalDayChanged() {
         liveUsageEstimator.clearBaselinesForNewDay()
+        OpenSessionTracker.clear()
         TrackedUsageChangeEmitter.onLocalDayChanged()
     }
 
@@ -128,6 +130,7 @@ class TrackingEngine(
         activeBlockPackage = null
         pipFallbackNotifiedFor = null
         liveUsageEstimator.clearSession()
+        OpenSessionTracker.clear()
         runOnMainThread {
             BlockOverlayManager.dismiss(context)
             if (blockedPackage != null) {
@@ -479,6 +482,10 @@ class TrackingEngine(
             Log.d(TAG, message)
         }
     }
+
+    /** Live usage used by the monitor loop; also exposed to JS while the service is running. */
+    fun getEffectiveUsageMsForPackages(packageNames: Collection<String>): Map<String, Long> =
+        liveUsageEstimator.getEffectiveUsageMsForPackages(packageNames.toSet())
 
     companion object {
         private const val TAG = "TrackingEngine"

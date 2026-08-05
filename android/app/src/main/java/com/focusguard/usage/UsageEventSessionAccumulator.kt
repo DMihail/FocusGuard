@@ -60,6 +60,9 @@ internal class UsageEventSessionAccumulator(
     /**
      * Orphan ends cover sessions that began before the scan window (e.g. overnight FG closed after
      * midnight). Duplicate ends after a matched close or a prior orphan must not credit again.
+     *
+     * Cap guards against a lone spurious end (OEM quirk) crediting from midnight/cursor as if the
+     * app had been open for many hours — dual-end overcount is handled by [packagesWithStart].
      */
     private fun orphanDurationMs(packageName: String, timeStampMs: Long): Long? {
         if (packageName in packagesWithStart || packageName in packagesWithOrphanEnd) {
@@ -67,7 +70,12 @@ internal class UsageEventSessionAccumulator(
         }
 
         packagesWithOrphanEnd.add(packageName)
-        return (timeStampMs - orphanSessionStartMs).coerceAtLeast(0L)
+        return (timeStampMs - orphanSessionStartMs).coerceIn(0L, MAX_ORPHAN_CREDIT_MS)
+    }
+
+    private companion object {
+        /** ~3h ceiling for unmatched end-without-start credits. */
+        private const val MAX_ORPHAN_CREDIT_MS = 3L * 60L * 60L * 1_000L
     }
 
     fun snapshot(): DailyUsageAggregator.EventAggregationState =

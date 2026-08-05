@@ -23,6 +23,7 @@ import com.focusguard.platform.AppInfo
 import com.focusguard.react.TurboModuleEventDispatchers
 import com.focusguard.usage.LocalDayChangeNotifier
 import com.focusguard.react.ReactNativeMappers
+import com.focusguard.service.FocusGuardMonitorService
 import com.focusguard.storage.NativeTrackingSnapshot
 import com.focusguard.crashlytics.NativeErrorReporter
 import com.focusguard.widget.WidgetUpdater
@@ -145,11 +146,19 @@ class KeeptTurboModule(
             (0 until packageNames.size())
                 .mapNotNull { index -> packageNames.getString(index)?.takeIf { it.isNotEmpty() } }
 
-        promise.resolve(
-            ReactNativeMappers.toPackageUsageArray(
-                dailyUsageRepository.getTodayForegroundMsForPackages(requestedPackages),
-            ),
-        )
+        val fromRepository =
+            dailyUsageRepository.getTodayForegroundMsForPackages(requestedPackages)
+        val fromLive = FocusGuardMonitorService.getLiveUsageMsForPackages(requestedPackages)
+        val usageByPackage =
+            if (fromLive == null) {
+              fromRepository
+            } else {
+              requestedPackages.associateWith { packageName ->
+                maxOf(fromRepository[packageName] ?: 0L, fromLive[packageName] ?: 0L)
+              }
+            }
+
+        promise.resolve(ReactNativeMappers.toPackageUsageArray(usageByPackage))
       } catch (error: Exception) {
         NativeErrorReporter.recordNonFatal(error, "KeeptTurboModule.getPackagesUsageToday")
         promise.reject("usage_stats_failed", error.message, error)

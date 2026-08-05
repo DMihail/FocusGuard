@@ -115,17 +115,24 @@ const toMinutes = (ms: number): number => Math.round(ms / MS_PER_MINUTE);
 
 const getPeriodDayCount = (period: StatisticsPeriod): number => (period === 'week' ? WEEK_DAY_COUNT : MONTH_DAY_COUNT);
 
-/** Picks history entries needed for charts, summary, and streak without subscribing to the full store map. */
+/** Picks history entries needed for charts, summary, and streak without subscribing to the full store map.
+ * Today is omitted — live `todayEntry` from tracked rows is the single source for the current day.
+ */
 export const pickStatisticsHistory = (
   byDay: Record<string, DailyUsageHistoryEntry>,
   period: StatisticsPeriod,
   anchor = new Date(),
 ): Record<string, DailyUsageHistoryEntry> => {
   const dayCount = Math.max(getPeriodDayCount(period), STREAK_LOOKBACK_DAYS);
+  const todayKey = getLocalDayKey(anchor);
   const picked: Record<string, DailyUsageHistoryEntry> = {};
 
   for (let offset = 0; offset < dayCount; offset += 1) {
     const dayKey = getLocalDayKey(shiftLocalDate(anchor, -offset));
+    if (dayKey === todayKey) {
+      continue;
+    }
+
     const entry = byDay[dayKey];
 
     if (entry) {

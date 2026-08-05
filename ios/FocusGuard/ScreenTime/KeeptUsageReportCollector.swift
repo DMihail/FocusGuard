@@ -8,6 +8,12 @@ enum KeeptUsageReportCollector {
   private static var hostController: UIHostingController<KeeptUsageReportHostView>?
   private static var refreshTask: Task<Void, Never>?
 
+  static func invalidate() {
+    refreshTask?.cancel()
+    refreshTask = nil
+    unmountReport()
+  }
+
   static func refresh() async {
     if let refreshTask {
       await refreshTask.value

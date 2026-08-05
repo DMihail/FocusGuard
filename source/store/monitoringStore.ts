@@ -74,6 +74,8 @@ export const monitoringStore = create<MonitoringStore>()(
       storage: createJSONStorage(() => zustandStorage),
       partialize: (state) => ({ isMonitoring: state.isMonitoring }),
       onRehydrateStorage: () => () => {
+        // Cold-start owner for restoring FGS. Foreground / native-stop reconcile uses the same
+        // `restoreMonitoringSession` via `useMonitoringServiceSync` (coalesced microtask).
         scheduleMicrotask(restoreMonitoringSession);
       },
     },

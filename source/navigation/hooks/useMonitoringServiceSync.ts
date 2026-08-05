@@ -21,7 +21,9 @@ const scheduleMonitoringReconcile = (): void => {
   });
 };
 
-/** Reconciles the persisted focus session when the app returns to the foreground. */
+/** Reconciles the persisted focus session when the app returns to the foreground.
+ * Shares `restoreMonitoringSession` with monitoringStore rehydrate (cold start).
+ */
 export const useMonitoringServiceSync = (isEnabled: boolean): void => {
   const sync = useCallback(() => {
     if (!isEnabled || !monitoringStore.persist.hasHydrated()) {

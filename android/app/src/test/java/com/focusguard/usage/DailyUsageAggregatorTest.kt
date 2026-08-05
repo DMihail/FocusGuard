@@ -93,7 +93,6 @@ class DailyUsageAggregatorTest {
 
     @Test
     fun `duplicate end after matched session does not orphan from day start`() {
-        // ACTIVITY_PAUSED then MOVE_TO_BACKGROUND — classic Q+ dual emission.
         val accumulator =
             UsageEventSessionAccumulator(
                 dayStartMs = dayStartMs,
@@ -112,8 +111,9 @@ class DailyUsageAggregatorTest {
     }
 
     @Test
-    fun `duplicate orphan end credits only once from day start`() {
+    fun `duplicate orphan end credits only once and caps long unmatched ends`() {
         val sixteenHoursMs = 16L * 60L * 60L * 1_000L
+        val threeHoursMs = 3L * 60L * 60L * 1_000L
         val endMs = dayStartMs + sixteenHoursMs
 
         val accumulator =
@@ -126,7 +126,7 @@ class DailyUsageAggregatorTest {
         accumulator.applyForegroundEnd(packageName, endMs)
         accumulator.applyForegroundEnd(packageName, endMs + 10L)
 
-        assertEquals(sixteenHoursMs, accumulator.snapshot().usageByPackage[packageName])
+        assertEquals(threeHoursMs, accumulator.snapshot().usageByPackage[packageName])
     }
 
     @Test
@@ -160,5 +160,38 @@ class DailyUsageAggregatorTest {
         accumulator.applyForegroundEnd(packageName, dayStartMs + 5_000L)
 
         assertEquals(4_000L, accumulator.snapshot().usageByPackage[packageName])
+    }
+
+    @Test
+    fun `hybrid merge does not stack stats when open session exists`() {
+        val openSessions = mapOf(packageName to dayStartMs + 1_000L)
+        val merged =
+            DailyUsageAggregator.completedUsagePreferringEvents(
+                packageFilter = setOf(packageName),
+                eventsCompleted = emptyMap(),
+                openSessions = openSessions,
+                fromStats = mapOf(packageName to 60L * 60L * 1_000L),
+            )
+
+        assertEquals(0L, merged[packageName])
+
+        val projected =
+            DailyUsageAggregator.projectUsageAt(merged, openSessions, dayStartMs + 10_000L)
+        assertEquals(9_000L, projected[packageName])
+    }
+
+    @Test
+    fun `hybrid merge uses stats only when package has no event evidence`() {
+        val other = "com.other.app"
+        val merged =
+            DailyUsageAggregator.completedUsagePreferringEvents(
+                packageFilter = setOf(packageName, other),
+                eventsCompleted = mapOf(packageName to 5_000L),
+                openSessions = emptyMap(),
+                fromStats = mapOf(packageName to 99_000L, other to 7_000L),
+            )
+
+        assertEquals(5_000L, merged[packageName])
+        assertEquals(7_000L, merged[other])
     }
 }

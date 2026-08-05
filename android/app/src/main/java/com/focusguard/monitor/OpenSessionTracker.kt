@@ -9,9 +9,21 @@ import com.focusguard.usage.UsageEventTypes
  *
  * Unlike "last resumed" heuristics, this keeps tracked apps visible in split-screen and PiP
  * until they receive ACTIVITY_PAUSED / MOVE_TO_BACKGROUND.
+ *
+ * A sticky set survives quiet periods with no new events inside [WINDOW_MS] (common while the
+ * user stays inside one app). Sticky entries clear on an end event, [clear], or day rollover.
  */
 internal object OpenSessionTracker {
     private const val WINDOW_MS = 60_000L
+
+    private val lock = Any()
+    private val stickyOpenPackages = mutableSetOf<String>()
+
+    fun clear() {
+        synchronized(lock) {
+            stickyOpenPackages.clear()
+        }
+    }
 
     fun scanOpenPackages(
         usageStatsManager: UsageStatsManager,
@@ -20,30 +32,43 @@ internal object OpenSessionTracker {
         val startTime = nowMs - WINDOW_MS
         val events = usageStatsManager.queryEvents(startTime, nowMs)
         val event = UsageEvents.Event()
-        val openSessions = mutableSetOf<String>()
+        val openInWindow = mutableSetOf<String>()
+        val endedInWindow = mutableSetOf<String>()
 
         while (events.hasNextEvent()) {
             events.getNextEvent(event)
-            applyEvent(openSessions, event.packageName, event.eventType)
+            applyEvent(openInWindow, endedInWindow, event.packageName, event.eventType)
         }
 
-        return openSessions.toSet()
+        return mergeSticky(openInWindow, endedInWindow)
     }
 
     internal fun openPackagesFromEvents(
         events: List<OpenSessionEvent>,
     ): Set<String> {
-        val openSessions = mutableSetOf<String>()
+        val openInWindow = mutableSetOf<String>()
+        val endedInWindow = mutableSetOf<String>()
 
         for (event in events) {
-            applyEvent(openSessions, event.packageName, event.eventType)
+            applyEvent(openInWindow, endedInWindow, event.packageName, event.eventType)
         }
 
-        return openSessions.toSet()
+        return mergeSticky(openInWindow, endedInWindow)
     }
 
+    private fun mergeSticky(
+        openInWindow: Set<String>,
+        endedInWindow: Set<String>,
+    ): Set<String> =
+        synchronized(lock) {
+            stickyOpenPackages.removeAll(endedInWindow)
+            stickyOpenPackages.addAll(openInWindow)
+            stickyOpenPackages.toSet()
+        }
+
     private fun applyEvent(
-        openSessions: MutableSet<String>,
+        openInWindow: MutableSet<String>,
+        endedInWindow: MutableSet<String>,
         packageName: String?,
         eventType: Int,
     ) {
@@ -51,10 +76,12 @@ internal object OpenSessionTracker {
 
         when {
             UsageEventTypes.isForegroundStart(eventType) -> {
-                openSessions.add(resolvedPackage)
+                openInWindow.add(resolvedPackage)
+                endedInWindow.remove(resolvedPackage)
             }
             UsageEventTypes.isForegroundEnd(eventType) -> {
-                openSessions.remove(resolvedPackage)
+                openInWindow.remove(resolvedPackage)
+                endedInWindow.add(resolvedPackage)
             }
         }
     }
