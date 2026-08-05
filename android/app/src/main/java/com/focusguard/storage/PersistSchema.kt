@@ -5,7 +5,7 @@ package com.focusguard.storage
  * Keep storage keys and version numbers in sync when persisted store shapes change.
  *
  * JS writes the flat tracking snapshot via Turbo Module [syncTrackingConfig]; native monitor
- * code reads [NATIVE_TRACKING_SNAPSHOT_KEY] first, then falls back to Zustand persist blobs.
+ * code reads [NATIVE_TRACKING_SNAPSHOT_KEY] only (no Zustand persist fallback for tracked apps).
  */
 object PersistSchema {
     const val MMKV_INSTANCE_ID = "keept-storage"

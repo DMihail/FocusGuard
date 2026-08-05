@@ -9,8 +9,8 @@
  * - **Turbo Module (`KeeptTurboModule`)** — permissions, usage catalogs, monitor control,
  *   and `syncTrackingConfig` for the flat tracking snapshot.
  * - **Shared MMKV (`keept-storage`)** — Zustand persist blobs plus the flat
- *   `native-tracking-snapshot-v1` key. Native monitor code reads the snapshot first,
- *   then falls back to parsing Zustand persist when the snapshot is absent.
+ *   `native-tracking-snapshot-v1` key. Native monitor reads **only** the flat snapshot
+ *   for tracked apps / limits (`syncTrackingConfig`).
  *
  * Prefer `syncNativeTrackingSnapshot()` (calls `syncTrackingConfig`) over writing the
  * snapshot key directly so native cache invalidation stays in sync.

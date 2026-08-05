@@ -1,8 +1,10 @@
 name: CI
 
 on:
-  push:
+  # Feature branches: one run via pull_request (avoids push+PR double fire).
   pull_request:
+  push:
+    branches: [main, dev, 'release/**']
 
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
@@ -13,7 +15,6 @@ permissions:
 
 env:
   HUSKY: '0'
-  CI: 'true'
   NODE_OPTIONS: --max-old-space-size=4096
   RCT_NEW_ARCH_ENABLED: '1'
 
@@ -52,13 +53,9 @@ jobs:
           java-version: 17
 
       - uses: android-actions/setup-android@v3
-
-      - name: Install Android SDK packages
-        run: |
-          sdkmanager --install \
-            "platforms;android-36" \
-            "build-tools;36.0.0" \
-            "ndk;27.1.12297006"
+        with:
+          packages: >-
+            platform-tools platforms;android-36 build-tools;36.0.0 ndk;27.1.12297006
 
       - uses: gradle/actions/setup-gradle@v4
 

@@ -1,6 +1,7 @@
 /** @format */
 
 import { buildDashboardAppRows, buildDashboardSummary } from '@/utils/usage/dashboardStats';
+import { getLocalDayKey } from '@/utils/usage/localDayKey';
 import {
   buildFocusTrend,
   buildMonthUsageChart,
@@ -148,7 +149,8 @@ describe('statistics utils', () => {
     const picked = pickStatisticsHistory(extraHistory, 'week', anchor);
 
     expect(picked['2020-1-1']).toBeUndefined();
-    expect(picked['2026-6-22']).toEqual(extraHistory['2026-6-22']);
+    expect(picked['2026-6-21']).toEqual(extraHistory['2026-6-21']);
+    expect(picked[getLocalDayKey(anchor)]).toBeUndefined();
   });
 
   it('sums remaining budget per app in dashboard summary', () => {

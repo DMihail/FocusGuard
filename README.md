@@ -380,10 +380,10 @@ under `source/screen/Legal/data/` (EN/RU + Android/iOS in one builder per docume
 GitHub Actions (`.github/workflows/ci.yml`), New Architecture enabled:
 
 1. **check** — `npm run check` on Node 22
-2. **android** — `assembleDebug` + `testDebugUnitTest` (API 36, NDK 27.1.12297006)
-3. **ios** — `pod install` + `xcodebuild` Debug for iPhone simulator (no code signing)
+2. **android** — `assembleDebug` + `testDebugUnitTest` (API 36, NDK 27.1.12297006), only after **check**
 
-Android and iOS run only after **check** passes. Husky is disabled in CI (`HUSKY=0`).
+Runs on every PR once (not also on the branch push), and on push to `main` / `dev` / `release/**`. iOS is local-only
+(see above). Husky is disabled in CI (`HUSKY=0`).
 
 ## Contributing notes
 

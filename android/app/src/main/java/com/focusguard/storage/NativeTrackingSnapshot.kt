@@ -2,7 +2,7 @@ package com.focusguard.storage
 
 import org.json.JSONObject
 
-/** Flat tracking snapshot written via Turbo Module [syncTrackingConfig] or JS MMKV fallback. */
+/** Flat tracking snapshot written via Turbo Module [syncTrackingConfig] (or JS MMKV when native is unavailable). */
 internal object NativeTrackingSnapshot {
 
     data class Snapshot(
@@ -14,7 +14,7 @@ internal object NativeTrackingSnapshot {
     private var cachedSnapshot: Snapshot? = null
 
     fun read(): Snapshot? {
-        val raw = KeeptMmkv.instance.decodeString(PersistSchema.NATIVE_TRACKING_SNAPSHOT_KEY) ?: return null
+        val raw = KeeptStorage.mmkv.decodeString(PersistSchema.NATIVE_TRACKING_SNAPSHOT_KEY) ?: return null
 
         if (raw == cachedRaw && cachedSnapshot != null) {
             return cachedSnapshot
@@ -48,7 +48,7 @@ internal object NativeTrackingSnapshot {
     }
 
     fun write(snapshotJson: String) {
-        KeeptMmkv.instance.encode(PersistSchema.NATIVE_TRACKING_SNAPSHOT_KEY, snapshotJson)
+        KeeptStorage.mmkv.encode(PersistSchema.NATIVE_TRACKING_SNAPSHOT_KEY, snapshotJson)
         invalidateCache()
     }
 

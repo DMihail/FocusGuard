@@ -3,11 +3,16 @@ package com.focusguard.usage
 /**
  * Tracks completed foreground sessions and still-open sessions while walking a usage event stream.
  * Used by [DailyUsageAggregator] and unit-tested without [android.app.usage.UsageStatsManager].
+ *
+ * Android Q+ often emits both `ACTIVITY_PAUSED` and deprecated `MOVE_TO_BACKGROUND` for the same
+ * transition. Ends without a matching open start are ignored — crediting them from day/cursor
+ * start caused multi-hour overcounts. Overnight sessions still closed after midnight are covered
+ * by UsageStats fallback when the package has no event evidence.
  */
 internal class UsageEventSessionAccumulator(
     private val dayStartMs: Long,
     private val packageFilter: Set<String>,
-    private val orphanSessionStartMs: Long,
+    @Suppress("UNUSED_PARAMETER") private val orphanSessionStartMs: Long,
     initialCompleted: Map<String, Long> = emptyMap(),
     initialOpenSessions: Map<String, Long> = emptyMap(),
 ) {
@@ -34,13 +39,8 @@ internal class UsageEventSessionAccumulator(
             return
         }
 
-        val sessionStartMs = openSessionStartMs.remove(packageName)
-        val durationMs =
-            if (sessionStartMs != null) {
-                (timeStampMs - sessionStartMs).coerceAtLeast(0L)
-            } else {
-                (timeStampMs - orphanSessionStartMs).coerceAtLeast(0L)
-            }
+        val sessionStartMs = openSessionStartMs.remove(packageName) ?: return
+        val durationMs = (timeStampMs - sessionStartMs).coerceAtLeast(0L)
         completedUsageByPackage[packageName] = (completedUsageByPackage[packageName] ?: 0L) + durationMs
     }
 

@@ -73,9 +73,7 @@ export const monitoringStore = create<MonitoringStore>()(
       version: MONITORING_PERSIST_VERSION,
       storage: createJSONStorage(() => zustandStorage),
       partialize: (state) => ({ isMonitoring: state.isMonitoring }),
-      onRehydrateStorage: () => () => {
-        scheduleMicrotask(restoreMonitoringSession);
-      },
+      // Cold-start restore is owned by `useMonitoringServiceSync` (onFinishHydration + foreground + native stop).
     },
   ),
 );
@@ -162,6 +160,10 @@ export const restoreMonitoringSession = (): void => {
 
   if (!startResult.started) {
     reportError(new Error(`Monitor service restore failed: ${startResult.reason ?? 'unknown'}`));
+    // Keep intent on; native pending / next foreground resume will retry (API 34+ FGS rules).
+    if (startResult.reason === 'background_start_blocked') {
+      return;
+    }
     monitoringStore.setState({ isMonitoring: false });
     return;
   }

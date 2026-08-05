@@ -131,5 +131,12 @@ class FocusGuardMonitorService : Service() {
     fun onLocalDayChanged() {
       activeTrackingEngine?.onLocalDayChanged()
     }
+
+    /**
+     * Returns live-estimated usage while the monitor is running so JS matches block/widget totals.
+     * Null when the service is not active — callers should use [DailyUsageRepository] alone.
+     */
+    fun getLiveUsageMsForPackages(packageNames: Collection<String>): Map<String, Long>? =
+      activeTrackingEngine?.getEffectiveUsageMsForPackages(packageNames)
   }
 }

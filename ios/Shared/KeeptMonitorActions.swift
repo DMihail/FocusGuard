@@ -13,9 +13,8 @@ enum KeeptMonitorActions {
   }
 
   static func handleWarning(tokenId: String) {
-    if let warningMinutes = IosTrackingSnapshotStore.read()?.limitsByTokenId[tokenId]?.warningMinutes {
-      IosDailyUsageStore.recordAtLeastUsageMinutes(tokenId: tokenId, minutes: warningMinutes)
-    }
+    // Do not floor usage to warning minutes — DeviceActivity report merge is the usage source.
+    // Flooring here made UI jump to the warning threshold before the report caught up.
 
     guard !IosDailyWarningStore.wasWarningShownToday(tokenId: tokenId) else {
       return
@@ -45,6 +44,7 @@ enum KeeptMonitorActions {
       return
     }
 
+    // Floor only at hard-block so shields stay consistent if the report lags slightly.
     IosDailyUsageStore.recordAtLeastUsageMinutes(tokenId: tokenId, minutes: limits.hardBlockMinutes)
 
     if IosTrackingSnoozeStore.isSnoozed(tokenId: tokenId) {

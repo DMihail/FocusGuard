@@ -108,10 +108,14 @@ final class KeeptScreenTimeBridge: NSObject {
   }
 
   @objc static func invalidateNativeInstalledAppsCache() {
-    // Selection payload is rebuilt on the next getInstalledApplications call.
+    // Selection payload is rebuilt on each getSelectedApplications call; drop notification
+    // auth sticky so the next permissions/catalog sync re-queries the system.
+    KeeptNotificationAuthorization.invalidateCache()
   }
 
   @objc static func invalidateNativeUsageCache() {
-    // Usage totals are refreshed on the next getPackagesUsageToday call.
+    Task { @MainActor in
+      KeeptUsageReportCollector.invalidate()
+    }
   }
 }
