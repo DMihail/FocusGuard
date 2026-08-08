@@ -1,6 +1,6 @@
 /** @format */
 
-import { useCallback, useEffect } from 'react';
+import { useEffect } from 'react';
 
 import { useAppStateOnActive } from '@/hooks/useAppStateOnActive';
 import { subscribeMonitorServiceStateChanged } from '@/specs';
@@ -23,14 +23,6 @@ const scheduleMonitoringReconcile = (): void => {
 
 /** Sole owner of monitor-session restore: after hydrate (cold start), foreground, and native stop. */
 export const useMonitoringServiceSync = (isEnabled: boolean): void => {
-  const sync = useCallback(() => {
-    if (!isEnabled || !monitoringStore.persist.hasHydrated()) {
-      return;
-    }
-
-    scheduleMonitoringReconcile();
-  }, [isEnabled]);
-
   useEffect(() => {
     if (!isEnabled) {
       return undefined;
@@ -46,7 +38,14 @@ export const useMonitoringServiceSync = (isEnabled: boolean): void => {
     });
   }, [isEnabled]);
 
-  useAppStateOnActive(sync);
+  // useAppStateOnActive wraps the callback in useEffectEvent — latest `isEnabled` is read there.
+  useAppStateOnActive(() => {
+    if (!isEnabled || !monitoringStore.persist.hasHydrated()) {
+      return;
+    }
+
+    scheduleMonitoringReconcile();
+  });
 
   useEffect(() => {
     if (!isEnabled) {

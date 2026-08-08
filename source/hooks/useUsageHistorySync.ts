@@ -1,6 +1,6 @@
 /** @format */
 
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useEffectEvent, useMemo } from 'react';
 
 import { usageHistoryStore } from '@/store';
 import { buildAppRowsSnapshotKey } from '@/utils/usage/appRowsSnapshotKey';
@@ -11,16 +11,9 @@ import { buildTodayHistoryEntry } from '@/utils/usage/statistics';
 /** Persists today's usage snapshot for statistics charts. */
 export const useUsageHistorySync = (appRows: DashboardAppRow[], enabled = true): void => {
   const snapshotKey = useMemo(() => (enabled ? buildAppRowsSnapshotKey(appRows) : ''), [appRows, enabled]);
-  const appRowsRef = useRef(appRows);
-  appRowsRef.current = appRows;
-
-  useEffect(() => {
-    if (!enabled) {
-      return;
-    }
-
+  const recordCurrentRows = useEffectEvent(() => {
     const dayKey = getLocalDayKey();
-    const entry = buildTodayHistoryEntry(appRowsRef.current);
+    const entry = buildTodayHistoryEntry(appRows);
 
     if (!entry) {
       usageHistoryStore.getState().clearDay(dayKey);
@@ -28,5 +21,13 @@ export const useUsageHistorySync = (appRows: DashboardAppRow[], enabled = true):
     }
 
     usageHistoryStore.getState().recordDay(dayKey, entry);
+  });
+
+  useEffect(() => {
+    if (!enabled) {
+      return;
+    }
+
+    recordCurrentRows();
   }, [enabled, snapshotKey]);
 };

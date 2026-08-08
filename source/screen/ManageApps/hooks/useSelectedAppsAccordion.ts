@@ -13,11 +13,9 @@ export const useSelectedAppsAccordion = (isExpanded: boolean, expandedHeight: nu
   const progress = useSharedValue(isExpanded ? 1 : 0);
   const expandedHeightValue = useSharedValue(expandedHeight);
   const wasExpandedRef = useRef(isExpanded);
+  // runOnJS is not an Effect — keep a ref for the collapse callback.
   const onCollapseEndRef = useRef(onCollapseEnd);
-
-  useEffect(() => {
-    onCollapseEndRef.current = onCollapseEnd;
-  }, [onCollapseEnd]);
+  onCollapseEndRef.current = onCollapseEnd;
 
   const notifyCollapseEnd = useCallback(() => {
     onCollapseEndRef.current?.();

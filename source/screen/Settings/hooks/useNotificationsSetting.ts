@@ -1,6 +1,6 @@
 /** @format */
 
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useOptimistic, useRef, useState, useTransition } from 'react';
 
 import { useShallow } from 'zustand/react/shallow';
 
@@ -20,6 +20,10 @@ export const useNotificationsSetting = () => {
   );
   const [systemGranted, setSystemGranted] = useState(readSystemNotificationsGranted);
   const permissionRequestInFlightRef = useRef(false);
+  const [, startTransition] = useTransition();
+
+  const baseEnabled = notificationsEnabled && (!isSystemNotificationGrantRequired || systemGranted);
+  const [isEnabled, setOptimisticEnabled] = useOptimistic(baseEnabled);
 
   const reconcileRevokedPermission = useCallback(() => {
     const granted = readSystemNotificationsGranted();
@@ -36,12 +40,13 @@ export const useNotificationsSetting = () => {
 
   useNativePermissionsChangedRefresh(reconcileRevokedPermission);
 
-  const isEnabled = notificationsEnabled && (!isSystemNotificationGrantRequired || systemGranted);
-
   const setEnabled = useCallback(
     async (value: boolean) => {
       if (value) {
         permissionRequestInFlightRef.current = true;
+        startTransition(() => {
+          setOptimisticEnabled(true);
+        });
         setNotificationsEnabled(true);
 
         try {
@@ -60,11 +65,14 @@ export const useNotificationsSetting = () => {
       }
 
       permissionRequestInFlightRef.current = false;
+      startTransition(() => {
+        setOptimisticEnabled(false);
+      });
       setNotificationsEnabled(false);
       setSystemGranted(readSystemNotificationsGranted());
       openNotificationsSettings();
     },
-    [setNotificationsEnabled],
+    [setNotificationsEnabled, setOptimisticEnabled],
   );
 
   return { isEnabled, setEnabled };

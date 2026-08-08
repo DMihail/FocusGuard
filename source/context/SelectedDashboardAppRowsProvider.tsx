@@ -1,6 +1,6 @@
 /** @format */
 
-import React, { createContext, type ReactNode, useContext, useMemo } from 'react';
+import React, { createContext, type ReactNode, use, useMemo } from 'react';
 
 import { useShallow } from 'zustand/react/shallow';
 
@@ -41,7 +41,7 @@ export const SelectedDashboardAppRowsProvider = ({ children }: SelectedDashboard
 };
 
 export const useSelectedDashboardAppRows = (): DashboardAppRow[] => {
-  const appRows = useContext(SelectedDashboardAppRowsContext);
+  const appRows = use(SelectedDashboardAppRowsContext);
 
   if (appRows === null) {
     throw new Error('useSelectedDashboardAppRows must be used within SelectedDashboardAppRowsProvider');

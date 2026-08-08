@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useEffectEvent, useMemo, useState } from 'react';
 
 import { useFocusEffect } from '@react-navigation/native';
 
@@ -38,6 +38,8 @@ export const usePermissionsSync = () => {
     applyStatuses();
   }, [applyStatuses]);
 
+  const onPermissionsChanged = useEffectEvent(syncStatuses);
+
   useFocusEffect(
     useCallback(() => {
       syncStatuses();
@@ -45,10 +47,10 @@ export const usePermissionsSync = () => {
   );
 
   useEffect(() => {
-    const subscription = subscribePermissionsChanged(() => syncStatuses());
+    const subscription = subscribePermissionsChanged(onPermissionsChanged);
 
     return () => subscription.remove();
-  }, [syncStatuses]);
+  }, []);
 
   const permissions = useMemo(
     () =>

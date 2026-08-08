@@ -6,6 +6,7 @@ import { reportError } from '@/crashlytics/reportError';
 
 /** Runs async work at most once at a time; coalesces overlapping calls into one follow-up run. */
 export const useCoalescedAsyncRunner = (runTask: () => void | Promise<void>): (() => void) => {
+  // Invoked from a stable public runner (focus / active / UI) — ref, not useEffectEvent.
   const taskRef = useRef(runTask);
   taskRef.current = runTask;
 

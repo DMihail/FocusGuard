@@ -1,6 +1,6 @@
 /** @format */
 
-import React, { useDeferredValue, useEffect, useState } from 'react';
+import React, { useDeferredValue, useEffect, useEffectEvent, useState } from 'react';
 import { View } from 'react-native';
 
 import { testIds } from '@/testing/testIds';
@@ -17,14 +17,16 @@ export const ManageAppsSearchToolbar = ({ onQueryChange, onQueryActiveChange }: 
   const styles = useManageAppsStyles();
   const [query, setQuery] = useState('');
   const deferredQuery = useDeferredValue(query);
+  const onQueryActiveChangeEvent = useEffectEvent(onQueryActiveChange);
+  const onQueryChangeEvent = useEffectEvent(onQueryChange);
 
   useEffect(() => {
-    onQueryActiveChange(query.trim().length > 0);
-  }, [onQueryActiveChange, query]);
+    onQueryActiveChangeEvent(query.trim().length > 0);
+  }, [query]);
 
   useEffect(() => {
-    onQueryChange(deferredQuery);
-  }, [deferredQuery, onQueryChange]);
+    onQueryChangeEvent(deferredQuery);
+  }, [deferredQuery]);
 
   return (
     <View style={styles.searchToolbar} testID={testIds.manageApps.searchField}>
