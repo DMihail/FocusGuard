@@ -159,7 +159,7 @@ describe('monitoringStore', () => {
     expect(monitoringStore.getState().isMonitoring).toBe(false);
   });
 
-  it('restarts monitor service after rehydrate when monitoring was enabled', async () => {
+  it('restarts monitor service after restore when monitoring was enabled', async () => {
     mockIsMonitorServiceRunning.mockReturnValueOnce(false).mockReturnValue(true);
     mockGetItem.mockReturnValue(JSON.stringify({ state: { isMonitoring: true }, version: 1 }));
 
@@ -167,12 +167,14 @@ describe('monitoringStore', () => {
       await monitoringStore.persist.rehydrate();
     });
 
+    restoreMonitoringSession();
+
     expect(mockStartMonitorService).toHaveBeenCalledTimes(1);
     expect(mockSubscribeMonitorServiceStateChanged).toHaveBeenCalledTimes(1);
     expect(monitoringStore.getState().isMonitoring).toBe(true);
   });
 
-  it('disables monitoring after rehydrate when permissions are missing', async () => {
+  it('disables monitoring on restore when permissions are missing', async () => {
     mockIsMonitorServiceRunning.mockReturnValue(false);
     mockAreAllPermissionsGranted.mockReturnValue(false);
     mockGetItem.mockReturnValue(JSON.stringify({ state: { isMonitoring: true }, version: 1 }));
@@ -180,6 +182,8 @@ describe('monitoringStore', () => {
     await act(async () => {
       await monitoringStore.persist.rehydrate();
     });
+
+    restoreMonitoringSession();
 
     expect(mockStartMonitorService).not.toHaveBeenCalled();
     expect(monitoringStore.getState().isMonitoring).toBe(false);
@@ -205,5 +209,16 @@ describe('monitoringStore', () => {
     expect(mockStartMonitorService).toHaveBeenCalledTimes(1);
     expect(mockSubscribeMonitorServiceStateChanged).not.toHaveBeenCalled();
     expect(monitoringStore.getState().isMonitoring).toBe(false);
+  });
+
+  it('keeps monitoring on when restore is blocked by background FGS rules', () => {
+    monitoringStore.setState({ isMonitoring: true });
+    mockIsMonitorServiceRunning.mockReturnValue(false);
+    mockStartMonitorService.mockReturnValue({ started: false, reason: 'background_start_blocked' });
+
+    restoreMonitoringSession();
+
+    expect(mockStartMonitorService).toHaveBeenCalledTimes(1);
+    expect(monitoringStore.getState().isMonitoring).toBe(true);
   });
 });

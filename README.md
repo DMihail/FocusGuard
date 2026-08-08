@@ -131,9 +131,9 @@ Platform-specific TypeScript resolves via Metro / `moduleSuffixes`: `.ios.ts`, `
 | Layer                         | Value                                                                    |
 | ----------------------------- | ------------------------------------------------------------------------ |
 | Product name                  | Keept                                                                    |
-| npm / JS version              | `1.0.8` (`package.json`)                                                 |
-| Android store version         | `1.0.8` (`versionName` in `android/app/build.gradle`)                    |
-| Android build number          | `13` (`versionCode` in `android/app/build.gradle`)                       |
+| npm / JS version              | `1.0.9` (`package.json`)                                                 |
+| Android store version         | `1.0.9` (`versionName` in `android/app/build.gradle`)                    |
+| Android build number          | `14` (`versionCode` in `android/app/build.gradle`)                       |
 | iOS marketing version         | `1.0.0` (`MARKETING_VERSION` in Xcode)                                   |
 | iOS build number              | `1` (`CURRENT_PROJECT_VERSION` — first App Store cut may stay at 1)      |
 | Store bundle / application ID | `com.keept`                                                              |
@@ -380,10 +380,10 @@ under `source/screen/Legal/data/` (EN/RU + Android/iOS in one builder per docume
 GitHub Actions (`.github/workflows/ci.yml`), New Architecture enabled:
 
 1. **check** — `npm run check` on Node 22
-2. **android** — `assembleDebug` + `testDebugUnitTest` (API 36, NDK 27.1.12297006)
-3. **ios** — `pod install` + `xcodebuild` Debug for iPhone simulator (no code signing)
+2. **android** — `assembleDebug` + `testDebugUnitTest` (API 36, NDK 27.1.12297006), only after **check**
 
-Android and iOS run only after **check** passes. Husky is disabled in CI (`HUSKY=0`).
+Runs on every PR once (not also on the branch push), and on push to `main` / `dev` / `release/**`. iOS is local-only
+(see above). Husky is disabled in CI (`HUSKY=0`).
 
 ## Contributing notes
 

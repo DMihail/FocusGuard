@@ -1,6 +1,6 @@
 /** @format */
 
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState, useTransition } from 'react';
 
 import { useShallow } from 'zustand/react/shallow';
 
@@ -25,13 +25,20 @@ import {
 /** Statistics screen state: period selection, chart series, and tracked usage refresh. */
 export const useStatistics = () => {
   const { i18n } = useTranslation();
-  const [period, setPeriod] = useState<StatisticsPeriod>('week');
+  const [period, setPeriodState] = useState<StatisticsPeriod>('week');
+  const [, startPeriodTransition] = useTransition();
   const { appRows, refreshUsage, showUsageRefreshIndicator } = useTrackedAppRows({ lifecycle: false });
   const hasHistoryHydrated = usePersistHydrated(usageHistoryStore);
   const history = usageHistoryStore(
     useShallow((state) => (hasHistoryHydrated ? pickStatisticsHistory(state.byDay, period) : {})),
   );
   const { refreshControl, refreshing: isPullRefreshing } = useTrackedAppsRefresh(refreshUsage);
+
+  const setPeriod = useCallback((next: StatisticsPeriod) => {
+    startPeriodTransition(() => {
+      setPeriodState(next);
+    });
+  }, []);
 
   const locale = i18n.language === 'ru' ? 'ru-RU' : 'en-US';
   const formatWeekRangeLabelForPeriod = useCallback(

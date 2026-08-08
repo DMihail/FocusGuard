@@ -49,13 +49,15 @@ class BootCompletedReceiver : BroadcastReceiver() {
           return
         }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-          MonitoringBootResumeStore.markPending()
-          MonitoringBootResumeNotifier.notifyResumePending(context.applicationContext)
+        // Prefer an immediate start when allowed; API 34+ often blocks this from the
+        // replace broadcast — then mark pending for MainActivity / USER_UNLOCKED.
+        val startResult = MonitorServiceHelper.start(context.applicationContext)
+        if (startResult.started) {
           return
         }
 
-        MonitorServiceHelper.start(context.applicationContext)
+        MonitoringBootResumeStore.markPending()
+        MonitoringBootResumeNotifier.notifyResumePending(context.applicationContext)
       }
     }
   }

@@ -11,6 +11,7 @@ jest.mock('@/store/monitoringStore', () => ({
   monitoringStore: {
     persist: {
       hasHydrated: jest.fn(() => true),
+      onFinishHydration: jest.fn(() => jest.fn()),
     },
     getState: () => mockGetMonitoringState(),
   },
@@ -48,6 +49,17 @@ describe('useMonitoringServiceSync', () => {
     mockGetMonitoringState.mockReturnValue({ isMonitoring: false });
     appStateListener = undefined;
 
+    const monitoringStoreMock = jest.requireMock('@/store/monitoringStore') as {
+      monitoringStore: {
+        persist: {
+          hasHydrated: jest.Mock;
+          onFinishHydration: jest.Mock;
+        };
+      };
+    };
+    monitoringStoreMock.monitoringStore.persist.hasHydrated.mockReturnValue(true);
+    monitoringStoreMock.monitoringStore.persist.onFinishHydration.mockImplementation(() => jest.fn());
+
     jest.spyOn(AppState, 'addEventListener').mockImplementation((event, listener) => {
       if (event === 'change') {
         appStateListener = listener as (state: string) => void;
@@ -61,10 +73,49 @@ describe('useMonitoringServiceSync', () => {
     jest.restoreAllMocks();
   });
 
+  it('restores monitoring on mount when already hydrated', () => {
+    ReactTestRenderer.act(() => {
+      ReactTestRenderer.create(<TestHarness enabled />);
+    });
+
+    expect(mockRestoreMonitoringSession).toHaveBeenCalledTimes(1);
+  });
+
+  it('restores monitoring after persist hydration finishes', () => {
+    let onFinishHydration: (() => void) | undefined;
+    const monitoringStoreMock = jest.requireMock('@/store/monitoringStore') as {
+      monitoringStore: {
+        persist: {
+          hasHydrated: jest.Mock;
+          onFinishHydration: jest.Mock;
+        };
+      };
+    };
+
+    monitoringStoreMock.monitoringStore.persist.hasHydrated.mockReturnValue(false);
+    monitoringStoreMock.monitoringStore.persist.onFinishHydration = jest.fn((listener: () => void) => {
+      onFinishHydration = listener;
+      return jest.fn();
+    });
+
+    ReactTestRenderer.act(() => {
+      ReactTestRenderer.create(<TestHarness enabled />);
+    });
+
+    expect(mockRestoreMonitoringSession).not.toHaveBeenCalled();
+
+    ReactTestRenderer.act(() => {
+      onFinishHydration?.();
+    });
+
+    expect(mockRestoreMonitoringSession).toHaveBeenCalledTimes(1);
+  });
+
   it('restores monitoring when the app becomes active and sync is enabled', () => {
     ReactTestRenderer.act(() => {
       ReactTestRenderer.create(<TestHarness enabled />);
     });
+    mockRestoreMonitoringSession.mockClear();
 
     appStateListener?.('active');
 
@@ -87,6 +138,7 @@ describe('useMonitoringServiceSync', () => {
     ReactTestRenderer.act(() => {
       ReactTestRenderer.create(<TestHarness enabled />);
     });
+    mockRestoreMonitoringSession.mockClear();
 
     ReactTestRenderer.act(() => {
       monitorServiceStateListener?.({ isRunning: false });

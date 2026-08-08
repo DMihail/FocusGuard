@@ -1,6 +1,6 @@
 /** @format */
 
-import { useCallback, useEffect } from 'react';
+import { useEffect } from 'react';
 
 import { useAppStateOnActive } from '@/hooks/useAppStateOnActive';
 import { subscribeMonitorServiceStateChanged } from '@/specs';
@@ -21,17 +21,31 @@ const scheduleMonitoringReconcile = (): void => {
   });
 };
 
-/** Reconciles the persisted focus session when the app returns to the foreground. */
+/** Sole owner of monitor-session restore: after hydrate (cold start), foreground, and native stop. */
 export const useMonitoringServiceSync = (isEnabled: boolean): void => {
-  const sync = useCallback(() => {
+  useEffect(() => {
+    if (!isEnabled) {
+      return undefined;
+    }
+
+    if (monitoringStore.persist.hasHydrated()) {
+      scheduleMonitoringReconcile();
+      return undefined;
+    }
+
+    return monitoringStore.persist.onFinishHydration(() => {
+      scheduleMonitoringReconcile();
+    });
+  }, [isEnabled]);
+
+  // useAppStateOnActive wraps the callback in useEffectEvent — latest `isEnabled` is read there.
+  useAppStateOnActive(() => {
     if (!isEnabled || !monitoringStore.persist.hasHydrated()) {
       return;
     }
 
     scheduleMonitoringReconcile();
-  }, [isEnabled]);
-
-  useAppStateOnActive(sync);
+  });
 
   useEffect(() => {
     if (!isEnabled) {

@@ -4,10 +4,8 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.os.Build
-import com.focusguard.monitor.MonitoringBootResumeNotifier
 import com.focusguard.monitor.MonitoringBootResumeStore
-import com.focusguard.monitor.MonitoringStateRepository
-import com.focusguard.monitor.MonitorServiceHelper
+import com.focusguard.monitor.MonitoringResume
 
 /**
  * Attempts to resume monitoring after the user unlocks the device.
@@ -30,17 +28,6 @@ class UserUnlockedReceiver : BroadcastReceiver() {
             return
         }
 
-        if (!MonitoringStateRepository.isMonitoringEnabled()) {
-            MonitoringBootResumeStore.clearPending()
-            MonitoringBootResumeNotifier.cancel(context)
-            return
-        }
-
-        val result = MonitorServiceHelper.start(context.applicationContext)
-
-        if (result.started) {
-            MonitoringBootResumeStore.clearPending()
-            MonitoringBootResumeNotifier.cancel(context)
-        }
+        MonitoringResume.ensureRunning(context)
     }
 }

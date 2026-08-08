@@ -1,4 +1,4 @@
-import { useCallback, useRef } from 'react';
+import { useCallback } from 'react';
 
 import { useFocusEffect, useIsFocused } from '@react-navigation/native';
 
@@ -17,18 +17,7 @@ export const useRefreshWhenVisible = (
   { onFocus = true, onAppActive = true, onlyWhenFocusedOnAppActive = true }: RefreshWhenVisibleOptions = {},
 ): void => {
   const isFocused = useIsFocused();
-  const refreshRef = useRef(refresh);
-  refreshRef.current = refresh;
-
-  const run = useCoalescedAsyncRunner(() => refreshRef.current());
-
-  const runWhenFocused = useCallback(() => {
-    if (!isFocused) {
-      return;
-    }
-
-    run();
-  }, [isFocused, run]);
+  const run = useCoalescedAsyncRunner(refresh);
 
   useFocusEffect(
     useCallback(() => {
@@ -38,18 +27,15 @@ export const useRefreshWhenVisible = (
     }, [onFocus, run]),
   );
 
-  useAppStateOnActive(
-    useCallback(() => {
-      if (!onAppActive) {
-        return;
-      }
+  useAppStateOnActive(() => {
+    if (!onAppActive) {
+      return;
+    }
 
-      if (onlyWhenFocusedOnAppActive) {
-        runWhenFocused();
-        return;
-      }
+    if (onlyWhenFocusedOnAppActive && !isFocused) {
+      return;
+    }
 
-      run();
-    }, [onAppActive, onlyWhenFocusedOnAppActive, run, runWhenFocused]),
-  );
+    run();
+  });
 };

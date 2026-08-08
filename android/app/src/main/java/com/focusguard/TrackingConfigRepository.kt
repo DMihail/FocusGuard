@@ -1,13 +1,14 @@
 package com.focusguard
 
-import com.focusguard.storage.KeeptMmkv
 import com.focusguard.storage.NativeTrackingSnapshot
-import com.focusguard.storage.PersistSchema
-import com.focusguard.storage.ZustandPersistReader
 import org.json.JSONObject
 
 /**
- * Reads tracked apps and per-app limits from the same MMKV instance as the JS layer.
+ * Reads tracked apps and per-app limits from the flat native tracking snapshot
+ * (`syncTrackingConfig` / [NativeTrackingSnapshot]). No Zustand persist fallback.
+ *
+ * Negative lookups (missing snapshot) are not cached so a later JS sync can populate
+ * tracked apps / limits without waiting for [invalidateCache].
  */
 internal object TrackingConfigRepository {
 
@@ -18,59 +19,36 @@ internal object TrackingConfigRepository {
     private const val HARD_BLOCK_MIN_MINUTES = 10
     private const val HARD_BLOCK_MAX_MINUTES = 240
 
-    private val mmkv get() = KeeptMmkv.instance
-
-    private var cachedSelectedAppsRaw: String? = null
     private var cachedTrackedApps: List<String>? = null
     private var cachedTrackedAppsSet: Set<String>? = null
-    private var cachedLimitsRaw: String? = null
     private var cachedLimitsJson: JSONObject? = null
 
     fun invalidateCache() {
-        cachedSelectedAppsRaw = null
         cachedTrackedApps = null
         cachedTrackedAppsSet = null
-        cachedLimitsRaw = null
         cachedLimitsJson = null
     }
 
     fun getTrackedAppsSet(): Set<String> {
         cachedTrackedAppsSet?.let { return it }
 
-        return getTrackedApps().toSet().also { trackedApps ->
-            cachedTrackedAppsSet = trackedApps
+        val trackedApps = getTrackedApps()
+        // Only cache after a successful snapshot read (non-null cache in getTrackedApps).
+        if (cachedTrackedApps != null) {
+            cachedTrackedAppsSet = trackedApps.toSet()
+            return cachedTrackedAppsSet!!
         }
+
+        return trackedApps.toSet()
     }
 
     fun getTrackedApps(): List<String> {
-        NativeTrackingSnapshot.read()?.trackedApps?.let { return it }
+        cachedTrackedApps?.let { return it }
 
-        val raw = mmkv.decodeString(PersistSchema.SELECTED_APPS_STORAGE_KEY) ?: return emptyList()
-
-        if (raw == cachedSelectedAppsRaw && cachedTrackedApps != null) {
-            return cachedTrackedApps!!
+        val snapshot = NativeTrackingSnapshot.read() ?: return emptyList()
+        return snapshot.trackedApps.also { trackedApps ->
+            cachedTrackedApps = trackedApps
         }
-
-        val trackedApps =
-            try {
-                val state =
-                    ZustandPersistReader.readStateIfCompatible(
-                        raw,
-                        PersistSchema.SELECTED_APPS_PERSIST_VERSION,
-                        PersistSchema.SELECTED_APPS_STORAGE_KEY,
-                    ) ?: return emptyList()
-                val apps = state.optJSONArray("apps") ?: return emptyList()
-
-                (0 until apps.length()).mapNotNull { i ->
-                    apps.getJSONObject(i).optString("packageName").takeIf { it.isNotEmpty() }
-                }
-            } catch (_: Exception) {
-                emptyList()
-            }
-
-        cachedSelectedAppsRaw = raw
-        cachedTrackedApps = trackedApps
-        return trackedApps
     }
 
     fun getLimitConfig(packageName: String): AppLimitConfig {
@@ -92,28 +70,9 @@ internal object TrackingConfigRepository {
     }
 
     private fun loadLimitsJson(): JSONObject? {
-        NativeTrackingSnapshot.read()?.limitsJson?.let { return it }
+        cachedLimitsJson?.let { return it }
 
-        val raw = mmkv.decodeString(PersistSchema.APP_LIMITS_STORAGE_KEY) ?: return null
-
-        if (raw == cachedLimitsRaw) {
-            return cachedLimitsJson
-        }
-
-        val limitsJson =
-            try {
-                val state =
-                    ZustandPersistReader.readStateIfCompatible(
-                        raw,
-                        PersistSchema.APP_LIMITS_PERSIST_VERSION,
-                        PersistSchema.APP_LIMITS_STORAGE_KEY,
-                    ) ?: return null
-                state.optJSONObject("limitsByAppKey")
-            } catch (_: Exception) {
-                null
-            }
-
-        cachedLimitsRaw = raw
+        val limitsJson = NativeTrackingSnapshot.read()?.limitsJson ?: return null
         cachedLimitsJson = limitsJson
         return limitsJson
     }

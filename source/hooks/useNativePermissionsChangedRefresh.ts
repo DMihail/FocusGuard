@@ -1,6 +1,6 @@
 /** @format */
 
-import { useEffect } from 'react';
+import { useEffect, useEffectEvent } from 'react';
 
 import { subscribePermissionsChanged } from '@/specs';
 
@@ -10,9 +10,11 @@ import { useRunOnFocusAndActive } from './useRunOnFocusAndActive';
 export const useNativePermissionsChangedRefresh = (refresh: () => void): void => {
   useRunOnFocusAndActive(refresh);
 
+  const onPermissionsChanged = useEffectEvent(refresh);
+
   useEffect(() => {
-    const subscription = subscribePermissionsChanged(refresh);
+    const subscription = subscribePermissionsChanged(onPermissionsChanged);
 
     return () => subscription.remove();
-  }, [refresh]);
+  }, []);
 };

@@ -12,10 +12,7 @@ import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate
 import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint.fabricEnabled
 import com.facebook.react.defaults.DefaultReactActivityDelegate
-import com.focusguard.monitor.MonitoringBootResumeNotifier
-import com.focusguard.monitor.MonitoringBootResumeStore
-import com.focusguard.monitor.MonitoringStateRepository
-import com.focusguard.monitor.MonitorServiceHelper
+import com.focusguard.monitor.MonitoringResume
 import com.focusguard.permissions.NotificationPermission
 import com.focusguard.react.TurboModuleEventDispatchers
 import com.swmansion.rnscreens.fragment.restoration.RNScreensFragmentFactory
@@ -32,20 +29,14 @@ class MainActivity : ReactActivity() {
     // Screen fragments must not be restored from saved state (react-native-screens).
     super.onCreate(savedInstanceState)
     applySystemChromeColors()
-    resumeMonitoringAfterBootIfNeeded()
+    // After update/boot, FGS may be off while MMKV still says monitoring is on.
+    MonitoringResume.ensureRunning(this)
   }
 
-  private fun resumeMonitoringAfterBootIfNeeded() {
-    if (!MonitoringBootResumeStore.consumePending()) {
-      return
-    }
-
-    if (!MonitoringStateRepository.isMonitoringEnabled()) {
-      return
-    }
-
-    MonitorServiceHelper.start(applicationContext)
-    MonitoringBootResumeNotifier.cancel(applicationContext)
+  override fun onResume() {
+    super.onResume()
+    // Retry if onCreate start was blocked or pending resume survived a failed attempt.
+    MonitoringResume.ensureRunning(this)
   }
 
   override fun onConfigurationChanged(newConfig: Configuration) {

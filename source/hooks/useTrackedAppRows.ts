@@ -29,6 +29,7 @@ export const useTrackedAppRows = (
   const selectedAppKeys = useMemo(() => appRows.map((row) => getManageAppKey(row)), [appRows]);
   const isRefreshingUsage = trackedUsageStore((state) => state.isRefreshingUsage);
 
+  // Public refresh API may run from UI handlers — keep a ref, not useEffectEvent.
   const selectedAppKeysRef = useRef(selectedAppKeys);
   selectedAppKeysRef.current = selectedAppKeys;
 

@@ -40,16 +40,38 @@ internal object DailyUsageAggregator {
             return EventAggregationState(fromStats, emptyMap())
         }
 
-        val completedUsageByPackage =
-            packageFilter.associateWith { packageName ->
-                val eventsMs = fromEvents.usageByPackage[packageName] ?: 0L
-                val statsMs = fromStats[packageName] ?: 0L
-
-                if (eventsMs > 0L) eventsMs else statsMs
-            }
-
-        return EventAggregationState(completedUsageByPackage, fromEvents.openSessionStartMs)
+        return EventAggregationState(
+            completedUsagePreferringEvents(
+                packageFilter = packageFilter,
+                eventsCompleted = fromEvents.usageByPackage,
+                openSessions = fromEvents.openSessionStartMs,
+                fromStats = fromStats,
+            ),
+            fromEvents.openSessionStartMs,
+        )
     }
+
+    /**
+     * Stats fallback only for packages with **no** event evidence. Packages with an open session
+     * (completed ms may still be 0) must not mix in stats — [projectUsageAt] already adds the open
+     * duration and stacking both overcounts.
+     */
+    internal fun completedUsagePreferringEvents(
+        packageFilter: Set<String>,
+        eventsCompleted: Map<String, Long>,
+        openSessions: Map<String, Long>,
+        fromStats: Map<String, Long>,
+    ): Map<String, Long> =
+        packageFilter.associateWith { packageName ->
+            val eventsMs = eventsCompleted[packageName] ?: 0L
+            val hasEventEvidence = eventsMs > 0L || packageName in openSessions
+
+            if (hasEventEvidence) {
+                eventsMs
+            } else {
+                fromStats[packageName] ?: 0L
+            }
+        }
 
     /** Appends usage from `[scanFromMs, endMs]` onto [priorUsage] without re-reading the full day. */
     fun appendUsageDelta(

@@ -23,6 +23,13 @@ enum KeeptNotificationAuthorization {
     }
   }
 
+  static func invalidateCache() {
+    lock.lock()
+    cachedAuthorized = false
+    lock.unlock()
+    refreshCachedAuthorization()
+  }
+
   static func request() async -> Bool {
     let granted = await withCheckedContinuation { continuation in
       UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) {

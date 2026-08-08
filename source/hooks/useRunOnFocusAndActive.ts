@@ -8,15 +8,12 @@ import { useAppStateOnActive } from './useAppStateOnActive';
 
 /** Runs a synchronous callback when the screen is focused and when the app becomes active. */
 export const useRunOnFocusAndActive = (callback: () => void): void => {
-  const run = useCallback(() => {
-    callback();
-  }, [callback]);
-
+  // useFocusEffect is not a React Effect for eslint — do not call useEffectEvent from it.
   useFocusEffect(
     useCallback(() => {
-      run();
-    }, [run]),
+      callback();
+    }, [callback]),
   );
 
-  useAppStateOnActive(run);
+  useAppStateOnActive(callback);
 };
