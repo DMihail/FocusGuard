@@ -1,6 +1,6 @@
 /** @format */
 
-import { useCallback, useOptimistic, useRef, useState, useTransition } from 'react';
+import { useCallback, useRef, useState } from 'react';
 
 import { useShallow } from 'zustand/react/shallow';
 
@@ -19,11 +19,14 @@ export const useNotificationsSetting = () => {
     })),
   );
   const [systemGranted, setSystemGranted] = useState(readSystemNotificationsGranted);
+  // State drives the switch during the system prompt; ref lets reconcile skip mid-request.
+  const [permissionRequestInFlight, setPermissionRequestInFlight] = useState(false);
   const permissionRequestInFlightRef = useRef(false);
-  const [, startTransition] = useTransition();
 
-  const baseEnabled = notificationsEnabled && (!isSystemNotificationGrantRequired || systemGranted);
-  const [isEnabled, setOptimisticEnabled] = useOptimistic(baseEnabled);
+  const setPermissionRequestInFlightBoth = (inFlight: boolean): void => {
+    permissionRequestInFlightRef.current = inFlight;
+    setPermissionRequestInFlight(inFlight);
+  };
 
   const reconcileRevokedPermission = useCallback(() => {
     const granted = readSystemNotificationsGranted();
@@ -40,13 +43,16 @@ export const useNotificationsSetting = () => {
 
   useNativePermissionsChangedRefresh(reconcileRevokedPermission);
 
+  // On Android, store can be "enabled" while systemGrant is still false during the prompt.
+  // Keep the switch on for that window — useOptimistic cannot, because baseEnabled stays false
+  // and a short startTransition ends before the dialog returns.
+  const isEnabled =
+    permissionRequestInFlight || (notificationsEnabled && (!isSystemNotificationGrantRequired || systemGranted));
+
   const setEnabled = useCallback(
     async (value: boolean) => {
       if (value) {
-        permissionRequestInFlightRef.current = true;
-        startTransition(() => {
-          setOptimisticEnabled(true);
-        });
+        setPermissionRequestInFlightBoth(true);
         setNotificationsEnabled(true);
 
         try {
@@ -58,21 +64,18 @@ export const useNotificationsSetting = () => {
             setNotificationsEnabled(false);
           }
         } finally {
-          permissionRequestInFlightRef.current = false;
+          setPermissionRequestInFlightBoth(false);
         }
 
         return;
       }
 
-      permissionRequestInFlightRef.current = false;
-      startTransition(() => {
-        setOptimisticEnabled(false);
-      });
+      setPermissionRequestInFlightBoth(false);
       setNotificationsEnabled(false);
       setSystemGranted(readSystemNotificationsGranted());
       openNotificationsSettings();
     },
-    [setNotificationsEnabled, setOptimisticEnabled],
+    [setNotificationsEnabled],
   );
 
   return { isEnabled, setEnabled };

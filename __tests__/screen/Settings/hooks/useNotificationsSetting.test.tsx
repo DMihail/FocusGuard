@@ -152,6 +152,7 @@ describe('useNotificationsSetting', () => {
     });
 
     expect(mockStoreState.notificationsEnabled).toBe(true);
+    expect(result.isEnabled).toBe(true);
 
     await act(async () => {
       mockCheckForNotificationsPermission.mockReturnValue(true);
@@ -160,6 +161,44 @@ describe('useNotificationsSetting', () => {
     });
 
     expect(result.isEnabled).toBe(true);
+  });
+
+  it('keeps the toggle on while waiting for system grant on Android', async () => {
+    let resolveRequest!: (granted: boolean) => void;
+
+    mockRequestPostNotificationsPermission.mockImplementation(
+      () =>
+        new Promise<boolean>((resolve) => {
+          resolveRequest = resolve;
+        }),
+    );
+    mockCheckForNotificationsPermission.mockReturnValue(false);
+
+    let result!: ReturnType<typeof useNotificationsSetting>;
+
+    act(() => {
+      ReactTestRenderer.create(<UseNotificationsSettingHarness onReady={(value) => (result = value)} />);
+    });
+
+    expect(result.isEnabled).toBe(false);
+
+    let pendingRequest!: Promise<void>;
+
+    act(() => {
+      pendingRequest = result.setEnabled(true);
+    });
+
+    // Store is on but systemGrant is still false — UI must stay on during the prompt.
+    expect(mockStoreState.notificationsEnabled).toBe(true);
+    expect(result.isEnabled).toBe(true);
+
+    await act(async () => {
+      resolveRequest(false);
+      await pendingRequest;
+    });
+
+    expect(result.isEnabled).toBe(false);
+    expect(mockStoreState.notificationsEnabled).toBe(false);
   });
 
   it('keeps the toggle off when permission is denied', async () => {
