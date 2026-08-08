@@ -1,6 +1,6 @@
 /** @format */
 
-import { type RefObject, useCallback, useEffect } from 'react';
+import { type RefObject, useEffect } from 'react';
 
 import type { NavigationContainerRef } from '@react-navigation/native';
 
@@ -10,6 +10,30 @@ import { onboardingStore } from '@/store/onboardingStore';
 
 import type { RootStackParamList } from '../types';
 
+const redirectIfPermissionsMissing = (
+  navigationRef: RefObject<NavigationContainerRef<RootStackParamList> | null>,
+): void => {
+  const { isConfirm } = onboardingStore.getState();
+
+  if (!isConfirm) {
+    return;
+  }
+
+  const currentRoute = navigationRef.current?.getCurrentRoute()?.name;
+
+  if (currentRoute === 'EnablePermissions') {
+    return;
+  }
+
+  invalidatePermissionSnapshot();
+
+  if (areAllPermissionsGranted()) {
+    return;
+  }
+
+  navigationRef.current?.navigate('EnablePermissions');
+};
+
 /**
  * Redirects to Enable Permissions when onboarding is complete but required
  * Android permissions are still missing. Re-checks on navigation ready and app foreground.
@@ -18,41 +42,17 @@ export const useAppPermissionGuard = (
   navigationRef: RefObject<NavigationContainerRef<RootStackParamList> | null>,
   isEnabled: boolean,
 ) => {
-  const redirectIfPermissionsMissing = useCallback(() => {
-    const { isConfirm } = onboardingStore.getState();
-
-    if (!isConfirm) {
-      return;
-    }
-
-    const currentRoute = navigationRef.current?.getCurrentRoute()?.name;
-
-    if (currentRoute === 'EnablePermissions') {
-      return;
-    }
-
-    invalidatePermissionSnapshot();
-
-    if (areAllPermissionsGranted()) {
-      return;
-    }
-
-    navigationRef.current?.navigate('EnablePermissions');
-  }, [navigationRef]);
-
   useEffect(() => {
     if (!isEnabled) {
       return;
     }
 
-    redirectIfPermissionsMissing();
-  }, [isEnabled, redirectIfPermissionsMissing]);
+    redirectIfPermissionsMissing(navigationRef);
+  }, [isEnabled, navigationRef]);
 
-  const handleAppBecomeActive = useCallback(() => {
+  useAppStateOnActive(() => {
     if (isEnabled) {
-      redirectIfPermissionsMissing();
+      redirectIfPermissionsMissing(navigationRef);
     }
-  }, [isEnabled, redirectIfPermissionsMissing]);
-
-  useAppStateOnActive(handleAppBecomeActive);
+  });
 };

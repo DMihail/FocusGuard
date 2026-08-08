@@ -131,9 +131,9 @@ Platform-specific TypeScript resolves via Metro / `moduleSuffixes`: `.ios.ts`, `
 | Layer                         | Value                                                                    |
 | ----------------------------- | ------------------------------------------------------------------------ |
 | Product name                  | Keept                                                                    |
-| npm / JS version              | `1.0.8` (`package.json`)                                                 |
-| Android store version         | `1.0.8` (`versionName` in `android/app/build.gradle`)                    |
-| Android build number          | `13` (`versionCode` in `android/app/build.gradle`)                       |
+| npm / JS version              | `1.0.9` (`package.json`)                                                 |
+| Android store version         | `1.0.9` (`versionName` in `android/app/build.gradle`)                    |
+| Android build number          | `14` (`versionCode` in `android/app/build.gradle`)                       |
 | iOS marketing version         | `1.0.0` (`MARKETING_VERSION` in Xcode)                                   |
 | iOS build number              | `1` (`CURRENT_PROJECT_VERSION` — first App Store cut may stay at 1)      |
 | Store bundle / application ID | `com.keept`                                                              |

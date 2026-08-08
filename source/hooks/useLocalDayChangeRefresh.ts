@@ -13,6 +13,7 @@ import { getLocalDayKey } from '@/utils/usage/localDayKey';
 export const useLocalDayChangeRefresh = (refresh: () => void | Promise<void>): void => {
   const isFocused = useIsFocused();
   const dayKeyRef = useRef(getLocalDayKey());
+  // Coalesced / focus callbacks are not React Effects — keep a ref, not useEffectEvent.
   const refreshRef = useRef(refresh);
   refreshRef.current = refresh;
 
@@ -45,11 +46,9 @@ export const useLocalDayChangeRefresh = (refresh: () => void | Promise<void>): v
     }, [refreshIfDayChanged]),
   );
 
-  useAppStateOnActive(
-    useCallback(() => {
-      if (isFocused) {
-        refreshIfDayChanged();
-      }
-    }, [isFocused, refreshIfDayChanged]),
-  );
+  useAppStateOnActive(() => {
+    if (isFocused) {
+      refreshIfDayChanged();
+    }
+  });
 };
