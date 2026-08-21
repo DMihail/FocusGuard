@@ -1,13 +1,13 @@
 package com.focusguard.overlay
 
-import com.focusguard.storage.KeeptMmkv
+import com.focusguard.storage.KeeptStorage
 import java.util.concurrent.ConcurrentHashMap
 
 /** Persists temporary snooze windows after the user taps "5 more minutes" on the block overlay. */
 internal object TrackingSnoozeStore {
     private const val KEY_PREFIX = "block-snooze-"
 
-    private val mmkv get() = KeeptMmkv.instance
+    private val mmkv get() = KeeptStorage.mmkv
     private val snoozeUntilCache = ConcurrentHashMap<String, Long>()
 
     fun setSnooze(packageName: String, durationMs: Long) {

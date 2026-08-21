@@ -7,7 +7,6 @@
     "paths": {
       "@/*": ["./source/*"]
     },
-    "types": ["jest"],
     "moduleSuffixes": [".ios", ".android", ""]
   },
   "include": ["source/**/*", "__tests__/**/*", "index.js", "jest.setup.js"],

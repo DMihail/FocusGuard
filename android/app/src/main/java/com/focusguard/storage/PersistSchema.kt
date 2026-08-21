@@ -10,13 +10,9 @@ package com.focusguard.storage
 object PersistSchema {
     const val MMKV_INSTANCE_ID = "keept-storage"
 
-    const val SELECTED_APPS_STORAGE_KEY = "selected-apps-storage"
-    const val APP_LIMITS_STORAGE_KEY = "app-limits-storage"
     const val MONITORING_STORAGE_KEY = "monitoring-storage"
     const val SETTINGS_STORAGE_KEY = "settings-storage"
 
-    const val SELECTED_APPS_PERSIST_VERSION = 1
-    const val APP_LIMITS_PERSIST_VERSION = 1
     const val MONITORING_PERSIST_VERSION = 1
     const val SETTINGS_PERSIST_VERSION = 2
 
