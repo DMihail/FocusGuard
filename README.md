@@ -2,7 +2,7 @@
 
 Cross-platform screen-time app: track distracting apps, warn before limits, and block when limits are reached.
 
-Built with React Native **0.86** (New Architecture, Turbo Modules) and React **19**.
+Built with React Native **0.87** (New Architecture, Turbo Modules) and React **19**.
 
 > **Repo vs product:** the folder is still `FocusGuard`; the product, store IDs, and deep links use **Keept**. Legacy
 > Kotlin namespace `com.focusguard` and Xcode target `FocusGuard` remain for build compatibility.
@@ -380,7 +380,7 @@ under `source/screen/Legal/data/` (EN/RU + Android/iOS in one builder per docume
 GitHub Actions (`.github/workflows/ci.yml`), New Architecture enabled:
 
 1. **check** — `npm run check` on Node 22
-2. **android** — `assembleDebug` + `testDebugUnitTest` (API 36, NDK 27.1.12297006), only after **check**
+2. **android** — `assembleDebug` + `testDebugUnitTest` (API 37, NDK 27.1.12297006), only after **check**
 
 Runs on every PR once (not also on the branch push), and on push to `main` / `dev` / `release/**`. iOS is local-only
 (see above). Husky is disabled in CI (`HUSKY=0`).

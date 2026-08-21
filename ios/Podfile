@@ -10,6 +10,7 @@ ENV['RCT_NEW_ARCH_ENABLED'] = '1'
 prepare_react_native_project!
 
 $RNFirebaseAsStaticFramework = true
+$RNFirebaseDisableSPM = true
 
 linkage = ENV['USE_FRAMEWORKS']
 if linkage != nil
