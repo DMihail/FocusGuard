@@ -52,10 +52,19 @@ jobs:
           distribution: temurin
           java-version: 17
 
-      - uses: android-actions/setup-android@v3
+      # API 37 ships as platforms;android-37.0 (not android-37). AGP still looks for
+      # platforms/android-37 when compileSdk=37, so symlink after install.
+      - uses: android-actions/setup-android@v4
         with:
           packages: >-
-            platform-tools platforms;android-37 build-tools;37.0.0 ndk;27.1.12297006
+            platform-tools platforms;android-37.0 build-tools;37.0.0 ndk;27.1.12297006
+
+      - name: Symlink Android SDK platform 37.0 → 37
+        run: |
+          if [ -d "$ANDROID_HOME/platforms/android-37.0" ] && [ ! -e "$ANDROID_HOME/platforms/android-37" ]; then
+            ln -s "$ANDROID_HOME/platforms/android-37.0" "$ANDROID_HOME/platforms/android-37"
+          fi
+          ls -la "$ANDROID_HOME/platforms/"
 
       - uses: gradle/actions/setup-gradle@v4
 
