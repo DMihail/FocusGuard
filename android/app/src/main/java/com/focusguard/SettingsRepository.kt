@@ -1,13 +1,13 @@
 package com.focusguard
 
-import com.focusguard.storage.KeeptMmkv
+import com.focusguard.storage.KeeptStorage
 import com.focusguard.storage.PersistSchema
 import com.focusguard.storage.ZustandPersistReader
 
 /** Reads user settings persisted by JS [settingsStore]. */
 object SettingsRepository {
 
-    private val mmkv get() = KeeptMmkv.instance
+    private val mmkv get() = KeeptStorage.mmkv
 
     private data class CachedSettings(
         val raw: String,

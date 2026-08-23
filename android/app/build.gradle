@@ -32,8 +32,8 @@ android {
         applicationId "com.keept"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 14
-        versionName "1.0.9"
+        versionCode 15
+        versionName "1.0.10"
     }
     signingConfigs {
         debug {
@@ -60,10 +60,7 @@ android {
         release {
             minifyEnabled enableProguardInReleaseBuilds
 //             shrinkResources enableProguardInReleaseBuilds
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro",
-            )
+            proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
             signingConfig signingConfigs.release
             manifestPlaceholders = [usesCleartextTraffic: "false"]
             firebaseCrashlytics {

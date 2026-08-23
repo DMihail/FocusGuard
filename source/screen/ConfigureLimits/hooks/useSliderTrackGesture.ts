@@ -1,6 +1,6 @@
 /** @format */
 
-import { useCallback, useMemo, useRef } from 'react';
+import { type ComponentRef, useCallback, useMemo, useRef } from 'react';
 
 import type { LayoutChangeEvent, View } from 'react-native';
 import { Gesture } from 'react-native-gesture-handler';
@@ -26,7 +26,7 @@ export const useSliderTrackGesture = ({
   stepMinutes,
   onChange,
 }: SliderGestureParams) => {
-  const trackRef = useRef<View>(null);
+  const trackRef = useRef<ComponentRef<typeof View>>(null);
   const widthRef = useRef(0);
   const paramsRef = useRef<SliderGestureParams>({
     valueMinutes,

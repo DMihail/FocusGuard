@@ -12,6 +12,10 @@ internal interface MmkvReaderWriter {
 
     fun encode(key: String, value: String): Boolean
 
+    fun decodeLong(key: String, defaultValue: Long = 0L): Long
+
+    fun encode(key: String, value: Long): Boolean
+
     fun allKeys(): Array<String>?
 
     fun removeValueForKey(key: String)
@@ -31,6 +35,10 @@ internal class RealMmkvAdapter(
     override fun decodeString(key: String, defaultValue: String?): String? = mmkv.decodeString(key, defaultValue)
 
     override fun encode(key: String, value: String): Boolean = mmkv.encode(key, value)
+
+    override fun decodeLong(key: String, defaultValue: Long): Long = mmkv.decodeLong(key, defaultValue)
+
+    override fun encode(key: String, value: Long): Boolean = mmkv.encode(key, value)
 
     override fun allKeys(): Array<String>? = mmkv.allKeys()
 
@@ -59,6 +67,13 @@ internal class InMemoryMmkv : MmkvReaderWriter {
     override fun decodeString(key: String, defaultValue: String?): String? = values[key] as? String ?: defaultValue
 
     override fun encode(key: String, value: String): Boolean {
+        values[key] = value
+        return true
+    }
+
+    override fun decodeLong(key: String, defaultValue: Long): Long = values[key] as? Long ?: defaultValue
+
+    override fun encode(key: String, value: Long): Boolean {
         values[key] = value
         return true
     }
