@@ -46,6 +46,14 @@ jest.mock('../../source/store/nativeTrackingSnapshot', () => ({
   startNativeTrackingSnapshotSync: jest.fn(() => jest.fn()),
 }));
 
+jest.mock('../../source/store/nativeMonitoringSnapshot', () => ({
+  startNativeMonitoringSnapshotSync: jest.fn(() => jest.fn()),
+}));
+
+jest.mock('../../source/store/nativeSettingsSnapshot', () => ({
+  startNativeSettingsSnapshotSync: jest.fn(() => jest.fn()),
+}));
+
 jest.mock('../../source/specs', () => ({
   isMonitorServiceRunning: jest.fn(() => false),
   subscribeLocalDayChanged: jest.fn(() => ({ remove: jest.fn() })),

@@ -1,71 +1,24 @@
 package com.focusguard
 
-import com.focusguard.storage.KeeptStorage
-import com.focusguard.storage.PersistSchema
-import com.focusguard.storage.ZustandPersistReader
+import com.focusguard.storage.NativeSettingsSnapshot
 
-/** Reads user settings persisted by JS [settingsStore]. */
+/**
+ * Reads user settings from the flat native settings snapshot
+ * (`syncSettingsConfig` / [NativeSettingsSnapshot]). No Zustand persist fallback
+ * (legacy blobs are migrated once inside the snapshot reader).
+ */
 object SettingsRepository {
 
-    private val mmkv get() = KeeptStorage.mmkv
-
-    private data class CachedSettings(
-        val raw: String,
-        val themePreference: String,
-        val notificationsEnabled: Boolean,
-    )
-
-    private val defaultSettings =
-        CachedSettings(
-            raw = "",
-            themePreference = "system",
-            notificationsEnabled = true,
-        )
-
-    @Volatile
-    private var cache: CachedSettings? = null
+    private val defaultThemePreference = "system"
+    private val defaultNotificationsEnabled = true
 
     fun invalidateCache() {
-        cache = null
+        NativeSettingsSnapshot.invalidateCache()
     }
 
-    fun getThemePreference(): String = loadSettings().themePreference
+    fun getThemePreference(): String =
+        NativeSettingsSnapshot.read()?.themePreference ?: defaultThemePreference
 
-    fun areNotificationsEnabled(): Boolean = loadSettings().notificationsEnabled
-
-    private fun loadSettings(): CachedSettings {
-        val raw = mmkv.decodeString(PersistSchema.SETTINGS_STORAGE_KEY) ?: return defaultSettings
-
-        cache?.takeIf { it.raw == raw }?.let { return it }
-
-        val parsed = parseSettings(raw)
-        cache = parsed
-        return parsed
-    }
-
-    private fun parseSettings(raw: String): CachedSettings {
-        val fallback =
-            CachedSettings(
-                raw = raw,
-                themePreference = "system",
-                notificationsEnabled = true,
-            )
-
-        return try {
-            val state =
-                ZustandPersistReader.readStateIfCompatible(
-                    raw,
-                    PersistSchema.SETTINGS_PERSIST_VERSION,
-                    PersistSchema.SETTINGS_STORAGE_KEY,
-                ) ?: return fallback
-
-            CachedSettings(
-                raw = raw,
-                themePreference = state.optString("themePreference", "system"),
-                notificationsEnabled = state.optBoolean("notificationsEnabled", true),
-            )
-        } catch (_: Exception) {
-            fallback
-        }
-    }
+    fun areNotificationsEnabled(): Boolean =
+        NativeSettingsSnapshot.read()?.notificationsEnabled ?: defaultNotificationsEnabled
 }

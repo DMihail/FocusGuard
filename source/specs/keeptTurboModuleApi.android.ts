@@ -121,6 +121,14 @@ export const syncTrackingConfig = (snapshotJson: string): void => {
   getModule().syncTrackingConfig(snapshotJson);
 };
 
+export const syncMonitoringState = (snapshotJson: string): void => {
+  getModule().syncMonitoringState(snapshotJson);
+};
+
+export const syncSettingsConfig = (snapshotJson: string): void => {
+  getModule().syncSettingsConfig(snapshotJson);
+};
+
 export const subscribePermissionsChanged = (
   listener: (event: PermissionsChangedEvent) => void,
 ): { remove: () => void } => permissionsChangedHub.subscribe(listener);

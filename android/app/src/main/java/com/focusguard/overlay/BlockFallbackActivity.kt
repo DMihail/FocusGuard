@@ -6,12 +6,14 @@ import android.os.Build
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.focusguard.R
+import com.focusguard.SystemBarAppearance
 
 /** Full-screen fallback when the overlay cannot attach or a full-screen intent fires. */
 class BlockFallbackActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        SystemBarAppearance.apply(this)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
             setShowWhenLocked(true)
