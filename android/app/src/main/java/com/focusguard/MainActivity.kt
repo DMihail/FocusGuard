@@ -3,11 +3,7 @@ package com.focusguard
 import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
-import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.core.view.WindowCompat
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate
 import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint.fabricEnabled
@@ -19,8 +15,6 @@ import com.swmansion.rnscreens.fragment.restoration.RNScreensFragmentFactory
 
 class MainActivity : ReactActivity() {
 
-  private val mainHandler = Handler(Looper.getMainLooper())
-
   override fun getMainComponentName(): String = "Keept"
 
   override fun onCreate(savedInstanceState: Bundle?) {
@@ -28,7 +22,7 @@ class MainActivity : ReactActivity() {
     supportFragmentManager.fragmentFactory = RNScreensFragmentFactory()
     // Screen fragments must not be restored from saved state (react-native-screens).
     super.onCreate(savedInstanceState)
-    applySystemChromeColors()
+    SystemBarAppearance.apply(this)
     // After update/boot, FGS may be off while MMKV still says monitoring is on.
     MonitoringResume.ensureRunning(this)
   }
@@ -41,26 +35,7 @@ class MainActivity : ReactActivity() {
 
   override fun onConfigurationChanged(newConfig: Configuration) {
     super.onConfigurationChanged(newConfig)
-    applySystemChromeColors()
-  }
-
-  private fun applySystemChromeColors() {
-    if (Looper.myLooper() != Looper.getMainLooper()) {
-      mainHandler.post { applySystemChromeColors() }
-      return
-    }
-
-    val backgroundColor = ContextCompat.getColor(this, R.color.background)
-    val isDark =
-        (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) ==
-            Configuration.UI_MODE_NIGHT_YES
-
-    window.statusBarColor = backgroundColor
-    window.navigationBarColor = backgroundColor
-    WindowCompat.getInsetsController(window, window.decorView).apply {
-      isAppearanceLightStatusBars = !isDark
-      isAppearanceLightNavigationBars = !isDark
-    }
+    SystemBarAppearance.apply(this)
   }
 
   override fun onNewIntent(intent: Intent) {

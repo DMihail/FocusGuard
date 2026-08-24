@@ -5,7 +5,10 @@ import { StatusBar } from 'react-native';
 
 import { useTheme } from '@/hooks/useTheme';
 
-/** Aligns status bar content style with the app theme (edge-to-edge; colors come from native). */
+/**
+ * Aligns status-bar icon style with the app theme.
+ * Bar colors stay transparent (Android edge-to-edge / `SystemBarAppearance`); padding via SafeArea.
+ */
 export const SystemChrome = () => {
   const { isDark } = useTheme();
 

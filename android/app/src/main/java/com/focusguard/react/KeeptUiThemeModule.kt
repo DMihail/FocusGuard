@@ -28,8 +28,8 @@ class KeeptUiThemeModule(
         }
 
     // AppCompatDelegate.applyDayNight can reconfigure activities synchronously and touch
-    // Window/View (MainActivity.applySystemChromeColors). RN native methods run off the main
-    // thread — marshal night-mode updates to the UI thread to avoid CalledFromWrongThreadException.
+    // Window/View (SystemBarAppearance). RN native methods run off the main thread — marshal
+    // night-mode updates to the UI thread to avoid CalledFromWrongThreadException.
     runOnMainThread {
       AppCompatDelegate.setDefaultNightMode(mode)
       SettingsRepository.invalidateCache()

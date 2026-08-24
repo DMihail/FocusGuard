@@ -10,6 +10,8 @@ ENV['RCT_NEW_ARCH_ENABLED'] = '1'
 prepare_react_native_project!
 
 $RNFirebaseAsStaticFramework = true
+# Static frameworks + RNFirebase SPM pulls conflict; force CocoaPods Firebase until a
+# dynamic-frameworks or supported SPM migration (CocoaPods Firebase ~deprecated Oct 2026).
 $RNFirebaseDisableSPM = true
 
 linkage = ENV['USE_FRAMEWORKS']

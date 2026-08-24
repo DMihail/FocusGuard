@@ -385,6 +385,35 @@ GitHub Actions (`.github/workflows/ci.yml`), New Architecture enabled:
 Runs on every PR once (not also on the branch push), and on push to `main` / `dev` / `release/**`. iOS is local-only
 (see above). Husky is disabled in CI (`HUSKY=0`).
 
+SDK platform **37** is published as `platforms;android-37.0`; CI symlinks that folder to `android-37` so AGP
+`compileSdk=37` resolves. Keep the symlink step until Google/AGP ship a plain `android-37` platform path.
+
+## Device QA (post-upgrade / release)
+
+Run on a physical Android 14+ device (and one Android 15+ if available) before store cuts:
+
+1. Monitoring ON → force-stop → reboot → open Keept → FGS / monitoring resumes (`MonitoringResume`).
+2. Install over previous build (package-replace) with monitoring ON → open app → FGS resumes; no “UI ON / service OFF”
+   drift.
+3. Overlay block + “5 more minutes” snooze; BlockFallback activity if overlay permission revoked mid-block.
+4. Notification permission prompt: settings toggle stays ON while system dialog is open; revoke/grant syncs UI.
+5. Light/dark theme switch: status/nav bar icon contrast + `windowBackground` under transparent system bars
+   (edge-to-edge).
+6. iOS: Screen Time auth, shield, midnight rollover; Crashlytics dSYM upload script does not fail the build.
+
+## Follow-ups (intentional tech debt)
+
+| Item                                                   | Notes                                                                                                                                                                               |
+| ------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Firebase iOS via CocoaPods + `$RNFirebaseDisableSPM`   | Required with `use_frameworks! :linkage => :static` (SPM Firebase conflicts). Invertase deprecates CocoaPods Firebase after ~Oct 2026 — plan SPM or dynamic frameworks before then. |
+| `android.builtInKotlin=false` / `android.newDsl=false` | AGP 9 opt-outs; remove when migrating to AGP 10+.                                                                                                                                   |
+| Hybrid native persist                                  | Tracking apps/limits = `NativeTrackingSnapshot` only; monitoring/settings still read Zustand MMKV blobs.                                                                            |
+| Legacy namespaces                                      | `com.keept` app id vs `com.focusguard` Kotlin / `FocusGuard` Xcode target — keep until coordinated rename.                                                                          |
+| `source/types/react-native-codegen.d.ts`               | Ambient types for Strict API + codegen deep import; drop when RN exports public CodegenTypes.                                                                                       |
+| `targetSdk` 36 vs `compileSdk` 37                      | Matches RN 0.87 template; bump target when Play policy + edge-to-edge QA allow.                                                                                                     |
+| Predictive back off                                    | `enableOnBackInvokedCallback="false"` until RN Screens / nav stack is validated.                                                                                                    |
+| No iOS CI                                              | Pods/Xcode/Firebase regressions stay local-only.                                                                                                                                    |
+
 ## Contributing notes
 
 - Bump persist versions in `persistSchema.ts` and native counterparts when stored shapes change.
@@ -393,3 +422,5 @@ Runs on every PR once (not also on the branch push), and on push to `main` / `de
 - Import the module in app code via `@/specs` (`keeptTurboModuleApi`), not `NativeKeeptTurboModule*.ts` directly.
 - Do not add JS polling timers — use native events or `scheduleMicrotask`.
 - Do not rename legacy `com.focusguard` Kotlin package or `FocusGuard` Xcode target without a coordinated migration.
+- Android edge-to-edge: keep system bar colors transparent; use `SystemBarAppearance` + JS `SafeArea` / `SystemChrome`
+  (barStyle only).
