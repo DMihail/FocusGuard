@@ -50,6 +50,8 @@ export interface Spec extends TurboModule {
   invalidateNativeInstalledAppsCache(): void;
   invalidateNativeUsageCache(): void;
   syncTrackingConfig(snapshotJson: string): void;
+  syncMonitoringState(snapshotJson: string): void;
+  syncSettingsConfig(snapshotJson: string): void;
   requestScreenTimeAuthorization(): Promise<boolean>;
   presentFamilyActivityPicker(): Promise<InstallApp[]>;
 }

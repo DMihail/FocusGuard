@@ -60,6 +60,8 @@ export interface Spec extends TurboModule {
   invalidateNativeInstalledAppsCache(): void;
   invalidateNativeUsageCache(): void;
   syncTrackingConfig(snapshotJson: string): void;
+  syncMonitoringState(snapshotJson: string): void;
+  syncSettingsConfig(snapshotJson: string): void;
 }
 
 // Required by React Native codegen — must live in the same file as `Spec`.

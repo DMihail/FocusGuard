@@ -122,6 +122,14 @@ export const syncTrackingConfig = (snapshotJson: string): void => {
   getModule()?.syncTrackingConfig(snapshotJson);
 };
 
+export const syncMonitoringState = (snapshotJson: string): void => {
+  getModule()?.syncMonitoringState(snapshotJson);
+};
+
+export const syncSettingsConfig = (snapshotJson: string): void => {
+  getModule()?.syncSettingsConfig(snapshotJson);
+};
+
 export const presentFamilyActivityPicker = async (): Promise<InstallApp[]> =>
   (await getModule()?.presentFamilyActivityPicker()) ?? [];
 

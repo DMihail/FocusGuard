@@ -10,6 +10,8 @@ import { CoreStoresHydrationProvider, useCoreStoresHydrated } from '@/context/Co
 import { SelectedDashboardAppRowsProvider } from '@/context/SelectedDashboardAppRowsProvider';
 import { usePrefetchNativeCatalogs } from '@/hooks/usePrefetchNativeCatalogs';
 import { onboardingStore } from '@/store';
+import { startNativeMonitoringSnapshotSync } from '@/store/nativeMonitoringSnapshot';
+import { startNativeSettingsSnapshotSync } from '@/store/nativeSettingsSnapshot';
 import { startNativeTrackingSnapshotSync } from '@/store/nativeTrackingSnapshot';
 
 import { useAppPermissionGuard } from './hooks/useAppPermissionGuard';
@@ -42,7 +44,15 @@ const RootNavigationGateContent = () => {
       return;
     }
 
-    return startNativeTrackingSnapshotSync();
+    const stopTracking = startNativeTrackingSnapshotSync();
+    const stopMonitoring = startNativeMonitoringSnapshotSync();
+    const stopSettings = startNativeSettingsSnapshotSync();
+
+    return () => {
+      stopTracking();
+      stopMonitoring();
+      stopSettings();
+    };
   }, [isNavigationReady]);
 
   useAppPermissionGuard(navigationRef, isNavigationReady);

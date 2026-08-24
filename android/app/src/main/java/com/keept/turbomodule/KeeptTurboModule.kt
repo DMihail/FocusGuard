@@ -24,6 +24,8 @@ import com.focusguard.react.TurboModuleEventDispatchers
 import com.focusguard.usage.LocalDayChangeNotifier
 import com.focusguard.react.ReactNativeMappers
 import com.focusguard.service.FocusGuardMonitorService
+import com.focusguard.storage.NativeMonitoringSnapshot
+import com.focusguard.storage.NativeSettingsSnapshot
 import com.focusguard.storage.NativeTrackingSnapshot
 import com.focusguard.crashlytics.NativeErrorReporter
 import com.focusguard.widget.WidgetUpdater
@@ -181,6 +183,16 @@ class KeeptTurboModule(
   override fun syncTrackingConfig(snapshotJson: String) {
     NativeTrackingSnapshot.write(snapshotJson)
     TrackingConfigRepository.invalidateCache()
+    WidgetUpdater.scheduleUpdate(appContext, force = true)
+  }
+
+  override fun syncMonitoringState(snapshotJson: String) {
+    NativeMonitoringSnapshot.write(snapshotJson)
+    WidgetUpdater.scheduleUpdate(appContext, force = true)
+  }
+
+  override fun syncSettingsConfig(snapshotJson: String) {
+    NativeSettingsSnapshot.write(snapshotJson)
     SettingsRepository.invalidateCache()
     WidgetUpdater.scheduleUpdate(appContext, force = true)
   }

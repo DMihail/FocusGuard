@@ -7,13 +7,13 @@
  * ## JS ↔ native data flow
  *
  * - **Turbo Module (`KeeptTurboModule`)** — permissions, usage catalogs, monitor control,
- *   and `syncTrackingConfig` for the flat tracking snapshot.
- * - **Shared MMKV (`keept-storage`)** — Zustand persist blobs plus the flat
- *   `native-tracking-snapshot-v1` key. Native monitor reads **only** the flat snapshot
- *   for tracked apps / limits (`syncTrackingConfig`).
+ *   and flat snapshot sync: `syncTrackingConfig`, `syncMonitoringState`, `syncSettingsConfig`.
+ * - **Shared MMKV (`keept-storage`)** — Zustand persist blobs (JS UI hydration) plus flat
+ *   native keys. Android background code reads **only** the flat keys (no Zustand fallback
+ *   after optional one-time migrate from legacy blobs).
  *
- * Prefer `syncNativeTrackingSnapshot()` (calls `syncTrackingConfig`) over writing the
- * snapshot key directly so native cache invalidation stays in sync.
+ * Prefer `syncNative*Snapshot()` helpers over writing snapshot keys directly so native
+ * cache invalidation stays in sync.
  *
  * ## iOS (Screen Time)
  *
@@ -22,6 +22,7 @@
  * - Selection blob: `ios-family-activity-selection-v1` (FamilyActivityPicker)
  * - Daily usage totals: `ios-daily-usage-v1` (DeviceActivity report + monitor floors)
  * - Auth mode: `individual` (self-control only)
+ * - Monitoring/settings flat sync methods are no-ops on iOS (Screen Time does not read them).
  */
 /** Shared MMKV instance for Zustand persistence and native monitor reads. */
 export const MMKV_INSTANCE_ID = 'keept-storage';
@@ -55,6 +56,18 @@ export const NATIVE_TRACKING_SNAPSHOT_KEY = 'native-tracking-snapshot-v1';
 
 /** Bump when the flat native snapshot JSON shape changes. */
 export const NATIVE_TRACKING_SNAPSHOT_VERSION = 2;
+
+/** Flat monitoring flag for Android boot / FGS resume (`NativeMonitoringSnapshot.kt`). */
+export const NATIVE_MONITORING_SNAPSHOT_KEY = 'native-monitoring-snapshot-v1';
+
+/** Bump when the flat monitoring snapshot JSON shape changes. */
+export const NATIVE_MONITORING_SNAPSHOT_VERSION = 1;
+
+/** Flat settings for Android widgets / notifications (`NativeSettingsSnapshot.kt`). */
+export const NATIVE_SETTINGS_SNAPSHOT_KEY = 'native-settings-snapshot-v1';
+
+/** Bump when the flat settings snapshot JSON shape changes. */
+export const NATIVE_SETTINGS_SNAPSHOT_VERSION = 1;
 
 /** iOS flat snapshot for Screen Time monitoring (`IosTrackingSnapshot.swift`). */
 export const IOS_TRACKING_SNAPSHOT_KEY = 'ios-tracking-snapshot-v2';

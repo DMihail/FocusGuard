@@ -225,6 +225,18 @@
   [KeeptScreenTimeBridge syncTrackingConfig:snapshotJson];
 }
 
+- (void)syncMonitoringState:(NSString *)snapshotJson
+{
+  // Android-only flat snapshot for FGS / boot resume; iOS uses Screen Time schedules.
+  (void)snapshotJson;
+}
+
+- (void)syncSettingsConfig:(NSString *)snapshotJson
+{
+  // Android-only flat snapshot for widgets / notification gates.
+  (void)snapshotJson;
+}
+
 - (void)requestScreenTimeAuthorization:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject
 {
   [KeeptScreenTimeBridge requestScreenTimeAuthorization:resolve reject:reject];

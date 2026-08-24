@@ -407,7 +407,7 @@ Run on a physical Android 14+ device (and one Android 15+ if available) before s
 | ------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Firebase iOS via CocoaPods + `$RNFirebaseDisableSPM`   | Required with `use_frameworks! :linkage => :static` (SPM Firebase conflicts). Invertase deprecates CocoaPods Firebase after ~Oct 2026 — plan SPM or dynamic frameworks before then. |
 | `android.builtInKotlin=false` / `android.newDsl=false` | AGP 9 opt-outs; remove when migrating to AGP 10+.                                                                                                                                   |
-| Hybrid native persist                                  | Tracking apps/limits = `NativeTrackingSnapshot` only; monitoring/settings still read Zustand MMKV blobs.                                                                            |
+| Legacy Zustand → flat migrate                          | Monitoring/settings native reads use flat snapshots; one-time migrate from Zustand blobs remains until installs without flat keys are gone.                                         |
 | Legacy namespaces                                      | `com.keept` app id vs `com.focusguard` Kotlin / `FocusGuard` Xcode target — keep until coordinated rename.                                                                          |
 | `source/types/react-native-codegen.d.ts`               | Ambient types for Strict API + codegen deep import; drop when RN exports public CodegenTypes.                                                                                       |
 | `targetSdk` 36 vs `compileSdk` 37                      | Matches RN 0.87 template; bump target when Play policy + edge-to-edge QA allow.                                                                                                     |
@@ -417,7 +417,8 @@ Run on a physical Android 14+ device (and one Android 15+ if available) before s
 ## Contributing notes
 
 - Bump persist versions in `persistSchema.ts` and native counterparts when stored shapes change.
-- Prefer `syncNativeTrackingSnapshot()` over writing MMKV snapshot keys from JS.
+- Prefer `syncNativeTrackingSnapshot()` / `syncNativeMonitoringSnapshot()` / `syncNativeSettingsSnapshot()` over writing
+  MMKV snapshot keys from JS.
 - Turbo Module codegen files must be named `Native*.ts` and keep `TurboModuleRegistry.get` in the same file as `Spec`.
 - Import the module in app code via `@/specs` (`keeptTurboModuleApi`), not `NativeKeeptTurboModule*.ts` directly.
 - Do not add JS polling timers — use native events or `scheduleMicrotask`.
