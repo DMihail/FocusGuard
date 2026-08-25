@@ -411,9 +411,12 @@ Run on a physical Android 14+ device (and one Android 15+ if available) before s
 | Legacy namespaces                                      | `com.keept` app id vs `com.focusguard` Kotlin / `FocusGuard` Xcode target — keep until coordinated rename.                                                                          |
 | `source/types/react-native-codegen.d.ts`               | Ambient types for Strict API + codegen deep import; drop when RN exports public CodegenTypes.                                                                                       |
 | `targetSdk` 36 vs `compileSdk` 37                      | Matches RN 0.87 template; bump target when Play policy + edge-to-edge QA allow.                                                                                                     |
-| Predictive back off                                    | `enableOnBackInvokedCallback="false"` until RN Screens / nav stack is validated.                                                                                                    |
 | No iOS CI                                              | Pods/Xcode/Firebase regressions stay local-only.                                                                                                                                    |
 | Instrumented `androidTest` suite                       | Unit + Robolectric cover native stores; full device instrumentation still optional.                                                                                                 |
+
+Native flat snapshots keep an in-process memory cache (skip MMKV `decodeString` on the FGS poll path); updates must go
+through Turbo `sync*`; write populates cache. Predictive back is on (`enableOnBackInvokedCallback=true`) — re-verify nav
+/ RN Screens on device.
 
 Expected FGS `background_start_blocked` (API 34+) is breadcrumb-only in Crashlytics — not recorded as non-fatals from
 `MonitorServiceHelper` / JS `monitoringStore` restore & toggle.

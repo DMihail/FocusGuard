@@ -10,50 +10,53 @@ internal object NativeTrackingSnapshot {
         val limitsJson: JSONObject?,
     )
 
-    private var cachedRaw: String? = null
+    /** When true, [cachedSnapshot] is authoritative until [invalidateCache] / [write]. */
+    private var memoryCacheLoaded = false
     private var cachedSnapshot: Snapshot? = null
 
     fun read(): Snapshot? {
-        val raw = KeeptStorage.mmkv.decodeString(PersistSchema.NATIVE_TRACKING_SNAPSHOT_KEY) ?: return null
-
-        if (raw == cachedRaw && cachedSnapshot != null) {
+        if (memoryCacheLoaded) {
             return cachedSnapshot
         }
 
-        val snapshot =
-            try {
-                val root = JSONObject(raw)
-                val version = root.optInt("version", 0)
-
-                if (version > PersistSchema.NATIVE_TRACKING_SNAPSHOT_VERSION) {
-                    return null
-                }
-
-                val trackedApps =
-                    root.optJSONArray("trackedApps")?.let { apps ->
-                        (0 until apps.length()).mapNotNull { index ->
-                            apps.optString(index).takeIf { it.isNotEmpty() }
-                        }
-                    } ?: emptyList()
-                val limitsJson = root.optJSONObject("limitsByAppKey")
-
-                Snapshot(trackedApps = trackedApps, limitsJson = limitsJson)
-            } catch (_: Exception) {
-                null
-            }
-
-        cachedRaw = raw
+        val raw = KeeptStorage.mmkv.decodeString(PersistSchema.NATIVE_TRACKING_SNAPSHOT_KEY)
+        val snapshot = raw?.let { parse(it) }
+        memoryCacheLoaded = true
         cachedSnapshot = snapshot
         return snapshot
     }
 
     fun write(snapshotJson: String) {
         KeeptStorage.mmkv.encode(PersistSchema.NATIVE_TRACKING_SNAPSHOT_KEY, snapshotJson)
-        invalidateCache()
+        memoryCacheLoaded = true
+        cachedSnapshot = parse(snapshotJson)
     }
 
     fun invalidateCache() {
-        cachedRaw = null
+        memoryCacheLoaded = false
         cachedSnapshot = null
+    }
+
+    private fun parse(raw: String): Snapshot? {
+        return try {
+            val root = JSONObject(raw)
+            val version = root.optInt("version", 0)
+
+            if (version > PersistSchema.NATIVE_TRACKING_SNAPSHOT_VERSION) {
+                return null
+            }
+
+            val trackedApps =
+                root.optJSONArray("trackedApps")?.let { apps ->
+                    (0 until apps.length()).mapNotNull { index ->
+                        apps.optString(index).takeIf { it.isNotEmpty() }
+                    }
+                } ?: emptyList()
+            val limitsJson = root.optJSONObject("limitsByAppKey")
+
+            Snapshot(trackedApps = trackedApps, limitsJson = limitsJson)
+        } catch (_: Exception) {
+            null
+        }
     }
 }
