@@ -12,7 +12,6 @@ package com.focusguard.usage
 internal class UsageEventSessionAccumulator(
     private val dayStartMs: Long,
     private val packageFilter: Set<String>,
-    @Suppress("UNUSED_PARAMETER") private val orphanSessionStartMs: Long,
     initialCompleted: Map<String, Long> = emptyMap(),
     initialOpenSessions: Map<String, Long> = emptyMap(),
 ) {

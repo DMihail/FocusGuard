@@ -413,6 +413,10 @@ Run on a physical Android 14+ device (and one Android 15+ if available) before s
 | `targetSdk` 36 vs `compileSdk` 37                      | Matches RN 0.87 template; bump target when Play policy + edge-to-edge QA allow.                                                                                                     |
 | Predictive back off                                    | `enableOnBackInvokedCallback="false"` until RN Screens / nav stack is validated.                                                                                                    |
 | No iOS CI                                              | Pods/Xcode/Firebase regressions stay local-only.                                                                                                                                    |
+| Instrumented `androidTest` suite                       | Unit + Robolectric cover native stores; full device instrumentation still optional.                                                                                                 |
+
+Expected FGS `background_start_blocked` (API 34+) is breadcrumb-only in Crashlytics — not recorded as non-fatals from
+`MonitorServiceHelper` / JS `monitoringStore` restore & toggle.
 
 ## Contributing notes
 

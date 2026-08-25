@@ -1,13 +1,12 @@
 package com.focusguard.overlay
 
 import com.focusguard.storage.KeeptStorage
+import com.focusguard.storage.PersistSchema
 import com.focusguard.usage.getLocalDayKey
 import java.util.concurrent.ConcurrentHashMap
 
 /** Persists one warning notification per app per local calendar day. */
 internal object DailyWarningStore {
-    private const val KEY_PREFIX = "daily-warning-"
-
     private val mmkv get() = KeeptStorage.mmkv
 
     private val warnedTodayCache = ConcurrentHashMap.newKeySet<String>()
@@ -50,10 +49,11 @@ internal object DailyWarningStore {
         }
 
         lastPrunedDayKey = dayKey
-        val todayPrefix = "$KEY_PREFIX$dayKey-"
+        val prefix = PersistSchema.DAILY_WARNING_KEY_PREFIX
+        val todayPrefix = "$prefix$dayKey-"
 
         mmkv.allKeys()?.forEach { key ->
-            if (key.startsWith(KEY_PREFIX) && !key.startsWith(todayPrefix)) {
+            if (key.startsWith(prefix) && !key.startsWith(todayPrefix)) {
                 mmkv.removeValueForKey(key)
             }
         }
@@ -69,6 +69,6 @@ internal object DailyWarningStore {
 
     private fun keyForToday(packageName: String): String {
         ensureDayCache()
-        return "$KEY_PREFIX${cacheDayKey!!}-$packageName"
+        return "${PersistSchema.DAILY_WARNING_KEY_PREFIX}${cacheDayKey!!}-$packageName"
     }
 }

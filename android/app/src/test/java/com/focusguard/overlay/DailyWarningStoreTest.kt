@@ -1,8 +1,8 @@
 package com.focusguard.overlay
 
 import com.focusguard.RobolectricKeeptTestCase
+import com.focusguard.storage.PersistSchema
 import com.focusguard.usage.getLocalDayKey
-import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -28,8 +28,9 @@ class DailyWarningStoreTest : RobolectricKeeptTestCase() {
     fun `pruneStaleKeys removes warning keys from previous local days`() {
         val packageName = "com.example.app"
         val todayKey = getLocalDayKey()
-        val staleKey = "daily-warning-2020-1-1-$packageName"
-        val todayKeyName = "daily-warning-$todayKey-$packageName"
+        val prefix = PersistSchema.DAILY_WARNING_KEY_PREFIX
+        val staleKey = "${prefix}2020-1-1-$packageName"
+        val todayKeyName = "$prefix$todayKey-$packageName"
 
         encodeTestValue(staleKey, true)
         encodeTestValue(todayKeyName, true)
@@ -45,7 +46,7 @@ class DailyWarningStoreTest : RobolectricKeeptTestCase() {
         val packageName = "com.example.cache"
         DailyWarningStore.markWarningShownToday(packageName)
 
-        removeTestKey("daily-warning-${getLocalDayKey()}-$packageName")
+        removeTestKey("${PersistSchema.DAILY_WARNING_KEY_PREFIX}${getLocalDayKey()}-$packageName")
 
         assertTrue(DailyWarningStore.wasWarningShownToday(packageName))
     }
@@ -54,7 +55,7 @@ class DailyWarningStoreTest : RobolectricKeeptTestCase() {
     fun `resetForTests clears in-memory cache so MMKV is read again`() {
         val packageName = "com.example.reset"
         DailyWarningStore.markWarningShownToday(packageName)
-        removeTestKey("daily-warning-${getLocalDayKey()}-$packageName")
+        removeTestKey("${PersistSchema.DAILY_WARNING_KEY_PREFIX}${getLocalDayKey()}-$packageName")
 
         DailyWarningStore.resetForTests()
 

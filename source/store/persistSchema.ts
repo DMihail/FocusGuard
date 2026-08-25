@@ -76,12 +76,14 @@ export const IOS_TRACKING_SNAPSHOT_KEY = 'ios-tracking-snapshot-v2';
 export const IOS_TRACKING_SNAPSHOT_VERSION = 2;
 
 /**
- * Native-only ephemeral keys (not Zustand persist). Documented here for cross-platform reference:
+ * Native-only ephemeral keys (not Zustand persist). Keep string literals in sync with
+ * `PersistSchema.kt` / iOS App Group constants:
  * - Android `usage-access-granted-v1` — Usage Stats latch (`UsageAccessGrantStore.kt`)
- * - Android `block-snooze-{packageName}` — overlay snooze (`TrackingSnoozeStore.kt`)
  * - Android `last-local-day-key-v1` — last notified local day (`LocalDayChangeNotifier.kt`)
+ * - Android `monitor-boot-resume-pending` — FGS resume after boot (`MonitoringBootResumeStore.kt`)
+ * - Android `block-snooze-{packageName}` — overlay snooze (`TrackingSnoozeStore.kt`)
+ * - Android `daily-warning-{dayKey}-{packageName}` — warning once/day (`DailyWarningStore.kt`)
  * - iOS App Group `last-local-day-key-v1` — last notified local day (`KeeptLocalDayChangeNotifier.swift`)
- * - Android daily warning keys — `DailyWarningStore.kt`
  * - iOS App Group `ios-block-snooze-{tokenId}` — `IosTrackingSnoozeStore.swift`
- * - iOS daily warning keys — `IosDailyWarningStore.swift`
+ * - iOS App Group `ios-daily-warning-…` — `IosDailyWarningStore.swift`
  */

@@ -212,6 +212,9 @@ describe('monitoringStore', () => {
   });
 
   it('keeps monitoring on when restore is blocked by background FGS rules', () => {
+    const { reportError } = require('@/crashlytics/reportError') as {
+      reportError: jest.Mock;
+    };
     monitoringStore.setState({ isMonitoring: true });
     mockIsMonitorServiceRunning.mockReturnValue(false);
     mockStartMonitorService.mockReturnValue({ started: false, reason: 'background_start_blocked' });
@@ -220,5 +223,6 @@ describe('monitoringStore', () => {
 
     expect(mockStartMonitorService).toHaveBeenCalledTimes(1);
     expect(monitoringStore.getState().isMonitoring).toBe(true);
+    expect(reportError).not.toHaveBeenCalled();
   });
 });

@@ -30,10 +30,15 @@ object MonitorServiceHelper {
       ContextCompat.startForegroundService(context, intent)
       MonitorServiceStartResult(started = true)
     } catch (error: android.app.ForegroundServiceStartNotAllowedException) {
-      NativeErrorReporter.recordNonFatal(error, "MonitorServiceHelper.start.background_blocked")
+      // Expected on API 34+ when starting FGS from background; resume on next foreground.
+      NativeErrorReporter.logExpected(
+          "MonitorServiceHelper.start.background_blocked: ${error.javaClass.simpleName}",
+      )
       MonitorServiceStartResult(started = false, reason = "background_start_blocked")
     } catch (error: SecurityException) {
-      NativeErrorReporter.recordNonFatal(error, "MonitorServiceHelper.start.security")
+      NativeErrorReporter.logExpected(
+          "MonitorServiceHelper.start.security: ${error.message ?: error.javaClass.simpleName}",
+      )
       MonitorServiceStartResult(started = false, reason = "background_start_blocked")
     }
   }

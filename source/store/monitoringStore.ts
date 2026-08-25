@@ -49,7 +49,10 @@ export const monitoringStore = create<MonitoringStore>()(
           const startResult = startMonitorService();
 
           if (!startResult.started) {
-            reportError(new Error(`Monitor service start failed: ${startResult.reason ?? 'unknown'}`));
+            // FGS background block is an expected API 34+ restriction — not Crashlytics-worthy.
+            if (startResult.reason !== 'background_start_blocked') {
+              reportError(new Error(`Monitor service start failed: ${startResult.reason ?? 'unknown'}`));
+            }
             set({ isMonitoring: false });
             return {
               ok: false,
@@ -159,11 +162,11 @@ export const restoreMonitoringSession = (): void => {
   const startResult = startMonitorService();
 
   if (!startResult.started) {
-    reportError(new Error(`Monitor service restore failed: ${startResult.reason ?? 'unknown'}`));
     // Keep intent on; native pending / next foreground resume will retry (API 34+ FGS rules).
     if (startResult.reason === 'background_start_blocked') {
       return;
     }
+    reportError(new Error(`Monitor service restore failed: ${startResult.reason ?? 'unknown'}`));
     monitoringStore.setState({ isMonitoring: false });
     return;
   }
