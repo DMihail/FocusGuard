@@ -14,7 +14,6 @@ class DailyUsageAggregatorTest {
             UsageEventSessionAccumulator(
                 dayStartMs = dayStartMs,
                 packageFilter = setOf(packageName),
-                orphanSessionStartMs = dayStartMs,
             )
 
         accumulator.applyForegroundStart(packageName, dayStartMs + 1_000L)
@@ -45,7 +44,6 @@ class DailyUsageAggregatorTest {
             UsageEventSessionAccumulator(
                 dayStartMs = dayStartMs,
                 packageFilter = setOf(packageName),
-                orphanSessionStartMs = dayStartMs + 5_000L,
                 initialOpenSessions = priorOpen,
             )
         accumulator.applyForegroundEnd(packageName, dayStartMs + 4_000L)
@@ -64,7 +62,6 @@ class DailyUsageAggregatorTest {
             UsageEventSessionAccumulator(
                 dayStartMs = dayStartMs,
                 packageFilter = setOf(packageName),
-                orphanSessionStartMs = dayStartMs + 5_000L,
                 initialCompleted = priorCompleted,
             )
         accumulator.applyForegroundStart(packageName, dayStartMs + 6_000L)
@@ -81,7 +78,6 @@ class DailyUsageAggregatorTest {
             UsageEventSessionAccumulator(
                 dayStartMs = dayStartMs,
                 packageFilter = setOf(packageName),
-                orphanSessionStartMs = dayStartMs + 2_000L,
             )
 
         accumulator.applyForegroundEnd(packageName, dayStartMs + 5_000L)
@@ -95,7 +91,6 @@ class DailyUsageAggregatorTest {
             UsageEventSessionAccumulator(
                 dayStartMs = dayStartMs,
                 packageFilter = setOf(packageName),
-                orphanSessionStartMs = dayStartMs,
             )
 
         accumulator.applyForegroundStart(packageName, dayStartMs + 1_000L)
@@ -117,7 +112,6 @@ class DailyUsageAggregatorTest {
             UsageEventSessionAccumulator(
                 dayStartMs = dayStartMs,
                 packageFilter = setOf(packageName),
-                orphanSessionStartMs = dayStartMs,
             )
 
         accumulator.applyForegroundEnd(packageName, endMs)
@@ -127,13 +121,11 @@ class DailyUsageAggregatorTest {
     }
 
     @Test
-    fun `duplicate end after prior open session does not orphan from scan cursor`() {
-        val scanFromMs = dayStartMs + 10_000L
+    fun `duplicate end after prior open session does not invent orphan usage`() {
         val accumulator =
             UsageEventSessionAccumulator(
                 dayStartMs = dayStartMs,
                 packageFilter = setOf(packageName),
-                orphanSessionStartMs = scanFromMs,
                 initialOpenSessions = mapOf(packageName to dayStartMs + 1_000L),
             )
 
@@ -149,7 +141,6 @@ class DailyUsageAggregatorTest {
             UsageEventSessionAccumulator(
                 dayStartMs = dayStartMs,
                 packageFilter = setOf(packageName),
-                orphanSessionStartMs = dayStartMs,
             )
 
         accumulator.applyForegroundEnd(packageName, dayStartMs + 2_000L)

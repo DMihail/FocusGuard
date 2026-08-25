@@ -1,12 +1,11 @@
 package com.focusguard.overlay
 
 import com.focusguard.storage.KeeptStorage
+import com.focusguard.storage.PersistSchema
 import java.util.concurrent.ConcurrentHashMap
 
 /** Persists temporary snooze windows after the user taps "5 more minutes" on the block overlay. */
 internal object TrackingSnoozeStore {
-    private const val KEY_PREFIX = "block-snooze-"
-
     private val mmkv get() = KeeptStorage.mmkv
     private val snoozeUntilCache = ConcurrentHashMap<String, Long>()
 
@@ -49,5 +48,5 @@ internal object TrackingSnoozeStore {
         mmkv.removeValueForKey(key(packageName))
     }
 
-    private fun key(packageName: String) = "$KEY_PREFIX$packageName"
+    private fun key(packageName: String) = "${PersistSchema.BLOCK_SNOOZE_KEY_PREFIX}$packageName"
 }

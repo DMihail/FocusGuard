@@ -94,7 +94,6 @@ internal object DailyUsageAggregator {
             UsageEventSessionAccumulator(
                 dayStartMs = dayStartMs,
                 packageFilter = packageFilter,
-                orphanSessionStartMs = scanFromMs,
                 initialCompleted = priorUsage,
                 initialOpenSessions = priorOpenSessions,
             )
@@ -146,7 +145,6 @@ internal object DailyUsageAggregator {
             UsageEventSessionAccumulator(
                 dayStartMs = dayStartMs,
                 packageFilter = packageFilter,
-                orphanSessionStartMs = dayStartMs,
             )
 
         applyEventsInRange(

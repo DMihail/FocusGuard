@@ -14,4 +14,12 @@ internal object NativeErrorReporter {
 
         crashlytics.recordException(throwable)
     }
+
+    /**
+     * Breadcrumb-only for expected platform restrictions (e.g. API 34+ FGS start from
+     * background). Avoids Crashlytics noise from [recordException].
+     */
+    fun logExpected(message: String) {
+        FirebaseCrashlytics.getInstance().log(message)
+    }
 }

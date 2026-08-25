@@ -33,4 +33,13 @@ object PersistSchema {
 
     /** Last local calendar day successfully notified to JS (`LocalDayChangeNotifier.kt`). */
     const val LAST_LOCAL_DAY_KEY = "last-local-day-key-v1"
+
+    /** Ephemeral: FGS resume after boot / background start block (`MonitoringBootResumeStore`). */
+    const val MONITOR_BOOT_RESUME_PENDING_KEY = "monitor-boot-resume-pending"
+
+    /** Ephemeral prefix: overlay "5 more minutes" snooze until (`TrackingSnoozeStore`). */
+    const val BLOCK_SNOOZE_KEY_PREFIX = "block-snooze-"
+
+    /** Ephemeral prefix: one warning notification per app per local day (`DailyWarningStore`). */
+    const val DAILY_WARNING_KEY_PREFIX = "daily-warning-"
 }
