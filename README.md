@@ -356,7 +356,7 @@ only (full gate is in CI).
 ```sh
 npm test              # local (31 suites)
 npm run check         # lint + format + types + Jest (CI gate)
-cd android && ./gradlew testDebugUnitTest   # Kotlin unit tests (Robolectric)
+cd android && ./gradlew :app:testDebugUnitTest   # Kotlin unit tests (Robolectric)
 maestro test .maestro/android-smoke.yaml    # optional device smoke (not in CI)
 ```
 
@@ -380,7 +380,7 @@ under `source/screen/Legal/data/` (EN/RU + Android/iOS in one builder per docume
 GitHub Actions (`.github/workflows/ci.yml`), New Architecture enabled:
 
 1. **check** — `npm run check` on Node 22
-2. **android** — `assembleDebug` + `testDebugUnitTest` (API 37, NDK 27.1.12297006), only after **check**
+2. **android** — `assembleDebug` + `:app:testDebugUnitTest` (API 37, NDK 27.1.12297006), only after **check**
 
 Runs on every PR once (not also on the branch push), and on push to `main` / `dev` / `release/**`. iOS is local-only
 (see above). Husky is disabled in CI (`HUSKY=0`).
