@@ -71,6 +71,8 @@ jobs:
       - run: npm ci
       - run: cp android/app/google-services.ci.json android/app/google-services.json
 
-      - name: Gradle assembleDebug + unit tests
+      - name: Gradle assembleDebug + app unit tests
         working-directory: android
-        run: ./gradlew assembleDebug testDebugUnitTest --no-daemon
+        # Scope to :app — dependency modules (e.g. @react-native-firebase/app) ship Robolectric
+        # suites that break when root compileSdk exceeds their Robolectric max (API 37 vs 4.14→35).
+        run: ./gradlew assembleDebug :app:testDebugUnitTest --no-daemon
