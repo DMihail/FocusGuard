@@ -44,7 +44,7 @@ enum KeeptMonitoringScheduler {
     do {
       try center.startMonitoring(KeeptMonitoringNames.dailyActivity, during: schedule, events: events)
       KeeptMonitoringStateStore.setEnabled(true)
-      KeeptTurboModuleEventDispatchers.emitMonitorServiceState(isRunning: true)
+      emitMonitorState(isRunning: true)
       return true
     } catch {
       throw StartFailure.scheduleFailed
@@ -55,8 +55,17 @@ enum KeeptMonitoringScheduler {
     center.stopMonitoring([KeeptMonitoringNames.dailyActivity])
     IosShieldStore.clearAll()
     KeeptMonitoringStateStore.setEnabled(false)
-    KeeptTurboModuleEventDispatchers.emitMonitorServiceState(isRunning: false)
+    emitMonitorState(isRunning: false)
   }
+
+  #if canImport(React)
+  /// The DeviceActivity extension compiles this file and has no React Native bridge.
+  private static func emitMonitorState(isRunning: Bool) {
+    KeeptTurboModuleEventDispatchers.emitMonitorServiceState(isRunning: isRunning)
+  }
+  #else
+  private static func emitMonitorState(isRunning _: Bool) {}
+  #endif
 
   static func rescheduleIfRunning() {
     guard isRunning else {

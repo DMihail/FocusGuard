@@ -1,40 +1,21 @@
 /** @format */
 
-import { reportError } from '@/crashlytics/reportError';
 import { syncTrackingConfig } from '@/specs';
-import { getKeeptTurboModule } from '@/specs/keeptTurboModuleClient';
 
 import { appLimitsStore } from './appLimitsStore';
-import { storage } from './mmkv';
 import { buildPlatformTrackingSnapshot, platformTrackingSnapshotKey } from './platformTrackingSnapshot';
 import { selectedAppsStore } from './selectedAppsStore';
+import { createNativeSnapshotSync } from './syncNativeSnapshot';
 
-let lastSnapshotJson: string | null = null;
+const trackingSnapshotSync = createNativeSnapshotSync({
+  build: () => buildPlatformTrackingSnapshot(),
+  writeNative: syncTrackingConfig,
+  fallbackKey: platformTrackingSnapshotKey,
+  errorLabel: 'syncNativeTrackingSnapshot',
+});
 
-export const resetNativeTrackingSnapshotSyncForTests = (): void => {
-  lastSnapshotJson = null;
-};
-
-export const syncNativeTrackingSnapshot = (): void => {
-  const snapshotJson = JSON.stringify(buildPlatformTrackingSnapshot());
-
-  if (snapshotJson === lastSnapshotJson) {
-    return;
-  }
-
-  lastSnapshotJson = snapshotJson;
-  const nativeModule = getKeeptTurboModule();
-
-  if (nativeModule) {
-    syncTrackingConfig(snapshotJson);
-    return;
-  }
-
-  storage.set(platformTrackingSnapshotKey, snapshotJson);
-  reportError(
-    '[syncNativeTrackingSnapshot] Native module unavailable; MMKV updated without native cache invalidation.',
-  );
-};
+export const resetNativeTrackingSnapshotSyncForTests = trackingSnapshotSync.resetForTests;
+export const syncNativeTrackingSnapshot = trackingSnapshotSync.sync;
 
 let unsubscribeSelectedApps: (() => void) | null = null;
 let unsubscribeAppLimits: (() => void) | null = null;

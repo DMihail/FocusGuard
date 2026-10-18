@@ -2,8 +2,9 @@
 
 #import <ReactCommon/RCTTurboModule.h>
 #import <ReactCodegen/KeeptTurboModuleSpecJSI.h>
+#import <React/RCTBridgeModule.h>
+#import <React_RCTAppDelegate/RCTDefaultReactNativeFactoryDelegate.h>
 
-#import "../ScreenTime/KeeptScreenTimeBridge.h"
 #import "FocusGuard-Swift.h"
 
 @implementation RCTKeeptTurboModule {

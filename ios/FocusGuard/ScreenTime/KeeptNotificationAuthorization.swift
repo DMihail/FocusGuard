@@ -5,9 +5,10 @@ import UserNotifications
 enum KeeptNotificationAuthorization {
   private static let lock = NSLock()
   private static var cachedAuthorized = false
+  private static var hasCachedAuthorization = false
 
   static var isAuthorized: Bool {
-    if Thread.isMainThread {
+    if Thread.isMainThread, hasCachedAuthorizationValue() {
       return readCachedAuthorized()
     }
 
@@ -16,16 +17,17 @@ enum KeeptNotificationAuthorization {
 
   static func refreshCachedAuthorization() {
     UNUserNotificationCenter.current().getNotificationSettings { settings in
-      lock.lock()
-      cachedAuthorized =
-        settings.authorizationStatus == .authorized || settings.authorizationStatus == .provisional
-      lock.unlock()
+      store(
+        authorized: settings.authorizationStatus == .authorized
+          || settings.authorizationStatus == .provisional
+      )
     }
   }
 
   static func invalidateCache() {
     lock.lock()
     cachedAuthorized = false
+    hasCachedAuthorization = false
     lock.unlock()
     refreshCachedAuthorization()
   }
@@ -39,9 +41,7 @@ enum KeeptNotificationAuthorization {
       }
     }
 
-    lock.lock()
-    cachedAuthorized = granted
-    lock.unlock()
+    store(authorized: granted)
     return granted
   }
 
@@ -53,6 +53,19 @@ enum KeeptNotificationAuthorization {
     DispatchQueue.main.async {
       UIApplication.shared.open(url)
     }
+  }
+
+  private static func store(authorized: Bool) {
+    lock.lock()
+    cachedAuthorized = authorized
+    hasCachedAuthorization = true
+    lock.unlock()
+  }
+
+  private static func hasCachedAuthorizationValue() -> Bool {
+    lock.lock()
+    defer { lock.unlock() }
+    return hasCachedAuthorization
   }
 
   private static func readCachedAuthorized() -> Bool {
@@ -68,9 +81,7 @@ enum KeeptNotificationAuthorization {
     UNUserNotificationCenter.current().getNotificationSettings { settings in
       granted =
         settings.authorizationStatus == .authorized || settings.authorizationStatus == .provisional
-      lock.lock()
-      cachedAuthorized = granted
-      lock.unlock()
+      store(authorized: granted)
       semaphore.signal()
     }
 

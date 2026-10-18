@@ -12,7 +12,7 @@ class SceneDelegate: RCTDefaultReactNativeFactoryDelegate, UIWindowSceneDelegate
     willConnectTo session: UISceneSession,
     options connectionOptions: UIScene.ConnectionOptions
   ) {
-    guard let windowScene = scene as? UIWindowScene else {
+    guard reactNativeFactory == nil, let windowScene = scene as? UIWindowScene else {
       return
     }
 

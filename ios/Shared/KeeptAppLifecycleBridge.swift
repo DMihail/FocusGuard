@@ -6,41 +6,42 @@ import UIKit
   private static var started = false
 
   @objc static func start() {
-    guard !started else {
-      return
-    }
+    if !started {
+      started = true
 
-    started = true
+      NotificationCenter.default.addObserver(
+        forName: UIApplication.significantTimeChangeNotification,
+        object: nil,
+        queue: .main,
+      ) { _ in
+        KeeptLocalDayChangeScheduler.schedule()
+        KeeptLocalDayChangeNotifier.checkAndNotify()
+      }
 
-    NotificationCenter.default.addObserver(
-      forName: UIApplication.significantTimeChangeNotification,
-      object: nil,
-      queue: .main,
-    ) { _ in
-      KeeptLocalDayChangeScheduler.schedule()
+      NotificationCenter.default.addObserver(
+        forName: UIApplication.didBecomeActiveNotification,
+        object: nil,
+        queue: .main,
+      ) { _ in
+        KeeptLocalDayChangeScheduler.schedule()
+        KeeptNotificationAuthorization.refreshCachedAuthorization()
+        KeeptLocalDayChangeNotifier.checkAndNotify()
+        KeeptTurboModuleEventDispatchers.emitPermissionsChanged()
+      }
+
+      NotificationCenter.default.addObserver(
+        forName: .NSSystemTimeZoneDidChange,
+        object: nil,
+        queue: .main,
+      ) { _ in
+        KeeptLocalDayChangeScheduler.schedule()
+        KeeptLocalDayChangeNotifier.checkAndNotify()
+      }
+
       KeeptLocalDayChangeNotifier.checkAndNotify()
     }
 
-    NotificationCenter.default.addObserver(
-      forName: UIApplication.didBecomeActiveNotification,
-      object: nil,
-      queue: .main,
-    ) { _ in
-      KeeptNotificationAuthorization.refreshCachedAuthorization()
-      KeeptLocalDayChangeNotifier.checkAndNotify()
-      KeeptTurboModuleEventDispatchers.emitPermissionsChanged()
-    }
-
-    NotificationCenter.default.addObserver(
-      forName: .NSSystemTimeZoneDidChange,
-      object: nil,
-      queue: .main,
-    ) { _ in
-      KeeptLocalDayChangeScheduler.schedule()
-      KeeptLocalDayChangeNotifier.checkAndNotify()
-    }
-
+    // Turbo Module invalidate cancels the pending refresh; a later start() must re-arm it.
     KeeptLocalDayChangeScheduler.schedule()
-    KeeptLocalDayChangeNotifier.checkAndNotify()
   }
 }

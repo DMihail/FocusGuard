@@ -1,18 +1,19 @@
 /** @format */
 
-import { reportError } from '@/crashlytics/reportError';
 import { syncMonitoringState } from '@/specs';
-import { getKeeptTurboModule } from '@/specs/keeptTurboModuleClient';
 
-import { storage } from './mmkv';
 import { monitoringStore } from './monitoringStore';
 import { NATIVE_MONITORING_SNAPSHOT_KEY, NATIVE_MONITORING_SNAPSHOT_VERSION } from './persistSchema';
+import { createNativeSnapshotSync } from './syncNativeSnapshot';
 
-let lastSnapshotJson: string | null = null;
+const monitoringSnapshotSync = createNativeSnapshotSync({
+  build: () => buildMonitoringSnapshot(),
+  writeNative: syncMonitoringState,
+  fallbackKey: NATIVE_MONITORING_SNAPSHOT_KEY,
+  errorLabel: 'syncNativeMonitoringSnapshot',
+});
 
-export const resetNativeMonitoringSnapshotSyncForTests = (): void => {
-  lastSnapshotJson = null;
-};
+export const resetNativeMonitoringSnapshotSyncForTests = monitoringSnapshotSync.resetForTests;
 
 export const buildMonitoringSnapshot = (): {
   version: number;
@@ -22,26 +23,7 @@ export const buildMonitoringSnapshot = (): {
   isMonitoring: monitoringStore.getState().isMonitoring,
 });
 
-export const syncNativeMonitoringSnapshot = (): void => {
-  const snapshotJson = JSON.stringify(buildMonitoringSnapshot());
-
-  if (snapshotJson === lastSnapshotJson) {
-    return;
-  }
-
-  lastSnapshotJson = snapshotJson;
-  const nativeModule = getKeeptTurboModule();
-
-  if (nativeModule) {
-    syncMonitoringState(snapshotJson);
-    return;
-  }
-
-  storage.set(NATIVE_MONITORING_SNAPSHOT_KEY, snapshotJson);
-  reportError(
-    '[syncNativeMonitoringSnapshot] Native module unavailable; MMKV updated without native cache invalidation.',
-  );
-};
+export const syncNativeMonitoringSnapshot = monitoringSnapshotSync.sync;
 
 let unsubscribeMonitoring: (() => void) | null = null;
 
