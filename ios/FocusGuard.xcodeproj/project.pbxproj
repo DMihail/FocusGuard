@@ -11,6 +11,7 @@
 		5B76FF05E208434195FA7918 /* Inter-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = CB17F5AB88324B4D9C0E2215 /* Inter-SemiBold.ttf */; };
 		60A85BFB18134E24AD778BC6 /* Inter-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A33565A2A5E04F02B2D8C759 /* Inter-Bold.ttf */; };
 		761780ED2CA45674006654EE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 761780EC2CA45674006654EE /* AppDelegate.swift */; };
+		761780EF2CA45674006654EF /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 761780EE2CA45674006654EF /* SceneDelegate.swift */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
 		A1B2C3D491A680F5B00A75B9A /* DeviceActivityMonitorExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D481A680F5B00A75B9A /* DeviceActivityMonitorExtension.swift */; };
 		A1B2C3D4C1A680F5B00A75B9A /* KeeptAppGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4B1A680F5B00A75B9A /* KeeptAppGroup.swift */; };
@@ -120,6 +121,7 @@
 		4FF812CD12A24C7C9F6AC828 /* Inter-Regular.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Inter-Regular.ttf"; path = "../source/assets/fonts/Inter-Regular.ttf"; sourceTree = "<group>"; };
 		5709B34CF0A7D63546082F79 /* Pods-FocusGuard.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FocusGuard.release.xcconfig"; path = "Target Support Files/Pods-FocusGuard/Pods-FocusGuard.release.xcconfig"; sourceTree = "<group>"; };
 		761780EC2CA45674006654EE /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = FocusGuard/AppDelegate.swift; sourceTree = "<group>"; };
+		761780EE2CA45674006654EF /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SceneDelegate.swift; path = FocusGuard/SceneDelegate.swift; sourceTree = "<group>"; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = FocusGuard/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		A1B2C3D401A680F5B00A75B9A /* KeeptMonitor.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = KeeptMonitor.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		A1B2C3D481A680F5B00A75B9A /* DeviceActivityMonitorExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceActivityMonitorExtension.swift; sourceTree = "<group>"; };
@@ -211,6 +213,7 @@
 			children = (
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				761780EC2CA45674006654EE /* AppDelegate.swift */,
+				761780EE2CA45674006654EF /* SceneDelegate.swift */,
 				F1A2B3C22CA45674006654EE /* RCTKeeptTurboModule.h */,
 				F1A2B3C32CA45674006654EE /* RCTKeeptTurboModule.mm */,
 				K1E2T3U31CA45674006654EE /* RCTKeeptUiTheme.mm */,
@@ -596,6 +599,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				761780ED2CA45674006654EE /* AppDelegate.swift in Sources */,
+				761780EF2CA45674006654EF /* SceneDelegate.swift in Sources */,
 				F1A2B3C42CA45674006654EE /* RCTKeeptTurboModule.mm in Sources */,
 				K1E2T3U41CA45674006654EE /* RCTKeeptUiTheme.mm in Sources */,
 				A1B2C3D4C1A680F5B00A75B9A /* KeeptAppGroup.swift in Sources */,
@@ -807,6 +811,13 @@
 					"${PODS_ROOT}/React-featureflags",
 					"${PODS_ROOT}/React-renderercss",
 					"${PODS_ROOT}/React-bridging",
+					"${PODS_ROOT}/React-Fabric/react/renderer/components/scrollview/platform/cxx",
+					"${PODS_ROOT}/React-Fabric/react/renderer/components/scrollview/platform/ios",
+					"${PODS_ROOT}/React-FabricComponents/react/renderer/textlayoutmanager/platform/ios",
+					"${PODS_ROOT}/React-FabricComponents/react/renderer/components/text/platform/cxx",
+					"${PODS_ROOT}/React-FabricComponents/react/renderer/components/textinput/platform/ios",
+					"${PODS_ROOT}/React-FabricComponents/react/renderer/components/switch/iosswitch",
+					"${PODS_ROOT}/React-cxxstableapi",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -899,6 +910,13 @@
 					"${PODS_ROOT}/React-featureflags",
 					"${PODS_ROOT}/React-renderercss",
 					"${PODS_ROOT}/React-bridging",
+					"${PODS_ROOT}/React-Fabric/react/renderer/components/scrollview/platform/cxx",
+					"${PODS_ROOT}/React-Fabric/react/renderer/components/scrollview/platform/ios",
+					"${PODS_ROOT}/React-FabricComponents/react/renderer/textlayoutmanager/platform/ios",
+					"${PODS_ROOT}/React-FabricComponents/react/renderer/components/text/platform/cxx",
+					"${PODS_ROOT}/React-FabricComponents/react/renderer/components/textinput/platform/ios",
+					"${PODS_ROOT}/React-FabricComponents/react/renderer/components/switch/iosswitch",
+					"${PODS_ROOT}/React-cxxstableapi",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
