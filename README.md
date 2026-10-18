@@ -2,7 +2,7 @@
 
 Cross-platform screen-time app: track distracting apps, warn before limits, and block when limits are reached.
 
-Built with React Native **0.87** (New Architecture, Turbo Modules) and React **19**.
+Built with React Native **0.88** (New Architecture, Turbo Modules) and React **19.3**.
 
 > **Repo vs product:** the folder is still `FocusGuard`; the product, store IDs, and deep links use **Keept**. Legacy
 > Kotlin namespace `com.focusguard` and Xcode target `FocusGuard` remain for build compatibility.
@@ -410,7 +410,7 @@ Run on a physical Android 14+ device (and one Android 15+ if available) before s
 | Legacy Zustand → flat migrate                          | Monitoring/settings native reads use flat snapshots; one-time migrate from Zustand blobs remains until installs without flat keys are gone.                                         |
 | Legacy namespaces                                      | `com.keept` app id vs `com.focusguard` Kotlin / `FocusGuard` Xcode target — keep until coordinated rename.                                                                          |
 | `source/types/react-native-codegen.d.ts`               | Ambient types for Strict API + codegen deep import; drop when RN exports public CodegenTypes.                                                                                       |
-| `targetSdk` 36 vs `compileSdk` 37                      | Matches RN 0.87 template; bump target when Play policy + edge-to-edge QA allow.                                                                                                     |
+| `targetSdk` 36 vs `compileSdk` 37                      | Matches RN 0.88 template; bump target when Play policy + edge-to-edge QA allow.                                                                                                     |
 | No iOS CI                                              | Pods/Xcode/Firebase regressions stay local-only.                                                                                                                                    |
 | Instrumented `androidTest` suite                       | Unit + Robolectric cover native stores; full device instrumentation still optional.                                                                                                 |
 
