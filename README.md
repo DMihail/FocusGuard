@@ -34,7 +34,8 @@ All limit and selection data stays on device. No account or cloud sync.
 | iOS native     | Swift, Family Controls, DeviceActivity + Report extensions                |
 | Quality        | ESLint, Prettier, Husky, lint-staged, Jest                                |
 
-**Requirements:** Node **≥ 22.11**, JDK **17** (Android), Xcode **16+** (iOS), CocoaPods.
+**Requirements:** Node **≥ 22.11**, JDK **17** (Android), Xcode **16+** with UIScene support (iOS), CocoaPods. Min iOS
+**16.0** (app + pods; Podfile pins every pod `IPHONEOS_DEPLOYMENT_TARGET` to 16.0 for Xcode 27).
 
 ## Project layout
 
@@ -84,12 +85,13 @@ FocusGuard/                          # repo folder (product / store ID: Keept)
 │   │   ├── *Store.ts                # selected apps, limits, monitoring, usage history, …
 │   │   ├── trackedUsageStore.ts     # coalesced native usage refresh
 │   │   ├── usageDayChangeCoordinator.ts
-│   │   └── nativeTrackingSnapshot.ts / *TrackingSnapshot.ts
+│   │   ├── syncNativeSnapshot.ts    # shared dedupe + Turbo/MMKV snapshot writer
+│   │   └── native*Snapshot.ts       # monitoring / settings / tracking sync wrappers
 │   ├── testing/                     # testIDs + Jest fixtures
 │   ├── theme/                       # ThemeProvider, palettes, typography
 │   └── utils/                       # usage math, permissions, scheduleMicrotask
 │
-├── __tests__/                       # Jest (31 suites; mirrors source/ layout)
+├── __tests__/                       # Jest (34 suites; mirrors source/ layout)
 │   ├── architecture/                # productionTimers guard (no JS polling)
 │   ├── domain/ / store/ / hooks/ / navigation/ / specs/
 │   └── screen/                      # screen-level hook + component tests
@@ -115,6 +117,8 @@ FocusGuard/                          # repo folder (product / store ID: Keept)
 │
 └── ios/
     ├── FocusGuard/                  # main app target (legacy name)
+    │   ├── AppDelegate.swift        # Firebase + BG task registration (before scenes)
+    │   ├── SceneDelegate.swift      # UIScene: start React Native ("Keept") + lifecycle
     │   ├── KeeptTurboModule/        # RCTKeeptTurboModule
     │   ├── KeeptUiTheme/            # theme bridge
     │   └── ScreenTime/              # Family Controls, picker, usage reports
@@ -133,7 +137,7 @@ Platform-specific TypeScript resolves via Metro / `moduleSuffixes`: `.ios.ts`, `
 | Product name                  | Keept                                                                    |
 | npm / JS version              | `1.1.2` (`package.json`)                                                 |
 | Android store version         | `1.1.3` (`versionName` in `android/app/build.gradle`)                    |
-| Android build number          | `17` (`versionCode` in `android/app/build.gradle`)                       |
+| Android build number          | `18` (`versionCode` in `android/app/build.gradle`)                       |
 | iOS marketing version         | `1.0.0` (`MARKETING_VERSION` in Xcode)                                   |
 | iOS build number              | `1` (`CURRENT_PROJECT_VERSION` — first App Store cut may stay at 1)      |
 | Store bundle / application ID | `com.keept`                                                              |
@@ -177,10 +181,13 @@ npx react-native start --reset-cache
 ```sh
 cp android/keystore.properties.example android/keystore.properties   # gitignored
 # Edit passwords/alias; place upload keystore in android/keystores/
-npm run android:release:check   # keystore + full npm check
-npm run android:bundle:release  # Play Store AAB
-npm run android:assemble:release
+npm run android:release:check   # requires keystore.properties + full npm check
+cd android
+./gradlew bundleRelease     # Play Store AAB
+./gradlew assembleRelease   # APK
 ```
+
+Release builds enable R8 minify and resource shrinking (`minifyEnabled` / `shrinkResources`).
 
 Regenerate launcher PNG mipmaps after changing shield artwork:
 
@@ -199,12 +206,30 @@ android/scripts/generate-launcher-icons.sh
 
 ### iOS
 
-Screen Time uses Family Controls (self-control / `.individual` auth mode).
+Screen Time uses Family Controls (self-control / `.individual` auth mode). Launch uses the UIScene path:
+
+| Phase           | File                      | Responsibility                                                                                                        |
+| --------------- | ------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| Process launch  | `AppDelegate`             | `FirebaseApp.configure()`, `KeeptLocalDayChangeScheduler.registerBackgroundTasks()` (must run before launch finishes) |
+| Scene connect   | `SceneDelegate`           | Start React Native module `"Keept"` once; refresh notification auth cache; `KeeptAppLifecycleBridge.start()`          |
+| Foreground / TZ | `KeeptAppLifecycleBridge` | Re-arm midnight `BGAppRefreshTask`, day-change notify, emit `onPermissionsChanged`                                    |
+
+`Info.plist` → `UIApplicationSceneManifest` points at `$(PRODUCT_MODULE_NAME).SceneDelegate`. Deep links are handled on
+the scene (`RCTLinkingManager`), not AppDelegate.
 
 ```sh
 cp ios/FocusGuard/GoogleService-Info.ci.plist ios/FocusGuard/GoogleService-Info.plist
 cd ios && pod install && cd ..
 npm run ios
+```
+
+Compile smoke (no codesign):
+
+```sh
+cd ios && xcodebuild -workspace FocusGuard.xcworkspace -scheme FocusGuard \
+  -sdk iphonesimulator -configuration Debug \
+  -destination 'generic/platform=iOS Simulator' \
+  build CODE_SIGNING_ALLOWED=NO
 ```
 
 | Item                  | Value                              |
@@ -213,6 +238,7 @@ npm run ios
 | Flat snapshot key     | `ios-tracking-snapshot-v2`         |
 | Family selection blob | `ios-family-activity-selection-v1` |
 | Daily usage           | `ios-daily-usage-v1`               |
+| BG refresh task       | `com.keept.local-day-change`       |
 
 Family Controls entitlement is required on a paid Apple Developer team for physical devices. Simulator works with a free
 team. **CI does not build iOS** — run Xcode locally.
@@ -240,7 +266,8 @@ Three naming layers (same module, different concerns):
 | Codegen spec files | **`NativeKeeptTurboModule*.ts`**                                 | RN codegen schema (`Native*.ts` required) |
 | App imports        | **`@/specs`** → `keeptTurboModuleApi` / `keeptTurboModuleClient` | Typed wrappers + event hub bootstrap      |
 
-`KeeptTurboModule` exposes permissions, catalogs, monitor control, and `syncTrackingConfig(snapshotJson)`.
+`KeeptTurboModule` exposes permissions, catalogs, monitor control, and flat snapshot writers: `syncTrackingConfig` /
+`syncMonitoringState` / `syncSettingsConfig`.
 
 App bootstrap (`index.js`):
 
@@ -249,12 +276,12 @@ App bootstrap (`index.js`):
 
 Event subscriptions (production):
 
-| Event                          | Native emitters (Android / iOS)             | JS consumers                                    |
-| ------------------------------ | ------------------------------------------- | ----------------------------------------------- |
-| `onPermissionsChanged`         | MainActivity, module resume, auth callbacks | `usePermissionsSync`, `useNotificationsSetting` |
-| `onLocalDayChanged`            | AlarmManager midnight, timezone, foreground | `useScreenRefresh` (hard on day change)         |
-| `onMonitorServiceStateChanged` | FGS start/stop / monitoring scheduler       | `useMonitoringServiceSync`                      |
-| `onTrackedUsageChanged`        | TrackingEngine poll (Android), usage report | `useTrackedAppRows`                             |
+| Event                          | Native emitters (Android / iOS)                          | JS consumers                                    |
+| ------------------------------ | -------------------------------------------------------- | ----------------------------------------------- |
+| `onPermissionsChanged`         | MainActivity / lifecycle bridge, auth callbacks          | `usePermissionsSync`, `useNotificationsSetting` |
+| `onLocalDayChanged`            | AlarmManager / BGAppRefresh, timezone, foreground        | `useScreenRefresh` (hard on day change)         |
+| `onMonitorServiceStateChanged` | FGS start/stop / `KeeptMonitoringScheduler` (app target) | `useMonitoringServiceSync`                      |
+| `onTrackedUsageChanged`        | TrackingEngine poll (Android), usage report (iOS)        | `useTrackedAppRows`                             |
 
 Import `@/specs` in app code, not codegen files directly.
 
@@ -301,13 +328,17 @@ change, and Configure Limits day rollover. `trackedUsageStore` coalesces concurr
 ```text
 Zustand persist ──► MMKV "keept-storage"
                          │
-                         ├── native-tracking-snapshot-v1 (Android flat JSON)
-                         ├── ios-tracking-snapshot-v2 (via syncTrackingConfig)
+                         ├── native-*-snapshot (via createNativeSnapshotSync → Turbo sync*)
+                         │     tracking / monitoring / settings flat JSON
                          └── Zustand JSON blobs (selected apps, limits, monitoring, …)
 
-Android monitor reads flat snapshot + MMKV persist keys.
-iOS extensions read App Group UserDefaults written by main app.
+Android FGS reads flat snapshots + MMKV persist keys (in-process memory cache on the poll path).
+iOS extensions read App Group UserDefaults written by the main app.
 ```
+
+JS writers share `source/store/syncNativeSnapshot.ts` (`createNativeSnapshotSync`): dedupe identical JSON, then Turbo
+Module write, or MMKV fallback if the module is unavailable. Keep the three Kotlin/Swift snapshot stores separate —
+monitoring/settings still migrate legacy Zustand blobs; tracking does not.
 
 Contract source of truth: `source/store/persistSchema.ts` ↔ `android/.../PersistSchema.kt` ↔
 `ios/Shared/KeeptAppGroup.swift`.
@@ -328,25 +359,29 @@ Contract source of truth: `source/store/persistSchema.ts` ↔ `android/.../Persi
 
 ### iOS runtime
 
-| Component                          | Role                                                     |
-| ---------------------------------- | -------------------------------------------------------- |
-| `KeeptMonitoringScheduler`         | DeviceActivity schedule + monitor events                 |
-| `KeeptMonitor` extension           | Warnings + ManagedSettings shields                       |
-| `KeeptReport` extension            | Daily usage into App Group                               |
-| `KeeptTurboModuleEventDispatchers` | Routes lifecycle signals to Turbo Module                 |
-| `KeeptLocalDayChangeScheduler`     | `BGAppRefreshTask` at midnight + significant time change |
+| Component                          | Role                                                                                         |
+| ---------------------------------- | -------------------------------------------------------------------------------------------- |
+| `AppDelegate`                      | Firebase + one-time `BGTaskScheduler` registration at process launch                         |
+| `SceneDelegate`                    | UIWindowScene host; single `startReactNative` for module `"Keept"`                           |
+| `KeeptAppLifecycleBridge`          | Foreground / timezone observers; always re-schedules midnight refresh after Turbo invalidate |
+| `KeeptNotificationAuthorization`   | Cached auth; first main-thread read sync-seeds before async refresh                          |
+| `KeeptMonitoringScheduler`         | DeviceActivity schedule; emits monitor state only in the app target (not the extension)      |
+| `KeeptMonitor` extension           | Warnings + ManagedSettings shields                                                           |
+| `KeeptReport` extension            | Daily usage into App Group                                                                   |
+| `KeeptTurboModuleEventDispatchers` | Routes lifecycle signals to Turbo Module                                                     |
+| `KeeptLocalDayChangeScheduler`     | `BGAppRefreshTask` (`com.keept.local-day-change`) + significant time change                  |
 
 ## npm scripts
 
-| Script                             | Description                              |
-| ---------------------------------- | ---------------------------------------- |
-| `npm start`                        | Metro bundler                            |
-| `npm run android` / `npm run ios`  | Run on device / simulator                |
-| `npm run check`                    | CI gate: lint, format, types, tests      |
-| `npm test`                         | Jest                                     |
-| `npm run android:bundle:release`   | Release AAB                              |
-| `npm run android:assemble:release` | Release APK                              |
-| `npm run android:release:check`    | Requires `keystore.properties` + `check` |
+| Script                            | Description                              |
+| --------------------------------- | ---------------------------------------- |
+| `npm start`                       | Metro bundler                            |
+| `npm run android` / `npm run ios` | Run on device / simulator                |
+| `npm run check`                   | CI gate: lint, format, types, tests      |
+| `npm test`                        | Jest                                     |
+| `npm run android:release:check`   | Requires `keystore.properties` + `check` |
+
+Release artifacts (from `android/`): `./gradlew bundleRelease` (AAB), `./gradlew assembleRelease` (APK).
 
 **Git hooks:** pre-commit runs lint-staged on staged files; pre-push runs Jest `--findRelatedTests` for changed TS/JS
 only (full gate is in CI).
@@ -354,9 +389,9 @@ only (full gate is in CI).
 ## Testing
 
 ```sh
-npm test              # local (31 suites)
+npm test              # local (34 suites)
 npm run check         # lint + format + types + Jest (CI gate)
-cd android && ./gradlew :app:testDebugUnitTest   # Kotlin unit tests (Robolectric)
+cd android && ./gradlew assembleDebug :app:testDebugUnitTest   # app Kotlin unit tests only
 maestro test .maestro/android-smoke.yaml    # optional device smoke (not in CI)
 ```
 
@@ -381,6 +416,10 @@ GitHub Actions (`.github/workflows/ci.yml`), New Architecture enabled:
 
 1. **check** — `npm run check` on Node 22
 2. **android** — `assembleDebug` + `:app:testDebugUnitTest` (API 37, NDK 27.1.12297006), only after **check**
+
+Gradle is scoped to **`:app`** unit tests. Dependency modules (notably `@react-native-firebase/app`) ship Robolectric
+suites that fail when `compileSdk` 37 exceeds Robolectric 4.14’s max API 35 — do not run unscoped `testDebugUnitTest` in
+CI.
 
 Runs on every PR once (not also on the branch push), and on push to `main` / `dev` / `release/**`. iOS is local-only
 (see above). Husky is disabled in CI (`HUSKY=0`).
@@ -424,11 +463,14 @@ Expected FGS `background_start_blocked` (API 34+) is breadcrumb-only in Crashlyt
 ## Contributing notes
 
 - Bump persist versions in `persistSchema.ts` and native counterparts when stored shapes change.
-- Prefer `syncNativeTrackingSnapshot()` / `syncNativeMonitoringSnapshot()` / `syncNativeSettingsSnapshot()` over writing
-  MMKV snapshot keys from JS.
+- Prefer `syncNativeTrackingSnapshot()` / `syncNativeMonitoringSnapshot()` / `syncNativeSettingsSnapshot()` (built on
+  `createNativeSnapshotSync`) over writing MMKV snapshot keys from JS. Do not merge the three native snapshot store
+  types — monitoring/settings still migrate legacy Zustand; tracking does not.
 - Turbo Module codegen files must be named `Native*.ts` and keep `TurboModuleRegistry.get` in the same file as `Spec`.
 - Import the module in app code via `@/specs` (`keeptTurboModuleApi`), not `NativeKeeptTurboModule*.ts` directly.
 - Do not add JS polling timers — use native events or `scheduleMicrotask`.
 - Do not rename legacy `com.focusguard` Kotlin package or `FocusGuard` Xcode target without a coordinated migration.
+- iOS: keep `registerBackgroundTasks()` in `AppDelegate` (before launch returns); keep a single `startReactNative` in
+  `SceneDelegate`; re-arm midnight refresh via `KeeptAppLifecycleBridge` after Turbo Module invalidate.
 - Android edge-to-edge: keep system bar colors transparent; use `SystemBarAppearance` + JS `SafeArea` / `SystemChrome`
   (barStyle only).
