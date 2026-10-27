@@ -442,16 +442,16 @@ Run on a physical Android 14+ device (and one Android 15+ if available) before s
 
 ## Follow-ups (intentional tech debt)
 
-| Item                                                   | Notes                                                                                                                                                                               |
-| ------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Firebase iOS via CocoaPods + `$RNFirebaseDisableSPM`   | Required with `use_frameworks! :linkage => :static` (SPM Firebase conflicts). Invertase deprecates CocoaPods Firebase after ~Oct 2026 — plan SPM or dynamic frameworks before then. |
-| `android.builtInKotlin=false` / `android.newDsl=false` | AGP 9 opt-outs; remove when migrating to AGP 10+.                                                                                                                                   |
-| Legacy Zustand → flat migrate                          | Monitoring/settings native reads use flat snapshots; one-time migrate from Zustand blobs remains until installs without flat keys are gone.                                         |
-| Legacy namespaces                                      | `com.keept` app id vs `com.focusguard` Kotlin / `FocusGuard` Xcode target — keep until coordinated rename.                                                                          |
-| `source/types/react-native-codegen.d.ts`               | Ambient types for Strict API + codegen deep import; drop when RN exports public CodegenTypes.                                                                                       |
-| `targetSdk` 36 vs `compileSdk` 37                      | Matches RN 0.88 template; bump target when Play policy + edge-to-edge QA allow.                                                                                                     |
-| No iOS CI                                              | Pods/Xcode/Firebase regressions stay local-only.                                                                                                                                    |
-| Instrumented `androidTest` suite                       | Unit + Robolectric cover native stores; full device instrumentation still optional.                                                                                                 |
+| Item                                                   | Notes                                                                                                                                       |
+| ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| Firebase iOS via SPM + dynamic frameworks              | Required for `@react-native-firebase` 27+ / Firebase Apple SDK 13+. Do not set `$RNFirebaseDisableSPM`.                                     |
+| `android.builtInKotlin=false` / `android.newDsl=false` | AGP 9 opt-outs; remove when migrating to AGP 10+.                                                                                           |
+| Legacy Zustand → flat migrate                          | Monitoring/settings native reads use flat snapshots; one-time migrate from Zustand blobs remains until installs without flat keys are gone. |
+| Legacy namespaces                                      | `com.keept` app id vs `com.focusguard` Kotlin / `FocusGuard` Xcode target — keep until coordinated rename.                                  |
+| `source/types/react-native-codegen.d.ts`               | Ambient types for Strict API + codegen deep import; drop when RN exports public CodegenTypes.                                               |
+| `targetSdk` 36 vs `compileSdk` 37                      | Matches RN 0.88 template; bump target when Play policy + edge-to-edge QA allow.                                                             |
+| No iOS CI                                              | Pods/Xcode/Firebase regressions stay local-only.                                                                                            |
+| Instrumented `androidTest` suite                       | Unit + Robolectric cover native stores; full device instrumentation still optional.                                                         |
 
 Native flat snapshots keep an in-process memory cache (skip MMKV `decodeString` on the FGS poll path); updates must go
 through Turbo `sync*`; write populates cache. Predictive back is on (`enableOnBackInvokedCallback=true`) — re-verify nav
