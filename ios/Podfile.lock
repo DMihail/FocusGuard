@@ -43,7 +43,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
-  - NitroModules (0.37.1):
+  - NitroModules (0.37.2):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -1402,7 +1402,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
-  - react-native-safe-area-context (5.11.0):
+  - react-native-safe-area-context (5.11.1):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -1416,8 +1416,8 @@ PODS:
     - React-graphics
     - React-ImageManager
     - React-jsi
-    - react-native-safe-area-context/common (= 5.11.0)
-    - react-native-safe-area-context/fabric (= 5.11.0)
+    - react-native-safe-area-context/common (= 5.11.1)
+    - react-native-safe-area-context/fabric (= 5.11.1)
     - React-NativeModulesApple
     - React-RCTFabric
     - React-renderercss
@@ -1427,7 +1427,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
-  - react-native-safe-area-context/common (5.11.0):
+  - react-native-safe-area-context/common (5.11.1):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -1450,7 +1450,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
-  - react-native-safe-area-context/fabric (5.11.0):
+  - react-native-safe-area-context/fabric (5.11.1):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -1913,7 +1913,7 @@ PODS:
     - ReactNativeDependencies
     - RNFBApp
     - Yoga
-  - RNGestureHandler (3.4.0):
+  - RNGestureHandler (3.5.0):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -2064,7 +2064,7 @@ PODS:
     - ReactNativeDependencies
     - RNWorklets
     - Yoga
-  - RNScreens (4.30.0):
+  - RNScreens (4.30.1):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -2087,9 +2087,9 @@ PODS:
     - ReactCodegen
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
-    - RNScreens/common (= 4.30.0)
+    - RNScreens/common (= 4.30.1)
     - Yoga
-  - RNScreens/common (4.30.0):
+  - RNScreens/common (4.30.1):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -2113,7 +2113,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
-  - RNSVG (15.16.0):
+  - RNSVG (15.16.1):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -2135,9 +2135,9 @@ PODS:
     - ReactCodegen
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
-    - RNSVG/common (= 15.16.0)
+    - RNSVG/common (= 15.16.1)
     - Yoga
-  - RNSVG/common (15.16.0):
+  - RNSVG/common (15.16.1):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -2554,7 +2554,7 @@ SPEC CHECKSUMS:
   hermes-engine: 79484fc4e58f328d01b9339ef899ca633d3702ee
   MMKVCore: 3d16ce9f7d411e135020915fde98a056859a1efa
   NitroMmkv: 9d26ccadb2dd41ac74f6ca921fe2c3d74c9c40e0
-  NitroModules: 92c2f230ec822ce8be72c8330fe292cdcf24e3a4
+  NitroModules: 7bf29af7ff79c45abd39262df30a18b23dd5b04a
   RCT-Folly: 82921e585c0400eda46fac1068297aa9dfb035e4
   RCTDeprecation: c62b9b3fbf0d26b76755f3ebd1c913a4fb469dde
   RCTRequired: d0563e2484633b657976195f0543e180133afd3a
@@ -2595,7 +2595,7 @@ SPEC CHECKSUMS:
   React-Mapbuffer: 8a30d6d1aa30274771dc5d22f6778fa7689d98b8
   React-microtasksnativemodule: c5df4b7fe2553c25d419b99c586179ab77594b5b
   React-mutationobservernativemodule: b85faf3c54644c0ef2c758cd8c4e6ce16fb1f8ae
-  react-native-safe-area-context: e7f23745246a0cd164fd478373874fd7872788bf
+  react-native-safe-area-context: f54c903d3a8c8ddd602e85d4e5bcfe9944de85bc
   React-NativeModulesApple: 8cfb2f308f48c48068c96b932e7f0e4297c23342
   React-networking: 6e2fa1cf6d44aa04a11e9f72900361731ddf74d6
   React-oscompat: f27d5f926c696f407b81a282fa15d68c881d7b3d
@@ -2635,11 +2635,11 @@ SPEC CHECKSUMS:
   ReactNativeDependencies: a5164c3ebbe90d992022b5d9cbabbf770a6d7d05
   RNFBApp: 3af4345aa6ee7495bc826962d3db896a0fe5f4ad
   RNFBCrashlytics: c4bb4c65f80db40673352841715f38fb832d4512
-  RNGestureHandler: abdc2d49ac3970908acd127980b429d377927ee1
+  RNGestureHandler: e11840399a9e42f90b6a69699a5b232bddb417d5
   RNLocalize: ba928ec28d6eeb161485a34a2a90ba98fe1ab4f6
   RNReanimated: 5c641cc430b7255eae87c8039204eb0f816ea1b8
-  RNScreens: 96c6d636ee9b2b4c3f062db05eecc59217e7f7df
-  RNSVG: c3f9498aa208ae99a217dd3d698251677b224890
+  RNScreens: fdca179295dcb421672af2a9e2979a9cebeda720
+  RNSVG: 62acb707b4fd178063d785d1cdebb4f2c20233eb
   RNWorklets: c05b04d721cccc1d44182425cd09efeddb6b1bbe
   SocketRocket: 37aec555668fb852ec12e3c0de59a86ca58f0871
   Yoga: d1c536142c5ff8ec8cd856ab2a7c227a1d875c8e
