@@ -41,7 +41,7 @@ import UIKit
       KeeptLocalDayChangeNotifier.checkAndNotify()
     }
 
-    // Turbo Module invalidate cancels the pending refresh; a later start() must re-arm it.
+    // Re-arm in case a previous stop() left the task cancelled (legacy invalidate path).
     KeeptLocalDayChangeScheduler.schedule()
   }
 }

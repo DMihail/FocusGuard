@@ -10,7 +10,8 @@ export const storage = createMMKV({
   id: MMKV_INSTANCE_ID,
   mode: 'multi-process',
   readOnly: false,
-  compareBeforeSet: false,
+  // Skip identical Zustand/history rewrites that are common on the live-usage path.
+  compareBeforeSet: true,
 });
 
 /** Zustand `StateStorage` adapter backed by MMKV. */

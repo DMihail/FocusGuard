@@ -76,8 +76,9 @@
 
 - (void)invalidate
 {
-  [KeeptLocalDayChangeScheduler stop];
-
+  // Keep the midnight BG refresh armed across Turbo remounts; lifecycle bridge
+  // re-schedules on start()/foreground. Stopping here left a gap until the next
+  // significant-time event if the app stayed backgrounded.
   if (_permissionsChangedToken != nil) {
     [KeeptTurboModuleEventDispatchers unregisterPermissionsChanged:_permissionsChangedToken];
     _permissionsChangedToken = nil;

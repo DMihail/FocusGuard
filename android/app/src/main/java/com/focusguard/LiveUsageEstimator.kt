@@ -1,45 +1,56 @@
 package com.focusguard
 
 /**
- * Combines persisted daily usage from [DailyUsageRepository] with the current foreground
- * session, because [android.app.usage.UsageStatsManager] often lags by several minutes.
+ * Combines persisted daily usage from [DailyUsageRepository] with open foreground
+ * sessions, because [android.app.usage.UsageStatsManager] often lags by several minutes.
+ *
+ * Supports multiple concurrent sessions (split-screen / PiP) so each open tracked package
+ * accrues wall-clock independently.
  */
 class LiveUsageEstimator(
     private val dailyUsageRepository: DailyUsageRepository,
 ) {
 
-    private var sessionPackage: String? = null
-    private var sessionStartedAtMs: Long = 0L
+    private val sessionStartedAtMsByPackage = mutableMapOf<String, Long>()
     private val baselineMsByPackage = mutableMapOf<String, Long>()
 
     fun onTrackedAppForeground(packageName: String) {
-        if (sessionPackage == packageName) {
+        if (sessionStartedAtMsByPackage.containsKey(packageName)) {
             return
         }
 
-        flushActiveSession()
-        sessionPackage = packageName
-        sessionStartedAtMs = System.currentTimeMillis()
+        sessionStartedAtMsByPackage[packageName] = System.currentTimeMillis()
         val persistedMs = dailyUsageRepository.getTodayForegroundMs(packageName)
         val previousEstimate = baselineMsByPackage[packageName] ?: 0L
         baselineMsByPackage[packageName] = maxOf(previousEstimate, persistedMs)
     }
 
     fun isSessionActiveFor(packageName: String): Boolean =
-        sessionPackage == packageName && sessionStartedAtMs > 0L
+        sessionStartedAtMsByPackage.containsKey(packageName)
+
+    /** Starts sessions for [activePackages] and flushes any package that left the set. */
+    fun syncActiveSessions(activePackages: Set<String>) {
+        val inactive = sessionStartedAtMsByPackage.keys.filter { packageName -> packageName !in activePackages }
+        for (packageName in inactive) {
+            flushSession(packageName)
+            sessionStartedAtMsByPackage.remove(packageName)
+        }
+
+        for (packageName in activePackages) {
+            onTrackedAppForeground(packageName)
+        }
+    }
 
     fun clearSession() {
-        flushActiveSession()
-        sessionPackage = null
-        sessionStartedAtMs = 0L
+        flushActiveSessions()
+        sessionStartedAtMsByPackage.clear()
     }
 
     /** Clears stale per-package baselines after a local day rollover. */
     fun clearBaselinesForNewDay() {
-        flushActiveSession()
+        flushActiveSessions()
         baselineMsByPackage.clear()
-        sessionPackage = null
-        sessionStartedAtMs = 0L
+        sessionStartedAtMsByPackage.clear()
     }
 
     fun getEffectiveUsageMs(packageName: String): Long =
@@ -51,8 +62,9 @@ class LiveUsageEstimator(
             return emptyMap()
         }
 
-        val activePackage = sessionPackage
-        val inactivePackages = packageNames.filter { packageName -> packageName != activePackage }
+        val nowMs = System.currentTimeMillis()
+        val inactivePackages =
+            packageNames.filter { packageName -> !sessionStartedAtMsByPackage.containsKey(packageName) }
         val persistedByPackage =
             if (inactivePackages.isEmpty()) {
                 emptyMap()
@@ -61,9 +73,10 @@ class LiveUsageEstimator(
             }
 
         return packageNames.associateWith { packageName ->
-            if (packageName == activePackage && sessionStartedAtMs > 0L) {
+            val sessionStartedAtMs = sessionStartedAtMsByPackage[packageName]
+            if (sessionStartedAtMs != null && sessionStartedAtMs > 0L) {
                 val baselineMs = baselineMsByPackage[packageName] ?: 0L
-                val sessionMs = (System.currentTimeMillis() - sessionStartedAtMs).coerceAtLeast(0L)
+                val sessionMs = (nowMs - sessionStartedAtMs).coerceAtLeast(0L)
                 baselineMs + sessionMs
             } else {
                 val persistedMs = persistedByPackage[packageName] ?: 0L
@@ -72,17 +85,24 @@ class LiveUsageEstimator(
         }
     }
 
-    private fun flushActiveSession() {
-        val activePackage = sessionPackage ?: return
+    private fun flushActiveSessions() {
+        val packages = sessionStartedAtMsByPackage.keys.toList()
+        for (packageName in packages) {
+            flushSession(packageName)
+            sessionStartedAtMsByPackage.remove(packageName)
+        }
+    }
+
+    private fun flushSession(packageName: String) {
+        val sessionStartedAtMs = sessionStartedAtMsByPackage[packageName] ?: return
 
         if (sessionStartedAtMs <= 0L) {
             return
         }
 
-        val persistedMs = dailyUsageRepository.getTodayForegroundMs(activePackage)
-        val baselineMs = baselineMsByPackage[activePackage] ?: persistedMs
+        val persistedMs = dailyUsageRepository.getTodayForegroundMs(packageName)
+        val baselineMs = baselineMsByPackage[packageName] ?: persistedMs
         val sessionMs = (System.currentTimeMillis() - sessionStartedAtMs).coerceAtLeast(0L)
-        baselineMsByPackage[activePackage] = maxOf(baselineMs + sessionMs, persistedMs)
-        sessionStartedAtMs = 0L
+        baselineMsByPackage[packageName] = maxOf(baselineMs + sessionMs, persistedMs)
     }
 }

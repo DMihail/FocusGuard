@@ -33,6 +33,8 @@ class ForegroundAppDetector(
 
     private var stickyForeground: String? = null
     private var stickyForegroundAt = 0L
+    private var stickyOpenPackages: Set<String> = emptySet()
+    private var stickyOpenAt = 0L
     private var statsFallbackPollCounter = 0
 
     /** When true, skips sticky caches and queries UsageEvents every poll (used during active blocks). */
@@ -40,8 +42,21 @@ class ForegroundAppDetector(
     var aggressivePolling: Boolean = false
 
     /** Packages with an open foreground session (split-screen, PiP, multi-window). */
-    fun getOpenForegroundPackages(): Set<String> =
-        OpenSessionTracker.scanOpenPackages(usageStatsManager)
+    fun getOpenForegroundPackages(): Set<String> {
+        val now = System.currentTimeMillis()
+        if (
+            !aggressivePolling &&
+            stickyOpenPackages.isNotEmpty() &&
+            now - stickyOpenAt <= STICKY_QUERY_SKIP_MS
+        ) {
+            return stickyOpenPackages
+        }
+
+        val scanned = OpenSessionTracker.scanOpenPackages(usageStatsManager, now)
+        stickyOpenPackages = scanned
+        stickyOpenAt = now
+        return scanned
+    }
 
     /**
      * Returns the package name of the app that most recently moved to the foreground,

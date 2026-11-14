@@ -1866,7 +1866,7 @@ PODS:
     - React-utils (= 0.88.1)
     - ReactNativeDependencies
   - ReactNativeDependencies (0.88.1)
-  - RNFBApp (27.1.0):
+  - RNFBApp (27.1.1):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -1889,7 +1889,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
-  - RNFBCrashlytics (27.1.0):
+  - RNFBCrashlytics (27.1.1):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -2633,8 +2633,8 @@ SPEC CHECKSUMS:
   ReactCodegen: 566449280642ce6af67e3422c127b33c58899e0d
   ReactCommon: b63ce798b898ed77c6cfdeb80b18080161f52ed5
   ReactNativeDependencies: a5164c3ebbe90d992022b5d9cbabbf770a6d7d05
-  RNFBApp: 3af4345aa6ee7495bc826962d3db896a0fe5f4ad
-  RNFBCrashlytics: c4bb4c65f80db40673352841715f38fb832d4512
+  RNFBApp: d1b3fd24f876a6054f6d7c1cdd7f979bfc6bd2f4
+  RNFBCrashlytics: 9cbd5b3ba802a92c9eca397b79aafd36f1c05888
   RNGestureHandler: e11840399a9e42f90b6a69699a5b232bddb417d5
   RNLocalize: ba928ec28d6eeb161485a34a2a90ba98fe1ab4f6
   RNReanimated: 5c641cc430b7255eae87c8039204eb0f816ea1b8
