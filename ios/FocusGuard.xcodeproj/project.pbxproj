@@ -48,7 +48,6 @@
 		C2D3E5E21A680F5B00A75B9A /* IosTrackingSnoozeStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2D3E5411A680F5B00A75B9A /* IosTrackingSnoozeStore.swift */; };
 		C2D3E5F21A680F5B00A75B9A /* IosDailyWarningStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2D3E5511A680F5B00A75B9A /* IosDailyWarningStore.swift */; };
 		C2D3E6021A680F5B00A75B9A /* IosShieldStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2D3E5611A680F5B00A75B9A /* IosShieldStore.swift */; };
-		C2D3E6121A680F5B00A75B9A /* KeeptMonitoringScheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2D3E5711A680F5B00A75B9A /* KeeptMonitoringScheduler.swift */; };
 		C2D3E6221A680F5B00A75B9A /* KeeptMonitorActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2D3E5811A680F5B00A75B9A /* KeeptMonitorActions.swift */; };
 		C89960D5814A437FA4D5E865 /* Inter-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4FF812CD12A24C7C9F6AC828 /* Inter-Regular.ttf */; };
 		D170490DEF45D6F0125B19E7 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */; };
@@ -541,7 +540,7 @@
 			files = (
 			);
 			inputPaths = (
-				"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Resources/DWARF/${TARGET_NAME}",
+				"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Resources/DWARF/${EXECUTABLE_NAME}",
 				"$(BUILT_PRODUCTS_DIR)/$(INFOPLIST_PATH)",
 			);
 			name = "[CP-User] [RNFB] Crashlytics Configuration";
@@ -587,7 +586,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "rm -f \"${CONFIGURATION_BUILD_DIR}\"/GoogleAppMeasurement.xcframework-ios.signature\nrm -f \"${CONFIGURATION_BUILD_DIR}\"/GoogleAppMeasurementIdentitySupport.xcframework-ios.signature\nrm -f \"${CONFIGURATION_BUILD_DIR}\"/GoogleAdsOnDeviceConversion.xcframework-ios.signature\nrm -f \"${CONFIGURATION_BUILD_DIR}\"/FirebaseAnalytics.xcframework-ios.signature\nrm -f \"${CONFIGURATION_BUILD_DIR}\"/FirebaseFirestoreInternal.xcframework-ios.signature\nrm -f \"${CONFIGURATION_BUILD_DIR}\"/absl.xcframework-ios.signature\nrm -f \"${CONFIGURATION_BUILD_DIR}\"/grpc.xcframework-ios.signature\nrm -f \"${CONFIGURATION_BUILD_DIR}\"/grpcpp.xcframework-ios.signature\nrm -f \"${CONFIGURATION_BUILD_DIR}\"/openssl_grpc.xcframework-ios.signature\n";
+			shellScript = "rm -f \"${CONFIGURATION_BUILD_DIR}\"/GoogleAppMeasurement.xcframework-ios.signature\nrm -f \"${CONFIGURATION_BUILD_DIR}\"/GoogleAppMeasurement.xcframework-ios-simulator.signature\nrm -f \"${CONFIGURATION_BUILD_DIR}\"/GoogleAppMeasurementIdentitySupport.xcframework-ios.signature\nrm -f \"${CONFIGURATION_BUILD_DIR}\"/GoogleAppMeasurementIdentitySupport.xcframework-ios-simulator.signature\nrm -f \"${CONFIGURATION_BUILD_DIR}\"/GoogleAdsOnDeviceConversion.xcframework-ios.signature\nrm -f \"${CONFIGURATION_BUILD_DIR}\"/GoogleAdsOnDeviceConversion.xcframework-ios-simulator.signature\nrm -f \"${CONFIGURATION_BUILD_DIR}\"/FirebaseAnalytics.xcframework-ios.signature\nrm -f \"${CONFIGURATION_BUILD_DIR}\"/FirebaseAnalytics.xcframework-ios-simulator.signature\nrm -f \"${CONFIGURATION_BUILD_DIR}\"/FirebaseFirestoreInternal.xcframework-ios.signature\nrm -f \"${CONFIGURATION_BUILD_DIR}\"/FirebaseFirestoreInternal.xcframework-ios-simulator.signature\nrm -f \"${CONFIGURATION_BUILD_DIR}\"/absl.xcframework-ios.signature\nrm -f \"${CONFIGURATION_BUILD_DIR}\"/absl.xcframework-ios-simulator.signature\nrm -f \"${CONFIGURATION_BUILD_DIR}\"/grpc.xcframework-ios.signature\nrm -f \"${CONFIGURATION_BUILD_DIR}\"/grpc.xcframework-ios-simulator.signature\nrm -f \"${CONFIGURATION_BUILD_DIR}\"/grpcpp.xcframework-ios.signature\nrm -f \"${CONFIGURATION_BUILD_DIR}\"/grpcpp.xcframework-ios-simulator.signature\nrm -f \"${CONFIGURATION_BUILD_DIR}\"/openssl_grpc.xcframework-ios.signature\nrm -f \"${CONFIGURATION_BUILD_DIR}\"/openssl_grpc.xcframework-ios-simulator.signature\n";
 		};
 		C38B50BA6285516D6DCD4F65 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -694,7 +693,6 @@
 				C2D3E5E21A680F5B00A75B9A /* IosTrackingSnoozeStore.swift in Sources */,
 				C2D3E5F21A680F5B00A75B9A /* IosDailyWarningStore.swift in Sources */,
 				C2D3E6021A680F5B00A75B9A /* IosShieldStore.swift in Sources */,
-				C2D3E6121A680F5B00A75B9A /* KeeptMonitoringScheduler.swift in Sources */,
 				C2D3E6221A680F5B00A75B9A /* KeeptMonitorActions.swift in Sources */,
 				D2E3F5811A680F5B00A75B9A /* IosDailyUsageStore.swift in Sources */,
 			);

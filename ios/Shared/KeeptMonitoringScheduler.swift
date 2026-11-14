@@ -58,14 +58,9 @@ enum KeeptMonitoringScheduler {
     emitMonitorState(isRunning: false)
   }
 
-  #if canImport(React)
-  /// The DeviceActivity extension compiles this file and has no React Native bridge.
   private static func emitMonitorState(isRunning: Bool) {
     KeeptTurboModuleEventDispatchers.emitMonitorServiceState(isRunning: isRunning)
   }
-  #else
-  private static func emitMonitorState(isRunning _: Bool) {}
-  #endif
 
   static func rescheduleIfRunning() {
     guard isRunning else {

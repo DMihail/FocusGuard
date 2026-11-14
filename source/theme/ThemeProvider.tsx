@@ -2,6 +2,7 @@
 
 import React, { type ReactNode, useEffect } from 'react';
 
+import { usePersistHydrated } from '@/hooks/usePersistHydrated';
 import { useSystemColorScheme } from '@/hooks/useSystemColorScheme';
 import { ThemeColorsContext, ThemeShellContext } from '@/hooks/useTheme';
 import { syncNativeUiThemePreference } from '@/specs/keeptUiThemeClient';
@@ -14,15 +15,19 @@ type ThemeProviderProps = {
 };
 
 export const ThemeProvider = ({ children }: ThemeProviderProps) => {
+  const hasSettingsHydrated = usePersistHydrated(settingsStore);
   const preference = settingsStore((state) => state.themePreference);
+  const effectivePreference = hasSettingsHydrated ? preference : 'system';
   const systemScheme = useSystemColorScheme();
-  const { colors, shell, isTransitioning } = useThemeTransition(preference, systemScheme);
+  const { colors, shell, isTransitioning } = useThemeTransition(effectivePreference, systemScheme);
 
   useEffect(() => {
-    if (!isTransitioning) {
-      syncNativeUiThemePreference(preference);
+    if (!hasSettingsHydrated || isTransitioning) {
+      return;
     }
-  }, [preference, isTransitioning]);
+
+    syncNativeUiThemePreference(preference);
+  }, [hasSettingsHydrated, preference, isTransitioning]);
 
   return (
     <ThemeShellContext value={shell}>

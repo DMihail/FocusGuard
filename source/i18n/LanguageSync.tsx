@@ -2,6 +2,7 @@
 
 import { type ReactNode, useEffect } from 'react';
 
+import { usePersistHydrated } from '@/hooks/usePersistHydrated';
 import { subscribeAppForeground } from '@/runtime/appForegroundBus';
 import { settingsStore } from '@/store';
 
@@ -14,11 +15,13 @@ type LanguageSyncProps = {
 
 /** Keeps i18next in sync with settings and system locale changes. */
 export const LanguageSync = ({ children }: LanguageSyncProps) => {
+  const hasSettingsHydrated = usePersistHydrated(settingsStore);
   const languagePreference = settingsStore((state) => state.languagePreference);
+  const effectivePreference = hasSettingsHydrated ? languagePreference : 'system';
 
   useEffect(() => {
-    i18n.changeLanguage(resolveLanguage(languagePreference)).catch(() => undefined);
-  }, [languagePreference]);
+    i18n.changeLanguage(resolveLanguage(effectivePreference)).catch(() => undefined);
+  }, [effectivePreference]);
 
   useEffect(() => {
     return subscribeAppForeground(() => {

@@ -167,9 +167,18 @@ class TrackingEngine(
             packagesToEvaluate.add(foregroundApp)
         }
 
+        liveUsageEstimator.syncActiveSessions(packagesToEvaluate)
+
+        val usageByPackage =
+            if (trackedApps.isEmpty()) {
+                emptyMap()
+            } else {
+                liveUsageEstimator.getEffectiveUsageMsForPackages(trackedApps)
+            }
+
         for (packageName in packagesToEvaluate) {
-            ensureLiveSession(packageName)
-            val usedTodayMs = liveUsageEstimator.getEffectiveUsageMs(packageName)
+            val usedTodayMs = usageByPackage[packageName]
+                ?: liveUsageEstimator.getEffectiveUsageMs(packageName)
             evaluateTrackedApp(packageName, usedTodayMs)
         }
 
@@ -211,14 +220,15 @@ class TrackingEngine(
                 ?: trackedOpenSessions.firstOrNull()
                 ?: activeBlockPackage?.takeIf { packageName -> isTrackedApp(packageName) }
 
-        if (widgetPackage != null) {
-            publishWidgetUpdate(widgetPackage to liveUsageEstimator.getEffectiveUsageMs(widgetPackage))
-        } else {
-            publishWidgetUpdate()
-        }
+        val widgetOverride =
+            widgetPackage?.let { packageName ->
+                packageName to (usageByPackage[packageName] ?: liveUsageEstimator.getEffectiveUsageMs(packageName))
+            }
 
+        publishWidgetUpdate(widgetOverride, usageByPackage)
         publishTrackedUsageChanged(
             enteredNewForeground && foregroundApp?.let(::isTrackedApp) == true,
+            usageByPackage,
         )
     }
 
@@ -258,22 +268,21 @@ class TrackingEngine(
         usageRepository.invalidatePackages(packagesToRefresh)
     }
 
-    private fun ensureLiveSession(packageName: String) {
-        if (!liveUsageEstimator.isSessionActiveFor(packageName)) {
-            liveUsageEstimator.onTrackedAppForeground(packageName)
-        }
-    }
-
-    private fun publishTrackedUsageChanged(urgent: Boolean) {
-        if (trackedApps.isEmpty()) {
+    private fun publishTrackedUsageChanged(
+        urgent: Boolean,
+        usageByPackage: Map<String, Long>,
+    ) {
+        if (trackedApps.isEmpty() || usageByPackage.isEmpty()) {
             return
         }
 
-        val usageByPackage = liveUsageEstimator.getEffectiveUsageMsForPackages(trackedApps)
         TrackedUsageChangeEmitter.maybeEmit(context, usageByPackage, urgent = urgent)
     }
 
-    private fun publishWidgetUpdate(foregroundUsageOverride: Pair<String, Long>? = null) {
+    private fun publishWidgetUpdate(
+        foregroundUsageOverride: Pair<String, Long>? = null,
+        usageByPackage: Map<String, Long> = emptyMap(),
+    ) {
         if (WidgetUpdater.shouldSkipUsagePrecomputation()) {
             return
         }
@@ -281,14 +290,10 @@ class TrackingEngine(
         val usageOverrides =
             if (trackedApps.isEmpty()) {
                 null
+            } else if (foregroundUsageOverride != null) {
+                usageByPackage + mapOf(foregroundUsageOverride.first to foregroundUsageOverride.second)
             } else {
-                val effectiveUsage = liveUsageEstimator.getEffectiveUsageMsForPackages(trackedApps)
-
-                if (foregroundUsageOverride != null) {
-                    effectiveUsage + mapOf(foregroundUsageOverride.first to foregroundUsageOverride.second)
-                } else {
-                    effectiveUsage
-                }
+                usageByPackage
             }
         val foregroundPackage = foregroundStabilizer.stableForeground
         val urgent =

@@ -8,8 +8,14 @@ enum KeeptNotificationAuthorization {
   private static var hasCachedAuthorization = false
 
   static var isAuthorized: Bool {
-    if Thread.isMainThread, hasCachedAuthorizationValue() {
+    if hasCachedAuthorizationValue() {
       return readCachedAuthorized()
+    }
+
+    // Never block the main thread waiting for UNUserNotificationCenter.
+    if Thread.isMainThread {
+      refreshCachedAuthorization()
+      return false
     }
 
     return fetchAuthorizedSynchronously()

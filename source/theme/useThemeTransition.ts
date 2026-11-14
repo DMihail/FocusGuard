@@ -20,6 +20,8 @@ import { areColorPalettesEqual, interpolateColorPalette } from './interpolateCol
 import type { ColorPalette, Theme, ThemePreference } from './types';
 
 const THEME_TRANSITION_MS = 380;
+/** Discrete blend steps (~10) instead of a JS setState every animation frame. */
+const THEME_BLEND_STEPS = 10;
 
 type ThemeTransitionResult = {
   colors: ColorPalette;
@@ -45,6 +47,7 @@ export const useThemeTransition = (
   const displayColorsRef = useRef(targetTheme.colors);
   const fromColorsRef = useRef(targetTheme.colors);
   const targetThemeRef = useRef(targetTheme);
+  const lastAppliedStepRef = useRef(THEME_BLEND_STEPS);
   const progress = useSharedValue(1);
   const reduceMotion = useReducedMotion();
   const hasMountedRef = useRef(false);
@@ -55,6 +58,7 @@ export const useThemeTransition = (
     const nextTheme = targetThemeRef.current;
     displayColorsRef.current = nextTheme.colors;
     fromColorsRef.current = nextTheme.colors;
+    lastAppliedStepRef.current = THEME_BLEND_STEPS;
     setDisplayColors(nextTheme.colors);
     setDisplayShell(toShell(nextTheme));
     setIsTransitioning(false);
@@ -65,7 +69,14 @@ export const useThemeTransition = (
       return;
     }
 
-    const nextColors = interpolateColorPalette(fromColorsRef.current, targetThemeRef.current.colors, progressValue);
+    const step = Math.min(THEME_BLEND_STEPS, Math.round(progressValue * THEME_BLEND_STEPS));
+    if (step === lastAppliedStepRef.current) {
+      return;
+    }
+
+    lastAppliedStepRef.current = step;
+    const steppedProgress = step / THEME_BLEND_STEPS;
+    const nextColors = interpolateColorPalette(fromColorsRef.current, targetThemeRef.current.colors, steppedProgress);
     displayColorsRef.current = nextColors;
     setDisplayColors(nextColors);
   }, []);
@@ -91,6 +102,7 @@ export const useThemeTransition = (
       hasMountedRef.current = true;
       displayColorsRef.current = targetTheme.colors;
       fromColorsRef.current = targetTheme.colors;
+      lastAppliedStepRef.current = THEME_BLEND_STEPS;
       setDisplayColors(targetTheme.colors);
       setDisplayShell(toShell(targetTheme));
       return;
@@ -101,6 +113,7 @@ export const useThemeTransition = (
     if (areColorPalettesEqual(currentColors, targetTheme.colors)) {
       displayColorsRef.current = targetTheme.colors;
       fromColorsRef.current = targetTheme.colors;
+      lastAppliedStepRef.current = THEME_BLEND_STEPS;
       setDisplayColors(targetTheme.colors);
       setDisplayShell(toShell(targetTheme));
       setIsTransitioning(false);
@@ -110,6 +123,7 @@ export const useThemeTransition = (
 
     suppressLayoutAnimation();
     fromColorsRef.current = currentColors;
+    lastAppliedStepRef.current = -1;
     setIsTransitioning(true);
     setDisplayShell((previousShell) => ({
       ...previousShell,

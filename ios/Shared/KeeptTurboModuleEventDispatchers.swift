@@ -26,6 +26,7 @@ private final class MonitorStateListenerToken: NSObject {
 
 /** Routes native lifecycle signals to active Turbo Module listeners. */
 @objc final class KeeptTurboModuleEventDispatchers: NSObject {
+  private static let lock = NSLock()
   private static var permissionsChangedListeners: [ListenerToken] = []
   private static var localDayChangedListeners: [DayKeyListenerToken] = []
   private static var monitorServiceStateListeners: [MonitorStateListenerToken] = []
@@ -33,10 +34,16 @@ private final class MonitorStateListenerToken: NSObject {
   private static var pendingPermissionsChanged = false
   private static var pendingLocalDayKey: String?
   private static var pendingMonitorServiceState: Bool?
+  private static var permissionsEmitScheduled = false
+  private static var trackedUsageEmitScheduled = false
+  private static var localDayEmitScheduled = false
+  private static var monitorStateEmitScheduled = false
 
   @objc static func registerPermissionsChanged(_ callback: @escaping () -> Void) -> NSObject {
     let token = ListenerToken(callback)
+    lock.lock()
     permissionsChangedListeners.append(token)
+    lock.unlock()
     replayPendingPermissionsChanged()
     return token
   }
@@ -46,12 +53,16 @@ private final class MonitorStateListenerToken: NSObject {
       return
     }
 
+    lock.lock()
     permissionsChangedListeners.removeAll { $0 === token }
+    lock.unlock()
   }
 
   @objc static func registerLocalDayChanged(_ callback: @escaping (String) -> Void) -> NSObject {
     let token = DayKeyListenerToken(callback)
+    lock.lock()
     localDayChangedListeners.append(token)
+    lock.unlock()
     replayPendingLocalDayChanged()
     return token
   }
@@ -61,12 +72,16 @@ private final class MonitorStateListenerToken: NSObject {
       return
     }
 
+    lock.lock()
     localDayChangedListeners.removeAll { $0 === token }
+    lock.unlock()
   }
 
   @objc static func registerMonitorServiceState(_ callback: @escaping (Bool) -> Void) -> NSObject {
     let token = MonitorStateListenerToken(callback)
+    lock.lock()
     monitorServiceStateListeners.append(token)
+    lock.unlock()
     replayPendingMonitorServiceState()
     return token
   }
@@ -76,12 +91,16 @@ private final class MonitorStateListenerToken: NSObject {
       return
     }
 
+    lock.lock()
     monitorServiceStateListeners.removeAll { $0 === token }
+    lock.unlock()
   }
 
   @objc static func registerTrackedUsageChanged(_ callback: @escaping () -> Void) -> NSObject {
     let token = ListenerToken(callback)
+    lock.lock()
     trackedUsageChangedListeners.append(token)
+    lock.unlock()
     return token
   }
 
@@ -90,10 +109,13 @@ private final class MonitorStateListenerToken: NSObject {
       return
     }
 
+    lock.lock()
     trackedUsageChangedListeners.removeAll { $0 === token }
+    lock.unlock()
   }
 
   @objc static func clearAll() {
+    lock.lock()
     permissionsChangedListeners.removeAll()
     localDayChangedListeners.removeAll()
     monitorServiceStateListeners.removeAll()
@@ -101,63 +123,206 @@ private final class MonitorStateListenerToken: NSObject {
     pendingPermissionsChanged = false
     pendingLocalDayKey = nil
     pendingMonitorServiceState = nil
+    permissionsEmitScheduled = false
+    trackedUsageEmitScheduled = false
+    localDayEmitScheduled = false
+    monitorStateEmitScheduled = false
+    lock.unlock()
   }
 
   @objc static func emitPermissionsChanged() {
+    lock.lock()
     if permissionsChangedListeners.isEmpty {
       pendingPermissionsChanged = true
+      lock.unlock()
       return
     }
 
-    permissionsChangedListeners.forEach { $0.handler() }
+    if permissionsEmitScheduled {
+      lock.unlock()
+      return
+    }
+
+    permissionsEmitScheduled = true
+    lock.unlock()
+    scheduleOnMain {
+      let handlers = snapshotPermissionHandlers()
+      handlers.forEach { $0() }
+    }
   }
 
   @objc static func emitLocalDayChanged(dayKey: String) {
+    lock.lock()
     if localDayChangedListeners.isEmpty {
       pendingLocalDayKey = dayKey
+      lock.unlock()
       return
     }
 
-    localDayChangedListeners.forEach { $0.handler(dayKey) }
+    pendingLocalDayKey = dayKey
+    if localDayEmitScheduled {
+      lock.unlock()
+      return
+    }
+
+    localDayEmitScheduled = true
+    lock.unlock()
+    scheduleOnMain {
+      let payload = takePendingLocalDayKey()
+      guard let dayKey = payload else {
+        return
+      }
+
+      let handlers = snapshotLocalDayHandlers()
+      handlers.forEach { $0(dayKey) }
+    }
   }
 
   @objc static func emitMonitorServiceState(isRunning: Bool) {
+    lock.lock()
     if monitorServiceStateListeners.isEmpty {
       pendingMonitorServiceState = isRunning
+      lock.unlock()
       return
     }
 
-    monitorServiceStateListeners.forEach { $0.handler(isRunning) }
+    pendingMonitorServiceState = isRunning
+    if monitorStateEmitScheduled {
+      lock.unlock()
+      return
+    }
+
+    monitorStateEmitScheduled = true
+    lock.unlock()
+    scheduleOnMain {
+      let payload = takePendingMonitorServiceState()
+      guard let isRunning = payload else {
+        return
+      }
+
+      let handlers = snapshotMonitorStateHandlers()
+      handlers.forEach { $0(isRunning) }
+    }
   }
 
   @objc static func emitTrackedUsageChanged() {
-    trackedUsageChangedListeners.forEach { $0.handler() }
+    lock.lock()
+    if trackedUsageChangedListeners.isEmpty {
+      lock.unlock()
+      return
+    }
+
+    if trackedUsageEmitScheduled {
+      lock.unlock()
+      return
+    }
+
+    trackedUsageEmitScheduled = true
+    lock.unlock()
+    scheduleOnMain {
+      let handlers = snapshotTrackedUsageHandlers()
+      handlers.forEach { $0() }
+    }
+  }
+
+  private static func scheduleOnMain(_ work: @escaping () -> Void) {
+    if Thread.isMainThread {
+      work()
+    } else {
+      DispatchQueue.main.async(execute: work)
+    }
+  }
+
+  private static func snapshotPermissionHandlers() -> [() -> Void] {
+    lock.lock()
+    permissionsEmitScheduled = false
+    let handlers = permissionsChangedListeners.map(\.handler)
+    lock.unlock()
+    return handlers
+  }
+
+  private static func snapshotTrackedUsageHandlers() -> [() -> Void] {
+    lock.lock()
+    trackedUsageEmitScheduled = false
+    let handlers = trackedUsageChangedListeners.map(\.handler)
+    lock.unlock()
+    return handlers
+  }
+
+  private static func snapshotLocalDayHandlers() -> [(String) -> Void] {
+    lock.lock()
+    localDayEmitScheduled = false
+    let handlers = localDayChangedListeners.map(\.handler)
+    lock.unlock()
+    return handlers
+  }
+
+  private static func snapshotMonitorStateHandlers() -> [(Bool) -> Void] {
+    lock.lock()
+    monitorStateEmitScheduled = false
+    let handlers = monitorServiceStateListeners.map(\.handler)
+    lock.unlock()
+    return handlers
+  }
+
+  private static func takePendingLocalDayKey() -> String? {
+    lock.lock()
+    let dayKey = pendingLocalDayKey
+    pendingLocalDayKey = nil
+    lock.unlock()
+    return dayKey
+  }
+
+  private static func takePendingMonitorServiceState() -> Bool? {
+    lock.lock()
+    let isRunning = pendingMonitorServiceState
+    pendingMonitorServiceState = nil
+    lock.unlock()
+    return isRunning
   }
 
   private static func replayPendingPermissionsChanged() {
+    lock.lock()
     guard pendingPermissionsChanged, !permissionsChangedListeners.isEmpty else {
+      lock.unlock()
       return
     }
 
     pendingPermissionsChanged = false
-    permissionsChangedListeners.forEach { $0.handler() }
+    let handlers = permissionsChangedListeners.map(\.handler)
+    lock.unlock()
+    scheduleOnMain {
+      handlers.forEach { $0() }
+    }
   }
 
   private static func replayPendingLocalDayChanged() {
+    lock.lock()
     guard let dayKey = pendingLocalDayKey, !localDayChangedListeners.isEmpty else {
+      lock.unlock()
       return
     }
 
     pendingLocalDayKey = nil
-    localDayChangedListeners.forEach { $0.handler(dayKey) }
+    let handlers = localDayChangedListeners.map(\.handler)
+    lock.unlock()
+    scheduleOnMain {
+      handlers.forEach { $0(dayKey) }
+    }
   }
 
   private static func replayPendingMonitorServiceState() {
+    lock.lock()
     guard let isRunning = pendingMonitorServiceState, !monitorServiceStateListeners.isEmpty else {
+      lock.unlock()
       return
     }
 
     pendingMonitorServiceState = nil
-    monitorServiceStateListeners.forEach { $0.handler(isRunning) }
+    let handlers = monitorServiceStateListeners.map(\.handler)
+    lock.unlock()
+    scheduleOnMain {
+      handlers.forEach { $0(isRunning) }
+    }
   }
 }
