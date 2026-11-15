@@ -25,14 +25,15 @@ All limit and selection data stays on device. No account or cloud sync.
 
 ## Tech stack
 
-| Layer          | Choices                                                                   |
-| -------------- | ------------------------------------------------------------------------- |
-| UI             | React 19, TypeScript 5.8, Reanimated 4, React Navigation 7 (static stack) |
-| State          | Zustand 5 + `react-native-mmkv` 4 (Nitro Modules)                         |
-| i18n           | i18next, react-i18next, react-native-localize (en / ru)                   |
-| Android native | Kotlin, FGS, overlay manager, Turbo Module, App Widget                    |
-| iOS native     | Swift, Family Controls, DeviceActivity + Report extensions                |
-| Quality        | ESLint, Prettier, Husky, lint-staged, Jest                                |
+| Layer          | Choices                                                                 |
+| -------------- | ----------------------------------------------------------------------- |
+| UI             | React 19, TypeScript 6, Reanimated 4, React Navigation 7 (static stack) |
+| State          | Zustand 5 + `react-native-mmkv` 4 (Nitro Modules)                       |
+| i18n           | i18next 27, react-i18next, react-native-localize (en / ru)              |
+| Crashlytics    | `@react-native-firebase` 27 (iOS Firebase via SPM + dynamic frameworks) |
+| Android native | Kotlin, FGS, overlay manager, Turbo Module, App Widget                  |
+| iOS native     | Swift, Family Controls, DeviceActivity + Report extensions, UIScene     |
+| Quality        | ESLint, Prettier, Husky, lint-staged, Jest                              |
 
 **Requirements:** Node **≥ 22.11**, JDK **17** (Android), Xcode **16+** with UIScene support (iOS), CocoaPods. Min iOS
 **16.0** (app + pods; Podfile pins every pod `IPHONEOS_DEPLOYMENT_TARGET` to 16.0 for Xcode 27).
@@ -100,11 +101,11 @@ FocusGuard/                          # repo folder (product / store ID: Keept)
 │   ├── com/focusguard/              # legacy Kotlin namespace
 │   │   ├── TrackingEngine.kt      # poll loop, block evaluation
 │   │   ├── DailyUsageRepository.kt  # incremental queryEvents cursor
-│   │   ├── LiveUsageEstimator.kt    # live session overlay on persisted usage
-│   │   ├── ForegroundAppDetector.kt
+│   │   ├── LiveUsageEstimator.kt    # multi-session live overlay (split-screen / PiP)
+│   │   ├── ForegroundAppDetector.kt # sticky cache for foreground + open sessions
 │   │   ├── apps/                    # InstalledAppsRepository, AppIconCache
 │   │   ├── crashlytics/             # NativeErrorReporter
-│   │   ├── monitor/                 # FGS helper, ForegroundPollWake, poll policy
+│   │   ├── monitor/                 # FGS helper, ForegroundPollWake, OpenSessionTracker
 │   │   ├── overlay/                 # BlockOverlayManager, snooze + warning stores
 │   │   ├── permissions/             # system settings intents
 │   │   ├── react/                   # TurboModuleEventDispatchers, KeeptUiThemeModule
@@ -135,9 +136,9 @@ Platform-specific TypeScript resolves via Metro / `moduleSuffixes`: `.ios.ts`, `
 | Layer                         | Value                                                                    |
 | ----------------------------- | ------------------------------------------------------------------------ |
 | Product name                  | Keept                                                                    |
-| npm / JS version              | `1.1.2` (`package.json`)                                                 |
-| Android store version         | `1.1.3` (`versionName` in `android/app/build.gradle`)                    |
-| Android build number          | `18` (`versionCode` in `android/app/build.gradle`)                       |
+| npm / JS version              | `1.1.2` (`package.json`; in-app version on iOS)                          |
+| Android store version         | `1.1.4` (`versionName` in `android/app/build.gradle`)                    |
+| Android build number          | `19` (`versionCode` in `android/app/build.gradle`)                       |
 | iOS marketing version         | `1.0.0` (`MARKETING_VERSION` in Xcode)                                   |
 | iOS build number              | `1` (`CURRENT_PROJECT_VERSION` — first App Store cut may stay at 1)      |
 | Store bundle / application ID | `com.keept`                                                              |
@@ -148,8 +149,9 @@ Platform-specific TypeScript resolves via Metro / `moduleSuffixes`: `.ios.ts`, `
 | Deep links                    | `keept://dashboard`, `keept://tracked-apps`, `keept://configure/:appKey` |
 
 > **Version sources:** Keep `package.json`, Android `versionName`, and iOS `MARKETING_VERSION` on the same marketing
-> version. Play Store uses `versionCode`; App Store uses `CURRENT_PROJECT_VERSION`. In-app version: Android reads native
-> build config; iOS reads `package.json` via `source/constants/appVersion.ios.ts`.
+> version (currently drifted: JS `1.1.2` / Android `1.1.4` / iOS `1.0.0`). Play Store uses `versionCode`; App Store uses
+> `CURRENT_PROJECT_VERSION`. In-app version: Android reads native build config; iOS reads `package.json` via
+> `source/constants/appVersion.ios.ts`.
 
 ## Getting started
 
@@ -336,6 +338,8 @@ Android FGS reads flat snapshots + MMKV persist keys (in-process memory cache on
 iOS extensions read App Group UserDefaults written by the main app.
 ```
 
+JS MMKV uses `mode: 'multi-process'` and `compareBeforeSet: true` (skips identical Zustand/history rewrites).
+
 JS writers share `source/store/syncNativeSnapshot.ts` (`createNativeSnapshotSync`): dedupe identical JSON, then Turbo
 Module write, or MMKV fallback if the module is unavailable. Keep the three Kotlin/Swift snapshot stores separate —
 monitoring/settings still migrate legacy Zustand blobs; tracking does not.
@@ -345,31 +349,34 @@ Contract source of truth: `source/store/persistSchema.ts` ↔ `android/.../Persi
 
 ### Android runtime
 
-| Component                     | Role                                                                  |
-| ----------------------------- | --------------------------------------------------------------------- |
-| `FocusGuardMonitorService`    | Foreground service host                                               |
-| `TrackingEngine`              | Poll loop (1s active / 2.5s idle), limit evaluation, block            |
-| `TrackingEnginePollRecovery`  | Retries transient poll failures; stops FGS after 5 consecutive errors |
-| `DailyUsageRepository`        | Incremental `queryEvents` cursor — appends `[cursor+1, now]` per read |
-| `ForegroundPollWake`          | API 35+ idle wait slices (500ms) — early wake, no second scanner      |
-| `BlockOverlayManager`         | Hard block UI                                                         |
-| `WidgetUpdater`               | Home-screen widget (throttled + deferred coalescing)                  |
-| `LocalDayChangeScheduler`     | `AlarmManager` midnight + clock/timezone receivers                    |
-| `TurboModuleEventDispatchers` | Routes native signals to Turbo Module listeners                       |
+| Component                     | Role                                                                                      |
+| ----------------------------- | ----------------------------------------------------------------------------------------- |
+| `FocusGuardMonitorService`    | Foreground service host                                                                   |
+| `TrackingEngine`              | Poll loop (1s active / 2.5s idle); one usage map per poll for evaluate / widget / JS emit |
+| `TrackingEnginePollRecovery`  | Retries transient poll failures; stops FGS after 5 consecutive errors                     |
+| `DailyUsageRepository`        | Incremental `queryEvents` cursor — appends `[cursor+1, now]` per read                     |
+| `LiveUsageEstimator`          | Multi-session live overlay so split-screen / PiP tracked apps accrue in parallel          |
+| `ForegroundAppDetector`       | Sticky cache for last-resumed + open-session scans (skips redundant `queryEvents`)        |
+| `ForegroundPollWake`          | API 35+ idle wait slices (500ms) — early wake, no second scanner                          |
+| `BlockOverlayManager`         | Hard block UI                                                                             |
+| `WidgetUpdater`               | Home-screen widget (throttled + deferred coalescing)                                      |
+| `LocalDayChangeScheduler`     | `AlarmManager` midnight + clock/timezone receivers                                        |
+| `TurboModuleEventDispatchers` | Routes native signals to Turbo Module listeners                                           |
 
 ### iOS runtime
 
-| Component                          | Role                                                                                         |
-| ---------------------------------- | -------------------------------------------------------------------------------------------- |
-| `AppDelegate`                      | Firebase + one-time `BGTaskScheduler` registration at process launch                         |
-| `SceneDelegate`                    | UIWindowScene host; single `startReactNative` for module `"Keept"`                           |
-| `KeeptAppLifecycleBridge`          | Foreground / timezone observers; always re-schedules midnight refresh after Turbo invalidate |
-| `KeeptNotificationAuthorization`   | Cached auth; first main-thread read sync-seeds before async refresh                          |
-| `KeeptMonitoringScheduler`         | DeviceActivity schedule; emits monitor state only in the app target (not the extension)      |
-| `KeeptMonitor` extension           | Warnings + ManagedSettings shields                                                           |
-| `KeeptReport` extension            | Daily usage into App Group                                                                   |
-| `KeeptTurboModuleEventDispatchers` | Routes lifecycle signals to Turbo Module                                                     |
-| `KeeptLocalDayChangeScheduler`     | `BGAppRefreshTask` (`com.keept.local-day-change`) + significant time change                  |
+| Component                          | Role                                                                                     |
+| ---------------------------------- | ---------------------------------------------------------------------------------------- |
+| `AppDelegate`                      | Firebase + one-time `BGTaskScheduler` registration at process launch                     |
+| `SceneDelegate`                    | UIWindowScene host; single `startReactNative` for module `"Keept"`                       |
+| `KeeptAppLifecycleBridge`          | Foreground / timezone observers; re-schedules midnight `BGAppRefreshTask`                |
+| `KeeptNotificationAuthorization`   | Cached auth on any thread; never semaphore-waits on main (async refresh if cold on main) |
+| `KeeptMonitoringScheduler`         | DeviceActivity schedule (app target only — not compiled into KeeptMonitor)               |
+| `KeeptUsageReportCollector`        | Mounts `DeviceActivityReport`; skips remount for ~45s when day + selection unchanged     |
+| `KeeptMonitor` extension           | Warnings + ManagedSettings shields                                                       |
+| `KeeptReport` extension            | Daily usage into App Group                                                               |
+| `KeeptTurboModuleEventDispatchers` | Locked listener lists; main-queue coalesce (aligned with Android `Handler.post`)         |
+| `KeeptLocalDayChangeScheduler`     | `BGAppRefreshTask` (`com.keept.local-day-change`) + significant time change              |
 
 ## npm scripts
 
@@ -442,16 +449,16 @@ Run on a physical Android 14+ device (and one Android 15+ if available) before s
 
 ## Follow-ups (intentional tech debt)
 
-| Item                                                   | Notes                                                                                                                                       |
-| ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| Firebase iOS via SPM + dynamic frameworks              | Required for `@react-native-firebase` 27+ / Firebase Apple SDK 13+. Do not set `$RNFirebaseDisableSPM`.                                     |
-| `android.builtInKotlin=false` / `android.newDsl=false` | AGP 9 opt-outs; remove when migrating to AGP 10+.                                                                                           |
-| Legacy Zustand → flat migrate                          | Monitoring/settings native reads use flat snapshots; one-time migrate from Zustand blobs remains until installs without flat keys are gone. |
-| Legacy namespaces                                      | `com.keept` app id vs `com.focusguard` Kotlin / `FocusGuard` Xcode target — keep until coordinated rename.                                  |
-| `source/types/react-native-codegen.d.ts`               | Ambient types for Strict API + codegen deep import; drop when RN exports public CodegenTypes.                                               |
-| `targetSdk` 36 vs `compileSdk` 37                      | Matches RN 0.88 template; bump target when Play policy + edge-to-edge QA allow.                                                             |
-| No iOS CI                                              | Pods/Xcode/Firebase regressions stay local-only.                                                                                            |
-| Instrumented `androidTest` suite                       | Unit + Robolectric cover native stores; full device instrumentation still optional.                                                         |
+| Item                                                      | Notes                                                                                                                                                              |
+| --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Firebase iOS SPM + `use_frameworks! :linkage => :dynamic` | Required for RNFB 27+ / Firebase Apple SDK 13+. Duplicate `FirebaseCore` per dynamic consumer is expected; do not set `$RNFirebaseDisableSPM` or switch to static. |
+| `android.builtInKotlin=false` / `android.newDsl=false`    | AGP 9 opt-outs; remove when migrating to AGP 10+.                                                                                                                  |
+| Legacy Zustand → flat migrate                             | Monitoring/settings native reads use flat snapshots; one-time migrate from Zustand blobs remains until installs without flat keys are gone.                        |
+| Legacy namespaces                                         | `com.keept` app id vs `com.focusguard` Kotlin / `FocusGuard` Xcode target — keep until coordinated rename.                                                         |
+| `source/types/react-native-codegen.d.ts`                  | Ambient types for Strict API + codegen deep import; drop when RN exports public CodegenTypes.                                                                      |
+| `targetSdk` 36 vs `compileSdk` 37                         | Matches RN 0.88 template; bump target when Play policy + edge-to-edge QA allow.                                                                                    |
+| No iOS CI                                                 | Pods/Xcode/Firebase regressions stay local-only.                                                                                                                   |
+| Instrumented `androidTest` suite                          | Unit + Robolectric cover native stores; full device instrumentation still optional.                                                                                |
 
 Native flat snapshots keep an in-process memory cache (skip MMKV `decodeString` on the FGS poll path); updates must go
 through Turbo `sync*`; write populates cache. Predictive back is on (`enableOnBackInvokedCallback=true`) — re-verify nav
@@ -470,7 +477,10 @@ Expected FGS `background_start_blocked` (API 34+) is breadcrumb-only in Crashlyt
 - Import the module in app code via `@/specs` (`keeptTurboModuleApi`), not `NativeKeeptTurboModule*.ts` directly.
 - Do not add JS polling timers — use native events or `scheduleMicrotask`.
 - Do not rename legacy `com.focusguard` Kotlin package or `FocusGuard` Xcode target without a coordinated migration.
+- Babel: keep `react-native-worklets/plugin` last in the effective plugin list (production console strip must come
+  before it).
 - iOS: keep `registerBackgroundTasks()` in `AppDelegate` (before launch returns); keep a single `startReactNative` in
-  `SceneDelegate`; re-arm midnight refresh via `KeeptAppLifecycleBridge` after Turbo Module invalidate.
+  `SceneDelegate`; do not cancel midnight BG refresh from Turbo `invalidate` (lifecycle bridge re-schedules on
+  start/foreground). Keep `KeeptMonitoringScheduler` out of the KeeptMonitor extension target.
 - Android edge-to-edge: keep system bar colors transparent; use `SystemBarAppearance` + JS `SafeArea` / `SystemChrome`
   (barStyle only).
