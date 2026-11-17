@@ -35,8 +35,9 @@ All limit and selection data stays on device. No account or cloud sync.
 | iOS native     | Swift, Family Controls, DeviceActivity + Report extensions, UIScene     |
 | Quality        | ESLint, Prettier, Husky, lint-staged, Jest                              |
 
-**Requirements:** Node **≥ 22.11**, JDK **17** (Android), Xcode **16+** with UIScene support (iOS), CocoaPods. Min iOS
-**16.0** (app + pods; Podfile pins every pod `IPHONEOS_DEPLOYMENT_TARGET` to 16.0 for Xcode 27).
+**Requirements:** Node **^22.13 / ^24.3 / ≥26** (RN 0.88), JDK **17** (Android), Xcode **16+** with UIScene support
+(iOS), CocoaPods. Min iOS **16.0** (app + pods; Podfile pins every pod `IPHONEOS_DEPLOYMENT_TARGET` to 16.0 for Xcode
+27).
 
 ## Project layout
 
