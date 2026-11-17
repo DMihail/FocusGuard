@@ -1961,7 +1961,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
-  - RNReanimated (4.7.1):
+  - RNReanimated (4.7.2):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -1984,37 +1984,12 @@ PODS:
     - ReactCodegen
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
-    - RNReanimated/apple (= 4.7.1)
-    - RNReanimated/common (= 4.7.1)
-    - RNReanimated/view (= 4.7.1)
+    - RNReanimated/apple (= 4.7.2)
+    - RNReanimated/common (= 4.7.2)
+    - RNReanimated/view (= 4.7.2)
     - RNWorklets
     - Yoga
-  - RNReanimated/apple (4.7.1):
-    - hermes-engine
-    - RCTRequired
-    - RCTTypeSafety
-    - React-bridging
-    - React-Core
-    - React-Core-prebuilt
-    - React-cxxstableapi
-    - React-debug
-    - React-Fabric
-    - React-featureflags
-    - React-graphics
-    - React-hermes
-    - React-ImageManager
-    - React-jsi
-    - React-NativeModulesApple
-    - React-RCTFabric
-    - React-renderercss
-    - React-rendererdebug
-    - React-utils
-    - ReactCodegen
-    - ReactCommon/turbomodule/core
-    - ReactNativeDependencies
-    - RNWorklets
-    - Yoga
-  - RNReanimated/common (4.7.1):
+  - RNReanimated/apple (4.7.2):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -2039,7 +2014,32 @@ PODS:
     - ReactNativeDependencies
     - RNWorklets
     - Yoga
-  - RNReanimated/view (4.7.1):
+  - RNReanimated/common (4.7.2):
+    - hermes-engine
+    - RCTRequired
+    - RCTTypeSafety
+    - React-bridging
+    - React-Core
+    - React-Core-prebuilt
+    - React-cxxstableapi
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-hermes
+    - React-ImageManager
+    - React-jsi
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-renderercss
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/core
+    - ReactNativeDependencies
+    - RNWorklets
+    - Yoga
+  - RNReanimated/view (4.7.2):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -2637,7 +2637,7 @@ SPEC CHECKSUMS:
   RNFBCrashlytics: 9cbd5b3ba802a92c9eca397b79aafd36f1c05888
   RNGestureHandler: e11840399a9e42f90b6a69699a5b232bddb417d5
   RNLocalize: ba928ec28d6eeb161485a34a2a90ba98fe1ab4f6
-  RNReanimated: 5c641cc430b7255eae87c8039204eb0f816ea1b8
+  RNReanimated: cfd49e3e4c0009ca02ba870c608db478c5f7556b
   RNScreens: fdca179295dcb421672af2a9e2979a9cebeda720
   RNSVG: 62acb707b4fd178063d785d1cdebb4f2c20233eb
   RNWorklets: c05b04d721cccc1d44182425cd09efeddb6b1bbe
